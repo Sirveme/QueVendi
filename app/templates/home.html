@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0F172A">
+    <title>QueVendí PRO</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/voice_simple.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/modal_commands.css">
+    
+    <!-- AUTH CHECK (ejecutar antes de cargar el body) -->
+    <!-- ✅ CONFIGURACIÓN HTMX - SOLO UNA VEZ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Configurando HTMX con token...');
+            
+            // Agregar token a todas las peticiones HTMX
+            document.body.addEventListener('htmx:configRequest', function(event) {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    event.detail.headers['Authorization'] = `Bearer ${token}`;
+                    console.log('[HTMX] ✅ Token agregado a:', event.detail.path);
+                } else {
+                    console.warn('[HTMX] ⚠️ No hay token para:', event.detail.path);
+                }
+            });
+            
+            // ❌ TEMPORALMENTE DESHABILITADO - PARA DEBUG
+            /*
+            document.body.addEventListener('htmx:responseError', function(event) {
+                if (event.detail.xhr.status === 401) {
+                    console.log('[Auth] ❌ 401 - Redirigiendo a login');
+                    localStorage.clear();
+                    window.location.href = '/auth/login';
+                }
+            });
+            */
+            
+            console.log('[HTMX] ✅ Configuración aplicada');
+        });
+    </script>
+
+        <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <style>
+        /* Fix para selector de métodos de pago */
+
+        /* Fix para selector de métodos de pago */
+        .voice-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 20px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            flex-wrap: wrap !important; /* Para pantallas pequeñas */
+            gap: 12px !important;
+        }
+
+        .payment-selector {
+            display: flex !important;
+            gap: 8px !important;
+            align-items: center !important;
+            flex-shrink: 0 !important;
+        }
+
+        .mic-status {
+            flex: 1 !important;
+            min-width: 120px !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .mic-status:active {
+            transform: scale(0.95);
+            background: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .payment-btn {
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            border: none !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            white-space: nowrap !important;
+        }
+
+        .payment-btn.active {
+            transform: scale(1.05) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .payment-icon {
+        width: 16px;
+        height: 16px;
+        color: #10b981;
+    }
+
+    /* Fix para modal de comandos */
+        .modal.show {
+            display: flex !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
+<body class="theme-darkpro">
+    <div class="container">
+        <!-- HEADER FIJO -->
+        <div class="header">
+            <img class="user-avatar" id="user-avatar" src="/static/img/default-avatar.png" alt="Usuario" onerror="handleAvatarError(this)">
+            <div class="header-info">
+                <div class="store-name" id="store-name">Cargando...</div>
+                <div class="store-meta" id="user-name">...</div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="openCommandsModal()" title="Ver comandos de voz">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="handleLogout()" title="Cerrar sesión">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ESTADO DEL MICRÓFONO -->
+        <div class="voice-header">
+            <div id="mic-status" class="mic-status">🎤 INICIANDO...</div>
+            <div class="payment-selector">
+                <button class="payment-btn active" data-method="efectivo" title="Efectivo">
+                    <span class="payment-label">S/.</span>
+                </button>
+                <button class="payment-btn" data-method="yape" title="Yape">
+                    <span class="payment-label">Yape</span>
+                </button>
+                <button class="payment-btn" data-method="plin" title="Plin">
+                    <span class="payment-label">Plin</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STICKY SECTION: Resumen + Botones -->
+        <div class="sticky-section">
+            <!-- 1. RESUMEN DEL DÍA (sticky-section) -->
+            <div class="summary-compact" id="daily-summary" 
+                hx-get="/api/sales/today/total/html" 
+                hx-trigger="load, every 10s"
+                hx-swap="innerHTML">
+                <div class="card-loading">Cargando...</div>
+            </div>
+
+            <!-- Botones de acceso rápido -->
+            <div class="quick-grid">
+                <div class="quick-card" onclick="window.location.href='/products/manage'">
+                    <div class="quick-icon">
+                        <svg class="icon icon-lg" viewBox="0 0 24 24">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-label">Productos</div>
+                </div>
+                <div class="quick-card" onclick="alert('Próximamente...')">
+                    <div class="quick-icon">
+                        <svg class="icon icon-lg" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <div class="quick-label">Compras</div>
+                </div>
+                <div class="quick-card" onclick="alert('Próximamente...')">
+                    <div class="quick-icon">
+                        <svg class="icon icon-lg" viewBox="0 0 24 24">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-label">Clientes</div>
+                </div>
+                <div class="quick-card" onclick="window.location.href='/reports'">
+                    <div class="quick-icon">
+                        <svg class="icon icon-lg" viewBox="0 0 24 24">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-label">Reportes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT SCROLLABLE -->
+        <div class="content-scrollable">
+            <!-- Transcripción flotante -->
+            <div id="transcript" style="display:none;"></div>
+
+            <!-- CARRITO DE COMPRAS -->
+            <div id="cart-display" class="cart-display">
+                <div class="cart-empty">
+                    <div class="empty-icon">🛒</div>
+                    <div class="empty-text">Carrito vacío</div>
+                    <div class="empty-hint">Di: "un café y 10 panes"</div>
+                </div>
+            </div>
+
+            <!-- Ventas recientes -->
+            <div class="section-header">
+                <h3>Ventas recientes</h3>
+            </div>
+            <!-- 2. LISTA DE VENTAS (content-scrollable) -->
+            <div id="sales-list" 
+                hx-get="/api/sales/today/html" 
+                hx-trigger="load, salesUpdated from:body"
+                hx-swap="innerHTML">
+                <div class="card-loading">Cargando ventas...</div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN COMPACTOS (REEMPLAZAR EN home.html) -->
+        <div class="action-buttons-compact">
+            <button class="action-btn-small cancel" onclick="handleVoiceCommand('cancelar')" title="Cancelar venta">
+                ✕
+            </button>
+            <button class="action-btn-small commands" onclick="openCommandsModal()" title="Ver comandos">
+                ?
+            </button>
+            <button class="action-btn-small confirm" onclick="handleVoiceCommand('confirmar')" title="Confirmar venta">
+                ✓
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE COMANDOS DE VOZ - VERSIÓN REDISEÑADA -->
+    <div id="voice-commands-modal" class="modal">
+        <div class="modal-content modal-commands">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <div class="modal-icon">🎤</div>
+                    <div>
+                        <h2>Comandos de Voz</h2>
+                        <p class="modal-subtitle">Habla natural, yo entiendo</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeCommandsModal()">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Grid de comandos -->
+                <div class="commands-grid">
+                    <!-- VENTAS -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">🛒</span>
+                            <h3>Ventas</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"un café" | "café y 6 panes"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"10 panes"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"medio kilo de azúcar"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"café y 5 panes"</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AGREGAR -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">➕</span>
+                            <h3>Agregar</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"agregar leche"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"añade 3 gaseosas"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"aumenta 6 panes"</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CONFIRMAR -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">✅</span>
+                            <h3>Confirmar</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"listo" | "ok"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"total" | "cerrar"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"confirmar" | "sumar"</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CANCELAR -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">❌</span>
+                            <h3>Cancelar</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"cancelar" | "sacar"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"anular" | "borra"</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- QUITAR -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">🗑️</span>
+                            <h3>Quitar</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"quitar café" | "sacar aceite"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"eliminar pan" | "borra agua"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"quita pan" | "resta gaseosa"</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CAMBIAR PRODUCTO -->
+                    <div class="command-card">
+                        <div class="command-card-header">
+                            <span class="command-emoji">🔄</span>
+                            <h3>Cambiar</h3>
+                        </div>
+                        <div class="command-examples">
+                            <div class="command-example">
+                                <span class="example-text">"cambiar café por leche"</span>
+                            </div>
+                            <div class="command-example">
+                                <span class="example-text">"leche a 5 soles"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tips al final -->
+                <div class="command-tips-box">
+                    <div class="tips-title">💡 Tips</div>
+                    <ul class="tips-list">
+                        <li>Habla claro y natural</li>
+                        <li>Usa "y" para múltiples productos</li>
+                        <li>Puedes usar fracciones: "medio", "un cuarto"</li>
+                        <li>El sistema está siempre escuchando</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY DE ORIENTACIÓN -->
+    <div id="orientation-overlay" class="orientation-overlay" style="display:none;"></div>
+
+    <!-- CONTAINER DE ALERTAS -->
+    <div id="alert-container" class="alert-container"></div>
+
+    <!-- ====================================
+         SCRIPTS DE INICIALIZACIÓN
+         ==================================== -->
+    
+    <!-- 1. Cargar datos del usuario primero -->
+    <script>
+        // DEBUG: Verificar token al cargar
+        console.log('🔐 Token en localStorage:', localStorage.getItem('access_token') ? '✅ Existe' : '❌ No existe');
+        console.log('👤 User:', localStorage.getItem('user'));
+
+        // Función para cargar datos del usuario desde localStorage
+        function loadUserData() {
+            try {
+                const userStr = localStorage.getItem('user');
+                const storeStr = localStorage.getItem('store');
+                
+                if (!userStr || !storeStr) {
+                    console.error('[UserData] No hay datos de usuario en localStorage');
+                    return;
+                }
+                
+                const user = JSON.parse(userStr);
+                const store = JSON.parse(storeStr);
+                
+                // Actualizar avatar (primera letra del nombre)
+                const avatarEl = document.getElementById('user-avatar');
+                if (avatarEl && user.full_name) {
+                    avatarEl.textContent = user.full_name.charAt(0).toUpperCase();
+                }
+                
+                // Actualizar nombre de tienda
+                const storeNameEl = document.getElementById('store-name');
+                if (storeNameEl && store.commercial_name) {
+                    storeNameEl.textContent = store.commercial_name;
+                }
+                
+                // Actualizar nombre de usuario
+                const userNameEl = document.getElementById('user-name');
+                if (userNameEl && user.full_name) {
+                    userNameEl.textContent = user.full_name;
+                }
+                
+                console.log('[UserData] ✅ Datos del usuario cargados:', {
+                    user: user.full_name,
+                    store: store.commercial_name
+                });
+                
+                // Exponer globalmente para otros scripts
+                window.currentUser = user;
+                window.currentStore = store;
+                
+            } catch (error) {
+                console.error('[UserData] Error al cargar datos:', error);
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+    
+    <!-- 2. Helper para peticiones autenticadas -->
+    <script>
+        // Función helper para hacer peticiones con token JWT
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            
+            if (!token) {
+                console.error('[fetchWithAuth] No hay token, redirigiendo a login');
+                window.location.href = '/auth/login';
+                throw new Error('No authentication token');
+            }
+            
+            // Merge headers
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers
+                });
+                
+                // Si es 401, token expirado
+                if (response.status === 401) {
+                    console.warn('[fetchWithAuth] Token expirado (401), redirigiendo a login');
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('store');
+                    window.location.href = '/auth/login';
+                    throw new Error('Authentication expired');
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('[fetchWithAuth] Error en petición:', error);
+                throw error;
+            }
+        }
+        
+        // Exponer globalmente
+        window.fetchWithAuth = fetchWithAuth;
+    </script>
+    
+    <!-- 3. Función de logout -->
+    <script>
+        function handleLogout() {
+            console.log('[Logout] Cerrando sesión...');
+            
+            // Limpiar localStorage
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('store');
+            
+            // Redirigir a login
+            window.location.href = '/auth/login';
+        }
+        
+        // Exponer globalmente
+        window.handleLogout = handleLogout;
+    </script>
+
+    <!-- 4. Scripts originales de la aplicación -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/voice_system.js"></script>
+    <script src="/static/js/tts_client.js"></script>
+    <script src="/static/js/orientation.js"></script>
+    <script src="/static/js/alerts.js"></script>
+    
+    <!-- 5. Helper para comandos de voz -->
+    <script>
+        function handleVoiceCommand(command) {
+            if (typeof processCommand !== 'undefined') {
+                processCommand(command);
+            } else {
+                console.error('[Voice] processCommand no está definido');
+            }
+        }
+        
+        // Exponer cart globalmente para alerts.js
+        if (typeof cart !== 'undefined') {
+            window.cart = cart;
+        }
+    </script>
+
+    <!-- 6. Modal de comandos -->
+    <script>
+        function openCommandsModal() {
+            console.log('[Modal] Abriendo modal de comandos');
+            const modal = document.getElementById('voice-commands-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+            } else {
+                console.error('[Modal] No se encontró el elemento voice-commands-modal');
+            }
+        }
+
+        function closeCommandsModal() {
+            console.log('[Modal] Cerrando modal');
+            const modal = document.getElementById('voice-commands-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+        }
+
+        // Click fuera del modal para cerrar
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('voice-commands-modal');
+            if (modal && e.target === modal) {
+                closeCommandsModal();
+            }
+        });
+
+        // Exponer globalmente
+        window.openCommandsModal = openCommandsModal;
+        window.closeCommandsModal = closeCommandsModal;
+    </script>
+    
+    <!-- 7. Configurar HTMX con headers de autorización -->
+
+
+    <script>
+// ========================================
+// FIX CORRECTO PARA MODAL DE COMANDOS
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserAvatar();
+    console.log('[Fix] Aplicando correcciones de modal...');
+    
+    // 1. Ocultar modal SOLO al cargar (no forzar permanentemente)
+    const modal = document.getElementById('voice-commands-modal');
+    if (modal && !modal.classList.contains('show')) {
+        modal.style.display = 'none';
+        modal.style.pointerEvents = 'none';
+        modal.style.opacity = '0';
+        console.log('[Fix] ✅ Modal ocultado inicialmente');
+    }
+    
+    // 2. Función para CERRAR modal
+    window.closeVoiceCommandsModal = function() {
+        console.log('[Modal] Cerrando...');
+        const modal = document.getElementById('voice-commands-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.style.pointerEvents = 'none';
+            }, 300); // Esperar animación
+            
+            console.log('[Modal] ✅ Cerrado');
+        }
+    };
+    
+    // 3. Función para ABRIR modal (CORREGIDA)
+    window.openVoiceCommandsModal = function() {
+        console.log('[Modal] Abriendo...');
+        const modal = document.getElementById('voice-commands-modal');
+        if (modal) {
+            modal.classList.add('show');
+            
+            // ✅ FORZAR con cssText (mayor prioridad)
+            modal.style.cssText = `
+                display: flex !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                z-index: 10000 !important;
+                background: rgba(0, 0, 0, 0.85) !important;
+                align-items: center !important;
+                justify-content: center !important;
+            `;
+            
+            console.log('[Modal] ✅ Abierto con estilos forzados');
+        }
+    };
+    
+    console.log('[Fix] ✅ Funciones de modal configuradas');
+});
+</script>
+
+    <script>
+    // ========================================
+    // PARA CARGAR LA IMAAGEN DEL AVATAR
+    // ========================================
+    async function loadUserAvatar() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const avatar = document.getElementById('user-avatar');
+        
+        if (!user || !user.dni) {
+            console.warn('[Avatar] No se encontró DNI del usuario');
+            return;
+        }
+        
+        // Intentar cargar imagen con DNI
+        const imgPath = `/static/img/${user.dni}.jpg`;
+        avatar.src = imgPath;
+        
+        console.log(`[Avatar] Cargando imagen: ${imgPath}`);
+    }
+
+    // Función fallback si la imagen falla
+    function handleAvatarError(img) {
+        console.warn('[Avatar] Imagen no encontrada, usando iniciales');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        if (user && user.name) {
+            // Crear avatar con iniciales
+            const initials = user.name.split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+            
+            // Reemplazar img por div con iniciales
+            const div = document.createElement('div');
+            div.className = 'user-avatar user-avatar-initials';
+            div.textContent = initials;
+            div.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 18px;
+            `;
+            img.parentNode.replaceChild(div, img);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0F172A">
+    <title>Agregar Usuario - QueVendí PRO</title>
+    
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <!-- Auth check -->
+    <script>
+        (function() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/auth/login';
+            }
+        })();
+    </script>
+    
+    <style>
+        .add-user-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .add-user-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .card-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .form-select option {
+            background: #1e293b;
+            color: white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .success-message, .error-message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .store-select-container {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .store-select-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .role-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="theme-darkpro">
+    <div class="add-user-container">
+        <div class="add-user-card">
+            <div class="card-header">
+                <div class="card-title">👤 Agregar Usuario</div>
+                <div class="card-subtitle">Nuevo trabajador para la tienda</div>
+            </div>
+            
+            <div id="success-msg" class="success-message"></div>
+            <div id="error-msg" class="error-message"></div>
+            
+            <!-- Selector de tienda -->
+            <div class="store-select-container">
+                <label class="store-select-label">Tienda</label>
+                <select id="store_id" class="form-select">
+                    <option value="">Cargando tiendas...</option>
+                </select>
+            </div>
+            
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo *</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="full_name"
+                        placeholder="Juan Pérez García"
+                        required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">DNI *</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="dni"
+                        placeholder="12345678"
+                        maxlength="8"
+                        pattern="[0-9]{8}"
+                        required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">PIN (4 dígitos) *</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="pin"
+                        placeholder="1234"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Rol *</label>
+                    <select id="role" class="form-select" required>
+                        <option value="seller">Vendedor</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                    <div class="role-info">
+                        Vendedor: Solo vender | Admin: Puede gestionar productos y ver reportes
+                    </div>
+                </div>
+                
+            <!--    
+                <div class="form-group">
+                    <label class="form-label">Email (opcional)</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="email"
+                        placeholder="correo@ejemplo.com">
+                </div>
+            -->
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    Agregar Usuario
+                </button>
+            </form>
+            
+            <a href="/home" class="back-link">← Volver al inicio</a>
+        </div>
+    </div>
+    
+    <script>
+        // Helper de autenticación
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/auth/login';
+                throw new Error('No authentication token');
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/auth/login';
+                throw new Error('Authentication expired');
+            }
+            
+            return response;
+        }
+        
+        // Cargar lista de tiendas
+        async function loadStores() {
+            try {
+                const response = await fetchWithAuth('/api/stores/list');
+                const stores = await response.json();
+                
+                const select = document.getElementById('store_id');
+                select.innerHTML = stores.map(store => 
+                    `<option value="${store.id}">${store.commercial_name} (RUC: ${store.ruc})</option>`
+                ).join('');
+                
+                // Si solo hay una tienda, preseleccionarla
+                if (stores.length === 1) {
+                    select.value = stores[0].id;
+                }
+                
+            } catch (error) {
+                console.error('Error cargando tiendas:', error);
+                document.getElementById('error-msg').textContent = '❌ Error cargando tiendas';
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+        
+        // Cargar tiendas al inicio
+        document.addEventListener('DOMContentLoaded', loadStores);
+        
+        // Manejar submit del formulario
+        const form = document.getElementById('add-user-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMsg = document.getElementById('success-msg');
+        const errorMsg = document.getElementById('error-msg');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Limpiar mensajes
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Validar que se haya seleccionado tienda
+            const storeId = document.getElementById('store_id').value;
+            if (!storeId) {
+                errorMsg.textContent = '❌ Por favor selecciona una tienda';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Deshabilitar botón
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Agregando...';
+            
+            // Obtener datos
+            const userData = {
+                store_id: parseInt(storeId),
+                full_name: document.getElementById('full_name').value,
+                dni: document.getElementById('dni').value,
+                pin: document.getElementById('pin').value,
+                role: document.getElementById('role').value,
+                //email: document.getElementById('email').value || null
+            };
+            
+            try {
+                const response = await fetchWithAuth('/api/users/add', {
+                    method: 'POST',
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Éxito
+                    successMsg.textContent = `✅ Usuario "${data.full_name}" agregado exitosamente. DNI: ${data.dni}`;
+                    successMsg.style.display = 'block';
+                    
+                    // Limpiar formulario
+                    form.reset();
+                    
+                    // Recargar lista de tiendas
+                    await loadStores();
+                } else {
+                    // Error
+                    errorMsg.textContent = `❌ ${data.detail || 'Error al agregar usuario'}`;
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = '❌ Error de conexión. Intenta nuevamente.';
+                errorMsg.style.display = 'block';
+            } finally {
+                // Rehabilitar botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Agregar Usuario';
+            }
+        });
+        
+        // Validación en tiempo real
+        document.getElementById('dni').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        
+        document.getElementById('pin').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    </script>
+</body>
+</html>

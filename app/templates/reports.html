@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0F172A">
+    <title>Reportes - QueVendí PRO</title>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    
+    <style>
+        .report-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .report-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .report-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .stat-trend.up {
+            color: #10b981;
+        }
+        
+        .stat-trend.down {
+            color: #ef4444;
+        }
+        
+        .chart-container {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 16px;
+        }
+        
+        .top-products-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .top-product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+        }
+        
+        .product-rank {
+            font-size: 20px;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-right: 12px;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .product-quantity {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .product-revenue {
+            font-size: 16px;
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        .back-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="theme-darkpro">
+    <div class="report-container">
+        <a href="/home" class="back-btn">← Volver al inicio</a>
+        
+        <div class="report-header">
+            <div class="report-title">📊 Reportes de Ventas</div>
+            <div class="report-subtitle" id="current-date">Cargando...</div>
+        </div>
+        
+        <!-- ESTADÍSTICAS PRINCIPALES -->
+        <div class="stats-grid" 
+             id="main-stats"
+             hx-get="/api/reports/stats/today"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <div class="card-loading">Cargando estadísticas...</div>
+        </div>
+        
+        <!-- GRÁFICO DE VENTAS POR HORA -->
+        <div class="chart-container">
+            <div class="chart-title">Ventas por Hora (Hoy)</div>
+            <canvas id="hourlyChart" height="100"></canvas>
+        </div>
+        
+        <!-- TOP 10 PRODUCTOS MÁS VENDIDOS -->
+        <div class="chart-container">
+            <div class="chart-title">🏆 Top 10 Productos Más Vendidos (Hoy)</div>
+            <ul class="top-products-list" 
+                id="top-products"
+                hx-get="/api/reports/top-products"
+                hx-trigger="load"
+                hx-swap="innerHTML">
+                <div class="card-loading">Cargando productos...</div>
+            </ul>
+        </div>
+        
+        <!-- GRÁFICO DE MÉTODOS DE PAGO -->
+        <div class="chart-container">
+            <div class="chart-title">Métodos de Pago (Hoy)</div>
+            <canvas id="paymentChart" height="100"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // Mostrar fecha actual
+        document.getElementById('current-date').textContent = 
+            new Date().toLocaleDateString('es-PE', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        
+        // Cargar gráficos
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadHourlyChart();
+            await loadPaymentChart();
+        });
+        
+        async function loadHourlyChart() {
+            try {
+                const response = await fetchWithAuth('/api/reports/hourly-sales');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('hourlyChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.hours,
+                        datasets: [{
+                            label: 'Ventas (S/.)',
+                            data: data.totals,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: 'white' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: 'rgba(255,255,255,0.7)' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            x: {
+                                ticks: { color: 'rgba(255,255,255,0.7)' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando gráfico de ventas por hora:', error);
+            }
+        }
+        
+        async function loadPaymentChart() {
+            try {
+                const response = await fetchWithAuth('/api/reports/payment-methods');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('paymentChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.methods,
+                        datasets: [{
+                            data: data.totals,
+                            backgroundColor: [
+                                '#ef4444',  // Efectivo
+                                '#8b5cf6',  // Yape
+                                '#3b82f6'   // Plin
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: 'white' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando gráfico de métodos de pago:', error);
+            }
+        }
+    </script>
+    
+    <!-- Helper de autenticación -->
+    <script>
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/auth/login';
+                throw new Error('No authentication token');
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/auth/login';
+                throw new Error('Authentication expired');
+            }
+            
+            return response;
+        }
+        
+        // Configurar HTMX
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                event.detail.headers['Authorization'] = `Bearer ${token}`;
+            }
+        });
+    </script>
+</body>
+</html>

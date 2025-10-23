@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0F172A">
+    <title>Registrar Tienda - QueVendí PRO</title>
+    
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <style>
+        .register-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .register-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .register-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .register-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="theme-darkpro">
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="register-title">🏪 Registrar Nueva Tienda</div>
+                <div class="register-subtitle">Completa los datos para crear una nueva tienda</div>
+            </div>
+            
+            <div id="success-msg" class="success-message"></div>
+            <div id="error-msg" class="error-message"></div>
+            
+            <form id="register-form">
+                <div class="form-grid">
+                    <!-- Datos de la tienda -->
+                    <div class="form-group full-width">
+                        <label class="form-label">Nombre Comercial *</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="commercial_name"
+                            placeholder="Ej: Bodega El Ahorrito"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">RUC *</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="ruc"
+                            placeholder="20123456789"
+                            maxlength="11"
+                            pattern="[0-9]{11}"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input 
+                            type="tel" 
+                            class="form-input" 
+                            id="phone"
+                            placeholder="987654321"
+                            maxlength="9">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label">Dirección</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="address"
+                            placeholder="Av. Principal 123, San Juan de Lurigancho">
+                    </div>
+                    
+                    <!-- Datos del usuario administrador -->
+                    <div class="form-group full-width" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(148, 163, 184, 0.2);">
+                        <h3 style="color: white; font-size: 16px; margin-bottom: 16px;">👤 Usuario Administrador</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo *</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="full_name"
+                            placeholder="Juan Pérez"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">DNI *</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="dni"
+                            placeholder="12345678"
+                            maxlength="8"
+                            pattern="[0-9]{8}"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">PIN (4 dígitos) *</label>
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            id="pin"
+                            placeholder="1234"
+                            maxlength="4"
+                            pattern="[0-9]{4}"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            id="email"
+                            placeholder="correo@ejemplo.com">
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    Registrar Tienda
+                </button>
+            </form>
+            
+            <a href="/home" class="back-link">← Volver al inicio</a>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('register-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMsg = document.getElementById('success-msg');
+        const errorMsg = document.getElementById('error-msg');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Limpiar mensajes
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Deshabilitar botón
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registrando...';
+            
+            // Obtener datos
+            const storeData = {
+                commercial_name: document.getElementById('commercial_name').value,
+                ruc: document.getElementById('ruc').value,
+                phone: document.getElementById('phone').value || null,
+                address: document.getElementById('address').value || null,
+                admin_user: {
+                    full_name: document.getElementById('full_name').value,
+                    dni: document.getElementById('dni').value,
+                    pin: document.getElementById('pin').value,
+                    email: document.getElementById('email').value || null
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/stores/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(storeData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Éxito
+                    successMsg.textContent = `✅ Tienda "${data.store.commercial_name}" registrada exitosamente. DNI: ${data.admin.dni}, PIN: ****`;
+                    successMsg.style.display = 'block';
+                    
+                    // Limpiar formulario
+                    form.reset();
+                    
+                    // Opcional: Redirigir después de 3 segundos
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 3000);
+                } else {
+                    // Error
+                    errorMsg.textContent = `❌ ${data.detail || 'Error al registrar tienda'}`;
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = '❌ Error de conexión. Intenta nuevamente.';
+                errorMsg.style.display = 'block';
+            } finally {
+                // Rehabilitar botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Registrar Tienda';
+            }
+        });
+        
+        // Validación en tiempo real
+        document.getElementById('ruc').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        
+        document.getElementById('dni').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        
+        document.getElementById('pin').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        
+        document.getElementById('phone').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    </script>
+</body>
+</html>

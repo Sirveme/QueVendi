@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - QueVendí PRO</title>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    
+    <!-- Auth check -->
+    <script>
+        (function() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/auth/login';
+            }
+        })();
+    </script>
+    
+    <style>
+        .products-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .product-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .product-stock {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+        
+        .product-stock.low {
+            color: #ef4444;
+        }
+
+        /* ESTILOS DEL MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: white;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .add-product-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-product-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .success-msg,
+        .error-msg {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .success-msg {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .error-msg {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+    </style>
+</head>
+<body class="theme-darkpro">
+    <div class="products-container">
+        <a href="/home" class="back-btn" style="display: inline-block; margin-bottom: 20px; color: white; text-decoration: none;">← Volver</a>
+        
+        <!-- Header con título y botón en la misma línea -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="color: white; margin: 0;">📦 Productos</h1>
+            <button onclick="openAddProductModal()" class="add-product-btn">
+                + Agregar Producto
+            </button>
+        </div>
+        
+        <!-- Lista de productos -->
+        <div id="products-list"
+             hx-get="/api/products"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <div class="card-loading">Cargando productos...</div>
+        </div>
+
+        <!-- MODAL PARA AGREGAR PRODUCTO -->
+        <div id="add-product-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📦 Nuevo Producto</h2>
+                    <button class="modal-close" onclick="closeAddProductModal()">✕</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div id="product-success" class="success-msg" style="display: none;"></div>
+                    <div id="product-error" class="error-msg" style="display: none;"></div>
+                    
+                    <form id="add-product-form">
+                        <div class="form-group">
+                            <label>Nombre del Producto *</label>
+                            <input type="text" id="product_name" placeholder="Ej: Café Altomayo Grande" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Categoría</label>
+                                <select id="product_category">
+                                    <option value="">Sin categoría</option>
+                                    <option value="Bebidas">Bebidas</option>
+                                    <option value="Abarrotes">Abarrotes</option>
+                                    <option value="Panadería">Panadería</option>
+                                    <option value="Lácteos">Lácteos</option>
+                                    <option value="Snacks">Snacks</option>
+                                    <option value="Limpieza">Limpieza</option>
+                                    <option value="Higiene">Higiene</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Unidad</label>
+                                <select id="product_unit">
+                                    <option value="unidad">Unidad</option>
+                                    <option value="kg">Kilogramo</option>
+                                    <option value="litro">Litro</option>
+                                    <option value="caja">Caja</option>
+                                    <option value="paquete">Paquete</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Precio de Venta (S/.) *</label>
+                                <input type="number" id="sale_price" step="0.10" placeholder="5.50" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Precio de Compra (S/.)</label>
+                                <input type="number" id="purchase_price" step="0.10" placeholder="4.00">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Stock Inicial *</label>
+                                <input type="number" id="stock" placeholder="100" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Alerta de Stock Mínimo</label>
+                                <input type="number" id="min_stock" placeholder="10">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Alias (separados por comas)</label>
+                            <input type="text" id="aliases" placeholder="café, cafecito, altomayo">
+                            <small style="color: rgba(255,255,255,0.5);">Para facilitar búsqueda por voz</small>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Guardar Producto</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openAddProductModal() {
+            document.getElementById('add-product-modal').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('add-product-modal').classList.add('show');
+            }, 10);
+        }
+
+        function closeAddProductModal() {
+            const modal = document.getElementById('add-product-modal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.getElementById('add-product-form').reset();
+                document.getElementById('product-success').style.display = 'none';
+                document.getElementById('product-error').style.display = 'none';
+            }, 300);
+        }
+
+        document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const successMsg = document.getElementById('product-success');
+            const errorMsg = document.getElementById('product-error');
+            
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Procesar aliases correctamente como array
+            const aliasesInput = document.getElementById('aliases').value;
+            const aliasesArray = aliasesInput ? 
+                aliasesInput.split(',').map(a => a.trim()).filter(a => a) : 
+                [];
+            
+            const productData = {
+                name: document.getElementById('product_name').value,
+                category: document.getElementById('product_category').value || null,
+                unit: document.getElementById('product_unit').value,
+                sale_price: parseFloat(document.getElementById('sale_price').value),
+                cost_price: parseFloat(document.getElementById('purchase_price').value) || 0,  // ✅ CORREGIDO
+                stock: parseInt(document.getElementById('stock').value),
+                min_stock_alert: parseInt(document.getElementById('min_stock').value) || 5,
+                aliases: aliasesArray,  // ✅ Enviar como array
+                is_active: true
+            };
+            
+            try {
+                const response = await fetchWithAuth('/api/products', {
+                    method: 'POST',
+                    body: JSON.stringify(productData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    successMsg.textContent = `✅ Producto "${data.name}" registrado exitosamente`;
+                    successMsg.style.display = 'block';
+                    
+                    // Recargar lista de productos
+                    htmx.ajax('GET', '/api/products', {
+                        target: '#products-list',
+                        swap: 'innerHTML'
+                    });
+                    
+                    // Cerrar modal después de 2 segundos
+                    setTimeout(closeAddProductModal, 2000);
+                } else {
+                    const error = await response.json();
+                    errorMsg.textContent = `❌ ${error.detail || 'Error al registrar producto'}`;
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = '❌ Error de conexión';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+
+    <script>
+        // Helper de autenticación
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/auth/login';
+                throw new Error('No authentication token');
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/auth/login';
+                throw new Error('Authentication expired');
+            }
+            
+            return response;
+        }
+        
+        // Configurar HTMX
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                event.detail.headers['Authorization'] = `Bearer ${token}`;
+            }
+        });
+    </script>
+</body>
+</html>

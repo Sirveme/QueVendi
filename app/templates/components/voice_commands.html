@@ -1,0 +1,230 @@
+<!-- Diccionario de Comandos de Voz -->
+<div id="voice-commands-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📋 Comandos de Voz</h2>
+            <button class="modal-close" onclick="closeCommandsModal()">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="command-section">
+                <h3>🛒 Ventas</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-phrase">"un café y 10 panes"</div>
+                        <div class="command-desc">Agregar productos al carrito</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"agregar una inca kola"</div>
+                        <div class="command-desc">Agregar más productos</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"medio kilo de azúcar"</div>
+                        <div class="command-desc">Cantidades con fracciones</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="command-section">
+                <h3>✅ Confirmar / Cancelar</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-phrase">"listo" / "total" / "confirmar"</div>
+                        <div class="command-desc">Confirmar y guardar venta</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"cancelar" / "anular"</div>
+                        <div class="command-desc">Cancelar venta actual</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="command-section">
+                <h3>✏️ Modificaciones</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-phrase">"cambiar café por inca kola"</div>
+                        <div class="command-desc">Cambiar un producto</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"cambiar precio azúcar a dos soles"</div>
+                        <div class="command-desc">Ajustar precio de producto</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"quitar pan"</div>
+                        <div class="command-desc">Eliminar producto del carrito</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="command-section">
+                <h3>💡 Fracciones</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-phrase">"medio" / "media"</div>
+                        <div class="command-desc">0.5 unidades</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"un cuarto" / "cuartito"</div>
+                        <div class="command-desc">0.25 unidades</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"kilo y medio"</div>
+                        <div class="command-desc">1.5 unidades</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-phrase">"tres cuartos"</div>
+                        <div class="command-desc">0.75 unidades</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="command-tips">
+                <h4>💡 Consejos</h4>
+                <ul>
+                    <li>Habla claro y natural</li>
+                    <li>Puedes decir varios productos juntos con "y"</li>
+                    <li>El sistema está siempre escuchando</li>
+                    <li>Usa fracciones para productos por peso</li>
+                    <li>Puedes corregir precios al instante</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    max-height: 80vh;
+    width: 90%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #111827;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #6b7280;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.command-section {
+    margin-bottom: 32px;
+}
+
+.command-section h3 {
+    font-size: 18px;
+    color: #1f2937;
+    margin-bottom: 16px;
+}
+
+.command-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.command-item {
+    background: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.command-phrase {
+    font-size: 15px;
+    font-weight: 600;
+    color: #3b82f6;
+    margin-bottom: 4px;
+}
+
+.command-desc {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.command-tips {
+    background: #eff6ff;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.command-tips h4 {
+    font-size: 16px;
+    color: #1e40af;
+    margin-bottom: 12px;
+}
+
+.command-tips ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.command-tips li {
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+</style>
+
+<script>
+function openCommandsModal() {
+    document.getElementById('voice-commands-modal').classList.add('show');
+}
+
+function closeCommandsModal() {
+    document.getElementById('voice-commands-modal').classList.remove('show');
+}
+</script>

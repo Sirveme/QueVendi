@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0F172A">
+    <title>Login - QueVendí PRO</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0F172A;
+            color: #F1F5F9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: #1E293B;
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-circle {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #F1F5F9;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            color: #94A3B8;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #F1F5F9;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #0F172A;
+            color: #F1F5F9;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #64748B;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #0EA5E9, #38BDF8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #EF4444;
+            color: #FCA5A5;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-circle">QV</div>
+                <h1 class="app-title">QueVendí PRO</h1>
+                <p class="app-subtitle">Vende más rápido con tu voz</p>
+            </div>
+            
+            <form id="login-form" method="POST" action="/auth/login">
+                <div class="input-group">
+                    <label for="dni">DNI</label>
+                    <input 
+                        type="text" 
+                        id="dni" 
+                        name="dni" 
+                        maxlength="8" 
+                        pattern="[0-9]{8}" 
+                        placeholder="12345678"
+                        required 
+                        autofocus
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label for="pin">PIN (4 dígitos)</label>
+                    <input 
+                        type="password" 
+                        id="pin" 
+                        name="pin" 
+                        maxlength="4" 
+                        pattern="[0-9]{4}" 
+                        placeholder="****"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="btn-primary" id="login-btn">
+                    <span id="btn-text">Ingresar</span>
+                    <span id="btn-loading" style="display: none;">
+                        <span class="loading"></span> Ingresando...
+                    </span>
+                </button>
+            </form>
+            
+            <div id="error-message" class="error-message"></div>
+        </div>
+    </div>
+
+<script>
+// ========================================
+// LOGIN SCRIPT - QueVendi PRO (CORREGIDO)
+// ========================================
+
+// Detectar automáticamente el entorno
+const API_URL = window.location.origin;
+console.log('🌍 Entorno detectado:', API_URL);
+
+const form = document.getElementById('login-form');
+const errorDiv = document.getElementById('error-message');
+const loginBtn = document.getElementById('login-btn');
+const btnText = document.getElementById('btn-text');
+const btnLoading = document.getElementById('btn-loading');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Limpiar error anterior
+    errorDiv.classList.remove('show');
+    errorDiv.textContent = '';
+    
+    // Mostrar loading
+    loginBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline-block';
+    
+    // Obtener datos del formulario
+    const dni = document.getElementById('dni').value.trim();
+    const pin = document.getElementById('pin').value.trim();
+    
+    // Validaciones
+    if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
+        showError('❌ DNI debe tener 8 dígitos numéricos');
+        resetButton();
+        return;
+    }
+    
+    if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+        showError('❌ PIN debe tener 4 dígitos numéricos');
+        resetButton();
+        return;
+    }
+    
+    const loginUrl = `${API_URL}/api/auth/login`;
+    console.log('🔐 Intentando login...');
+    console.log('📡 URL:', loginUrl);
+    console.log('📦 Datos:', { dni, pin: '****' });
+    
+    try {
+        // Verificar que el backend esté vivo
+        console.log('🏥 Verificando backend...');
+        const healthCheck = await fetch(`${API_URL}/health`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        }).catch(() => null);
+        
+        if (!healthCheck || !healthCheck.ok) {
+            throw new Error('El servidor no responde. Intenta más tarde.');
+        }
+        
+        console.log('✅ Backend disponible');
+        
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('dni', dni);
+        formData.append('pin', pin);
+        
+        console.log('📤 Enviando FormData...');
+        
+        // Intentar login
+        const response = await fetch(loginUrl, {
+            method: 'POST',
+            body: formData
+        });
+        
+        console.log('📡 Response status:', response.status);
+        
+        // Leer respuesta
+        const data = await response.json();
+        console.log('📦 Respuesta:', data);
+        
+        if (response.ok) {
+            // ✅ LOGIN EXITOSO
+            console.log('✅ Login exitoso');
+            
+            // ==========================================
+            // GUARDAR TOKEN
+            // ==========================================
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('token_type', data.token_type || 'bearer');
+            
+            // ==========================================
+            // GUARDAR OBJETO USER COMPLETO
+            // ==========================================
+            const user = {
+                id: data.user.id,
+                username: data.user.username,
+                full_name: data.user.full_name || data.user.username,
+                dni: data.user.dni,
+                store_id: data.user.store_id
+            };
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log('✅ Usuario guardado:', user);
+            
+            // ==========================================
+            // CREAR DATOS BÁSICOS DE TIENDA
+            // ==========================================
+            console.log('🏪 Creando datos básicos de tienda...');
+            const basicStore = {
+                id: user.store_id,
+                commercial_name: 'Mi Tienda',
+                ruc: '',
+                address: ''
+            };
+            localStorage.setItem('store', JSON.stringify(basicStore));
+            console.log('✅ Tienda guardada:', basicStore);
+            
+            // ==========================================
+            // MOSTRAR ÉXITO Y REDIRIGIR
+            // ==========================================
+            const userName = user.full_name || user.username;
+            showSuccess(`¡Bienvenido ${userName}!`);
+            
+            console.log('📦 localStorage completo:', {
+                access_token: '✅',
+                user: localStorage.getItem('user'),
+                store: localStorage.getItem('store')
+            });
+            
+            // Redirigir después de 1 segundo
+            setTimeout(() => {
+                console.log('🚀 Redirigiendo a /home');
+                window.location.href = '/home';
+            }, 1000);
+            
+        } else {
+            // ❌ ERROR DE AUTENTICACIÓN
+            console.error('❌ Error de autenticación:', data);
+            console.error('Status:', response.status);
+            console.error('Detail:', data.detail);
+            
+            let errorMsg = 'DNI o PIN incorrectos';
+            
+            if (response.status === 422 && data.detail) {
+                if (Array.isArray(data.detail)) {
+                    // FastAPI validation errors
+                    const errors = data.detail.map(err => {
+                        const field = err.loc ? err.loc[err.loc.length - 1] : 'campo';
+                        const msg = err.msg || 'error de validación';
+                        return `${field}: ${msg}`;
+                    }).join(' | ');
+                    errorMsg = errors;
+                } else if (typeof data.detail === 'string') {
+                    errorMsg = data.detail;
+                } else {
+                    // Si detail es un objeto, convertir a string legible
+                    errorMsg = JSON.stringify(data.detail);
+                }
+            } else if (data.detail) {
+                if (typeof data.detail === 'string') {
+                    errorMsg = data.detail;
+                } else {
+                    errorMsg = JSON.stringify(data.detail);
+                }
+            }
+            
+            showError('❌ ' + errorMsg);
+            resetButton();
+        }
+        
+    } catch (error) {
+        // 💥 ERROR DE CONEXIÓN O SERVIDOR
+        console.error('💥 Error en login:', error);
+        
+        let errorMessage = 'Error de conexión. Intenta nuevamente.';
+        
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'No se puede conectar al servidor. Verifica tu conexión a internet.';
+        } else if (error.message.includes('servidor no responde')) {
+            errorMessage = error.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        
+        showError('❌ ' + errorMessage);
+        resetButton();
+    }
+});
+
+// ========================================
+// FUNCIONES AUXILIARES
+// ========================================
+
+function resetButton() {
+    loginBtn.disabled = false;
+    btnText.style.display = 'inline-block';
+    btnLoading.style.display = 'none';
+}
+
+function showError(message) {
+    errorDiv.textContent = message;
+    errorDiv.classList.add('show');
+}
+
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = '✅ ' + message;
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        z-index: 9999;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => successDiv.remove(), 300);
+    }, 2000);
+}
+
+// ========================================
+// VALIDACIONES EN TIEMPO REAL
+// ========================================
+
+document.getElementById('dni').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    if (errorDiv.classList.contains('show')) {
+        errorDiv.classList.remove('show');
+    }
+});
+
+document.getElementById('pin').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    if (errorDiv.classList.contains('show')) {
+        errorDiv.classList.remove('show');
+    }
+});
+
+// Agregar animaciones CSS
+if (!document.getElementById('login-animations')) {
+    const style = document.createElement('style');
+    style.id = 'login-animations';
+    style.textContent = `
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-50%) translateY(-100px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+</body>
+</html>

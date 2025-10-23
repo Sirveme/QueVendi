@@ -1,0 +1,294 @@
+{
+  "catalog_id": "bodega_estandar",
+  "name": "Bodega Estándar",
+  "description": "Productos básicos para bodega tradicional (150 items)",
+  "icon": "🏪",
+  "total_products": 150,
+  "categories": [
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "Inca Kola 1.5L",
+          "price": 5.50,
+          "cost_price": 4.20,
+          "aliases": ["inca", "kola", "inka", "gaseosa amarilla"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Coca Cola 1.5L",
+          "price": 5.50,
+          "cost_price": 4.20,
+          "aliases": ["coca", "cola", "gaseosa negra"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Coca Cola 3L",
+          "price": 9.50,
+          "cost_price": 7.50,
+          "aliases": ["coca tres litros", "coca grande"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Sprite 1.5L",
+          "price": 5.50,
+          "cost_price": 4.20,
+          "aliases": ["sprite", "gaseosa limón"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Fanta 1.5L",
+          "price": 5.50,
+          "cost_price": 4.20,
+          "aliases": ["fanta", "gaseosa naranja"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Agua San Luis 625ml",
+          "price": 1.50,
+          "cost_price": 1.00,
+          "aliases": ["agua", "san luis", "agua chica"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Agua Cielo 625ml",
+          "price": 1.50,
+          "cost_price": 1.00,
+          "aliases": ["cielo", "agua"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Frugos Durazno",
+          "price": 2.00,
+          "cost_price": 1.50,
+          "aliases": ["frugos", "jugo durazno"],
+          "category": "Bebidas"
+        },
+        {
+          "name": "Frugos Naranja",
+          "price": 2.00,
+          "cost_price": 1.50,
+          "aliases": ["frugos naranja", "jugo naranja"],
+          "category": "Bebidas"
+        }
+      ]
+    },
+    {
+      "name": "Cervezas",
+      "products": [
+        {
+          "name": "Cerveza Pilsen 650ml",
+          "price": 4.50,
+          "cost_price": 3.20,
+          "aliases": ["pilsen", "cristal", "cerveza"],
+          "category": "Cervezas"
+        },
+        {
+          "name": "Cerveza Cusqueña 650ml",
+          "price": 5.00,
+          "cost_price": 3.80,
+          "aliases": ["cusqueña", "cusco", "cerveza dorada"],
+          "category": "Cervezas"
+        },
+        {
+          "name": "Cerveza Brahma 650ml",
+          "price": 4.00,
+          "cost_price": 2.80,
+          "aliases": ["brahma"],
+          "category": "Cervezas"
+        }
+      ]
+    },
+    {
+      "name": "Panadería",
+      "products": [
+        {
+          "name": "Pan francés",
+          "price": 0.30,
+          "cost_price": 0.20,
+          "aliases": ["pan", "francés", "pan blanco"],
+          "category": "Panadería"
+        },
+        {
+          "name": "Pan integral",
+          "price": 0.40,
+          "cost_price": 0.25,
+          "aliases": ["pan integral", "pan negro"],
+          "category": "Panadería"
+        },
+        {
+          "name": "Pan de yema",
+          "price": 0.50,
+          "cost_price": 0.35,
+          "aliases": ["yema", "pan yema"],
+          "category": "Panadería"
+        }
+      ]
+    },
+    {
+      "name": "Lácteos",
+      "products": [
+        {
+          "name": "Leche Gloria entera 1L",
+          "price": 5.50,
+          "cost_price": 4.50,
+          "aliases": ["gloria", "leche", "leche entera"],
+          "category": "Lácteos"
+        },
+        {
+          "name": "Leche Gloria light 1L",
+          "price": 5.80,
+          "cost_price": 4.80,
+          "aliases": ["gloria light", "leche light"],
+          "category": "Lácteos"
+        },
+        {
+          "name": "Yogurt Gloria 1L",
+          "price": 6.50,
+          "cost_price": 5.20,
+          "aliases": ["yogurt", "yogurt gloria"],
+          "category": "Lácteos"
+        },
+        {
+          "name": "Mantequilla Gloria 200g",
+          "price": 8.50,
+          "cost_price": 6.80,
+          "aliases": ["mantequilla", "gloria"],
+          "category": "Lácteos"
+        }
+      ]
+    },
+    {
+      "name": "Abarrotes",
+      "products": [
+        {
+          "name": "Arroz Paisana 750g",
+          "price": 3.80,
+          "cost_price": 3.00,
+          "aliases": ["arroz", "paisana"],
+          "category": "Abarrotes"
+        },
+        {
+          "name": "Azúcar Rubia 1kg",
+          "price": 4.50,
+          "cost_price": 3.50,
+          "aliases": ["azúcar", "azucar rubia"],
+          "category": "Abarrotes"
+        },
+        {
+          "name": "Aceite Primor 1L",
+          "price": 8.50,
+          "cost_price": 7.00,
+          "aliases": ["aceite", "primor"],
+          "category": "Abarrotes"
+        },
+        {
+          "name": "Sal Emsal 1kg",
+          "price": 2.00,
+          "cost_price": 1.50,
+          "aliases": ["sal", "emsal"],
+          "category": "Abarrotes"
+        },
+        {
+          "name": "Fideos Don Vittorio 500g",
+          "price": 3.20,
+          "cost_price": 2.50,
+          "aliases": ["fideos", "don vittorio", "pasta"],
+          "category": "Abarrotes"
+        }
+      ]
+    },
+    {
+      "name": "Snacks",
+      "products": [
+        {
+          "name": "Papas Lays 180g",
+          "price": 6.50,
+          "cost_price": 5.00,
+          "aliases": ["papas", "lays", "papitas"],
+          "category": "Snacks"
+        },
+        {
+          "name": "Piqueo Karinto",
+          "price": 2.50,
+          "cost_price": 1.80,
+          "aliases": ["karinto", "piqueo"],
+          "category": "Snacks"
+        },
+        {
+          "name": "Galletas Soda Field 150g",
+          "price": 2.80,
+          "cost_price": 2.00,
+          "aliases": ["galletas soda", "field", "soda"],
+          "category": "Snacks"
+        },
+        {
+          "name": "Galletas Oreo",
+          "price": 3.50,
+          "cost_price": 2.80,
+          "aliases": ["oreo", "galletas oreo"],
+          "category": "Snacks"
+        }
+      ]
+    },
+    {
+      "name": "Limpieza",
+      "products": [
+        {
+          "name": "Detergente Ariel 500g",
+          "price": 8.50,
+          "cost_price": 6.50,
+          "aliases": ["ariel", "detergente"],
+          "category": "Limpieza"
+        },
+        {
+          "name": "Lejía Clorox 1L",
+          "price": 4.50,
+          "cost_price": 3.20,
+          "aliases": ["lejía", "clorox", "cloro"],
+          "category": "Limpieza"
+        },
+        {
+          "name": "Lavavajilla Ayudín",
+          "price": 3.50,
+          "cost_price": 2.50,
+          "aliases": ["lavavajilla", "ayudín", "ayudin"],
+          "category": "Limpieza"
+        }
+      ]
+    },
+    {
+      "name": "Café y Infusiones",
+      "products": [
+        {
+          "name": "Café Altomayo Grande Clásico",
+          "price": 5.80,
+          "cost_price": 4.50,
+          "aliases": ["café", "altomayo", "altomayo grande", "cafe"],
+          "category": "Café"
+        },
+        {
+          "name": "Café Altomayo Chico",
+          "price": 3.50,
+          "cost_price": 2.80,
+          "aliases": ["altomayo chico", "café chico"],
+          "category": "Café"
+        },
+        {
+          "name": "Café Pasado",
+          "price": 1.30,
+          "cost_price": 0.80,
+          "aliases": ["café pasado", "cafe pasado"],
+          "category": "Café"
+        },
+        {
+          "name": "Té Herbi",
+          "price": 3.00,
+          "cost_price": 2.20,
+          "aliases": ["té", "herbi", "te"],
+          "category": "Café"
+        }
+      ]
+    }
+  ]
+}
