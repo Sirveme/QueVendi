@@ -1,0 +1,540 @@
+/* ====================================
+   COMPONENTS.CSS - QueVendi PRO
+   Componentes nuevos: Botones de pago, acción y estados
+   ==================================== */
+
+/* ====================================
+   BOTONES DE PAGO - ESTILO PERUANO
+   ==================================== */
+.payment-selector {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.payment-btn {
+    min-width: 70px;
+    height: 36px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* EFECTIVO - Rojo peruano con S/. */
+.payment-btn[data-method="efectivo"] {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: white;
+    border-color: #dc2626;
+}
+
+.payment-btn[data-method="efectivo"].active {
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+    transform: scale(1.05);
+}
+
+/* YAPE - Morado característico */
+.payment-btn[data-method="yape"] {
+    background: linear-gradient(135deg, #6b21a8, #4c1d95);
+    color: white;
+    border-color: #6b21a8;
+}
+
+.payment-btn[data-method="yape"].active {
+    box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.3);
+    transform: scale(1.05);
+}
+
+/* PLIN - Celeste/Azul */
+.payment-btn[data-method="plin"] {
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    color: white;
+    border-color: #0ea5e9;
+}
+
+.payment-btn[data-method="plin"].active {
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+    transform: scale(1.05);
+}
+
+.payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.payment-btn .payment-label {
+    white-space: nowrap;
+}
+
+/* ====================================
+   BOTONES DE ACCIÓN - VERSIÓN COMPACTA
+   ==================================== */
+.action-buttons-compact {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.action-btn-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.action-btn-small:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.action-btn-small:active {
+    transform: scale(0.95);
+}
+
+/* CANCELAR - Rojo */
+.action-btn-small.cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.action-btn-small.cancel:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* COMANDOS - Azul */
+.action-btn-small.commands {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.action-btn-small.commands:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* CONFIRMAR - Verde */
+.action-btn-small.confirm {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.action-btn-small.confirm:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Tooltip al hacer hover */
+.action-btn-small::before {
+    content: attr(title);
+    position: absolute;
+    right: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.action-btn-small:hover::before {
+    opacity: 1;
+}
+
+/* ====================================
+   VERSIÓN ALTERNATIVA: BARRA HORIZONTAL
+   ==================================== */
+.action-buttons-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.95));
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    z-index: 100;
+}
+
+.action-buttons-bar .action-btn-small {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+}
+
+/* ====================================
+   EMPTY STATE - Sin ventas
+   ==================================== */
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+}
+
+.empty-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ====================================
+   RESPONSIVE
+   ==================================== */
+@media (max-width: 768px) {
+    .action-buttons-compact {
+        bottom: 15px;
+        right: 15px;
+        gap: 8px;
+    }
+    
+    .action-btn-small {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+    
+    .payment-btn {
+        min-width: 60px;
+        height: 32px;
+        font-size: 12px;
+        padding: 0 10px;
+    }
+}
+
+
+/* ====================================
+   BOTONES DE PAGO - ESTILO PERUANO
+   ==================================== */
+.payment-selector {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.payment-btn {
+    min-width: 70px;
+    height: 36px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* EFECTIVO - Rojo peruano con S/. */
+.payment-btn[data-method="efectivo"] {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: white;
+    border-color: #dc2626;
+}
+
+.payment-btn[data-method="efectivo"].active {
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+    transform: scale(1.05);
+}
+
+/* YAPE - Morado característico */
+.payment-btn[data-method="yape"] {
+    background: linear-gradient(135deg, #6b21a8, #4c1d95);
+    color: white;
+    border-color: #6b21a8;
+}
+
+.payment-btn[data-method="yape"].active {
+    box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.3);
+    transform: scale(1.05);
+}
+
+/* PLIN - Celeste/Azul */
+.payment-btn[data-method="plin"] {
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    color: white;
+    border-color: #0ea5e9;
+}
+
+.payment-btn[data-method="plin"].active {
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+    transform: scale(1.05);
+}
+
+.payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.payment-btn .payment-label {
+    white-space: nowrap;
+}
+
+/* ====================================
+   BOTONES DE ACCIÓN - VERSIÓN COMPACTA
+   ==================================== */
+.action-buttons-compact {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.action-btn-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.action-btn-small:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.action-btn-small:active {
+    transform: scale(0.95);
+}
+
+/* CANCELAR - Rojo */
+.action-btn-small.cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.action-btn-small.cancel:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* COMANDOS - Azul */
+.action-btn-small.commands {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.action-btn-small.commands:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* CONFIRMAR - Verde */
+.action-btn-small.confirm {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.action-btn-small.confirm:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Tooltip al hacer hover */
+.action-btn-small::before {
+    content: attr(title);
+    position: absolute;
+    right: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.action-btn-small:hover::before {
+    opacity: 1;
+}
+
+/* ====================================
+   VERSIÓN ALTERNATIVA: BARRA HORIZONTAL
+   ==================================== */
+.action-buttons-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.95));
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    z-index: 100;
+}
+
+.action-buttons-bar .action-btn-small {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+}
+
+/* ====================================
+   EMPTY STATE - Sin ventas
+   ==================================== */
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+}
+
+.empty-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ====================================
+   TARJETAS DE VENTA
+   ==================================== */
+.sale-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.sale-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.sale-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sale-time {
+    font-size: 12px;
+    color: rgba(148, 163, 184, 0.8);
+    font-weight: 500;
+}
+
+.sale-payment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sale-total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.sale-items {
+    font-size: 14px;
+    color: rgba(226, 232, 240, 0.9);
+    line-height: 1.4;
+}
+
+/* ====================================
+   RESPONSIVE
+   ==================================== */
+@media (max-width: 768px) {
+    .action-buttons-compact {
+        bottom: 15px;
+        right: 15px;
+        gap: 8px;
+    }
+    
+    .action-btn-small {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+    
+    .payment-btn {
+        min-width: 60px;
+        height: 32px;
+        font-size: 12px;
+        padding: 0 10px;
+    }
+    
+    .sale-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .sale-total {
+        font-size: 14px;
+    }
+    
+    .sale-items {
+        font-size: 13px;
+    }
+}
