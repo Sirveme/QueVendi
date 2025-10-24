@@ -1,0 +1,78 @@
+<!-- templates/onboarding_wizard.html -->
+
+<div id="catalog-wizard" class="wizard-container">
+    <h2>¡Bienvenido a QueVendi! 🎉</h2>
+    <p>Elige el catálogo que mejor se adapte a tu negocio:</p>
+    
+    <div id="catalog-selector" 
+         hx-get="/api/v1/catalogs/available"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+        Cargando catálogos...
+    </div>
+</div>
+
+<script>
+document.body.addEventListener('htmx:afterSwap', function(evt) {
+    if (evt.detail.target.id === 'catalog-selector') {
+        const catalogs = JSON.parse(evt.detail.xhr.responseText).catalogs;
+        
+        let html = '<div class="catalog-grid">';
+        catalogs.forEach(cat => {
+            html += `
+                <div class="catalog-card">
+                    <div class="catalog-icon">${cat.icon}</div>
+                    <h3>${cat.name}</h3>
+                    <p>${cat.description}</p>
+                    <p class="products-count">${cat.estimated_products} productos</p>
+                    <button 
+                        hx-post="/api/v1/catalogs/copy/${cat.code}"
+                        hx-vals='{"initial_stock": 200}'
+                        hx-swap="outerHTML"
+                        hx-target="#catalog-wizard"
+                        class="btn-primary">
+                        Usar este catálogo
+                    </button>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        evt.detail.target.innerHTML = html;
+    }
+});
+</script>
+
+<style>
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.catalog-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.catalog-card:hover {
+    border-color: #4CAF50;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.catalog-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.products-count {
+    color: #666;
+    font-size: 14px;
+    margin: 10px 0;
+}
+</style>
