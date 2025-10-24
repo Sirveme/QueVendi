@@ -1,5 +1,5 @@
 # app/main.py
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, APIRouter, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, HTMLResponse
@@ -9,6 +9,14 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.api.v1 import auth, sales, products, voice, reports, stores, users, catalogs
 import os
+
+from sqlalchemy import func
+
+from app.core.database import SessionLocal
+from app.models.user import User
+from app.models.product import Product
+from app.api.dependencies import get_current_user
+
 
 # ========================================
 # CONFIGURAR TEMPLATES CON RUTA ABSOLUTA
@@ -36,6 +44,8 @@ else:
     print(f"   Archivos: {[f.name for f in template_files]}")
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+router = APIRouter()
 
 # ========================================
 # LIFESPAN EVENT
@@ -130,7 +140,8 @@ else:
 # ========================================
 # ROUTERS API - CON PREFIX /api
 # ========================================
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+#app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(sales.router, prefix="/api/sales", tags=["sales"])
 app.include_router(voice.router, prefix="/api/voice", tags=["voice"])
@@ -138,6 +149,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(stores.router, prefix="/api/stores", tags=["stores"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(catalogs.router, prefix="/api/v1")
+
 
 # ========================================
 # RUTAS DE REPORTES
@@ -187,6 +199,38 @@ async def register_store_page(request: Request):
 async def add_user_page(request: Request):
     """Página para agregar usuarios"""
     return templates.TemplateResponse("add-user.html", {"request": request})
+
+
+
+# app/api/v1/home.py (o donde tengas el home)
+
+@app.get("/home", response_class=HTMLResponse)
+async def home(
+    request: Request, 
+    current_user: User = Depends(get_current_user)  # ⬅️ Usar get_current_user
+):
+    db = SessionLocal()
+    try:
+        # Verificar si tiene productos
+        product_count = db.query(func.count(Product.id)).filter(
+            Product.store_id == current_user.store_id
+        ).scalar()
+        
+        # Si no tiene productos, mostrar wizard
+        if product_count == 0:
+            return templates.TemplateResponse("onboarding_wizard.html", {
+                "request": request,
+                "user": current_user
+            })
+        
+        # Si ya tiene productos, mostrar home normal
+        return templates.TemplateResponse("home.html", {
+            "request": request,
+            "user": current_user
+        })
+        
+    finally:
+        db.close()
 
 # ========================================
 # HEALTH CHECK
