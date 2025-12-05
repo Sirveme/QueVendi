@@ -1,5 +1,5 @@
 # app/main.py
-from fastapi import FastAPI, Request, APIRouter, Depends
+from fastapi import FastAPI, Request, APIRouter, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, HTMLResponse
@@ -7,7 +7,16 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from contextlib import asynccontextmanager
 from app.core.config import settings
-from app.api.v1 import auth, sales, products, voice, reports, stores, users, catalogs
+from app.api.v1 import auth, sales, products, voice, reports, stores, users, catalogs, voice_llm
+from typing import Optional
+
+try:
+    from app.api.v1 import catalog
+    print("✅ catalog.py importado correctamente")
+except Exception as e:
+    print(f"❌ ERROR al importar catalog.py: {e}")
+    import traceback
+    traceback.print_exc()
 import os
 
 from sqlalchemy import func
@@ -142,13 +151,23 @@ else:
 # ========================================
 #app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(auth.router, prefix="/api/v1")
-app.include_router(products.router, prefix="/api/products", tags=["products"])
-app.include_router(sales.router, prefix="/api/sales", tags=["sales"])
-app.include_router(voice.router, prefix="/api/voice", tags=["voice"])
-app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
-app.include_router(stores.router, prefix="/api/stores", tags=["stores"])
-app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(products.router, prefix="/api/v1")
+app.include_router(sales.router, prefix="/api/v1")
+app.include_router(voice.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")
+app.include_router(stores.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
 app.include_router(catalogs.router, prefix="/api/v1")
+app.include_router(catalog.router)
+app.include_router(voice_llm.router, prefix="/api/v1")
+
+# ========================================
+# RUTAS DE REPORTES
+# ========================================
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    """Página de reportes"""
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 # ========================================
@@ -177,12 +196,46 @@ async def login_page(request: Request):
     """Página de login"""
     return templates.TemplateResponse("login.html", {"request": request})
 
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    """Página de configuración (solo owners)"""
+    return templates.TemplateResponse("settings.html", {"request": request})
+
+
+@app.get("/offline", response_class=HTMLResponse)
+async def offline_page(request: Request):
+    """Página offline"""
+    return templates.TemplateResponse("offline.html", {"request": request})
+
+
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
     """
     Página principal - la autenticación se maneja en el frontend
     """
     return templates.TemplateResponse("home.html", {"request": request})
+
+
+# Busca la ruta actual del home y AGREGA esta nueva ruta DESPUÉS
+
+@app.get("/v2", response_class=HTMLResponse)
+async def home_v2(
+    request: Request,
+    token: Optional[str] = Cookie(None)
+):
+    """
+    Nueva versión del POS - Auth manejada por frontend
+    """
+    
+    # Si hay token en cookie, es que ya está autenticado
+    # Si no hay token, el JavaScript lo manejará
+    
+    return templates.TemplateResponse("home_v2.html", {
+        "request": request,
+        "current_user": {"name": "Usuario"},  # Placeholder
+        "version": "2.0"
+    })
+
 
 @app.get("/products", response_class=HTMLResponse)
 async def products_page(request: Request):
@@ -239,3 +292,12 @@ async def home(
 async def health():
     """Health check para Railway"""
     return {"status": "healthy"}
+
+
+# ======================
+# RUTAS DE LANDING PAGES
+# ======================
+@app.get("/lanza", response_class=HTMLResponse)
+async def lanza(request: Request):
+    """Página de reportes"""
+    return templates.TemplateResponse("/lanza/fundadores/fundadores.html", {"request": request})
