@@ -31,7 +31,6 @@ MarkupSafe==3.0.3
 openai>=1.30.0
 passlib==1.7.4
 pillow==11.3.0
-proto-plus==1.26.1
 psycopg2-binary==2.9.9
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
@@ -58,6 +57,7 @@ urllib3==2.5.0
 uvicorn==0.24.0
 watchfiles==1.1.0
 websockets==15.0.1
+
 
 
 
