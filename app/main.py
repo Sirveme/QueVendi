@@ -297,7 +297,8 @@ async def health():
 # ======================
 # RUTAS DE LANDING PAGES
 # ======================
-@app.get("/lanza", response_class=HTMLResponse)
-async def lanza(request: Request):
+@app.get("/lanza/fundadores", response_class=HTMLResponse)
+async def fundadores(request: Request):
     """Página de reportes"""
+
     return templates.TemplateResponse("/lanza/fundadores/fundadores.html", {"request": request})
