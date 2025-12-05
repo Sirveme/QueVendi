@@ -11,7 +11,7 @@ from app.api.v1 import auth, sales, products, voice, reports, stores, users, cat
 from typing import Optional
 
 try:
-    from app.api.v1 import catalog
+    from app.api.v1 import catalogs
     print("✅ catalog.py importado correctamente")
 except Exception as e:
     print(f"❌ ERROR al importar catalog.py: {e}")
@@ -158,7 +158,7 @@ app.include_router(reports.router, prefix="/api/v1")
 app.include_router(stores.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(catalogs.router, prefix="/api/v1")
-app.include_router(catalog.router)
+app.include_router(catalogs.router)
 app.include_router(voice_llm.router, prefix="/api/v1")
 
 # ========================================
