@@ -10,14 +10,15 @@ from app.services.voice_service import VoiceService
 from app.services.product_service import ProductService
 from app.api.dependencies import get_current_user
 from app.models.user import User
+from sqlalchemy import func, or_
 from typing import List
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import BaseModel
 
+from app.models.sale import Sale
 from fastapi.responses import HTMLResponse
 
-#router = APIRouter(prefix="/sales", tags=["sales"])
-router = APIRouter()
+router = APIRouter(prefix="/sales", tags=["Sales"])
 
 class VoiceCommandRequest(BaseModel):
     """Comando de voz"""
@@ -48,6 +49,60 @@ async def parse_voice_command(
             "message": "Comando recibido"
         }
     
+    # 🆕 AGREGAR: Consulta de total
+    if parsed['type'] == 'query_total':
+        return {
+            "type": "query_total",
+            "message": "¿Cuánto va?"
+        }
+    
+    # 🆕 AGREGAR: Venta por precio objetivo
+    if parsed['type'] == 'sale_by_price':
+        product_service = ProductService(db)
+        products = product_service.get_products_by_store(current_user.store_id)
+        
+        VoiceService._last_ambiguous_options = []
+        product = VoiceService.find_product_fuzzy(parsed['product_query'], products)
+        
+        if product is None and VoiceService._last_ambiguous_options:
+            return {
+                "type": "ambiguous_sale_by_price",
+                "product_query": parsed['product_query'],
+                "target_amount": parsed['target_amount'],
+                "options": [
+                    {
+                        "id": p.id,
+                        "name": p.name,
+                        "price": p.sale_price,
+                        "unit": getattr(p, 'unit', 'kg')
+                    }
+                    for p in VoiceService._last_ambiguous_options
+                ],
+                "message": f"¿Cuál {parsed['product_query']}?"
+            }
+        
+        if not product:
+            raise HTTPException(404, detail=f"No se encontró: {parsed['product_query']}")
+        
+        # Calcular cantidad basada en precio objetivo
+        calculated_qty = parsed['target_amount'] / float(product.sale_price)
+        unit = getattr(product, 'unit', 'kg')
+        
+        return {
+            "type": "sale_by_price",
+            "items": [{
+                "product": {
+                    "id": product.id,
+                    "name": product.name,
+                    "price": product.sale_price,
+                    "unit": unit
+                },
+                "quantity": round(calculated_qty, 2),
+                "subtotal": parsed['target_amount']
+            }],
+            "message": f"{round(calculated_qty, 2)} {unit} de {product.name} por S/. {parsed['target_amount']}"
+        }
+
     # ========================================
     # COMANDO: REMOVE (quitar producto)
     # ========================================
@@ -95,16 +150,29 @@ async def parse_voice_command(
     # COMANDO: CHANGE_PRICE (cambiar precio)
     # ========================================
     if parsed['type'] == 'change_price':
+        # 🔒 Validar owner
+        if parsed.get('requires_owner') and current_user.role != 'owner':
+            raise HTTPException(
+                status_code=403,
+                detail="Solo el dueño puede cambiar precios. Contacta al administrador."
+            )
+        
         product_service = ProductService(db)
         products = product_service.get_products_by_store(current_user.store_id)
         
-        # Limpiar opciones ambiguas previas
+        # 1. Limpiar opciones ambiguas ANTES de buscar
         VoiceService._last_ambiguous_options = []
         
-        # Buscar el producto para verificar que existe
+        # 2. Buscar producto UNA SOLA VEZ
         product = VoiceService.find_product_fuzzy(parsed['product_query'], products)
         
-        # Verificar ambigüedad
+        # 3. Logs DESPUÉS de buscar
+        print(f"[API] Producto encontrado: {product.name if product else 'None'}")
+        print(f"[API] Opciones ambiguas: {len(VoiceService._last_ambiguous_options)}")
+        if VoiceService._last_ambiguous_options:
+            print(f"[API] Nombres: {[p.name for p in VoiceService._last_ambiguous_options]}")
+        
+        # 4. Verificar ambigüedad
         if product is None and VoiceService._last_ambiguous_options:
             return {
                 "type": "ambiguous_price",
@@ -121,12 +189,14 @@ async def parse_voice_command(
                 "message": f"¿A cuál {parsed['product_query']} cambiar el precio?"
             }
         
+        # 5. Si no encontró nada
         if not product:
             raise HTTPException(
                 status_code=404,
                 detail=f"No se encontró: {parsed['product_query']}"
             )
         
+        # 6. Retornar resultado
         return {
             "type": "change_price",
             "product": {
@@ -211,16 +281,35 @@ async def parse_voice_command(
     # ========================================
     product_service = ProductService(db)
     products = product_service.get_products_by_store(current_user.store_id)
+
+    # ⬇️⬇️⬇️ AGREGAR ESTE LOG ⬇️⬇️⬇️
+    print(f"[API] Productos disponibles en tienda: {len(products)}")
+    # ⬆️⬆️⬆️ FIN LOG ⬆️⬆️⬆️
     
     cart_items = []
     not_found = []
     ambiguous_items = []  # ✅ NUEVO: Lista de items ambiguos
     
     for item in parsed['items']:
+        # ⬇️⬇️⬇️ AGREGAR ESTE LOG ⬇️⬇️⬇️
+        print(f"[API] 🔍 Buscando: '{item['product_query']}'")
+        # ⬆️⬆️⬆️ FIN LOG ⬆️⬆️⬆️
+
         # Limpiar opciones ambiguas previas antes de cada búsqueda
         VoiceService._last_ambiguous_options = []
         
+        # ⬇️⬇️⬇️ AGREGAR ESTE LOG ⬇️⬇️⬇️
+        print(f"[API] 📞 Llamando a find_product_fuzzy()...")
+        # ⬆️⬆️⬆️ FIN LOG ⬆️⬆️⬆️
+
         product = VoiceService.find_product_fuzzy(item['product_query'], products)
+
+         # ⬇️⬇️⬇️ AGREGAR ESTE LOG ⬇️⬇️⬇️
+        print(f"[API] ✅ Retornó: {product.name if product else 'None'}")
+        print(f"[API] 📋 Opciones ambiguas: {len(VoiceService._last_ambiguous_options)}")
+        if VoiceService._last_ambiguous_options:
+            print(f"[API] 📋 Nombres: {[p.name for p in VoiceService._last_ambiguous_options]}")
+        # ⬆️⬆️⬆️ FIN LOG ⬆️⬆️⬆️
         
         # ✅ NUEVO: Verificar si hay ambigüedad
         if product is None and VoiceService._last_ambiguous_options:
@@ -485,3 +574,31 @@ async def save_voice_settings(
     """Guardar configuración de voz"""
     # Por ahora solo retornar éxito
     return {"message": "Configuración guardada", "settings": settings}
+
+
+@router.get("/today/summary")  # ⬅️ SIN /sales
+async def get_today_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Resumen de ventas del día"""
+    try:
+        from app.models.sale import Sale
+        
+        today = date.today()
+        
+        sales = db.query(Sale).filter(
+            Sale.store_id == current_user.store_id,
+            func.date(Sale.created_at) == today
+        ).all()
+        
+        total = sum(float(sale.total) for sale in sales)
+        
+        return {
+            "count": len(sales),
+            "total": total,
+            "date": today.isoformat()
+        }
+    except Exception as e:
+        print(f"[Sales Summary] ERROR: {str(e)}")
+        return {"count": 0, "total": 0.0, "date": today.isoformat()}
