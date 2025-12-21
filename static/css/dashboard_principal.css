@@ -1198,7 +1198,7 @@ body {
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 650px;
+    max-width: 580px;
     max-height: 85vh;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -1226,6 +1226,7 @@ body {
     background: linear-gradient(135deg, var(--accent-gold), #e09500);
     color: var(--bg-primary);
     flex-shrink: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .modal-header-search h3 {
@@ -1268,6 +1269,7 @@ body {
     background: var(--bg-tertiary);
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .selected-count {
@@ -1309,8 +1311,8 @@ body {
 .search-modal-item {
     display: flex;
     align-items: center;
-    padding: 1rem 1.25rem;
-    gap: 1rem;
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
     cursor: pointer;
     border-bottom: 1px solid var(--border-color);
     transition: all 0.2s;
@@ -1339,15 +1341,15 @@ body {
 }
 
 .search-modal-item-icon {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-card));
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--accent-gold);
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
 }
 
@@ -1358,38 +1360,24 @@ body {
 
 .search-modal-item-name {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--text-primary);
     line-height: 1.3;
-    margin-bottom: 0.25rem;
-    /* Permitir varias líneas */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.search-modal-item-detail {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .search-modal-item-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
 }
 
 .stock-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
+    gap: 0.2rem;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
     background: rgba(16, 185, 129, 0.15);
     color: var(--accent-green);
     border-radius: 4px;
@@ -1401,56 +1389,156 @@ body {
 }
 
 .stock-badge i {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
 }
 
 .unit-badge {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
     background: var(--bg-tertiary);
     color: var(--text-secondary);
     border-radius: 4px;
 }
 
-.code-badge {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.code-badge i {
-    font-size: 0.6rem;
-}
-
 .search-modal-item-price {
     text-align: right;
     flex-shrink: 0;
-    min-width: 90px;
+    min-width: 75px;
 }
 
 .price-value {
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--accent-green);
 }
 
 .search-modal-item-check {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     opacity: 0.3;
     transition: all 0.2s;
     flex-shrink: 0;
+}
+
+/* ============================================
+   MODAL DE CONFIRMACIÓN (reemplaza confirm())
+   ============================================ */
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 1rem;
+}
+
+.confirm-modal.open {
+    display: flex;
+}
+
+.confirm-modal-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 380px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.25s ease;
+}
+
+.confirm-modal-header {
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.confirm-modal-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-gold), #e09500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.75rem;
+    color: var(--bg-primary);
+}
+
+.confirm-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.confirm-modal-message {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.confirm-modal-amount {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin: 1rem 0;
+}
+
+.confirm-modal-method {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.confirm-modal-buttons {
+    display: flex;
+    border-top: 1px solid var(--border-color);
+}
+
+.confirm-modal-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.confirm-modal-btn.cancel {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.confirm-modal-btn.cancel:hover {
+    background: var(--bg-card);
+}
+
+.confirm-modal-btn.confirm {
+    background: linear-gradient(135deg, var(--accent-green), #059669);
+    color: white;
+}
+
+.confirm-modal-btn.confirm:hover {
+    filter: brightness(1.1);
 }
 
 /* ============================================
