@@ -1,112 +1,98 @@
 # app/main.py
-from fastapi import FastAPI, Request, APIRouter, Depends, Cookie, Response
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
+"""
+QueVendi - Sistema POS para Bodegas
+Main Application Entry Point
+"""
+
+import os
 from pathlib import Path
 from contextlib import asynccontextmanager
-from app.core.config import settings
-from app.api.v1 import auth, sales, products, voice, reports, stores, users, catalogs, voice_llm
 from typing import Optional
 
-try:
-    from app.api.v1 import catalogs
-    print("✅ catalog.py importado correctamente")
-except Exception as e:
-    print(f"❌ ERROR al importar catalog.py: {e}")
-    import traceback
-    traceback.print_exc()
-import os
-
+from fastapi import FastAPI, Request, Depends, Cookie
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 
+from app.core.config import settings
 from app.core.database import SessionLocal
 from app.models.user import User
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 
+# ========================================
+# IMPORTAR ROUTERS API
+# ========================================
+from app.api.v1 import (
+    auth,
+    sales,
+    products,
+    voice,
+    reports,
+    stores,
+    users,
+    catalogs,
+    voice_llm,
+    incidentes
+)
 
 # ========================================
-# CONFIGURAR TEMPLATES CON RUTA ABSOLUTA
+# CONFIGURACIÓN DE DIRECTORIOS
 # ========================================
-BASE_DIR = Path(__file__).resolve().parent.parent  # C:\QUEVENDI
-TEMPLATES_DIR = BASE_DIR / "app" / "templates"  # ⬅️ Agregamos /app/
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = BASE_DIR / "app" / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
+# Verificar directorios
 print(f"📂 BASE_DIR: {BASE_DIR}")
 print(f"📂 TEMPLATES_DIR: {TEMPLATES_DIR}")
 print(f"📂 STATIC_DIR: {STATIC_DIR}")
 
-# Verificar que templates existe
-if not TEMPLATES_DIR.exists():
-    print(f"⚠️ ERROR: No se encuentra el directorio templates en {TEMPLATES_DIR}")
-    print(f"   Asegúrate de que la estructura sea:")
-    print(f"   {BASE_DIR}/")
-    print(f"   ├── app/")
-    print(f"   ├── templates/")
-    print(f"   └── static/")
-else:
+if TEMPLATES_DIR.exists():
     print(f"✅ Templates encontrado")
-    # Listar archivos en templates
-    template_files = list(TEMPLATES_DIR.glob("*.html"))
-    print(f"   Archivos: {[f.name for f in template_files]}")
+else:
+    print(f"⚠️ ERROR: Templates no encontrado en {TEMPLATES_DIR}")
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-router = APIRouter()
 
 # ========================================
 # LIFESPAN EVENT
 # ========================================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ========== STARTUP ==========
+    """Startup y shutdown events"""
+    
+    # ===== STARTUP =====
     print("\n" + "="*60)
-    print("🚀 SERVIDOR INICIADO")
+    print("🚀 QUEVENDI - SERVIDOR INICIADO")
     print("="*60)
     
-    # Listar todas las rutas registradas
-    print("\n📍 RUTAS REGISTRADAS:")
-    print("-"*60)
-    
-    routes_by_type = {"HTML": [], "API": [], "STATIC": [], "OTHER": []}
+    # Listar rutas registradas
+    routes_html = []
+    routes_api = []
     
     for route in app.routes:
         if hasattr(route, 'methods') and hasattr(route, 'path'):
-            methods = ', '.join(sorted(route.methods))
+            methods = ', '.join(sorted(route.methods - {'HEAD', 'OPTIONS'}))
+            if not methods:
+                continue
             path = route.path
             
-            # Clasificar rutas
             if path.startswith('/api/'):
-                routes_by_type["API"].append(f"  {methods:12} {path}")
-            elif path.startswith('/static'):
-                routes_by_type["STATIC"].append(f"  {methods:12} {path}")
-            elif any(x in path for x in ['/auth/', '/home', '/products', '/']):
-                routes_by_type["HTML"].append(f"  {methods:12} {path}")
-            else:
-                routes_by_type["OTHER"].append(f"  {methods:12} {path}")
+                routes_api.append(f"  {methods:12} {path}")
+            elif not path.startswith('/static') and not path.startswith('/openapi') and not path.startswith('/docs') and not path.startswith('/redoc'):
+                routes_html.append(f"  {methods:12} {path}")
     
-    # Mostrar rutas organizadas
-    if routes_by_type["HTML"]:
-        print("\n📄 RUTAS HTML (Templates):")
-        for route in sorted(routes_by_type["HTML"]):
-            print(route)
+    print("\n📄 RUTAS HTML:")
+    for route in sorted(set(routes_html)):
+        print(route)
     
-    if routes_by_type["API"]:
-        print("\n🔌 RUTAS API:")
-        for route in sorted(routes_by_type["API"]):
-            print(route)
-    
-    if routes_by_type["STATIC"]:
-        print("\n📁 RUTAS ESTÁTICAS:")
-        for route in routes_by_type["STATIC"]:
-            print(route)
-    
-    if routes_by_type["OTHER"]:
-        print("\n🔧 OTRAS RUTAS:")
-        for route in sorted(routes_by_type["OTHER"]):
-            print(route)
+    print("\n🔌 RUTAS API:")
+    for route in sorted(set(routes_api)):
+        print(route)
     
     print("\n" + "="*60)
     print(f"✅ Servidor listo en: http://0.0.0.0:{os.getenv('PORT', '8080')}")
@@ -114,8 +100,9 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # ========== SHUTDOWN ==========
+    # ===== SHUTDOWN =====
     print("\n👋 Servidor detenido")
+
 
 # ========================================
 # CREAR APP
@@ -126,8 +113,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+
 # ========================================
-# CORS
+# MIDDLEWARE - CORS
 # ========================================
 app.add_middleware(
     CORSMiddleware,
@@ -137,102 +125,96 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # ========================================
-# ARCHIVOS ESTÁTICOS - MONTAR PRIMERO
+# ARCHIVOS ESTÁTICOS
 # ========================================
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
     print(f"📁 Archivos estáticos montados: {STATIC_DIR}")
 else:
-    print(f"⚠️ Directorio static/ no encontrado en: {STATIC_DIR}")
+    print(f"⚠️ Directorio static/ no encontrado")
+
 
 # ========================================
-# ROUTERS API - CON PREFIX /api
+# ROUTERS API (prefix /api/v1)
 # ========================================
-#app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(products.router, prefix="/api/v1")
-app.include_router(sales.router, prefix="/api/v1")
-app.include_router(voice.router, prefix="/api/v1")
-app.include_router(reports.router, prefix="/api/v1")
-app.include_router(stores.router, prefix="/api/v1")
-app.include_router(users.router, prefix="/api/v1")
-app.include_router(catalogs.router, prefix="/api/v1")
-app.include_router(catalogs.router)
-app.include_router(voice_llm.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1", tags=["Auth"])
+app.include_router(products.router, prefix="/api/v1", tags=["Products"])
+app.include_router(sales.router, prefix="/api/v1", tags=["Sales"])
+app.include_router(voice.router, prefix="/api/v1", tags=["Voice"])
+app.include_router(reports.router, prefix="/api/v1", tags=["Reports"])
+app.include_router(stores.router, prefix="/api/v1", tags=["Stores"])
+app.include_router(users.router, prefix="/api/v1", tags=["Users"])
+app.include_router(catalogs.router, prefix="/api/v1", tags=["Catalogs"])
+app.include_router(voice_llm.router, prefix="/api/v1", tags=["Voice LLM"])
+
 
 # ========================================
-# RUTAS DE REPORTES
+# RUTAS HTML - PÚBLICAS (sin auth)
 # ========================================
+
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    """Página de reportes"""
+    """Página de inicio / landing"""
     return templates.TemplateResponse("index.html", {"request": request})
 
-
-# ========================================
-# RUTAS DE REPORTES
-# ========================================
-@app.get("/reports", response_class=HTMLResponse)
-async def reports_page(request: Request):
-    """Página de reportes"""
-    return templates.TemplateResponse("reports.html", {"request": request})
-
-@app.get("/products/manage", response_class=HTMLResponse)
-async def products_manage_page(request: Request):
-    """Página de gestión de productos"""
-    return templates.TemplateResponse("products.html", {"request": request})
-
-# ========================================
-# RUTAS DE TEMPLATES (HTML)
-# ========================================
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    """Redirigir a login"""
-    return RedirectResponse(url="/auth/login")
 
 @app.get("/auth/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """Página de login"""
     return templates.TemplateResponse("login.html", {"request": request})
 
-@app.get("/settings", response_class=HTMLResponse)
-async def settings_page(request: Request):
-    """Página de configuración (solo owners)"""
-    return templates.TemplateResponse("settings.html", {"request": request})
+
+@app.get("/register-store", response_class=HTMLResponse)
+async def register_store_page(request: Request):
+    """Página de registro de tiendas"""
+    return templates.TemplateResponse("register-store.html", {"request": request})
 
 
 @app.get("/offline", response_class=HTMLResponse)
 async def offline_page(request: Request):
-    """Página offline"""
+    """Página offline para PWA"""
     return templates.TemplateResponse("offline.html", {"request": request})
 
+
+@app.get("/health")
+async def health():
+    """Health check para Railway"""
+    return {"status": "healthy", "app": "quevendi"}
+
+
+# ========================================
+# RUTAS HTML - PRIVADAS (requieren auth en frontend)
+# ========================================
 
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
     """
-    Página principal - la autenticación se maneja en el frontend
+    Dashboard principal - Auth manejada por JavaScript
     """
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("home_v2.html", {"request": request})
 
 
-# Busca la ruta actual del home y AGREGA esta nueva ruta DESPUÉS
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    return templates.TemplateResponse("dashboard_principal.html", {"request": request})
+
+
+@app.get("/mapa", response_class=HTMLResponse)
+async def mapa_delitos_page(request: Request):
+    """Mapa de seguridad ciudadana"""
+    return templates.TemplateResponse("mapa_delitos.html", {"request": request})
+
 
 @app.get("/v2", response_class=HTMLResponse)
-async def home_v2(
-    request: Request,
-    token: Optional[str] = Cookie(None)
-):
+async def home_v2_page(request: Request):
     """
-    Nueva versión del POS - Auth manejada por frontend
+    POS v2 - Nueva interfaz
+    Auth manejada por JavaScript en el frontend
     """
-    
-    # Si hay token en cookie, es que ya está autenticado
-    # Si no hay token, el JavaScript lo manejará
-    
     return templates.TemplateResponse("home_v2.html", {
         "request": request,
-        "current_user": {"name": "Usuario"},  # Placeholder
         "version": "2.0"
     })
 
@@ -243,62 +225,50 @@ async def products_page(request: Request):
     return templates.TemplateResponse("products.html", {"request": request})
 
 
-@app.get("/register-store", response_class=HTMLResponse)  # ✅ AGREGAR ESTA
-async def register_store_page(request: Request):
-    """Página de registro de tiendas"""
-    return templates.TemplateResponse("register-store.html", {"request": request})
+@app.get("/products/manage", response_class=HTMLResponse)
+async def products_manage_page(request: Request):
+    """Gestión de productos"""
+    return templates.TemplateResponse("products.html", {"request": request})
+
+
+@app.get("/reports", response_class=HTMLResponse)
+async def reports_page(request: Request):
+    """Página de reportes"""
+    return templates.TemplateResponse("reports.html", {"request": request})
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    """Configuración (solo owners)"""
+    return templates.TemplateResponse("settings.html", {"request": request})
+
 
 @app.get("/users/add", response_class=HTMLResponse)
 async def add_user_page(request: Request):
-    """Página para agregar usuarios"""
+    """Agregar usuarios"""
     return templates.TemplateResponse("add-user.html", {"request": request})
 
 
-
-# app/api/v1/home.py (o donde tengas el home)
-
-@app.get("/home", response_class=HTMLResponse)
-async def home(
-    request: Request, 
-    current_user: User = Depends(get_current_user)  # ⬅️ Usar get_current_user
-):
-    db = SessionLocal()
-    try:
-        # Verificar si tiene productos
-        product_count = db.query(func.count(Product.id)).filter(
-            Product.store_id == current_user.store_id
-        ).scalar()
-        
-        # Si no tiene productos, mostrar wizard
-        if product_count == 0:
-            return templates.TemplateResponse("onboarding_wizard.html", {
-                "request": request,
-                "user": current_user
-            })
-        
-        # Si ya tiene productos, mostrar home normal
-        return templates.TemplateResponse("home.html", {
-            "request": request,
-            "user": current_user
-        })
-        
-    finally:
-        db.close()
-
 # ========================================
-# HEALTH CHECK
+# RUTAS DE LANDING PAGES / CAMPAÑAS
 # ========================================
-@app.get("/health")
-async def health():
-    """Health check para Railway"""
-    return {"status": "healthy"}
 
-
-# ======================
-# RUTAS DE LANDING PAGES
-# ======================
 @app.get("/lanza/fundadores", response_class=HTMLResponse)
-async def fundadores(request: Request):
-    """Página de reportes"""
+async def landing_fundadores(request: Request):
+    """Landing page - Campaña Fundadores"""
+    return templates.TemplateResponse("lanza/fundadores/fundadores.html", {"request": request})
 
-    return templates.TemplateResponse("/lanza/fundadores/fundadores.html", {"request": request})
+
+# ========================================
+# RUTA ONBOARDING (con verificación de productos)
+# ========================================
+
+@app.get("/onboarding", response_class=HTMLResponse)
+async def onboarding_page(request: Request):
+    """
+    Wizard de onboarding para nuevas tiendas
+    """
+    return templates.TemplateResponse("onboarding_wizard.html", {"request": request})
+
+
+app.include_router(incidentes.router, prefix="/api/v1", tags=["Incidentes"])
