@@ -1054,31 +1054,47 @@ async function processSale() {
     
     const total = getCartTotal();
     
-    if (!confirm(`¿Confirmar venta por S/. ${total.toFixed(2)}?`)) {
-        return;
-    }
-    
+    // Mostrar modal de confirmación bonito en lugar de confirm()
+    showConfirmModal(total, AppState.paymentMethod, async () => {
+        await executeSale(total);
+    });
+}
+
+async function executeSale(total) {
     try {
+        // Formato que probablemente espera tu backend basado en sales.py
         const saleData = {
             items: AppState.cart.map(item => ({
                 product_id: item.id,
-                quantity: item.quantity,
-                unit_price: item.price
+                quantity: parseFloat(item.quantity),
+                unit_price: parseFloat(item.price)
             })),
             payment_method: AppState.paymentMethod,
-            total: total,
+            total: parseFloat(total),
             customer_name: AppState.paymentMethod === 'fiado' 
                 ? document.getElementById('fiado-client-name')?.value.trim() 
-                : null,
-            is_credit: AppState.paymentMethod === 'fiado'
+                : null
         };
+        
+        console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
         
         const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
             method: 'POST',
             body: JSON.stringify(saleData)
         });
         
+        const responseText = await response.text();
+        console.log('[Sale] Response status:', response.status);
+        console.log('[Sale] Response body:', responseText);
+        
         if (response.ok) {
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                result = {};
+            }
+            
             // Actualizar ventas del día
             AppState.dailySales += total;
             updateGoalProgress();
@@ -1098,21 +1114,34 @@ async function processSale() {
             if (document.getElementById('fiado-client')) {
                 document.getElementById('fiado-client').style.display = 'none';
             }
+            if (document.getElementById('btn-checkout')) {
+                document.getElementById('btn-checkout').style.display = 'flex';
+            }
             
             // Reset método de pago
             selectPaymentUI('efectivo');
+            AppState.paymentMethod = 'efectivo';
             
             playSound('success');
+            speak(`Venta completada. ${total.toFixed(2)} soles`);
             
         } else {
-            const error = await response.json();
-            showToast(error.detail || 'Error al registrar venta', 'error');
+            let errorMsg = 'Error al registrar venta';
+            try {
+                const error = JSON.parse(responseText);
+                errorMsg = error.detail || JSON.stringify(error);
+            } catch (e) {
+                errorMsg = responseText || errorMsg;
+            }
+            console.error('[Sale] Error:', errorMsg);
+            showToast(errorMsg, 'error');
         }
         
     } catch (error) {
         console.error('[Sale] Error:', error);
         showToast('Error de conexión', 'error');
     }
+}
 }
 
 // ============================================
@@ -1639,6 +1668,79 @@ function toggleSpeech() {
 }
 
 // ============================================
+// MODAL DE CONFIRMACIÓN BONITO
+// ============================================
+
+function showConfirmModal(total, paymentMethod, onConfirm) {
+    // Crear modal si no existe
+    let modal = document.getElementById('confirm-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'confirm-modal';
+        modal.className = 'confirm-modal';
+        modal.innerHTML = `
+            <div class="confirm-modal-content">
+                <div class="confirm-modal-header">
+                    <div class="confirm-modal-icon">
+                        <i class="fas fa-cash-register"></i>
+                    </div>
+                    <div class="confirm-modal-title">Confirmar Venta</div>
+                    <div class="confirm-modal-message">¿Procesar esta venta?</div>
+                    <div class="confirm-modal-amount" id="confirm-amount">S/. 0.00</div>
+                    <div class="confirm-modal-method" id="confirm-method">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Efectivo</span>
+                    </div>
+                </div>
+                <div class="confirm-modal-buttons">
+                    <button class="confirm-modal-btn cancel" onclick="closeConfirmModal()">
+                        Cancelar
+                    </button>
+                    <button class="confirm-modal-btn confirm" id="confirm-btn">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Actualizar contenido
+    document.getElementById('confirm-amount').textContent = `S/. ${total.toFixed(2)}`;
+    
+    // Iconos y nombres de métodos de pago
+    const methods = {
+        'efectivo': { icon: 'fa-money-bill-wave', name: 'Efectivo' },
+        'yape': { icon: 'fa-mobile-alt', name: 'Yape' },
+        'plin': { icon: 'fa-mobile-alt', name: 'Plin' },
+        'tarjeta': { icon: 'fa-credit-card', name: 'Tarjeta' },
+        'fiado': { icon: 'fa-handshake', name: 'Fiado' }
+    };
+    
+    const method = methods[paymentMethod] || methods['efectivo'];
+    document.getElementById('confirm-method').innerHTML = `
+        <i class="fas ${method.icon}"></i>
+        <span>${method.name}</span>
+    `;
+    
+    // Configurar botón confirmar
+    const confirmBtn = document.getElementById('confirm-btn');
+    confirmBtn.onclick = () => {
+        closeConfirmModal();
+        if (onConfirm) onConfirm();
+    };
+    
+    modal.classList.add('open');
+}
+
+function closeConfirmModal() {
+    const modal = document.getElementById('confirm-modal');
+    if (modal) {
+        modal.classList.remove('open');
+    }
+}
+
+// ============================================
 // MODAL DE RESULTADOS DE BÚSQUEDA (PRO STYLE)
 // ============================================
 
@@ -1664,7 +1766,7 @@ function showSearchResultsModal(products) {
                         <span id="selected-products-count">0</span> seleccionados
                     </div>
                     <button class="btn-add-selected" onclick="addSelectedFromModal()">
-                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                        <i class="fas fa-cart-plus"></i> Agregar
                     </button>
                 </div>
             </div>
@@ -1686,15 +1788,11 @@ function showSearchResultsModal(products) {
             </div>
             <div class="search-modal-item-info">
                 <div class="search-modal-item-name">${p.name}</div>
-                <div class="search-modal-item-detail">
-                    ${p.description || p.barcode || 'Sin descripción adicional'}
-                </div>
                 <div class="search-modal-item-meta">
                     <span class="stock-badge ${(p.stock || 0) < 10 ? 'low' : ''}">
-                        <i class="fas fa-cubes"></i> Stock: ${p.stock || '∞'}
+                        <i class="fas fa-cubes"></i> ${p.stock || '∞'}
                     </span>
-                    <span class="unit-badge">${p.unit || 'unidad'}</span>
-                    ${p.barcode ? `<span class="code-badge"><i class="fas fa-barcode"></i> ${p.barcode}</span>` : ''}
+                    <span class="unit-badge">${p.unit || 'und'}</span>
                 </div>
             </div>
             <div class="search-modal-item-price">
