@@ -19,6 +19,21 @@ from app.core.database import get_db
 from app.api.dependencies import get_current_user
 from app.models.user import User
 
+# Importar settings para obtener OPENAI_API_KEY
+try:
+    from app.core.config import settings
+    OPENAI_API_KEY = settings.OPENAI_API_KEY
+    if OPENAI_API_KEY:
+        print(f"[Voice] ✅ OPENAI_API_KEY cargada: {OPENAI_API_KEY[:8]}...{OPENAI_API_KEY[-4:]}")
+    else:
+        print("[Voice] ⚠️ OPENAI_API_KEY no configurada en settings")
+except ImportError:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    if OPENAI_API_KEY:
+        print(f"[Voice] ✅ OPENAI_API_KEY desde env: {OPENAI_API_KEY[:8]}...{OPENAI_API_KEY[-4:]}")
+    else:
+        print("[Voice] ⚠️ OPENAI_API_KEY no encontrada")
+
 # TTS Service (tu servicio existente)
 try:
     from app.services.tts_service import tts_service
@@ -37,8 +52,7 @@ except ImportError:
 router = APIRouter(prefix="/voice", tags=["voice"])
 
 
-# Configuración de APIs
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# URL de OpenAI Whisper
 OPENAI_WHISPER_URL = "https://api.openai.com/v1/audio/transcriptions"
 
 

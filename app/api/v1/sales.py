@@ -602,3 +602,27 @@ async def get_today_summary(
     except Exception as e:
         print(f"[Sales Summary] ERROR: {str(e)}")
         return {"count": 0, "total": 0.0, "date": today.isoformat()}
+    
+
+
+@router.post("/{sale_id}/void")
+async def void_sale(
+    sale_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Anular una venta"""
+    sale = db.query(Sale).filter(
+        Sale.id == sale_id,
+        Sale.store_id == current_user.store_id
+    ).first()
+    
+    if not sale:
+        raise HTTPException(404, "Venta no encontrada")
+    
+    sale.voided = True
+    sale.voided_at = datetime.now()
+    sale.voided_by = current_user.id
+    db.commit()
+    
+    return {"message": "Venta anulada", "sale_id": sale_id}
