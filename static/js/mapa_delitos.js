@@ -718,7 +718,7 @@ function displayDistritoResults(results) {
     }
     
     container.innerHTML = results.map(r => `
-        <div class="distrito-result-item" onclick="selectDistrito('${r.distrito}', '${r.provincia}', '${r.departamento}')">
+        <div class="distrito-result-item" onclick="selectDistrito('${r.distrito}', '${r.provincia}', '${r.departamento}', ${r.latitud || 'null'}, ${r.longitud || 'null'})">
             <div class="distrito-name">${r.distrito}</div>
             <div class="distrito-ubicacion">${r.provincia}, ${r.departamento}</div>
         </div>
@@ -727,7 +727,7 @@ function displayDistritoResults(results) {
     container.classList.add('show');
 }
 
-function selectDistrito(distrito, provincia, departamento) {
+function selectDistrito(distrito, provincia, departamento, lat = null, lng = null) {
     // Actualizar filtros
     State.filters.district = distrito.toLowerCase();
     State.filters.province = provincia.toLowerCase();
@@ -744,8 +744,8 @@ function selectDistrito(distrito, provincia, departamento) {
     // Aplicar filtros
     applyFilters();
     
-    // Centrar mapa en el distrito (aproximado)
-    centerMapOnDistrito(distrito);
+    // Centrar mapa en el distrito
+    centerMapOnDistrito(distrito, lat, lng);
 }
 
 function clearUbicacion() {
@@ -759,14 +759,63 @@ function clearUbicacion() {
     applyFilters();
 }
 
-function centerMapOnDistrito(distrito) {
-    // Buscar en los incidentes uno que coincida para centrar el mapa
+function centerMapOnDistrito(distrito, lat = null, lng = null) {
+    // Si tenemos coordenadas directas, usarlas
+    if (lat && lng) {
+        State.map.setView([lat, lng], 14);
+        return;
+    }
+    
+    // Fallback: Buscar en los incidentes uno que coincida para centrar el mapa
     const incident = State.incidents.find(i => 
         i.distrito && i.distrito.toLowerCase().includes(distrito.toLowerCase())
     );
     
     if (incident && incident.latitud && incident.longitud) {
         State.map.setView([incident.latitud, incident.longitud], 14);
+        return;
+    }
+    
+    // Fallback 2: Coordenadas aproximadas de distritos conocidos de Lima
+    const coordsConocidas = {
+        'san juan de lurigancho': [-11.9833, -76.9833],
+        'san martín de porres': [-11.9833, -77.0833],
+        'comas': [-11.9333, -77.05],
+        'ate': [-12.0167, -76.9167],
+        'villa el salvador': [-12.2167, -76.95],
+        'villa maría del triunfo': [-12.1667, -76.9333],
+        'san juan de miraflores': [-12.15, -76.9667],
+        'los olivos': [-11.95, -77.0667],
+        'puente piedra': [-11.8667, -77.0833],
+        'santiago de surco': [-12.1333, -76.9833],
+        'chorrillos': [-12.1833, -77.0167],
+        'carabayllo': [-11.85, -77.0333],
+        'lima': [-12.0464, -77.0428],
+        'la victoria': [-12.07, -77.0167],
+        'el agustino': [-12.0333, -76.9833],
+        'santa anita': [-12.0333, -76.9667],
+        'independencia': [-11.9833, -77.05],
+        'rímac': [-12.0167, -77.0333],
+        'miraflores': [-12.1167, -77.0333],
+        'san isidro': [-12.1, -77.0333],
+        'san borja': [-12.1, -76.9833],
+        'surquillo': [-12.1167, -77.0],
+        'barranco': [-12.15, -77.0167],
+        'la molina': [-12.0833, -76.9333],
+        'jesús maría': [-12.0667, -77.05],
+        'lince': [-12.0833, -77.0333],
+        'pueblo libre': [-12.0667, -77.0667],
+        'magdalena del mar': [-12.0833, -77.0667],
+        'san miguel': [-12.0833, -77.0833],
+        'breña': [-12.05, -77.05],
+        'callao': [-12.05, -77.1167],
+        'ventanilla': [-11.8833, -77.1333],
+        'bellavista': [-12.0667, -77.1]
+    };
+    
+    const distritoLower = distrito.toLowerCase();
+    if (coordsConocidas[distritoLower]) {
+        State.map.setView(coordsConocidas[distritoLower], 14);
     }
 }
 

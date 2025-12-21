@@ -1054,29 +1054,32 @@ async function processSale() {
     
     const total = getCartTotal();
     
-    // Mostrar modal de confirmación bonito en lugar de confirm()
-    showConfirmModal(total, AppState.paymentMethod, async () => {
-        await executeSale(total);
+    // Mostrar modal de confirmación con opciones de impresión
+    showConfirmModal(total, AppState.paymentMethod, async (printType) => {
+        await executeSale(total, printType);
     });
 }
 
-async function executeSale(total) {
+async function executeSale(total, printType = 'none') {
     try {
-        // Formato que probablemente espera tu backend basado en sales.py
+        // Formato exacto que espera SaleCreate en schemas/sale.py
         const saleData = {
             items: AppState.cart.map(item => ({
                 product_id: item.id,
                 quantity: parseFloat(item.quantity),
-                unit_price: parseFloat(item.price)
+                unit_price: parseFloat(item.price),
+                subtotal: parseFloat(item.price) * parseFloat(item.quantity)  // REQUERIDO
             })),
             payment_method: AppState.paymentMethod,
-            total: parseFloat(total),
+            payment_reference: null,
             customer_name: AppState.paymentMethod === 'fiado' 
                 ? document.getElementById('fiado-client-name')?.value.trim() 
-                : null
+                : null,
+            is_credit: AppState.paymentMethod === 'fiado'
         };
         
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
+        console.log('[Sale] Tipo impresión:', printType);
         
         const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
             method: 'POST',
@@ -1099,8 +1102,8 @@ async function executeSale(total) {
             AppState.dailySales += total;
             updateGoalProgress();
             
-            // Mostrar modal de éxito
-            showSaleSuccessModal(total, AppState.paymentMethod);
+            // Manejar impresión según el tipo seleccionado
+            handlePrint(printType, result, total);
             
             // Limpiar carrito
             AppState.cart = [];
@@ -1142,6 +1145,150 @@ async function executeSale(total) {
         showToast('Error de conexión', 'error');
     }
 }
+
+function handlePrint(printType, saleResult, total) {
+    switch (printType) {
+        case 'none':
+            showToast('✅ Venta registrada', 'success');
+            break;
+            
+        case 'simple':
+            showToast('🖨️ Imprimiendo ticket simple...', 'info');
+            printSimpleTicket(saleResult, total);
+            break;
+            
+        case 'boleta':
+            showToast('📄 Generando Boleta SUNAT...', 'info');
+            // TODO: Integrar con API de facturación electrónica
+            printBoletaSunat(saleResult, total);
+            break;
+            
+        case 'factura':
+            showToast('📋 Generando Factura SUNAT...', 'info');
+            // TODO: Solicitar datos del cliente (RUC, razón social)
+            requestFacturaData(saleResult, total);
+            break;
+            
+        default:
+            showToast('✅ Venta registrada', 'success');
+    }
+}
+
+function printSimpleTicket(saleResult, total) {
+    // Crear ventana de impresión con ticket simple
+    const ticketHtml = generateSimpleTicketHtml(saleResult, total);
+    
+    const printWindow = window.open('', '_blank', 'width=300,height=600');
+    printWindow.document.write(ticketHtml);
+    printWindow.document.close();
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+}
+
+function generateSimpleTicketHtml(saleResult, total) {
+    const now = new Date();
+    const fecha = now.toLocaleDateString('es-PE');
+    const hora = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Obtener items del carrito antes de que se limpie (usamos AppState)
+    const items = AppState.cart.map(item => `
+        <tr>
+            <td style="text-align:left">${item.name}</td>
+            <td style="text-align:center">${item.quantity}</td>
+            <td style="text-align:right">S/. ${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>
+    `).join('');
+    
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Ticket</title>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    width: 80mm;
+                    padding: 5mm;
+                }
+                .header { text-align: center; margin-bottom: 10px; }
+                .store-name { font-size: 16px; font-weight: bold; }
+                .divider { border-top: 1px dashed #000; margin: 8px 0; }
+                table { width: 100%; }
+                .total-row { font-weight: bold; font-size: 14px; }
+                .footer { text-align: center; margin-top: 10px; font-size: 10px; }
+                .no-fiscal { 
+                    text-align: center; 
+                    font-size: 10px; 
+                    margin-top: 5px;
+                    padding: 5px;
+                    border: 1px dashed #999;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="store-name">MI BODEGA</div>
+                <div>${fecha} ${hora}</div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align:left">Producto</th>
+                        <th style="text-align:center">Cant</th>
+                        <th style="text-align:right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items}
+                </tbody>
+            </table>
+            
+            <div class="divider"></div>
+            
+            <table>
+                <tr class="total-row">
+                    <td>TOTAL:</td>
+                    <td style="text-align:right">S/. ${total.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>Pago:</td>
+                    <td style="text-align:right">${AppState.paymentMethod.toUpperCase()}</td>
+                </tr>
+            </table>
+            
+            <div class="no-fiscal">
+                *** TICKET NO FISCAL ***
+                <br>Este documento no tiene valor tributario
+            </div>
+            
+            <div class="footer">
+                ¡Gracias por su compra!
+                <br>Vuelva pronto
+            </div>
+        </body>
+        </html>
+    `;
+}
+
+function printBoletaSunat(saleResult, total) {
+    // TODO: Implementar integración con SUNAT
+    showToast('⚠️ Boleta SUNAT: Próximamente', 'warning');
+    // Por ahora, imprimir ticket simple con nota
+    printSimpleTicket(saleResult, total);
+}
+
+function requestFacturaData(saleResult, total) {
+    // TODO: Mostrar modal para solicitar RUC y razón social
+    showToast('⚠️ Factura SUNAT: Próximamente', 'warning');
 }
 
 // ============================================
@@ -1537,7 +1684,540 @@ function loadMicSettings() {
 function showNotifications() { showToast('Notificaciones: próximamente', 'info'); }
 function showStock() { window.location.href = '/products'; }
 function showSales() { window.location.href = '/reports'; }
-function printLastTicket() { showToast('Imprimiendo último ticket...', 'info'); }
+
+// ============================================
+// PANEL DE GESTIÓN DE TICKETS
+// ============================================
+
+// Cache inteligente para evitar consultas repetidas
+const TicketCache = {
+    data: null,
+    timestamp: null,
+    maxAge: 5 * 60 * 1000, // 5 minutos
+    
+    isValid() {
+        return this.data && this.timestamp && (Date.now() - this.timestamp < this.maxAge);
+    },
+    
+    set(data) {
+        this.data = data;
+        this.timestamp = Date.now();
+        try {
+            localStorage.setItem('ticketCache', JSON.stringify({ data, timestamp: this.timestamp }));
+        } catch (e) {}
+    },
+    
+    get() {
+        if (this.isValid()) return this.data;
+        try {
+            const stored = localStorage.getItem('ticketCache');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Date.now() - parsed.timestamp < this.maxAge) {
+                    this.data = parsed.data;
+                    this.timestamp = parsed.timestamp;
+                    return this.data;
+                }
+            }
+        } catch (e) {}
+        return null;
+    },
+    
+    invalidate() {
+        this.data = null;
+        this.timestamp = null;
+        try { localStorage.removeItem('ticketCache'); } catch (e) {}
+    }
+};
+
+let currentTicketPeriod = 'today';
+
+function printLastTicket() { 
+    showTicketPanel();
+}
+
+function showTicketPanel() {
+    let modal = document.getElementById('ticket-panel-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'ticket-panel-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content ticket-panel">
+                <div class="ticket-panel-header">
+                    <h3><i class="fas fa-receipt"></i> Gestión de Tickets</h3>
+                    <button class="modal-close-btn" onclick="closeTicketPanel()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="ticket-panel-tabs">
+                    <button class="ticket-tab active" onclick="switchTicketTab('today', this)">
+                        <i class="fas fa-calendar-day"></i> Hoy
+                    </button>
+                    <button class="ticket-tab" onclick="switchTicketTab('week', this)">
+                        <i class="fas fa-calendar-week"></i> Semana
+                    </button>
+                    <button class="ticket-tab" onclick="switchTicketTab('search', this)">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                
+                <div class="ticket-search-box" id="ticket-search-box" style="display:none;">
+                    <input type="text" id="ticket-search-input" placeholder="Buscar por código, cliente o producto..." oninput="searchTickets(this.value)">
+                </div>
+                
+                <div class="ticket-panel-body" id="ticket-list">
+                    <div class="loading-tickets">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Cargando tickets...</span>
+                    </div>
+                </div>
+                
+                <div class="ticket-panel-footer">
+                    <div class="ticket-summary">
+                        <span id="ticket-summary-count">0 tickets</span>
+                        <span id="ticket-summary-total">S/. 0.00</span>
+                    </div>
+                    <button class="ticket-refresh-btn" onclick="loadTickets(currentTicketPeriod, true)" title="Actualizar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    modal.classList.add('open');
+    loadTickets('today', false);
+}
+
+function closeTicketPanel() {
+    const modal = document.getElementById('ticket-panel-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+function switchTicketTab(tab, btn) {
+    document.querySelectorAll('.ticket-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    const searchBox = document.getElementById('ticket-search-box');
+    if (tab === 'search') {
+        searchBox.style.display = 'block';
+        document.getElementById('ticket-search-input').focus();
+        const cached = TicketCache.get();
+        if (cached) renderTicketList(cached);
+    } else {
+        searchBox.style.display = 'none';
+        currentTicketPeriod = tab;
+        loadTickets(tab, false);
+    }
+}
+
+async function loadTickets(period = 'today', forceRefresh = false) {
+    const container = document.getElementById('ticket-list');
+    
+    if (!forceRefresh) {
+        const cached = TicketCache.get();
+        if (cached) {
+            console.log('[Tickets] Usando cache');
+            filterAndRenderTickets(cached, period);
+            return;
+        }
+    }
+    
+    container.innerHTML = `
+        <div class="loading-tickets">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Cargando tickets...</span>
+        </div>
+    `;
+    
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales/today`);
+        if (response.ok) {
+            const sales = await response.json();
+            TicketCache.set(sales);
+            filterAndRenderTickets(sales, period);
+        } else {
+            container.innerHTML = `<div class="empty-tickets"><i class="fas fa-exclamation-circle"></i><span>Error al cargar tickets</span></div>`;
+        }
+    } catch (error) {
+        console.error('[Tickets] Error:', error);
+        container.innerHTML = `<div class="empty-tickets"><i class="fas fa-wifi-slash"></i><span>Error de conexión</span></div>`;
+    }
+}
+
+function filterAndRenderTickets(sales, period) {
+    let filtered = sales;
+    if (period === 'today') {
+        const today = new Date().toDateString();
+        filtered = sales.filter(s => new Date(s.sale_date || s.created_at).toDateString() === today);
+    } else if (period === 'week') {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        filtered = sales.filter(s => new Date(s.sale_date || s.created_at) >= weekAgo);
+    }
+    renderTicketList(filtered);
+}
+
+function searchTickets(query) {
+    const cached = TicketCache.get() || [];
+    if (!query || query.length < 2) {
+        renderTicketList(cached);
+        return;
+    }
+    const q = query.toLowerCase();
+    const filtered = cached.filter(sale => {
+        const items = sale.items || [];
+        return items.some(i => (i.product_name || '').toLowerCase().includes(q)) ||
+               (sale.customer_name || '').toLowerCase().includes(q) ||
+               sale.id.toString().includes(q);
+    });
+    renderTicketList(filtered);
+}
+
+function renderTicketList(sales) {
+    const container = document.getElementById('ticket-list');
+    
+    if (!sales || sales.length === 0) {
+        container.innerHTML = `<div class="empty-tickets"><i class="fas fa-receipt"></i><span>No hay tickets en este período</span></div>`;
+        updateTicketSummary(0, 0);
+        return;
+    }
+    
+    sales.sort((a, b) => new Date(b.sale_date || b.created_at) - new Date(a.sale_date || a.created_at));
+    
+    let html = '';
+    let totalAmount = 0;
+    let validCount = 0;
+    
+    for (const sale of sales) {
+        const date = new Date(sale.sale_date || sale.created_at);
+        const time = date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+        
+        const items = sale.items || [];
+        const itemsPreview = items.slice(0, 2).map(i => i.product_name || 'Producto').join(', ');
+        const moreItems = items.length > 2 ? ` +${items.length - 2}` : '';
+        
+        const paymentIcons = { 'efectivo': 'fa-money-bill-wave', 'yape': 'fa-mobile-alt', 'plin': 'fa-mobile-alt', 'tarjeta': 'fa-credit-card' };
+        const paymentIcon = paymentIcons[sale.payment_method?.toLowerCase()] || 'fa-receipt';
+        
+        // Tipo de documento
+        const docType = sale.document_type || 'simple';
+        const docInfo = {
+            'none': { label: 'SIN DOC', class: 'none' },
+            'simple': { label: 'SIMPLE', class: 'simple' },
+            'boleta': { label: 'BOLETA', class: 'boleta' },
+            'factura': { label: 'FACTURA', class: 'factura' }
+        }[docType] || { label: 'SIMPLE', class: 'simple' };
+        
+        const statusClass = sale.is_credit ? 'credit' : (sale.voided ? 'voided' : '');
+        let statusBadge = '';
+        if (sale.voided) statusBadge = '<span class="ticket-badge voided">ANULADO</span>';
+        else if (sale.is_credit) statusBadge = '<span class="ticket-badge credit">FIADO</span>';
+        
+        if (!sale.voided) {
+            totalAmount += parseFloat(sale.total) || 0;
+            validCount++;
+        }
+        
+        html += `
+            <div class="ticket-item ${statusClass}" data-sale-id="${sale.id}">
+                <div class="ticket-item-main" onclick="toggleTicketActions(${sale.id})">
+                    <div class="ticket-item-time">
+                        <span class="ticket-time">${time}</span>
+                        <span class="ticket-date">${dateStr}</span>
+                    </div>
+                    <div class="ticket-item-info">
+                        <div class="ticket-item-products">${itemsPreview}${moreItems}</div>
+                        <div class="ticket-item-meta">
+                            <i class="fas ${paymentIcon}"></i>
+                            <span class="doc-type-badge ${docInfo.class}">${docInfo.label}</span>
+                            ${statusBadge}
+                        </div>
+                    </div>
+                    <div class="ticket-item-total">${sale.voided ? '<s>' : ''}S/. ${parseFloat(sale.total).toFixed(2)}${sale.voided ? '</s>' : ''}</div>
+                    <div class="ticket-expand-icon"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="ticket-item-actions" id="ticket-actions-${sale.id}">
+                    ${!sale.voided ? `
+                        <div class="ticket-actions-group">
+                            <div class="ticket-actions-label">Reimprimir:</div>
+                            <div class="ticket-actions-buttons">
+                                <button class="ticket-action-btn ${docType === 'simple' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'simple')">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>Simple${docType === 'simple' ? ' ✓' : ''}</span>
+                                </button>
+                                <button class="ticket-action-btn sunat ${docType === 'boleta' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'boleta')">
+                                    <i class="fas fa-file-invoice"></i>
+                                    <span>Boleta${docType === 'boleta' ? ' ✓' : ''}</span>
+                                </button>
+                                <button class="ticket-action-btn factura ${docType === 'factura' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'factura')">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    <span>Factura${docType === 'factura' ? ' ✓' : ''}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ticket-actions-secondary">
+                            <button class="ticket-action-btn danger" onclick="event.stopPropagation(); confirmVoidTicket(${sale.id})">
+                                <i class="fas fa-ban"></i><span>Anular venta</span>
+                            </button>
+                        </div>
+                    ` : `<div class="ticket-voided-notice"><i class="fas fa-info-circle"></i> Venta anulada</div>`}
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+    updateTicketSummary(validCount, totalAmount);
+}
+
+function toggleTicketActions(saleId) {
+    const item = document.querySelector(`.ticket-item[data-sale-id="${saleId}"]`);
+    const actionsEl = document.getElementById(`ticket-actions-${saleId}`);
+    const isOpen = actionsEl.classList.contains('open');
+    
+    document.querySelectorAll('.ticket-item-actions.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.ticket-item.expanded').forEach(el => el.classList.remove('expanded'));
+    
+    if (!isOpen) {
+        actionsEl.classList.add('open');
+        item?.classList.add('expanded');
+    }
+}
+
+function updateTicketSummary(count, total) {
+    const countEl = document.getElementById('ticket-summary-count');
+    const totalEl = document.getElementById('ticket-summary-total');
+    if (countEl) countEl.textContent = `${count} ticket${count !== 1 ? 's' : ''}`;
+    if (totalEl) totalEl.textContent = `S/. ${total.toFixed(2)}`;
+}
+
+async function reprintTicket(saleId, docType = 'simple') {
+    const cached = TicketCache.get() || [];
+    const sale = cached.find(s => s.id === saleId);
+    
+    if (!sale) {
+        showToast('Error: ticket no encontrado', 'error');
+        return;
+    }
+    
+    const currentDocType = sale.document_type || 'simple';
+    
+    // Si es Boleta o Factura y ya tiene documento oficial
+    if ((docType === 'boleta' || docType === 'factura') && (currentDocType === 'boleta' || currentDocType === 'factura')) {
+        if (docType === currentDocType) {
+            showToast('🖨️ Reimprimiendo...', 'info');
+            printTicketFromSale(sale, docType);
+        } else {
+            showToast(`⚠️ Ya tiene ${currentDocType.toUpperCase()} emitida. No se puede cambiar.`, 'warning');
+        }
+        return;
+    }
+    
+    // Emitir documento oficial nuevo
+    if (docType === 'boleta' || docType === 'factura') {
+        showDocumentEmissionModal(sale, docType);
+        return;
+    }
+    
+    // Ticket simple
+    showToast('🖨️ Imprimiendo ticket...', 'info');
+    printTicketFromSale(sale, 'simple');
+}
+
+function showDocumentEmissionModal(sale, docType) {
+    const docName = docType === 'boleta' ? 'Boleta' : 'Factura';
+    
+    let modal = document.getElementById('doc-emission-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'doc-emission-modal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content doc-emission-modal">
+            <div class="doc-emission-header">
+                <div class="doc-emission-icon ${docType}">
+                    <i class="fas fa-${docType === 'boleta' ? 'file-invoice' : 'file-invoice-dollar'}"></i>
+                </div>
+                <h4>Emitir ${docName} SUNAT</h4>
+            </div>
+            <div class="doc-emission-body">
+                <div class="doc-emission-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Al emitir documento oficial:</span>
+                </div>
+                <ul class="doc-emission-list">
+                    <li>Se enviará a SUNAT</li>
+                    <li>No podrá anularse desde aquí</li>
+                    <li>Reemplaza ticket simple</li>
+                </ul>
+                ${docType === 'factura' ? `
+                    <div class="doc-emission-fields">
+                        <div class="field-group">
+                            <label>RUC:</label>
+                            <input type="text" id="factura-ruc" placeholder="20XXXXXXXXX" maxlength="11">
+                        </div>
+                        <div class="field-group">
+                            <label>Razón Social:</label>
+                            <input type="text" id="factura-razon" placeholder="Empresa S.A.C.">
+                        </div>
+                    </div>
+                ` : ''}
+                <div class="doc-emission-total">
+                    <span>Total:</span>
+                    <strong>S/. ${parseFloat(sale.total).toFixed(2)}</strong>
+                </div>
+            </div>
+            <div class="doc-emission-actions">
+                <button class="btn-cancel" onclick="closeDocEmissionModal()">Cancelar</button>
+                <button class="btn-confirm" onclick="emitDocument(${sale.id}, '${docType}')">
+                    <i class="fas fa-paper-plane"></i> Emitir ${docName}
+                </button>
+            </div>
+        </div>
+    `;
+    modal.classList.add('open');
+}
+
+function closeDocEmissionModal() {
+    const modal = document.getElementById('doc-emission-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+async function emitDocument(saleId, docType) {
+    const docName = docType === 'boleta' ? 'Boleta' : 'Factura';
+    
+    if (docType === 'factura') {
+        const ruc = document.getElementById('factura-ruc')?.value.trim();
+        const razon = document.getElementById('factura-razon')?.value.trim();
+        if (!ruc || ruc.length !== 11) {
+            showToast('RUC inválido (11 dígitos)', 'warning');
+            return;
+        }
+        if (!razon) {
+            showToast('Ingresa razón social', 'warning');
+            return;
+        }
+    }
+    
+    closeDocEmissionModal();
+    showToast(`📤 Emitiendo ${docName}...`, 'info');
+    
+    // TODO: Integrar con facturación electrónica
+    setTimeout(() => {
+        showToast(`⚠️ ${docName} SUNAT: Próximamente`, 'warning');
+    }, 1500);
+}
+
+function printTicketFromSale(sale, docType = 'simple') {
+    const date = new Date(sale.sale_date || sale.created_at);
+    const fecha = date.toLocaleDateString('es-PE');
+    const hora = date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    
+    const items = (sale.items || []).map(item => `
+        <tr>
+            <td style="text-align:left">${item.product_name || 'Producto'}</td>
+            <td style="text-align:center">${item.quantity}</td>
+            <td style="text-align:right">S/. ${(item.subtotal || 0).toFixed(2)}</td>
+        </tr>
+    `).join('');
+    
+    const ticketHtml = `
+        <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket #${sale.id}</title>
+        <style>
+            *{margin:0;padding:0;box-sizing:border-box}
+            body{font-family:'Courier New',monospace;font-size:12px;width:80mm;padding:5mm}
+            .header{text-align:center;margin-bottom:10px}
+            .store-name{font-size:16px;font-weight:bold}
+            .divider{border-top:1px dashed #000;margin:8px 0}
+            table{width:100%}
+            .total-row{font-weight:bold;font-size:14px}
+            .footer{text-align:center;margin-top:10px;font-size:10px}
+            .reprint{text-align:center;font-size:10px;background:#eee;padding:3px;margin-bottom:5px}
+            .no-fiscal{text-align:center;font-size:9px;margin-top:5px;padding:3px;border:1px dashed #999}
+        </style></head><body>
+        <div class="reprint">*** REIMPRESIÓN ***</div>
+        <div class="header">
+            <div class="store-name">MI BODEGA</div>
+            <div>Ticket #${sale.id}</div>
+            <div>${fecha} ${hora}</div>
+        </div>
+        <div class="divider"></div>
+        <table>
+            <thead><tr><th style="text-align:left">Producto</th><th>Cant</th><th style="text-align:right">Subtotal</th></tr></thead>
+            <tbody>${items}</tbody>
+        </table>
+        <div class="divider"></div>
+        <table>
+            <tr class="total-row"><td>TOTAL:</td><td style="text-align:right">S/. ${parseFloat(sale.total).toFixed(2)}</td></tr>
+            <tr><td>Pago:</td><td style="text-align:right">${(sale.payment_method || 'EFECTIVO').toUpperCase()}</td></tr>
+        </table>
+        <div class="no-fiscal">*** TICKET NO FISCAL ***</div>
+        <div class="footer">¡Gracias por su compra!</div>
+        </body></html>
+    `;
+    
+    const printWindow = window.open('', '_blank', 'width=300,height=600');
+    printWindow.document.write(ticketHtml);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+}
+
+function confirmVoidTicket(saleId) {
+    let modal = document.getElementById('void-confirm-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'void-confirm-modal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content void-confirm-modal">
+            <div class="void-confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h4>¿Anular esta venta?</h4>
+            <p>Esta acción no se puede deshacer. El stock será devuelto.</p>
+            <div class="void-confirm-actions">
+                <button class="btn-cancel" onclick="closeVoidConfirmModal()">Cancelar</button>
+                <button class="btn-danger" onclick="voidTicket(${saleId})">
+                    <i class="fas fa-ban"></i> Sí, anular
+                </button>
+            </div>
+        </div>
+    `;
+    modal.classList.add('open');
+}
+
+function closeVoidConfirmModal() {
+    const modal = document.getElementById('void-confirm-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+async function voidTicket(saleId) {
+    closeVoidConfirmModal();
+    showToast('Anulando venta...', 'info');
+    
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales/${saleId}/void`, { method: 'POST' });
+        if (response.ok) {
+            showToast('✅ Venta anulada', 'success');
+            TicketCache.invalidate();
+            loadTickets(currentTicketPeriod, true);
+        } else {
+            const error = await response.json();
+            showToast(error.detail || 'Error al anular', 'error');
+        }
+    } catch (error) {
+        showToast('Error de conexión', 'error');
+    }
+}
 function showLowStock() { showToast('Stock bajo: próximamente', 'info'); }
 function showExpiring() { showToast('Por vencer: próximamente', 'info'); }
 function showPurchaseForm() { showToast('Registro de compras: próximamente', 'info'); }
@@ -1685,21 +2365,34 @@ function showConfirmModal(total, paymentMethod, onConfirm) {
                         <i class="fas fa-cash-register"></i>
                     </div>
                     <div class="confirm-modal-title">Confirmar Venta</div>
-                    <div class="confirm-modal-message">¿Procesar esta venta?</div>
                     <div class="confirm-modal-amount" id="confirm-amount">S/. 0.00</div>
                     <div class="confirm-modal-method" id="confirm-method">
                         <i class="fas fa-money-bill-wave"></i>
                         <span>Efectivo</span>
                     </div>
                 </div>
-                <div class="confirm-modal-buttons">
-                    <button class="confirm-modal-btn cancel" onclick="closeConfirmModal()">
-                        Cancelar
+                <div class="confirm-modal-print-label">¿Cómo deseas finalizar?</div>
+                <div class="confirm-modal-actions">
+                    <button class="confirm-action-btn no-print" data-print="none">
+                        <i class="fas fa-times"></i>
+                        <span>Sin Imprimir</span>
                     </button>
-                    <button class="confirm-modal-btn confirm" id="confirm-btn">
-                        Confirmar
+                    <button class="confirm-action-btn simple" data-print="simple">
+                        <i class="fas fa-receipt"></i>
+                        <span>Ticket Simple</span>
+                    </button>
+                    <button class="confirm-action-btn sunat" data-print="boleta">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Boleta SUNAT</span>
+                    </button>
+                    <button class="confirm-action-btn factura" data-print="factura">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Factura</span>
                     </button>
                 </div>
+                <button class="confirm-cancel-btn" onclick="closeConfirmModal()">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </button>
             </div>
         `;
         document.body.appendChild(modal);
@@ -1723,12 +2416,15 @@ function showConfirmModal(total, paymentMethod, onConfirm) {
         <span>${method.name}</span>
     `;
     
-    // Configurar botón confirmar
-    const confirmBtn = document.getElementById('confirm-btn');
-    confirmBtn.onclick = () => {
-        closeConfirmModal();
-        if (onConfirm) onConfirm();
-    };
+    // Configurar botones de acción
+    const actionBtns = modal.querySelectorAll('.confirm-action-btn');
+    actionBtns.forEach(btn => {
+        btn.onclick = () => {
+            const printType = btn.dataset.print;
+            closeConfirmModal();
+            if (onConfirm) onConfirm(printType);
+        };
+    });
     
     modal.classList.add('open');
 }
