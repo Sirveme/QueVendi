@@ -1,32 +1,56 @@
 # app/api/v1/voice.py
 """
-Endpoints para procesamiento de voz con OpenAI Whisper
-Usado por:
-- Dashboard POS: micrófono PRO
-- Mapa de delitos: chatbot por voz
+Endpoints para sistema de voz:
+- TTS (Text-to-Speech) con Google Cloud
+- STT (Speech-to-Text) con OpenAI Whisper
+- Chatbot para mapa de delitos
 """
-
 import os
 import io
 import time
+import re
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
-import httpx
 
+# Imports de tu proyecto
 from app.core.database import get_db
-from app.core.auth import get_current_user, get_current_user_optional
+from app.api.dependencies import get_current_user
 from app.models.user import User
 
+# TTS Service (tu servicio existente)
+try:
+    from app.services.tts_service import tts_service
+except ImportError:
+    tts_service = None
+    print("[Voice] AVISO: tts_service no disponible")
 
-router = APIRouter(prefix="/voice", tags=["Voice"])
+# httpx para llamadas a OpenAI
+try:
+    import httpx
+except ImportError:
+    httpx = None
+    print("[Voice] AVISO: Instalar httpx con: pip install httpx")
+
+
+router = APIRouter(prefix="/voice", tags=["voice"])
 
 
 # Configuración de APIs
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_WHISPER_URL = "https://api.openai.com/v1/audio/transcriptions"
+
+
+# ============================================
+# MODELOS PYDANTIC
+# ============================================
+
+class TTSRequest(BaseModel):
+    """Request para text-to-speech"""
+    text: str
+    voice: Optional[str] = None
+    speed: float = 1.0
 
 
 class TranscriptionResponse(BaseModel):
@@ -39,7 +63,7 @@ class TranscriptionResponse(BaseModel):
 
 class VoiceParseRequest(BaseModel):
     transcript: str
-    api: str = "openai"  # openai, claude, gemini
+    api: str = "openai"
     session_id: Optional[str] = None
 
 
@@ -59,49 +83,130 @@ class VoiceParseResponse(BaseModel):
     latency_ms: int
 
 
+class ChatbotRequest(BaseModel):
+    message: str
+    context: Optional[str] = None
+
+
+class ChatbotResponse(BaseModel):
+    reply: str
+    action: Optional[str] = None
+    action_params: Optional[dict] = None
+
+
 # ============================================
-# TRANSCRIPCIÓN CON WHISPER
+# ENDPOINTS TTS (TU CÓDIGO EXISTENTE)
+# ============================================
+
+@router.post("/speak")
+async def text_to_speech(
+    request: TTSRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Convertir texto a voz"""
+    if not tts_service:
+        raise HTTPException(status_code=500, detail="TTS service no disponible")
+    
+    result = tts_service.synthesize_speech(
+        text=request.text,
+        voice_name=request.voice,
+        speed=request.speed
+    )
+    return result
+
+
+@router.get("/voices")
+async def get_voices(current_user: User = Depends(get_current_user)):
+    """Obtener voces disponibles"""
+    if not tts_service:
+        return {"voices": []}
+    
+    voices = tts_service.get_available_voices()
+    return {"voices": voices}
+
+
+@router.get("/settings")
+async def get_voice_settings(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Obtener configuración de voz del usuario"""
+    return {
+        "voice": "es-PE-Standard-A",
+        "speed": 1.0,
+        "volume": 0.8,
+        "enabled": True
+    }
+
+
+@router.post("/settings")
+async def save_voice_settings(
+    settings: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Guardar configuración de voz"""
+    return {"success": True, "settings": settings}
+
+
+# ============================================
+# ENDPOINTS WHISPER (NUEVOS)
 # ============================================
 
 @router.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(
     audio: UploadFile = File(...),
-    language: str = Form("es"),
-    current_user: User = Depends(get_current_user_optional)
+    language: str = Form("es")
 ):
     """
     Transcribe audio a texto usando OpenAI Whisper.
     Acepta: mp3, mp4, mpeg, mpga, m4a, wav, webm
+    
+    NO requiere autenticación para permitir uso desde chatbot público.
     """
     start_time = time.time()
     
     if not OPENAI_API_KEY:
         raise HTTPException(
             status_code=500, 
-            detail="OpenAI API key no configurada. Contacta al administrador."
+            detail="OpenAI API key no configurada. Agregar OPENAI_API_KEY en .env"
+        )
+    
+    if not httpx:
+        raise HTTPException(
+            status_code=500,
+            detail="Librería httpx no instalada. Ejecutar: pip install httpx"
         )
     
     # Validar tipo de archivo
-    allowed_types = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/webm", 
-                     "audio/mp4", "audio/m4a", "audio/ogg"]
+    filename = audio.filename or "audio.webm"
+    ext = filename.split(".")[-1].lower()
     
+    valid_extensions = ["mp3", "wav", "webm", "m4a", "ogg", "mp4", "mpeg", "mpga"]
     content_type = audio.content_type or ""
-    if not any(t in content_type for t in ["audio", "video"]):
-        # Intentar por extensión
-        ext = audio.filename.split(".")[-1].lower() if audio.filename else ""
-        if ext not in ["mp3", "wav", "webm", "m4a", "ogg", "mp4"]:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Tipo de archivo no soportado: {content_type}"
-            )
+    
+    if ext not in valid_extensions and "audio" not in content_type:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo de archivo no soportado. Usar: {', '.join(valid_extensions)}"
+        )
     
     try:
-        # Leer contenido del audio
         audio_content = await audio.read()
         
-        # Preparar request a OpenAI
+        # Determinar mime type
+        mime_types = {
+            "mp3": "audio/mpeg",
+            "wav": "audio/wav", 
+            "webm": "audio/webm",
+            "m4a": "audio/m4a",
+            "ogg": "audio/ogg",
+            "mp4": "audio/mp4"
+        }
+        mime_type = mime_types.get(ext, content_type or "audio/webm")
+        
         files = {
-            "file": (audio.filename or "audio.webm", io.BytesIO(audio_content), content_type or "audio/webm"),
+            "file": (filename, io.BytesIO(audio_content), mime_type),
             "model": (None, "whisper-1"),
             "language": (None, language),
             "response_format": (None, "json")
@@ -120,10 +225,10 @@ async def transcribe_audio(
         
         if response.status_code != 200:
             error_detail = response.text
-            print(f"[Whisper] Error: {response.status_code} - {error_detail}")
+            print(f"[Whisper] Error {response.status_code}: {error_detail}")
             raise HTTPException(
                 status_code=response.status_code,
-                detail=f"Error de OpenAI: {error_detail}"
+                detail=f"Error de OpenAI Whisper: {error_detail[:200]}"
             )
         
         result = response.json()
@@ -136,28 +241,26 @@ async def transcribe_audio(
             text=text,
             language=language,
             duration_ms=duration_ms,
-            api_used="openai"
+            api_used="openai-whisper"
         )
         
     except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Timeout al procesar audio")
+        raise HTTPException(status_code=504, detail="Timeout al procesar audio con Whisper")
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"[Whisper] Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ============================================
-# PARSEO DE VOZ A PRODUCTOS (CON LLM)
-# ============================================
-
-@router.post("/parse-llm", response_model=VoiceParseResponse)
-async def parse_voice_with_llm(
+@router.post("/parse-products", response_model=VoiceParseResponse)
+async def parse_voice_to_products(
     request: VoiceParseRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    Parsea texto de voz a lista de productos usando LLM.
+    Parsea texto de voz a lista de productos.
     1. Extrae productos y cantidades del texto
     2. Busca productos en la base de datos
     3. Devuelve lista de productos encontrados
@@ -174,27 +277,23 @@ async def parse_voice_with_llm(
             latency_ms=0
         )
     
-    # Usar LLM para extraer productos y cantidades
-    parsed_items = await extract_products_with_llm(transcript, request.api)
+    # Usar parser local para extraer productos y cantidades
+    parsed_items = extract_products_local(transcript)
     
     # Buscar productos en la base de datos
     found_products = []
     not_found = []
     
     for item in parsed_items:
-        product = await find_product_in_db(
-            db, 
-            item["name"], 
-            current_user.store_id
-        )
+        product = find_product_in_db(db, item["name"], current_user.store_id)
         
         if product:
             found_products.append(ParsedProduct(
                 name=product.name,
                 quantity=item["quantity"],
                 product_id=product.id,
-                price=float(product.sale_price),
-                unit=product.unit or "unidad"
+                price=float(product.sale_price) if hasattr(product, 'sale_price') and product.sale_price else 0,
+                unit=getattr(product, 'unit', 'unidad') or 'unidad'
             ))
         else:
             not_found.append(item["name"])
@@ -205,40 +304,31 @@ async def parse_voice_with_llm(
         success=len(found_products) > 0,
         products=found_products,
         not_found=not_found,
-        api_used=request.api,
+        api_used="local-parser",
         latency_ms=duration_ms
     )
 
 
-async def extract_products_with_llm(transcript: str, api: str) -> list:
+def extract_products_local(transcript: str) -> list:
     """
-    Usa LLM para extraer productos y cantidades del texto.
+    Parser local para extraer productos y cantidades del texto.
     Ejemplo: "dame 2 cocas, medio kilo de arroz y 3 panes"
-    → [{"name": "coca cola", "quantity": 2}, {"name": "arroz", "quantity": 0.5}, {"name": "pan", "quantity": 3}]
     """
-    
-    # Por ahora, usamos un parser simple basado en reglas
-    # TODO: Implementar llamada a OpenAI/Claude/Gemini
-    
-    import re
-    
     items = []
-    
-    # Normalizar texto
     text = transcript.lower().strip()
     
-    # Diccionario de cantidades
+    # Diccionario de cantidades en español
     quantities = {
         "un": 1, "una": 1, "uno": 1,
         "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
         "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10,
         "media": 0.5, "medio": 0.5,
         "cuarto": 0.25, "un cuarto": 0.25,
-        "docena": 12
+        "docena": 12, "decena": 10
     }
     
-    # Palabras a ignorar
-    stop_words = ["dame", "quiero", "necesito", "por favor", "de", "del", "la", "el", "y", "con"]
+    stop_words = ["dame", "quiero", "necesito", "por favor", "de", "del", 
+                  "la", "el", "y", "con", "me", "das", "ponme", "agrega"]
     
     # Dividir por comas y "y"
     parts = re.split(r',|\s+y\s+', text)
@@ -248,7 +338,6 @@ async def extract_products_with_llm(transcript: str, api: str) -> list:
         if not part:
             continue
         
-        # Extraer cantidad
         quantity = 1
         product_name = part
         
@@ -265,17 +354,15 @@ async def extract_products_with_llm(transcript: str, api: str) -> list:
                     product_name = part[len(word):].strip()
                     break
         
-        # Limpiar nombre del producto
+        # Limpiar nombre
         for sw in stop_words:
             product_name = re.sub(r'\b' + sw + r'\b', '', product_name)
         
         product_name = re.sub(r'\s+', ' ', product_name).strip()
         
-        # Manejar unidades (kilo, litro, etc)
-        if "kilo" in product_name:
-            product_name = product_name.replace("kilo", "").replace("kilos", "").strip()
-        if "litro" in product_name:
-            product_name = product_name.replace("litro", "").replace("litros", "").strip()
+        # Manejar unidades
+        for unit in ["kilo", "kilos", "litro", "litros", "gramo", "gramos"]:
+            product_name = product_name.replace(unit, "").strip()
         
         if product_name and len(product_name) >= 2:
             items.append({
@@ -286,18 +373,23 @@ async def extract_products_with_llm(transcript: str, api: str) -> list:
     return items
 
 
-async def find_product_in_db(db: Session, search_term: str, store_id: int):
-    """
-    Busca un producto en la base de datos por nombre.
-    """
-    from app.models.product import Product
+def find_product_in_db(db: Session, search_term: str, store_id: Optional[int] = None):
+    """Busca un producto en la base de datos."""
+    try:
+        from app.models.product import Product
+    except ImportError:
+        print("[Voice] No se pudo importar modelo Product")
+        return None
     
-    # Búsqueda exacta primero
-    product = db.query(Product).filter(
-        Product.store_id == store_id,
+    query = db.query(Product).filter(
         Product.is_active == True,
         Product.name.ilike(f"%{search_term}%")
-    ).first()
+    )
+    
+    if store_id:
+        query = query.filter(Product.store_id == store_id)
+    
+    product = query.first()
     
     if product:
         return product
@@ -307,11 +399,13 @@ async def find_product_in_db(db: Session, search_term: str, store_id: int):
     if len(words) > 1:
         for word in words:
             if len(word) >= 3:
-                product = db.query(Product).filter(
-                    Product.store_id == store_id,
+                query = db.query(Product).filter(
                     Product.is_active == True,
                     Product.name.ilike(f"%{word}%")
-                ).first()
+                )
+                if store_id:
+                    query = query.filter(Product.store_id == store_id)
+                product = query.first()
                 if product:
                     return product
     
@@ -319,53 +413,34 @@ async def find_product_in_db(db: Session, search_term: str, store_id: int):
 
 
 # ============================================
-# CHATBOT - INTERPRETACIÓN NATURAL
+# CHATBOT PARA MAPA DE DELITOS
 # ============================================
 
-class ChatbotRequest(BaseModel):
-    message: str
-    context: Optional[str] = None  # "mapa" o "pos"
-
-
-class ChatbotResponse(BaseModel):
-    reply: str
-    action: Optional[str] = None  # Acción a ejecutar en el frontend
-    action_params: Optional[dict] = None
-
-
 @router.post("/chatbot", response_model=ChatbotResponse)
-async def chatbot_query(
-    request: ChatbotRequest,
-    current_user: User = Depends(get_current_user_optional)
-):
+async def chatbot_query(request: ChatbotRequest):
     """
     Procesa mensajes del chatbot y devuelve respuestas + acciones.
+    NO requiere autenticación para uso público en el mapa.
     """
     message = request.message.lower().strip()
     context = request.context or "general"
     
-    # Respuestas para contexto MAPA
     if context == "mapa":
         return process_map_chatbot(message)
-    
-    # Respuestas para contexto POS
     elif context == "pos":
         return process_pos_chatbot(message)
     
-    # General
     return ChatbotResponse(
-        reply="¿En qué puedo ayudarte? Puedo buscar zonas, mostrar estadísticas o filtrar incidentes.",
+        reply="¿En qué puedo ayudarte?",
         action=None
     )
 
 
 def process_map_chatbot(message: str) -> ChatbotResponse:
-    """
-    Procesa mensajes del chatbot del mapa de delitos.
-    """
+    """Procesa mensajes del chatbot del mapa de delitos."""
     
     # Zonas peligrosas
-    if any(w in message for w in ["peligros", "peligrosa", "más incidentes", "zona roja"]):
+    if any(w in message for w in ["peligros", "peligrosa", "más incidentes", "zona roja", "alto riesgo"]):
         return ChatbotResponse(
             reply="🔴 Activando vista de calor para mostrar las zonas con más incidentes...",
             action="setView",
@@ -381,14 +456,14 @@ def process_map_chatbot(message: str) -> ChatbotResponse:
         )
     
     # Estadísticas
-    if any(w in message for w in ["estadística", "cuantos", "número", "total"]):
+    if any(w in message for w in ["estadística", "cuantos", "número", "total", "resumen"]):
         return ChatbotResponse(
             reply="📊 Mostrando estadísticas del período seleccionado...",
             action="showStats",
             action_params={}
         )
     
-    # Distritos específicos
+    # Distritos de Lima
     distritos = {
         "sjl": "San Juan de Lurigancho",
         "san juan de lurigancho": "San Juan de Lurigancho",
@@ -397,7 +472,17 @@ def process_map_chatbot(message: str) -> ChatbotResponse:
         "los olivos": "Los Olivos",
         "ate": "Ate",
         "chorrillos": "Chorrillos",
-        "san martín": "San Martín de Porres"
+        "san martín": "San Martín de Porres",
+        "san isidro": "San Isidro",
+        "miraflores": "Miraflores",
+        "la victoria": "La Victoria",
+        "surco": "Santiago de Surco",
+        "callao": "Callao",
+        "ventanilla": "Ventanilla",
+        "independencia": "Independencia",
+        "el agustino": "El Agustino",
+        "rimac": "Rímac",
+        "breña": "Breña"
     }
     
     for key, distrito in distritos.items():
@@ -409,7 +494,7 @@ def process_map_chatbot(message: str) -> ChatbotResponse:
             )
     
     # Limpiar filtros
-    if any(w in message for w in ["limpiar", "reset", "quitar filtro"]):
+    if any(w in message for w in ["limpiar", "reset", "quitar filtro", "borrar"]):
         return ChatbotResponse(
             reply="🔄 Limpiando todos los filtros...",
             action="clearFilters",
@@ -417,24 +502,21 @@ def process_map_chatbot(message: str) -> ChatbotResponse:
         )
     
     # Ayuda
-    if any(w in message for w in ["ayuda", "qué puedes", "cómo funciona"]):
+    if any(w in message for w in ["ayuda", "qué puedes", "cómo funciona", "help"]):
         return ChatbotResponse(
-            reply="🤖 Puedo ayudarte con:\n• \"Zonas más peligrosas\" - Activa heatmap\n• \"Extorsiones en [distrito]\" - Filtra por tipo y zona\n• \"Estadísticas\" - Muestra números\n• \"Limpiar filtros\" - Resetea todo",
+            reply="🤖 Puedo ayudarte con:\n• \"Zonas peligrosas\" - Activa heatmap\n• \"Extorsiones en [distrito]\" - Filtra\n• \"Estadísticas\" - Muestra números\n• \"Limpiar filtros\" - Resetea todo",
             action=None
         )
     
-    # No entendido
     return ChatbotResponse(
-        reply="🤔 No entendí tu consulta. Prueba con: \"zonas peligrosas\", \"extorsiones en Comas\", o \"estadísticas\".",
+        reply="🤔 No entendí. Prueba: \"zonas peligrosas\", \"extorsiones en Comas\", o \"estadísticas\".",
         action=None
     )
 
 
 def process_pos_chatbot(message: str) -> ChatbotResponse:
-    """
-    Procesa mensajes del chatbot del POS (futuro).
-    """
+    """Procesa mensajes del chatbot del POS (futuro)."""
     return ChatbotResponse(
-        reply="El asistente del POS está en desarrollo. Por ahora usa el micrófono para agregar productos.",
+        reply="El asistente del POS está en desarrollo. Usa el micrófono para agregar productos.",
         action=None
     )
