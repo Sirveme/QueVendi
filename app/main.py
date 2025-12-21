@@ -22,6 +22,9 @@ from app.models.user import User
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ========================================
 # IMPORTAR ROUTERS API
 # ========================================
@@ -35,7 +38,8 @@ from app.api.v1 import (
     users,
     catalogs,
     voice_llm,
-    incidentes
+    incidentes,
+    ubigeo
 )
 
 # ========================================
@@ -272,3 +276,4 @@ async def onboarding_page(request: Request):
 
 
 app.include_router(incidentes.router, prefix="/api/v1", tags=["Incidentes"])
+app.include_router(ubigeo.router, prefix="/api/v1", tags=["Ubigeo"])
