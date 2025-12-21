@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueVendi | Master Plan & Estrategia 2025</title>
+    <!-- Tailwind CSS para diseño rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .sidebar { min-height: 100vh; }
+        .card { transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .prompt-box { background-color: #1e293b; color: #a5f3fc; font-family: 'Courier New', monospace; }
+        h2 { border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 20px; color: #111827; }
+        .badge-security { background-color: #fee2e2; color: #991b1b; }
+        .badge-humor { background-color: #fef3c7; color: #92400e; }
+        .badge-tech { background-color: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row">
+
+    <!-- SIDEBAR DE NAVEGACIÓN -->
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 md:fixed h-full z-10">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-green-400"><i class="fa-solid fa-store"></i> QueVendi</h1>
+            <p class="text-xs text-gray-400 mt-1">Plan Maestro 2025</p>
+        </div>
+        <nav class="mt-4">
+            <a href="#estrategia" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-chess w-6"></i> Estrategia General</a>
+            <a href="#funnels" class="block py-2 px-6 hover:bg-slate-800 text-sm border-l-4 border-yellow-500 bg-slate-800">🚀 Funnels de Venta (Nuevo)</a>
+            <a href="#seo" class="block py-2 px-6 hover:bg-slate-800 text-sm border-l-4 border-green-500">🔎 Estrategia SEO (Nuevo)</a>
+            <a href="#contenidos" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-video w-6"></i> Temas y Pilares</a>
+            <a href="#prompts" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-robot w-6"></i> Banco de Prompts</a>
+            <a href="#notificaciones" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-bell w-6"></i> Marketing "Provocación"</a>
+            <a href="#herramientas" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-screwdriver-wrench w-6"></i> Stack Tecnológico</a>
+            <a href="#calendario" class="block py-3 px-6 hover:bg-slate-800 border-l-4 border-transparent hover:border-green-400"><i class="fa-solid fa-calendar-days w-6"></i> Rutina Diaria</a>
+        </nav>
+        <div class="absolute bottom-0 w-full p-6 text-xs text-gray-500">
+            Última actualización: Dic 2025
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 md:ml-64 p-8">
+        
+        <!-- SECCIÓN: ESTRATEGIA -->
+        <section id="estrategia" class="mb-16 pt-4">
+            <h2 class="text-3xl font-bold">🎯 Estrategia "La Pinza"</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- B2B -->
+                <div class="bg-white p-6 rounded-lg shadow card border-t-4 border-blue-600">
+                    <h3 class="text-xl font-bold mb-3">🛡️ B2B: Escudo Digital (Al Bodeguero)</h3>
+                    <p class="text-gray-600 mb-4">Venta basada en <strong>Seguridad y Ahorro de Tiempo</strong>. Enfoque en distritos con alta percepción de inseguridad.</p>
+                    <ul class="list-disc ml-5 space-y-2 text-sm text-gray-700">
+                        <li><strong>Mensaje Clave:</strong> "Tu voz es tu defensa. Botón de pánico conectado."</li>
+                        <li><strong>Canales:</strong> Facebook Grupos, TikTok (Ads segmentados), YouTube Search.</li>
+                        <li><strong>Target:</strong> SMP, SJL, Comas, VES (Zonas calientes).</li>
+                        <li><strong>USP:</strong> Sin dashboards complejos. Todo por voz.</li>
+                    </ul>
+                </div>
+                <!-- B2C -->
+                <div class="bg-white p-6 rounded-lg shadow card border-t-4 border-green-500">
+                    <h3 class="text-xl font-bold mb-3">🛒 B2C: El Casero Digital (Al Vecino)</h3>
+                    <p class="text-gray-600 mb-4">Crear demanda desde el consumidor final. Convertir al vecino en promotor.</p>
+                    <ul class="list-disc ml-5 space-y-2 text-sm text-gray-700">
+                        <li><strong>Mensaje Clave:</strong> "Pide desde tu sofá. Recoge sin colas. Paga seguro."</li>
+                        <li><strong>Canales:</strong> Instagram (Amas de casa), TikTok (Jóvenes).</li>
+                        <li><strong>Gancho:</strong> Catálogo en tiempo real y ofertas flash.</li>
+                        <li><strong>Acción:</strong> "Dile a tu casero que use QueVendi".</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: TEMAS Y PILARES -->
+        <section id="contenidos" class="mb-16">
+            <h2 class="text-3xl font-bold">📹 Pilares de Contenido Viral</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- Pilar 1: Seguridad -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <span class="text-xs font-bold px-2 py-1 rounded badge-security mb-2 inline-block">DELINCUENCIA / SERIEDAD</span>
+                    <h4 class="font-bold text-lg">El Botón de Pánico</h4>
+                    <p class="text-sm text-gray-600 mt-2">Videos estilo CCTV/Cámara de seguridad.</p>
+                    <ul class="text-sm mt-3 text-gray-500 space-y-1">
+                        <li>- Simulacro de robo frustrado por alerta.</li>
+                        <li>- Testimonio (IA): "Me sentía sola en la tienda hasta que..."</li>
+                        <li>- Integración con Serenazgo/Vecinos.</li>
+                    </ul>
+                </div>
+
+                <!-- Pilar 2: Humor/Identificación -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <span class="text-xs font-bold px-2 py-1 rounded badge-humor mb-2 inline-block">HUMOR / VIRAL</span>
+                    <h4 class="font-bold text-lg">Ocurrencias de Tienda</h4>
+                    <p class="text-sm text-gray-600 mt-2">Cosas que solo un bodeguero entiende.</p>
+                    <ul class="text-sm mt-3 text-gray-500 space-y-1">
+                        <li>- El cliente que paga S/1 con billete de S/100.</li>
+                        <li>- El "Fiador VIP" que nunca paga.</li>
+                        <li>- La vecina que cuenta chismes y bloquea la cola.</li>
+                    </ul>
+                </div>
+
+                <!-- Pilar 3: Tech/Comparativa -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <span class="text-xs font-bold px-2 py-1 rounded badge-tech mb-2 inline-block">TECNOLOGÍA / VENTAJA</span>
+                    <h4 class="font-bold text-lg">Celular vs PC vs Cuaderno</h4>
+                    <p class="text-sm text-gray-600 mt-2">Demostración de superioridad.</p>
+                    <ul class="text-sm mt-3 text-gray-500 space-y-1">
+                        <li>- QueVendi solo necesita un celular barato.</li>
+                        <li>- Velocidad: Voz vs Escribir a mano.</li>
+                        <li>- Computer Vision: Escanear factura vs Digitar.</li>
+                    </ul>
+                </div>
+
+                <!-- Pilar 4: Autoridades -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <span class="text-xs font-bold px-2 py-1 rounded bg-purple-100 text-purple-800 mb-2 inline-block">GREMIOS / AUTORIDAD</span>
+                    <h4 class="font-bold text-lg">El Aliado del Gremio</h4>
+                    <p class="text-sm text-gray-600 mt-2">Posicionamiento institucional.</p>
+                    <ul class="text-sm mt-3 text-gray-500 space-y-1">
+                        <li>- Noticias sobre regulaciones municipales.</li>
+                        <li>- Consejos para evitar multas/clausuras.</li>
+                        <li>- Colaboraciones (menciones) a Asociaciones.</li>
+                    </ul>
+                </div>
+
+                 <!-- Pilar 5: Clientes -->
+                 <div class="bg-white p-5 rounded-lg shadow">
+                    <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-800 mb-2 inline-block">CLIENTES / AMAS DE CASA</span>
+                    <h4 class="font-bold text-lg">La Vida del Barrio</h4>
+                    <p class="text-sm text-gray-600 mt-2">Conexión emocional con el consumidor.</p>
+                    <ul class="text-sm mt-3 text-gray-500 space-y-1">
+                        <li>- "Tu casero tiene las mejores ofertas".</li>
+                        <li>- Cross-selling (Aretes de la esposa + Pan).</li>
+                        <li>- Apoyo al emprendedor local.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: MARKETING DE PROVOCACIÓN -->
+        <section id="notificaciones" class="mb-16 bg-gradient-to-r from-orange-50 to-orange-100 p-8 rounded-xl border border-orange-200">
+            <h2 class="text-3xl font-bold text-orange-800"><i class="fa-solid fa-fire"></i> Marketing de "Provocación"</h2>
+            <p class="mb-4 text-gray-700">Estrategia para aumentar el ticket promedio usando WebSockets y Push Notifications a clientes locales.</p>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold text-lg mb-2">🔔 El concepto "Just in Time"</h4>
+                    <p class="text-sm text-gray-600 mb-4">La WebApp permite al bodeguero enviar "gritos digitales" a los vecinos conectados.</p>
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <p class="font-bold text-sm text-gray-500 uppercase">Ejemplos de Notificaciones (Scripts):</p>
+                        <ul class="list-disc ml-5 mt-2 space-y-2 text-gray-800">
+                            <li><em>"📢 ¡Vecina! Acaban de salir los kekes de zanahoria del horno. Quedan 5."</em></li>
+                            <li><em>"❄️ ¡Llegó el hielo! Para las chelitas de la noche. Antes que se acabe."</em></li>
+                            <li><em>"🥑 Palta Fuerte en su punto para la cena. S/ 8.00 el kilo solo por hoy."</em></li>
+                            <li><em>"💍 Mi esposa trajo nuevos aretes de plata. Pasa a verlos cuando compres el pan."</em></li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">💡 Cómo promocionar esto en video</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 shrink-0">1</div>
+                            <p class="text-sm">Video mostrando el celular del vecino vibrando con la foto de un keke humeante. <strong>Texto:</strong> "El único chat que me da hambre".</p>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 shrink-0">2</div>
+                            <p class="text-sm">Video del bodeguero hablando a la App: "Avisar a todos que llegó el Gas". Corte a: 3 vecinos bajando a comprar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: BANCO DE PROMPTS -->
+        <section id="prompts" class="mb-16">
+            <h2 class="text-3xl font-bold">🤖 Banco de Prompts (IA Video Generation)</h2>
+            <p class="text-sm text-gray-500 mb-4">Copia y pega en Kling, Luma Dream Machine o Google Veo.</p>
+
+            <div class="space-y-4">
+                <!-- Prompt 1 -->
+                <div class="bg-white p-4 rounded border-l-4 border-slate-700">
+                    <h5 class="font-bold">🎥 Escenario: Bodega Caótica (Realismo Sucio)</h5>
+                    <div class="prompt-box p-3 rounded mt-2 text-sm overflow-x-auto">
+                        First-person POV shot, handheld camera shaking slightly, looking at a crowded small neighborhood convenience store counter in Lima Peru. Harsh overhead fluorescent lighting, slightly flickering. Shelves packed with colorful products, Inca Kola bottles, rice bags, chaotic but organized. A hand holding a crumpled 10 soles bill enters the frame. Low quality phone camera aesthetic, realistic textures, grainy footage, 2025 style.
+                    </div>
+                </div>
+
+                <!-- Prompt 2 -->
+                <div class="bg-white p-4 rounded border-l-4 border-red-600">
+                    <h5 class="font-bold">🚨 Escenario: Inseguridad / CCTV</h5>
+                    <div class="prompt-box p-3 rounded mt-2 text-sm overflow-x-auto">
+                        CCTV security camera footage angle, grainy black and white or low saturation color. High angle looking down at a small bodega counter. A person wearing a motorcycle helmet and a dark hoodie stands in front of the counter, looking suspicious. The shopkeeper looks nervous behind the metal grid. Realistic atmosphere, surveillance tape timestamp overlay, gritty realism.
+                    </div>
+                </div>
+
+                <!-- Prompt 3 -->
+                <div class="bg-white p-4 rounded border-l-4 border-blue-600">
+                    <h5 class="font-bold">📱 Escenario: Tecnología Invisible (Comandos de Voz)</h5>
+                    <div class="prompt-box p-3 rounded mt-2 text-sm overflow-x-auto">
+                        Close-up shot of an old wooden counter in a grocery store. A modern smartphone sits next to a pile of coins. The screen displays a minimalist audio wave animation pulsing green. Background is blurry shelves of products. Cinematic lighting, macro shot, contrast between old wood and new technology.
+                    </div>
+                </div>
+                
+                <!-- Prompt 4 -->
+                <div class="bg-white p-4 rounded border-l-4 border-green-500">
+                    <h5 class="font-bold">🍞 Escenario: Producto "Provocativo" (Keke/Pan)</h5>
+                    <div class="prompt-box p-3 rounded mt-2 text-sm overflow-x-auto">
+                        Hyper-realistic food commercial shot, slow motion close up of a slice of marble cake (keke marmoleado) steaming hot. Warm bakery lighting. In the background, a blurry bodega environment. 4k resolution, appetizing, mouth-watering.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: HERRAMIENTAS -->
+        <section id="herramientas" class="mb-16">
+            <h2 class="text-3xl font-bold">🛠️ Stack Tecnológico</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded shadow">
+                    <thead class="bg-gray-100 border-b">
+                        <tr>
+                            <th class="text-left py-3 px-4 font-semibold text-sm text-gray-600">Categoría</th>
+                            <th class="text-left py-3 px-4 font-semibold text-sm text-gray-600">Herramienta Recomendada</th>
+                            <th class="text-left py-3 px-4 font-semibold text-sm text-gray-600">Uso en QueVendi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">Generación de Video (Escenas)</td>
+                            <td class="py-3 px-4 text-blue-600 font-bold">Kling AI / Google Veo / Luma</td>
+                            <td class="py-3 px-4">Crear escenas de bodegas, clientes y situaciones sin grabar.</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">Clonación de Voz / TTS</td>
+                            <td class="py-3 px-4 text-blue-600 font-bold">ElevenLabs</td>
+                            <td class="py-3 px-4">Narraciones con acento peruano natural o voz de "IA Asistente".</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">Edición / Subtítulos</td>
+                            <td class="py-3 px-4 text-blue-600 font-bold">CapCut (Desktop/Mobile)</td>
+                            <td class="py-3 px-4">Montaje final, subtítulos dinámicos (retención), efectos de sonido.</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">Detección de Tendencias</td>
+                            <td class="py-3 px-4 text-blue-600 font-bold">Google Trends / TikTok Creative Center</td>
+                            <td class="py-3 px-4">Saber si subió el limón o hay ola de asaltos para crear contenido hoy.</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-4">Avatares Hablantes (Opcional)</td>
+                            <td class="py-3 px-4 text-blue-600 font-bold">HeyGen</td>
+                            <td class="py-3 px-4">Tutoriales "Face-to-camera" sin que tú salgas en cámara.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- NUEVA SECCIÓN: MONITOR DE TENDENCIAS Y FUNDADORES -->
+        <section id="tacticas" class="mb-16 pt-4 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold mt-8">📡 Radar de Tendencias & Fundadores</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                
+                <!-- COLUMNA 1: Enlaces Directos de Monitoreo -->
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-600">
+                    <h3 class="text-xl font-bold mb-4"><i class="fa-brands fa-youtube text-red-600"></i> Rutina de Escaneo YouTube</h3>
+                    <p class="text-sm text-gray-600 mb-4">Haz clic en estos enlaces cada mañana. Ya tienen los filtros de "Esta Semana" + "Más Vistos" aplicados.</p>
+                    
+                    <div class="space-y-3">
+                        <a href="https://www.youtube.com/results?search_query=negocio+abarrotes+peru&sp=CAMSAggD" target="_blank" class="block p-3 bg-gray-50 hover:bg-red-50 rounded flex justify-between items-center transition">
+                            <span class="font-bold text-gray-700">🛒 Negocio Abarrotes Perú</span>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Ver Tendencia</span>
+                        </a>
+                        <a href="https://www.youtube.com/results?search_query=robo+tienda+peru&sp=CAMSAggD" target="_blank" class="block p-3 bg-gray-50 hover:bg-red-50 rounded flex justify-between items-center transition">
+                            <span class="font-bold text-gray-700">🚨 Robos / Seguridad</span>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Ver Tendencia</span>
+                        </a>
+                        <a href="https://www.youtube.com/results?search_query=estafa+yape+plin&sp=CAMSAggD" target="_blank" class="block p-3 bg-gray-50 hover:bg-red-50 rounded flex justify-between items-center transition">
+                            <span class="font-bold text-gray-700">📱 Estafas Digitales (Yape/Plin)</span>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Ver Tendencia</span>
+                        </a>
+                        <a href="https://www.youtube.com/results?search_query=precio+alimentos+mercado+lima&sp=CAMSAggD" target="_blank" class="block p-3 bg-gray-50 hover:bg-red-50 rounded flex justify-between items-center transition">
+                            <span class="font-bold text-gray-700">📈 Precios Mercado (Limón/Pollo)</span>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Ver Tendencia</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- COLUMNA 2: Estrategia Fundadores -->
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
+                    <h3 class="text-xl font-bold mb-4"><i class="fa-solid fa-crown text-yellow-500"></i> Plan "Círculo de Fundadores"</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Captar 50 usuarios Beta antes del lanzamiento oficial.</p>
+                    
+                    <div class="bg-yellow-50 p-4 rounded mb-4">
+                        <h4 class="font-bold text-yellow-800 text-sm mb-2">LA OFERTA IRRESISTIBLE:</h4>
+                        <ul class="list-disc ml-5 text-sm text-yellow-900 space-y-1">
+                            <li><strong>Descuento Vitalicio:</strong> 50% OFF para siempre.</li>
+                            <li><strong>Insignia en App:</strong> "Tienda Fundadora" (Confianza).</li>
+                            <li><strong>Soporte VIP:</strong> WhatsApp directo con el creador.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4 class="font-bold text-gray-800 text-sm mb-2">CTA para Videos (Call to Action):</h4>
+                        <div class="prompt-box p-3 rounded text-xs text-cyan-300">
+                            "Estamos buscando a los 50 bodegueros más pilas del Perú para probar este sistema antes que nadie. Únete al Círculo de Fundadores en el link de mi perfil y asegura tu precio especial de por vida. Solo quedan 30 cupos."
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- SECCIÓN: FUNNELS DE VENTA -->
+        <section id="funnels" class="mb-16 pt-4">
+            <h2 class="text-3xl font-bold text-indigo-900"><i class="fa-solid fa-filter"></i> Sistema de Captación (Los 2 Embudos)</h2>
+            <p class="text-gray-600 mb-6">Basado en la metodología de <em>Conciencia -> Consideración -> Venta</em> (BIG School), adaptado a WhatsApp y Bodegas.</p>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                
+                <!-- FUNNEL 1: FUNDADORES -->
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-bl-lg">FAST TRACK</div>
+                    <h3 class="text-xl font-bold text-yellow-800 mb-2">🏆 Funnel "Fundadores"</h3>
+                    <p class="text-xs text-gray-600 mb-4">Para Early Adopters (Tecnológicos/Visionarios). Venta directa por escasez.</p>
+                    
+                    <div class="space-y-4 mt-4">
+                        <div class="funnel-step pb-4">
+                            <h4 class="font-bold text-sm">1. Gancho (Escasez)</h4>
+                            <p class="text-xs text-gray-600">Video/Ad: "Busco 50 dueños que quieran modernizar su tienda. 50% OFF de por vida."</p>
+                        </div>
+                        <div class="funnel-step pb-4">
+                            <h4 class="font-bold text-sm">2. Filtro (Landing Page)</h4>
+                            <p class="text-xs text-gray-600">Página simple explicando beneficios exclusivos (Placa Fundador, Soporte directo).</p>
+                        </div>
+                        <div class="funnel-step pb-4">
+                            <h4 class="font-bold text-sm">3. Conversión (WhatsApp Directo)</h4>
+                            <p class="text-xs text-gray-600">Botón: "Quiero mi cupo". Llevas al interesado a tu WhatsApp personal. Cierre 1 a 1.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FUNNEL 2: GENERAL (NURTURING) -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">📢 Funnel General (El Educativo)</h3>
+                    <p class="text-xs text-gray-600 mb-4">Metodología BIG School adaptada. Para el bodeguero escéptico.</p>
+                    
+                    <div class="space-y-4 mt-4">
+                        <div class="funnel-step pb-4">
+                            <h4 class="font-bold text-sm text-indigo-600">1. Conciencia (Lead Magnet)</h4>
+                            <p class="text-xs text-gray-600 mb-1">El usuario sabe que tiene un problema (robos/desorden) pero no conoce tu solución.</p>
+                            <div class="bg-gray-100 p-2 rounded text-xs italic border-l-2 border-indigo-400">
+                                🎁 <strong>Regalo:</strong> "PDF: 5 Señales de que te están robando hormiga" o "Plantilla Cartel Disuasorio".
+                            </div>
+                        </div>
+                        <div class="funnel-step pb-4">
+                            <h4 class="font-bold text-sm text-indigo-600">2. Consideración (Nurturing)</h4>
+                            <p class="text-xs text-gray-600 mb-1">Educar sin vender. Secuencia de 3 mensajes de WhatsApp/Email.</p>
+                            <ul class="text-xs list-disc ml-4 text-gray-500">
+                                <li>Día 1: "Cómo el bodeguero Jorge recuperó 200 soles perdidos." (Caso éxito).</li>
+                                <li>Día 2: "Por qué escribir en cuaderno te hace perder 1 hora al día." (Agitar dolor).</li>
+                                <li>Día 3: "La tecnología de voz ya no es solo para jóvenes." (Romper objeción).</li>
+                            </ul>
+                        </div>
+                        <div class="funnel-step">
+                            <h4 class="font-bold text-sm text-green-600">3. Venta (Oferta Irresistible)</h4>
+                            <p class="text-xs text-gray-600">Ahora sí vendemos. "Prueba QueVendi 14 días. Si no te gusta, no pagas."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: SEO -->
+        <section id="seo" class="mb-16">
+            <h2 class="text-3xl font-bold text-green-800"><i class="fa-solid fa-magnifying-glass"></i> Estrategia SEO (Tráfico Gratuito)</h2>
+            <p class="text-gray-600 mb-6">Posicionamiento a medio/largo plazo para reducir coste de ads. Atacamos las dudas, no el nombre del software.</p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg shadow border border-green-100">
+                    <thead class="bg-green-50 text-green-900 text-xs uppercase">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Intención de Búsqueda</th>
+                            <th class="py-3 px-4 text-left">Keywords (Palabras Clave)</th>
+                            <th class="py-3 px-4 text-left">Idea de Contenido (Blog/Video)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700">
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-bold">Dolor / Problema</td>
+                            <td class="py-3 px-4"><em>"cómo evitar robos hormiga bodega", "inventario bodega excel gratis"</em></td>
+                            <td class="py-3 px-4">Artículo con plantilla descargable (Lead Magnet) -> Al final recomiendas QueVendi.</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-bold">Trámites / Legal</td>
+                            <td class="py-3 px-4"><em>"multas sunat bodegas 2025", "licencia funcionamiento municipalidad lima"</em></td>
+                            <td class="py-3 px-4">Guía legal simple. Genera confianza y autoridad. "QueVendi te ayuda con tus reportes".</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-bold">Comparativa</td>
+                            <td class="py-3 px-4"><em>"sistema pos para bodega precio", "caja registradora vs sistema"</em></td>
+                            <td class="py-3 px-4">Tabla comparativa honesta. "Por qué la voz es más rápida que el lector de barras".</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-4 font-bold">Transaccional</td>
+                            <td class="py-3 px-4"><em>"app para vender recargas", "software ventas bodega perú"</em></td>
+                            <td class="py-3 px-4">Landing page de venta directa optimizada para conversión.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 class="font-bold text-blue-900 text-sm mb-2">💡 Hack SEO Local:</h4>
+                <p class="text-sm text-gray-700">Crea fichas de <strong>Google My Business</strong> o artículos específicos por distritos grandes: <em>"Cómo abrir una bodega en San Juan de Lurigancho"</em>. La competencia ahí es nula y captas al emprendedor justo cuando empieza.</p>
+            </div>
+        </section>
+
+        
+        <!-- FOOTER -->
+        <footer class="mt-12 border-t pt-6 text-center text-gray-500 text-sm pb-12">
+            <p>&copy; 2025 QueVendi.pro - Documento Privado de Estrategia.</p>
+        </footer>
+
+    </main>
+
+</body>
+</html>

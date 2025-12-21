@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f0f23">
+    <title>QueVendi - Dashboard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/dashboard_principal.css">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+    <!-- ========================================
+         MENÚ LATERAL (SLIDE)
+    ======================================== -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar" id="sidebar-avatar">U</div>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username" id="sidebar-username">Usuario</span>
+                    <span class="sidebar-store" id="sidebar-store">Mi Bodega</span>
+                </div>
+            </div>
+            <button class="sidebar-close" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Categorías con slider horizontal -->
+        <div class="sidebar-categories">
+            <button class="category-tab active" data-category="gerente">
+                <i class="fas fa-robot"></i> Gerente IA
+            </button>
+            <button class="category-tab" data-category="operativa">
+                <i class="fas fa-boxes"></i> Operativa
+            </button>
+            <button class="category-tab" data-category="financiera">
+                <i class="fas fa-chart-line"></i> Financiera
+            </button>
+            <button class="category-tab" data-category="comercial">
+                <i class="fas fa-bullhorn"></i> Comercial
+            </button>
+            <button class="category-tab" data-category="seguridad">
+                <i class="fas fa-shield-alt"></i> Seguridad
+            </button>
+            <button class="category-tab" data-category="config">
+                <i class="fas fa-cog"></i> Config
+            </button>
+        </div>
+        
+        <!-- Contenido de cada categoría -->
+        <div class="sidebar-content">
+            <!-- GERENTE IA -->
+            <div class="category-content active" id="cat-gerente">
+                <div class="gerente-chat">
+                    <div class="chat-welcome">
+                        <div class="chat-icon">🤖</div>
+                        <h3>¿En qué te ayudo?</h3>
+                        <p>Pregúntame sobre ventas, stock, clientes o cualquier cosa de tu negocio.</p>
+                    </div>
+                    <div class="chat-suggestions">
+                        <button class="suggestion-chip" onclick="askGerente('¿Cuánto vendí hoy?')">
+                            💰 ¿Cuánto vendí hoy?
+                        </button>
+                        <button class="suggestion-chip" onclick="askGerente('¿Qué producto me da más margen?')">
+                            📊 ¿Mejor margen?
+                        </button>
+                        <button class="suggestion-chip" onclick="askGerente('¿Quién me debe más?')">
+                            📝 ¿Quién me debe?
+                        </button>
+                        <button class="suggestion-chip" onclick="askGerente('¿Qué debo reponer?')">
+                            📦 ¿Qué reponer?
+                        </button>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="gerente-input" placeholder="Escribe tu pregunta...">
+                        <button class="btn-mic-gerente" onclick="voiceAskGerente()">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="btn-send-gerente" onclick="sendGerenteQuestion()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OPERATIVA -->
+            <div class="category-content" id="cat-operativa">
+                <nav class="sidebar-nav">
+                    <a href="/products" class="nav-item">
+                        <i class="fas fa-boxes"></i>
+                        <span>Stock actual</span>
+                        <span class="nav-badge" id="total-products">0</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showLowStock()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Stock bajo</span>
+                        <span class="nav-badge warning" id="low-stock-count">0</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showExpiring()">
+                        <i class="fas fa-clock"></i>
+                        <span>Por vencer</span>
+                        <span class="nav-badge danger" id="expiring-count">0</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showPurchaseForm()">
+                        <i class="fas fa-truck"></i>
+                        <span>Registrar compra</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showInventory()">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Inventario</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- FINANCIERA -->
+            <div class="category-content" id="cat-financiera">
+                <nav class="sidebar-nav">
+                    <a href="/reports" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Ventas del día</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showProfits()">
+                        <i class="fas fa-coins"></i>
+                        <span>Ganancias y márgenes</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showFiados()">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Fiados pendientes</span>
+                        <span class="nav-badge warning" id="fiados-count">0</span>
+                    </a>
+                    <a href="#" class="nav-item owner-only" onclick="showCashFlow()">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Flujo de caja</span>
+                    </a>
+                    <a href="#" class="nav-item owner-only" onclick="editDailyGoal()">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Meta diaria</span>
+                        <i class="fas fa-cog nav-config"></i>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- COMERCIAL -->
+            <div class="category-content" id="cat-comercial">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item" onclick="showTopProducts()">
+                        <i class="fas fa-fire"></i>
+                        <span>Top ventas</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSlowProducts()">
+                        <i class="fas fa-snowflake"></i>
+                        <span>Sin rotación</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showComboSuggestions()">
+                        <i class="fas fa-gift"></i>
+                        <span>Sugerencias de combos</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showFrequentClients()">
+                        <i class="fas fa-users"></i>
+                        <span>Clientes frecuentes</span>
+                    </a>
+                    <a href="#" class="nav-item owner-only" onclick="showPromotions()">
+                        <i class="fas fa-tags"></i>
+                        <span>Promociones</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- SEGURIDAD -->
+            <div class="category-content" id="cat-seguridad">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item" onclick="showReportIncident()">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Reportar amenaza</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showMyReports()">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Mis reportes</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showBodeguerosNetwork()">
+                        <i class="fas fa-store-alt"></i>
+                        <span>Red de bodegueros</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showEmergencyContacts()">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>Contactos emergencia</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSecurityGuide()">
+                        <i class="fas fa-book"></i>
+                        <span>Guía antiextorsión</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- CONFIGURACIÓN -->
+            <div class="category-content" id="cat-config">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item" onclick="showProfile()">
+                        <i class="fas fa-user"></i>
+                        <span>Mi perfil</span>
+                    </a>
+                    <a href="#" class="nav-item owner-only" onclick="showUsers()">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Usuarios</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showVoiceConfig()">
+                        <i class="fas fa-microphone-alt"></i>
+                        <span>Config. voz</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showPrinterConfig()">
+                        <i class="fas fa-print"></i>
+                        <span>Impresora</span>
+                    </a>
+                    <a href="#" class="nav-item owner-only" onclick="showPlanBilling()">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Plan y facturación</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar sesión</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Overlay para cerrar sidebar -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- ========================================
+         CONTENIDO PRINCIPAL
+    ======================================== -->
+    <main class="main-content">
+        <!-- HEADER -->
+        <header class="header">
+            <button class="btn-menu" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-info">
+                <span class="header-username" id="header-username">Usuario</span>
+                <span class="header-store" id="header-store">Mi Bodega</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-header" id="btn-notifications" onclick="showNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notification-count" style="display:none;">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- BUSCADOR -->
+        <section class="search-section">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    class="search-input" 
+                    placeholder="Buscar producto..."
+                    autocomplete="off"
+                    oninput="searchProducts(this.value)"
+                >
+                <div class="mic-buttons">
+                    <button 
+                        class="btn-mic" 
+                        id="btn-mic-basic" 
+                        onclick="startVoiceSearch('basic')"
+                        title="Voz básica (Plan Básico)"
+                    >
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button 
+                        class="btn-mic pro" 
+                        id="btn-mic-pro" 
+                        onclick="startVoiceSearch('pro')"
+                        title="Voz PRO (Whisper)"
+                    >
+                        <i class="fas fa-microphone"></i>
+                        <span class="pro-badge">PRO</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Resultados de búsqueda -->
+            <div id="search-results" class="search-results" style="display:none;"></div>
+        </section>
+
+        <!-- META DEL DÍA -->
+        <section class="goal-section">
+            <div class="goal-bar-container">
+                <div class="goal-bar" id="goal-bar" style="width: 0%"></div>
+            </div>
+            <div class="goal-info">
+                <span class="goal-text" id="goal-text">S/. 0 / S/. 500</span>
+                <span class="goal-percent" id="goal-percent">0%</span>
+            </div>
+        </section>
+
+        <!-- CARRITO -->
+        <section class="cart-section">
+            <div class="cart-header">
+                <h2><i class="fas fa-shopping-cart"></i> Carrito</h2>
+                <div class="cart-summary">
+                    <span id="cart-count">0 items</span>
+                    <button class="btn-clear-cart" onclick="clearCart()" title="Vaciar carrito">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cart-items" id="cart-items">
+                <div class="cart-empty" id="cart-empty">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Carrito vacío</p>
+                    <span>Busca productos o usa el micrófono</span>
+                </div>
+            </div>
+            
+            <!-- Sugerencias de venta cruzada -->
+            <div class="cross-sell" id="cross-sell" style="display:none;">
+                <span class="cross-sell-label">
+                    <i class="fas fa-lightbulb"></i> También llevan:
+                </span>
+                <div class="cross-sell-items" id="cross-sell-items"></div>
+            </div>
+        </section>
+
+        <!-- TOTAL Y PAGO -->
+        <section class="checkout-section">
+            <div class="total-row">
+                <span class="total-label">TOTAL</span>
+                <span class="total-amount" id="total-amount">S/. 0.00</span>
+            </div>
+            
+            <div class="payment-methods" id="payment-methods">
+                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo')">
+                    <i class="fas fa-money-bill-wave"></i> Efectivo
+                </button>
+                <button class="payment-btn" data-method="yape" onclick="selectPayment('yape')">
+                    <img src="/static/img/yape-icon.png" alt="Yape" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Yape
+                </button>
+                <button class="payment-btn" data-method="plin" onclick="selectPayment('plin')">
+                    <img src="/static/img/plin-icon.png" alt="Plin" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Plin
+                </button>
+                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta')">
+                    <i class="fas fa-credit-card"></i> Tarjeta
+                </button>
+                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado')">
+                    <i class="fas fa-handshake"></i> Fiado
+                </button>
+            </div>
+            
+            <!-- Campo cliente para Fiado -->
+            <div class="fiado-client" id="fiado-client" style="display:none;">
+                <div class="fiado-input-group">
+                    <input type="text" id="fiado-client-name" placeholder="Nombre del cliente...">
+                    <button class="btn-fiado-confirm" onclick="processSale()">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Botón COBRAR (visible cuando NO es fiado) -->
+            <button class="btn-checkout" id="btn-checkout" onclick="processSale()">
+                <i class="fas fa-cash-register"></i>
+                <span>COBRAR</span>
+            </button>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <button class="footer-btn" onclick="showStock()">
+                <i class="fas fa-boxes"></i>
+                <span>Stock</span>
+            </button>
+            <button class="footer-btn" onclick="showSales()">
+                <i class="fas fa-chart-bar"></i>
+                <span>Ventas</span>
+            </button>
+            <button class="footer-btn" onclick="printLastTicket()">
+                <i class="fas fa-print"></i>
+                <span>Ticket</span>
+            </button>
+            <button class="footer-btn" onclick="toggleSidebar(); switchCategory('gerente');">
+                <i class="fas fa-robot"></i>
+                <span>Gerente</span>
+            </button>
+            <button class="footer-btn alert-btn" onclick="toggleAlertMenu()">
+                <i class="fas fa-shield-alt"></i>
+                <span>Alerta</span>
+            </button>
+        </footer>
+        
+        <!-- Menú de Alerta (popup encima del footer) -->
+        <div class="alert-menu-popup" id="alert-menu-popup">
+            <button class="alert-option green" onclick="reportSuspect()">
+                <i class="fas fa-eye"></i>
+                <div class="alert-text">
+                    <span class="alert-title">Sospecha</span>
+                    <span class="alert-desc">Marcaje, vigilancia</span>
+                </div>
+            </button>
+            <button class="alert-option amber" onclick="reportThreat()">
+                <i class="fas fa-comment-dots"></i>
+                <div class="alert-text">
+                    <span class="alert-title">Amenaza</span>
+                    <span class="alert-desc">WhatsApp, llamadas</span>
+                </div>
+            </button>
+            <button class="alert-option red" onmousedown="startEmergency()" onmouseup="cancelEmergency()" ontouchstart="startEmergency()" ontouchend="cancelEmergency()">
+                <div class="emergency-progress-bar" id="emergency-progress"></div>
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-text">
+                    <span class="alert-title">¡EMERGENCIA!</span>
+                    <span class="alert-desc">Mantener 3 seg</span>
+                </div>
+            </button>
+        </div>
+    </main>
+
+    <!-- ========================================
+         MODALS
+    ======================================== -->
+    
+    <!-- Modal de Venta Exitosa -->
+    <div class="modal" id="modal-sale-success">
+        <div class="modal-content success">
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>¡Venta Registrada!</h2>
+            <p class="sale-amount" id="modal-sale-amount">S/. 0.00</p>
+            <p class="sale-method" id="modal-sale-method">Efectivo</p>
+            <div class="modal-actions">
+                <button class="btn-modal secondary" onclick="printTicket('simple')">
+                    <i class="fas fa-receipt"></i> Ticket Simple
+                </button>
+                <button class="btn-modal secondary" onclick="printTicket('electronic')">
+                    <i class="fas fa-file-invoice"></i> Electrónica
+                </button>
+                <button class="btn-modal primary" onclick="closeSaleModal()">
+                    <i class="fas fa-arrow-right"></i> Siguiente
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Alerta de Pánico -->
+    <div class="modal" id="modal-panic">
+        <div class="modal-content panic">
+            <div class="modal-header-panic">
+                <i class="fas fa-shield-alt"></i>
+                <h2 id="panic-modal-title">Reportar Incidente</h2>
+            </div>
+            <div class="modal-body-panic" id="panic-modal-body">
+                <!-- Contenido dinámico según nivel -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard_principal.js"></script>
+</body>
+</html>

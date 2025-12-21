@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Mapa de Seguridad - QueVendi</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/mapa_delitos.css">
+</head>
+<body>
+    <!-- ========================================
+         HEADER
+    ======================================== -->
+    <header class="header">
+        <div class="header-brand">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Alerta<strong>Perú</strong></span>
+            </a>
+            <span class="header-subtitle">Mapa de Seguridad Ciudadana</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header" onclick="showInfo()">
+                <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="btn-header" onclick="exportData()">
+                <i class="fas fa-download"></i>
+            </button>
+            <a href="/dashboard" class="btn-header-primary">
+                <i class="fas fa-store"></i>
+                <span>Mi Bodega</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ========================================
+         CONTENIDO PRINCIPAL
+    ======================================== -->
+    <main class="main-container">
+        <!-- Panel Lateral -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left" id="sidebar-toggle-icon"></i>
+            </div>
+            
+            <!-- Estadísticas Resumen -->
+            <section class="stats-section">
+                <h3><i class="fas fa-chart-bar"></i> Resumen</h3>
+                <div class="stats-period">
+                    <select id="stats-period" onchange="updateStats()">
+                        <option value="today">Hoy</option>
+                        <option value="week" selected>Últimos 7 días</option>
+                        <option value="month">Últimos 30 días</option>
+                        <option value="year">Este año</option>
+                    </select>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-red">0</span>
+                            <span class="stat-label">Emergencias</span>
+                        </div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-amber">0</span>
+                            <span class="stat-label">Extorsiones</span>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class="fas fa-eye"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-green">0</span>
+                            <span class="stat-label">Sospechas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card total">
+                        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total">0</span>
+                            <span class="stat-label">Total</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Filtros -->
+            <section class="filters-section">
+                <h3><i class="fas fa-filter"></i> Filtros</h3>
+                
+                <!-- Nivel -->
+                <div class="filter-group">
+                    <label>Nivel de alerta</label>
+                    <div class="filter-checkboxes">
+                        <label class="checkbox-label red">
+                            <input type="checkbox" id="filter-red" checked onchange="applyFilters()">
+                            <span class="checkbox-custom"></span>
+                            🔴 Emergencia
+                        </label>
+                        <label class="checkbox-label amber">
+                            <input type="checkbox" id="filter-amber" checked onchange="applyFilters()">
+                            <span class="checkbox-custom"></span>
+                            🟠 Extorsión
+                        </label>
+                        <label class="checkbox-label green">
+                            <input type="checkbox" id="filter-green" checked onchange="applyFilters()">
+                            <span class="checkbox-custom"></span>
+                            🟢 Sospecha
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Tipo -->
+                <div class="filter-group">
+                    <label>Tipo de incidente</label>
+                    <select id="filter-type" onchange="applyFilters()">
+                        <option value="all">Todos</option>
+                        <option value="robo">Robo / Asalto</option>
+                        <option value="extorsion_whatsapp">Extorsión WhatsApp</option>
+                        <option value="extorsion_llamada">Extorsión Llamada</option>
+                        <option value="extorsion_presencial">Extorsión Presencial</option>
+                        <option value="marcaje">Marcaje / Vigilancia</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                
+                <!-- Ubicación - Búsqueda por Distrito -->
+                <div class="filter-group">
+                    <label>Buscar distrito</label>
+                    <input type="text" 
+                           id="filter-distrito-search" 
+                           placeholder="Ej: San Juan de Lurigancho..."
+                           oninput="searchDistrito(this.value)"
+                           autocomplete="off">
+                    <div class="distrito-results" id="distrito-results"></div>
+                </div>
+                
+                <!-- Ubicación seleccionada -->
+                <div class="filter-group" id="ubicacion-selected" style="display: none;">
+                    <label>Ubicación seleccionada</label>
+                    <div class="ubicacion-badge" id="ubicacion-badge">
+                        <span id="ubicacion-text"></span>
+                        <button onclick="clearUbicacion()" title="Quitar filtro">×</button>
+                    </div>
+                </div>
+                
+                <!-- Fecha -->
+                <div class="filter-group">
+                    <label>Rango de fechas</label>
+                    <div class="date-inputs">
+                        <input type="date" id="filter-date-from" onchange="applyFilters()">
+                        <span>a</span>
+                        <input type="date" id="filter-date-to" onchange="applyFilters()">
+                    </div>
+                </div>
+                
+                <button class="btn-clear-filters" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Limpiar filtros
+                </button>
+            </section>
+            
+            <!-- Lista de Incidentes Recientes -->
+            <section class="incidents-section">
+                <h3><i class="fas fa-list"></i> Incidentes Recientes</h3>
+                <div class="incidents-list" id="incidents-list">
+                    <!-- Se llena dinámicamente -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando...
+                    </div>
+                </div>
+            </section>
+        </aside>
+        
+        <!-- Mapa -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Controles del Mapa -->
+            <div class="map-controls">
+                <div class="control-group">
+                    <button class="map-control-btn active" id="btn-markers" onclick="setMapView('markers')" title="Vista de marcadores">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                    <button class="map-control-btn" id="btn-heatmap" onclick="setMapView('heatmap')" title="Vista de calor">
+                        <i class="fas fa-fire"></i>
+                    </button>
+                    <button class="map-control-btn" id="btn-clusters" onclick="setMapView('clusters')" title="Vista de clusters">
+                        <i class="fas fa-circle-nodes"></i>
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button class="map-control-btn" onclick="centerOnUser()" title="Mi ubicación">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                    <button class="map-control-btn" onclick="refreshData()" title="Actualizar datos">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Leyenda -->
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-marker red"></span>
+                    <span>Emergencia</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker amber"></span>
+                    <span>Extorsión</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker green"></span>
+                    <span>Sospecha</span>
+                </div>
+            </div>
+            
+            <!-- Última actualización -->
+            <div class="map-update-info">
+                <i class="fas fa-clock"></i>
+                <span id="last-update">Actualizando...</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================
+         MODAL: Detalle de Incidente
+    ======================================== -->
+    <div class="modal" id="modal-incident">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-incident')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header" id="modal-incident-header">
+                <span class="incident-level" id="modal-incident-level">🔴 EMERGENCIA</span>
+                <span class="incident-date" id="modal-incident-date">Hace 2 horas</span>
+            </div>
+            <div class="modal-body" id="modal-incident-body">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================
+         MODAL: Información
+    ======================================== -->
+    <div class="modal" id="modal-info">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('modal-info')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Sobre el Mapa de Seguridad</h2>
+            </div>
+            <div class="modal-body">
+                <div class="info-section">
+                    <h3>¿Qué es este mapa?</h3>
+                    <p>Este mapa muestra en tiempo real los incidentes de seguridad reportados por bodegueros y comerciantes a través de la aplicación QueVendi. Los datos son anónimos y están diseñados para ayudar a prevenir delitos y coordinar respuestas.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Niveles de alerta</h3>
+                    <div class="info-levels">
+                        <div class="info-level red">
+                            <span class="level-icon">🔴</span>
+                            <div>
+                                <strong>Emergencia</strong>
+                                <p>Robo en curso, agresión física, peligro de vida.</p>
+                            </div>
+                        </div>
+                        <div class="info-level amber">
+                            <span class="level-icon">🟠</span>
+                            <div>
+                                <strong>Extorsión</strong>
+                                <p>Amenazas por WhatsApp, llamadas, mensajes.</p>
+                            </div>
+                        </div>
+                        <div class="info-level green">
+                            <span class="level-icon">🟢</span>
+                            <div>
+                                <strong>Sospecha</strong>
+                                <p>Marcaje, vigilancia, actividad sospechosa.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Privacidad</h3>
+                    <p>La ubicación mostrada es aproximada (radio de 200m) para proteger la identidad de los comerciantes. Los datos personales nunca se comparten públicamente.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>¿Eres autoridad?</h3>
+                    <p>Si representas a Serenazgo, PNP o la Asociación de Bodegueros del Perú, puedes solicitar acceso a datos detallados para coordinación de seguridad.</p>
+                    <a href="mailto:seguridad@quevendi.pro" class="btn-info-contact">
+                        <i class="fas fa-envelope"></i> Contactar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         CHATBOT FAB
+    ======================================== -->
+    <div class="chatbot-fab-container">
+        <button class="chatbot-fab" id="chatbot-fab" onclick="toggleChatbot()" title="Asistente de búsqueda">
+            <i class="fas fa-robot"></i>
+        </button>
+    </div>
+    
+    <!-- Chatbot Panel -->
+    <div class="chatbot-panel" id="chatbot-panel">
+        <div class="chatbot-header">
+            <h4><i class="fas fa-robot"></i> Asistente del Mapa</h4>
+            <button class="chatbot-close" onclick="toggleChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="chat-message bot">
+                👋 ¡Hola! Soy tu asistente. Puedo ayudarte a buscar zonas, filtrar incidentes y entender las estadísticas. ¿Qué necesitas?
+            </div>
+        </div>
+        <div class="chatbot-suggestions">
+            <button class="suggestion-chip" onclick="askChatbot('Zonas más peligrosas')">🔴 Zonas peligrosas</button>
+            <button class="suggestion-chip" onclick="askChatbot('Extorsiones en SJL')">📍 Extorsiones SJL</button>
+            <button class="suggestion-chip" onclick="askChatbot('Estadísticas de hoy')">📊 Estadísticas</button>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" 
+                   class="chatbot-input" 
+                   id="chatbot-input" 
+                   placeholder="Escribe o pregunta por voz..."
+                   onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button class="chatbot-mic" id="chatbot-mic" onclick="startChatbotVoice()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="chatbot-send" onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCRIPTS
+    ======================================== -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/static/js/mapa_delitos.js"></script>
+</body>
+</html>

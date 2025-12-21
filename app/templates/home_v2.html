@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b35">
+    <title>QueVendi - Punto de Venta</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/pos.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+    
+    <!-- ============================================
+     HEADER: Usuario + Bodega + Meta del Día + Voz
+    ============================================= -->
+    <header class="header-top">
+        <div class="user-info">
+            <div class="avatar">U</div>
+            <div class="user-details">
+                <span class="username">Usuario</span>
+                <span class="store-name">Mi Bodega del Centro</span>
+            </div>
+        </div>
+        
+        <!-- Meta del día + API Indicator -->
+        <div class="daily-goal-section">
+            <div class="daily-goal">
+                <div class="goal-progress">
+                    <div class="goal-bar" id="goal-bar" style="width: 0%"></div>
+                </div>
+                <span class="goal-text" id="goal-text">S/. 0 / S/. 500</span>
+            </div>
+            
+            <!-- Indicador de API (discreto) -->
+            <div id="api-indicator" class="api-badge">🤖</div>
+        </div>
+        
+        <div class="header-actions">
+            <!-- Botones de Voz -->
+            <button class="btn-voice-compact" 
+                    id="mic-btn-free" 
+                    onclick="toggleVoiceSearch('free')" 
+                    title="Voz básica (1 producto a la vez)">
+                🎤
+            </button>
+            
+            <button class="btn-voice-compact btn-voice-ai" 
+                    id="mic-btn-ai" 
+                    onclick="toggleVoiceSearch('ai')" 
+                    title="IA: múltiples productos">
+                🤖
+            </button>
+            
+            <button class="btn-icon" onclick="toggleQuickMenu()" title="Acceso Rápido">
+                ⚡
+            </button>
+            
+            <button class="btn-icon" onclick="logout()" title="Cerrar sesión">
+                🚪
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================
+         QUICK MENU (Desplegable)
+    ============================================= -->
+    <!-- QUICK MENU -->
+    <div class="quick-menu" id="quick-menu">
+        <div class="quick-menu-grid">
+            <button class="quick-btn" onclick="showLowStock()">
+                <span class="quick-icon">📦</span>
+                <span class="quick-label">Stock Bajo</span>
+                <span class="quick-badge" id="low-stock-count">0</span>
+            </button>
+            
+            <button class="quick-btn" onclick="showExpiringSoon()">
+                <span class="quick-icon">⏰</span>
+                <span class="quick-label">Por Vencer</span>
+                <span class="quick-badge warning" id="expiring-count">0</span>
+            </button>
+            
+            <button class="quick-btn" onclick="showNewProducts()">
+                <span class="quick-icon">✨</span>
+                <span class="quick-label">Nuevos</span>
+                <span class="quick-badge success" id="new-products-count">0</span>
+            </button>
+            
+            <button class="quick-btn" onclick="showTopSelling()">
+                <span class="quick-icon">🔥</span>
+                <span class="quick-label">Top Ventas</span>
+            </button>
+            
+            <button class="quick-btn" onclick="showFavorites()">
+                <span class="quick-icon">⭐</span>
+                <span class="quick-label">Favoritos</span>
+            </button>
+            
+            <!-- Este botón NO cierra el menú -->
+            <button class="quick-btn" onclick="event.stopPropagation(); toggleMicSettings()">
+                <span class="quick-icon">🎤</span>
+                <span class="quick-label">Config. Voz</span>
+            </button>
+        </div>
+        
+        <!-- MIC SETTINGS (dentro del Quick Menu) -->
+        <div class="mic-settings" id="mic-settings">
+            <div class="mic-settings-header">⏱️ Apagado automático del micrófono</div>
+            <div class="mic-timer-options">
+                <div class="timer-option" data-seconds="5" onclick="setMicTimer(5)">5s</div>
+                <div class="timer-option active" data-seconds="10" onclick="setMicTimer(10)">10s</div>
+                <div class="timer-option" data-seconds="15" onclick="setMicTimer(15)">15s</div>
+                <div class="timer-option" data-seconds="20" onclick="setMicTimer(20)">20s</div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- ============================================
+         MÉTODOS DE PAGO
+    ============================================= -->
+    <div class="payment-methods">
+        <button class="payment-btn active" data-method="cash" onclick="selectPaymentMethod('cash')">
+            <i class="fas fa-money-bill-wave"></i>
+            <span class="payment-label">Efectivo</span>
+        </button>
+        <button class="payment-btn" data-method="yape" onclick="selectPaymentMethod('yape')">
+            <i class="fas fa-mobile-alt"></i>
+            <span class="payment-label">Yape</span>
+        </button>
+        <button class="payment-btn" data-method="plin" onclick="selectPaymentMethod('plin')">
+            <i class="fas fa-mobile-alt"></i>
+            <span class="payment-label">Plin</span>
+        </button>
+        <button class="payment-btn" data-method="credit" onclick="selectPaymentMethod('credit')">
+            <i class="fas fa-file-invoice"></i>
+            <span class="payment-label">Fiado</span>
+        </button>
+    </div>
+
+    <!-- ============================================
+         BÚSQUEDA + MICRÓFONO
+    ============================================= -->
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" 
+                   id="search-input" 
+                   placeholder="Buscar productos..."
+                   autocomplete="off"
+                   onkeyup="handleSearchInput(event)">
+        </div>
+        
+        <button class="mic-button" 
+                id="mic-btn"
+                onclick="toggleVoiceSearch()">
+            <span class="mic-icon">🎤</span>
+            <span class="mic-pulse"></span>
+        </button>
+    </div>
+
+    <!-- ============================================
+         ACCESOS RÁPIDOS - Últimos productos
+    ============================================= -->
+    <div class="recent-products" id="recent-products">
+        <div class="section-header">
+            <span>Últimos agregados</span>
+            <button class="btn-clear-recent" onclick="clearRecent()">Limpiar</button>
+        </div>
+        <div class="recent-products-grid" id="recent-products-grid">
+            <!-- Se llena dinámicamente -->
+        </div>
+    </div>
+
+    <!-- ============================================
+         SUGERENCIAS INTELIGENTES
+    ============================================= -->
+    <div class="suggestions-section" id="suggestions-section" style="display: none;">
+        <div class="section-header">
+            <span>💡 Productos sugeridos</span>
+            <button class="btn-dismiss" onclick="dismissSuggestions()">✕</button>
+        </div>
+        <div class="suggestions-grid" id="suggestions-grid">
+            <!-- Se llena dinámicamente -->
+        </div>
+    </div>
+
+    <!-- ============================================
+         CARRITO
+    ============================================= -->
+    <div class="cart-section">
+        <div class="cart-header">
+            <h3>Pedido Actual</h3>
+            <div class="cart-stats">
+                <span class="items-count" id="items-count">0 items</span>
+                <button class="btn-clear-cart" onclick="clearCart()">🗑️</button>
+            </div>
+        </div>
+
+        <div class="cart-body" id="cart-items">
+            <div class="cart-empty">
+                <p class="empty-icon">🛒</p>
+                <p class="empty-text">Carrito vacío</p>
+                <p class="empty-hint">Busca productos o usa el micrófono</p>
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <!-- Resumen -->
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">S/. 0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <strong id="cart-total-amount">S/. 0.00</strong>
+                </div>
+            </div>
+            
+            <!-- Botón principal -->
+            <button class="btn-checkout" 
+                    id="checkout-btn"
+                    onclick="processCheckout()"
+                    disabled>
+                <span class="checkout-icon">💵</span>
+                <span class="checkout-text" id="checkout-text">COBRAR EN EFECTIVO</span>
+            </button>
+            
+            <!-- Acciones secundarias (discretas pero claras) -->
+            <div class="secondary-actions">
+                <button class="btn-secondary-action" onclick="printTicket()" title="Imprimir ticket">
+                    <span class="action-icon">🖨️</span>
+                    <span class="action-label">Ticket</span>
+                </button>
+                <button class="btn-secondary-action" onclick="openSalesHistory()" title="Ver ventas del día">
+                    <span class="action-icon">📊</span>
+                    <span class="action-label">Historial</span>
+                </button>
+                <button class="btn-secondary-action" onclick="showSavedCarts()" title="Ver pedidos guardados">
+                    <span class="action-icon">📋</span>
+                    <span class="action-label">Pendientes</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SIDEBAR: Ventas + Stats
+    ============================================= -->
+    <div class="sidebar" id="sales-sidebar">
+        <div class="sidebar-header">
+            <h3>Historial del Día</h3>
+            <button class="btn-close-sidebar" onclick="closeSidebar()">✕</button>
+        </div>
+        
+        <!-- Stats rápidas -->
+        <div class="sidebar-stats">
+            <div class="stat-card">
+                <div class="stat-label">Ventas</div>
+                <div class="stat-value" id="sidebar-sales-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value primary" id="sidebar-sales-total">S/. 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ticket Prom.</div>
+                <div class="stat-value" id="sidebar-avg-ticket">S/. 0</div>
+            </div>
+        </div>
+        
+        <div class="sidebar-body" id="recent-sales">
+            <p style="text-align: center; color: var(--text-muted); padding: 40px 20px;">
+                Cargando ventas...
+            </p>
+        </div>
+    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- ============================================
+         MODAL: Búsqueda
+    ============================================= -->
+    <div class="modal" id="search-results-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Selecciona productos</h3>
+                <button class="modal-close" onclick="closeSearchModal()">✕</button>
+            </div>
+            <div class="modal-body" id="search-results"></div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="addSelectedProducts()">
+                    Agregar al carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MODAL: Cliente (Fiado)
+    ============================================= -->
+    <div class="modal" id="client-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Seleccionar Cliente</h3>
+                <button class="modal-close" onclick="closeClientModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" 
+                       class="input-search"
+                       placeholder="Buscar cliente..."
+                       onkeyup="searchClients(this.value)">
+                <div id="client-results"></div>
+                <button class="btn-secondary" onclick="openNewClientForm()" style="width: 100%; margin-top: 16px;">
+                    + Nuevo Cliente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MODAL: Stock Bajo
+    ============================================= -->
+    <div class="modal" id="low-stock-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📦 Stock Bajo</h3>
+                <button class="modal-close" onclick="closeLowStockModal()">✕</button>
+            </div>
+            <div class="modal-body" id="low-stock-content">
+                <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                    Cargando productos...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TOAST
+    ============================================= -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ============================================
+         INSTALL BUTTON
+    ============================================= -->
+    <button id="install-btn" class="install-button" style="display: none;">
+        📱 Instalar
+    </button>
+
+    <!-- ============================================
+         FOOTER
+    ============================================= -->
+    <footer class="app-footer">
+        <div class="footer-brand">
+            <strong>QueVendi.pro</strong> · LATAM 2025
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', path='/js/pos.js') }}"></script>
+</body>
+</html>
