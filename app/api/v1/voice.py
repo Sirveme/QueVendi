@@ -18,11 +18,22 @@ from typing import Optional, List
 from app.core.database import get_db
 from app.api.dependencies import get_current_user
 from app.models.user import User
+import openai
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# Forzar recarga del .env (override=True ignora variables de sistema)
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), '.env')
+load_dotenv(env_path, override=True)
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Importar settings para obtener OPENAI_API_KEY
 try:
     from app.core.config import settings
-    OPENAI_API_KEY = settings.OPENAI_API_KEY
+    #openai.api_key = os.getenv("OPENAI_API_KEY")
+    #OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     if OPENAI_API_KEY:
         print(f"[Voice] ✅ OPENAI_API_KEY cargada: {OPENAI_API_KEY[:8]}...{OPENAI_API_KEY[-4:]}")
     else:
