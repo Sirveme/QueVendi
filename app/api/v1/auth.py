@@ -3,7 +3,7 @@ Endpoints de autenticación - Con registro completo y validación
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -174,7 +174,7 @@ async def register(
     # 4. CREAR SUSCRIPCIÓN FREEMIUM (30 días)
     # ==========================================
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     trial_end = now + timedelta(days=30)
     
     subscription = Subscription(
@@ -288,7 +288,7 @@ async def login(
         )
     
     # Actualizar último login
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now(timezone.utc)
     db.commit()
     
     # Generar token

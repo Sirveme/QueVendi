@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 
 from app.core.database import get_db
@@ -175,7 +175,7 @@ async def obtener_estadisticas(
     Obtiene estadísticas agregadas de incidentes.
     """
     # Calcular fecha de inicio según periodo
-    ahora = datetime.utcnow()
+    ahora = datetime.now(timezone.utc)
     if periodo == "today":
         desde = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
     elif periodo == "week":
@@ -334,10 +334,10 @@ async def actualizar_estado(
     
     incidente.estado = estado
     if estado == 'atendido':
-        incidente.resuelto_at = datetime.utcnow()
+        incidente.resuelto_at = datetime.now(timezone.utc)
         # Calcular tiempo de respuesta
         if incidente.created_at:
-            delta = datetime.utcnow() - incidente.created_at.replace(tzinfo=None)
+            delta = datetime.now(timezone.utc) - incidente.created_at.replace(tzinfo=None)
             incidente.tiempo_respuesta_minutos = int(delta.total_seconds() / 60)
     
     db.commit()
