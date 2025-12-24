@@ -197,7 +197,8 @@ async def home_page(request: Request):
     """
     Dashboard principal - Auth manejada por JavaScript
     """
-    return templates.TemplateResponse("home_v2.html", {"request": request})
+    #return templates.TemplateResponse("home_v2.html", {"request": request})
+    return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
