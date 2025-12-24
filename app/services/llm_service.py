@@ -18,24 +18,20 @@ IMPORTANTE:
 - Extrae TODOS los productos mencionados
 - Identifica cantidades: números, fracciones (1/2, 1/4, 3/4), palabras (medio, un cuarto)
 - Identifica montos: "X soles de..."
-- Maneja plurales
+- Maneja plurales y conviértelos a singular
 - Productos en español peruano
 
-Retorna JSON array:
-[
-  {
-    "nombre": "papa",
-    "cantidad": 2.0,
-    "unidad": "kg",
-    "monto": null
-  },
-  {
-    "nombre": "limón",
-    "cantidad": null,
-    "unidad": null,
-    "monto": 3.0
-  }
-]
+Retorna un objeto JSON con esta estructura:
+{
+  "productos": [
+    {
+      "nombre": "papa",
+      "cantidad": 2.0,
+      "unidad": "kg",
+      "monto": null
+    }
+  ]
+}
 
 Si cantidad es por monto, pon null en cantidad y el monto en soles.
 Si es por cantidad, pon cantidad y null en monto."""
@@ -55,7 +51,7 @@ class LLMService:
                 system=SYSTEM_PROMPT,
                 messages=[{
                     "role": "user",
-                    "content": f"Comando: {transcript}\n\nRetorna SOLO el JSON array, sin explicaciones."
+                    "content": f"Comando: {transcript}\n\nRetorna SOLO el JSON, sin explicaciones."
                 }]
             )
             
@@ -70,7 +66,8 @@ class LLMService:
                 if response_text.startswith("json"):
                     response_text = response_text[4:]
             
-            products = json.loads(response_text)
+            data = json.loads(response_text)
+            products = data.get("productos", [])
             
             # Calcular costo aproximado
             input_tokens = message.usage.input_tokens
@@ -94,7 +91,7 @@ class LLMService:
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Comando: {transcript}\n\nRetorna SOLO el JSON array."}
+                    {"role": "user", "content": f"Comando: {transcript}\n\nRetorna SOLO el JSON."}
                 ],
                 response_format={"type": "json_object"},
                 max_tokens=1024
@@ -105,8 +102,19 @@ class LLMService:
             content = response.choices[0].message.content
             data = json.loads(content)
             
-            # OpenAI puede wrappear en {"products": [...]}
-            products = data.get("products", data) if isinstance(data, dict) else data
+            # 🔥 ARREGLADO: Buscar en español e inglés
+            products = (
+                data.get("productos") or 
+                data.get("products") or 
+                data.get("items") or 
+                []
+            )
+            
+            # Si data es un array directo (no debería pasar con json_object)
+            if isinstance(data, list):
+                products = data
+            
+            print(f"[OpenAI] Parsed {len(products)} productos")
             
             # Calcular costo
             input_tokens = response.usage.prompt_tokens
@@ -132,7 +140,7 @@ class LLMService:
 
 Comando: {transcript}
 
-Retorna SOLO el JSON array, sin markdown ni explicaciones."""
+Retorna SOLO el JSON, sin markdown ni explicaciones."""
             
             response = model.generate_content(prompt)
             
@@ -147,7 +155,8 @@ Retorna SOLO el JSON array, sin markdown ni explicaciones."""
                 if response_text.startswith("json"):
                     response_text = response_text[4:]
             
-            products = json.loads(response_text)
+            data = json.loads(response_text)
+            products = data.get("productos", [])
             
             # Gemini es gratis (por ahora)
             cost = 0.0
