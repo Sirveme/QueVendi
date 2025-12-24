@@ -9,6 +9,7 @@ charset-normalizer==3.4.3
 click==8.1.8
 colorama==0.4.6
 cryptography==46.0.2
+python-dateutil==2.9.0.post0
 ecdsa==0.19.1
 fastapi==0.104.1
 google-api-core==2.14.0
@@ -57,3 +58,4 @@ urllib3==2.5.0
 uvicorn==0.24.0
 watchfiles==1.1.0
 websockets==15.0.1
+
