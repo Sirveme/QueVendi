@@ -46,8 +46,10 @@ const AppState = {
     emergencyTimer: null,
     emergencyProgress: 0,
     pendingVoiceQuantity: 1,
-    speechEnabled: true
+    speechEnabled: true,
+    pendingVariants: []
 };
+
 
 // ============================================
 // INICIALIZACIÓN
@@ -745,8 +747,13 @@ async function processWhisperAudio(audioBlob) {
     }
 }
 
+// Variable global para variantes pendientes
+//let pendingVariants = [];
+
 async function parseAndAddProducts(transcript) {
     try {
+        showToast('🧠 Analizando productos...', 'info');
+        
         const response = await fetchWithAuth('/api/v1/voice/parse-llm', {
             method: 'POST',
             body: JSON.stringify({
@@ -756,13 +763,34 @@ async function parseAndAddProducts(transcript) {
             })
         });
         
-        if (response.ok) {
-            const result = await response.json();
+        if (!response.ok) {
+            // Fallback: usar el parser local
+            processVoiceCommand(transcript.toLowerCase());
+            return;
+        }
+        
+        const result = await response.json();
+        console.log('[Voice LLM] Resultado:', result);
+        
+        // Mostrar métricas de tiempo si están disponibles
+        if (result.timing) {
+            console.log(`[Voice LLM] ⏱️ Tiempos: LLM=${result.timing.llm_ms}ms, BD=${result.timing.db_search_ms}ms, Total=${result.timing.total_ms}ms`);
+        }
+        
+        // Si hubo corrección de transcript, mostrarla
+        if (result.transcript_corregido) {
+            console.log(`[Voice LLM] 📝 Corregido: "${result.transcript_corregido}"`);
+        }
+        
+        let productsAdded = 0;
+        
+        // 1. Agregar productos con match único (automáticamente)
+        if (result.products && result.products.length > 0) {
+            const isMultiple = result.products.length > 1 || 
+                               (result.products_with_variants && result.products_with_variants.length > 0);
             
-            if (result.success && result.products.length > 0) {
-                const isMultiple = result.products.length > 1;
-                
-                for (const product of result.products) {
+            for (const product of result.products) {
+                if (product.product_id) {
                     addToCart({
                         id: product.product_id,
                         name: product.name,
@@ -770,30 +798,177 @@ async function parseAndAddProducts(transcript) {
                         unit: product.unit,
                         stock: 999
                     }, product.quantity, isMultiple);
+                    productsAdded++;
                 }
-                
-                if (isMultiple) {
-                    const total = getCartTotal();
-                    speak(`${result.products.length} productos agregados. Total: ${total.toFixed(2)} soles`);
-                }
-                
-                if (result.not_found.length > 0) {
-                    showToast(`⚠️ No encontrados: ${result.not_found.join(', ')}`, 'warning');
-                }
-            } else if (result.not_found && result.not_found.length > 0) {
-                showToast(`❌ No encontrados: ${result.not_found.join(', ')}`, 'error');
-            } else {
-                // Fallback: usar el parser local
-                processVoiceCommand(transcript.toLowerCase());
             }
-        } else {
-            // Fallback: usar el parser local
+        }
+        
+        // 2. Manejar productos con variantes
+        if (result.products_with_variants && result.products_with_variants.length > 0) {
+            AppState.pendingVariants = result.products_with_variants;
+            showVariantsModal(AppState.pendingVariants);
+        } else if (productsAdded > 0) {
+            // Solo productos directos, anunciar
+            const total = getCartTotal();
+            if (productsAdded > 1) {
+                speak(`${productsAdded} productos agregados. Total: ${total.toFixed(2)} soles`);
+            }
+        }
+        
+        // 3. Mostrar productos no encontrados
+        if (result.not_found && result.not_found.length > 0) {
+            showToast(`⚠️ No encontrados: ${result.not_found.join(', ')}`, 'warning');
+            if (productsAdded === 0 && (!result.products_with_variants || result.products_with_variants.length === 0)) {
+                speak(`No encontré ${result.not_found.join(' ni ')}`);
+            }
+        }
+        
+        // 4. Si no hubo ningún resultado
+        if (productsAdded === 0 && 
+            (!result.products_with_variants || result.products_with_variants.length === 0) &&
+            (!result.not_found || result.not_found.length === 0)) {
+            showToast('No pude identificar productos', 'warning');
+            // Fallback al parser local
             processVoiceCommand(transcript.toLowerCase());
         }
+        
     } catch (error) {
         console.error('[Parse LLM] Error:', error);
+        showToast('Error al procesar', 'error');
         // Fallback: usar el parser local
         processVoiceCommand(transcript.toLowerCase());
+    }
+}
+
+
+// ============================================
+// MODAL DE SELECCIÓN DE VARIANTES
+// ============================================
+
+function showVariantsModal(variantsList) {
+    // Remover modal existente si hay
+    const existingModal = document.getElementById('variants-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Crear el modal
+    const modal = document.createElement('div');
+    modal.id = 'variants-modal';
+    modal.className = 'modal-overlay open';
+    
+    let html = `
+        <div class="variants-modal">
+            <div class="variants-header">
+                <h3><i class="fas fa-list-ul"></i> Selecciona las variantes</h3>
+                <button class="modal-close-btn" onclick="closeVariantsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="variants-body">
+    `;
+    
+    // Generar sección para cada producto con variantes
+    variantsList.forEach((item, itemIndex) => {
+        html += `
+            <div class="variant-group" data-item-index="${itemIndex}">
+                <div class="variant-group-header">
+                    <span class="variant-search-term">${item.search_term.toUpperCase()}</span>
+                    <span class="variant-quantity">× ${item.quantity} ${item.unit_requested || 'unidades'}</span>
+                </div>
+                <div class="variant-options">
+        `;
+        
+        item.variants.forEach((variant, variantIndex) => {
+            const scoreClass = variant.score >= 0.8 ? 'high' : variant.score >= 0.5 ? 'medium' : 'low';
+            html += `
+                <label class="variant-option" data-item="${itemIndex}" data-variant="${variantIndex}">
+                    <input type="radio" 
+                           name="variant-${itemIndex}" 
+                           value="${variant.product_id}"
+                           data-name="${variant.name}"
+                           data-price="${variant.price}"
+                           data-unit="${variant.unit}"
+                           ${variantIndex === 0 ? 'checked' : ''}>
+                    <div class="variant-option-content">
+                        <div class="variant-option-name">${variant.name}</div>
+                        <div class="variant-option-meta">
+                            <span class="variant-price">S/. ${variant.price.toFixed(2)}</span>
+                            ${variant.stock ? `<span class="variant-stock"><i class="fas fa-cubes"></i> ${variant.stock}</span>` : ''}
+                            <span class="variant-score ${scoreClass}">${Math.round(variant.score * 100)}%</span>
+                        </div>
+                    </div>
+                    <div class="variant-check"><i class="fas fa-check-circle"></i></div>
+                </label>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+            <div class="variants-footer">
+                <button class="btn-cancel" onclick="closeVariantsModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn-confirm" onclick="confirmVariantsSelection()">
+                    <i class="fas fa-check"></i> Agregar seleccionados
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.innerHTML = html;
+    document.body.appendChild(modal);
+    
+    // Anunciar por voz
+    const count = variantsList.length;
+    speak(`${count} producto${count > 1 ? 's' : ''} con opciones. Selecciona las variantes.`);
+}
+
+function closeVariantsModal() {
+    const modal = document.getElementById('variants-modal');
+    if (modal) {
+        modal.classList.remove('open');
+        setTimeout(() => modal.remove(), 300);
+    }
+    AppState.pendingVariants = [];
+}
+
+function confirmVariantsSelection() {
+    let addedCount = 0;
+    
+    AppState.pendingVariants.forEach((item, itemIndex) => {
+        const selectedInput = document.querySelector(`input[name="variant-${itemIndex}"]:checked`);
+        
+        if (selectedInput) {
+            const productId = parseInt(selectedInput.value);
+            const name = selectedInput.dataset.name;
+            const price = parseFloat(selectedInput.dataset.price);
+            const unit = selectedInput.dataset.unit;
+            
+            addToCart({
+                id: productId,
+                name: name,
+                sale_price: price,
+                unit: unit,
+                stock: 999
+            }, item.quantity, true); // true = silent (no announce each)
+            
+            addedCount++;
+        }
+    });
+    
+    closeVariantsModal();
+    
+    if (addedCount > 0) {
+        const total = getCartTotal();
+        showToast(`✅ ${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}`, 'success');
+        speak(`${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}. Total: ${total.toFixed(2)} soles`);
     }
 }
 
@@ -1943,26 +2118,22 @@ function renderTicketList(sales) {
                 </div>
                 <div class="ticket-item-actions" id="ticket-actions-${sale.id}">
                     ${!sale.voided ? `
-                        <div class="ticket-actions-group">
-                            <div class="ticket-actions-label">Reimprimir:</div>
-                            <div class="ticket-actions-buttons">
-                                <button class="ticket-action-btn ${docType === 'simple' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'simple')">
-                                    <i class="fas fa-receipt"></i>
-                                    <span>Simple${docType === 'simple' ? ' ✓' : ''}</span>
-                                </button>
-                                <button class="ticket-action-btn sunat ${docType === 'boleta' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'boleta')">
-                                    <i class="fas fa-file-invoice"></i>
-                                    <span>Boleta${docType === 'boleta' ? ' ✓' : ''}</span>
-                                </button>
-                                <button class="ticket-action-btn factura ${docType === 'factura' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'factura')">
-                                    <i class="fas fa-file-invoice-dollar"></i>
-                                    <span>Factura${docType === 'factura' ? ' ✓' : ''}</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="ticket-actions-secondary">
+                        <div class="ticket-actions-row">
+                            <button class="ticket-action-btn ${docType === 'simple' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'simple')">
+                                <i class="fas fa-receipt"></i>
+                                <span>Simple${docType === 'simple' ? ' ✓' : ''}</span>
+                            </button>
+                            <button class="ticket-action-btn sunat ${docType === 'boleta' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'boleta')">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Boleta${docType === 'boleta' ? ' ✓' : ''}</span>
+                            </button>
+                            <button class="ticket-action-btn factura ${docType === 'factura' ? 'current' : ''}" onclick="event.stopPropagation(); reprintTicket(${sale.id}, 'factura')">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>Factura${docType === 'factura' ? ' ✓' : ''}</span>
+                            </button>
                             <button class="ticket-action-btn danger" onclick="event.stopPropagation(); confirmVoidTicket(${sale.id})">
-                                <i class="fas fa-ban"></i><span>Anular venta</span>
+                                <i class="fas fa-ban"></i>
+                                <span>Anular</span>
                             </button>
                         </div>
                     ` : `<div class="ticket-voided-notice"><i class="fas fa-info-circle"></i> Venta anulada</div>`}

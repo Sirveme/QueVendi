@@ -90,33 +90,47 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 
 function initMap() {
-    // Crear mapa
-    State.map = L.map('map', {
-        center: CONFIG.defaultCenter,
-        zoom: CONFIG.defaultZoom,
-        zoomControl: false
-    });
-    
-    // Agregar controles de zoom en posición personalizada
-    L.control.zoom({ position: 'topright' }).addTo(State.map);
-    
-    // Capa base (OpenStreetMap oscuro)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(State.map);
-    
-    // Capas de marcadores
-    State.markersLayer = L.layerGroup().addTo(State.map);
-    State.clusterLayer = L.markerClusterGroup({
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        maxClusterRadius: 50
-    });
-    
-    // Intentar centrar en ubicación del usuario
-    centerOnUser();
+    try {
+        // Crear mapa
+        State.map = L.map('map', {
+            center: CONFIG.defaultCenter,
+            zoom: CONFIG.defaultZoom,
+            zoomControl: false
+        });
+        
+        // Agregar controles de zoom en posición personalizada
+        L.control.zoom({ position: 'topright' }).addTo(State.map);
+        
+        // Capa base (OpenStreetMap oscuro)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(State.map);
+        
+        // Capas de marcadores
+        State.markersLayer = L.layerGroup().addTo(State.map);
+        
+        // Cluster (con fallback si la librería no está disponible)
+        if (typeof L.markerClusterGroup === 'function') {
+            State.clusterLayer = L.markerClusterGroup({
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: false,
+                maxClusterRadius: 50
+            });
+        } else {
+            console.warn('[Mapa] markerClusterGroup no disponible, usando layerGroup');
+            State.clusterLayer = L.layerGroup();
+        }
+        
+        // Intentar centrar en ubicación del usuario
+        centerOnUser();
+        
+        console.log('[Mapa] Mapa inicializado correctamente');
+        
+    } catch (error) {
+        console.error('[Mapa] Error en initMap:', error);
+    }
 }
 
 function centerOnUser() {
@@ -149,6 +163,8 @@ function centerOnUser() {
 async function loadIncidents() {
     try {
         updateLastUpdate('Cargando...');
+        console.log('[Mapa] Cargando incidentes...');
+        console.log('[Mapa] Filtros actuales:', State.filters);
         
         // Construir query params desde filtros
         const params = new URLSearchParams();
@@ -173,27 +189,53 @@ async function loadIncidents() {
         }
         
         const url = `${CONFIG.apiBase}/incidentes?${params.toString()}`;
+        console.log('[Mapa] URL:', url);
         
-        const response = await fetch(url);
+        let useTestData = false;
         
-        if (response.ok) {
-            const data = await response.json();
-            State.incidents = data.incidentes || [];
-        } else {
-            // Si no hay endpoint aún, usar datos de prueba
-            console.log('[Mapa] Usando datos de prueba');
-            State.incidents = generateTestData();
+        try {
+            const response = await fetch(url);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const incidents = data.incidentes || data || [];
+                
+                if (incidents.length > 0) {
+                    State.incidents = incidents;
+                    console.log('[Mapa] ✅ Incidentes del servidor:', State.incidents.length);
+                } else {
+                    console.log('[Mapa] API devolvió 0 incidentes, usando datos de prueba');
+                    useTestData = true;
+                }
+            } else {
+                console.log('[Mapa] Respuesta no ok:', response.status);
+                useTestData = true;
+            }
+        } catch (fetchError) {
+            console.log('[Mapa] Error de fetch:', fetchError.message);
+            useTestData = true;
         }
         
+        // Usar datos de prueba si es necesario
+        if (useTestData) {
+            console.log('[Mapa] 🧪 Generando datos de prueba...');
+            State.incidents = generateTestData();
+            console.log('[Mapa] ✅ Datos de prueba generados:', State.incidents.length);
+        }
+        
+        // Actualizar UI
         updateMap();
         updateStats();
         updateIncidentsList();
         updateLastUpdate();
         
     } catch (error) {
-        console.error('[Mapa] Error cargando incidentes:', error);
-        // Usar datos de prueba en caso de error
+        console.error('[Mapa] Error general en loadIncidents:', error);
+        
+        // Fallback final
+        console.log('[Mapa] 🧪 Fallback final: generando datos de prueba...');
         State.incidents = generateTestData();
+        
         updateMap();
         updateStats();
         updateIncidentsList();
@@ -233,8 +275,10 @@ function generateTestData() {
         
         // Fecha aleatoria en los últimos 30 días
         const daysAgo = Math.floor(Math.random() * 30);
+        const hoursAgo = Math.floor(Math.random() * 24);
         const fecha = new Date();
         fecha.setDate(fecha.getDate() - daysAgo);
+        fecha.setHours(fecha.getHours() - hoursAgo);
         
         incidents.push({
             id: i + 1,
@@ -251,6 +295,11 @@ function generateTestData() {
         });
     }
     
+    console.log('[Mapa] Datos de prueba generados:', incidents.length, 'incidentes');
+    if (incidents.length > 0) {
+        console.log('[Mapa] Ejemplo de incidente:', JSON.stringify(incidents[0]));
+    }
+    
     return incidents;
 }
 
@@ -263,28 +312,53 @@ function refreshData() {
 // ============================================
 
 function updateMap() {
+    console.log('[Mapa] updateMap() - Vista actual:', State.currentView);
+    console.log('[Mapa] Total incidentes en State:', State.incidents.length);
+    
     // Limpiar capas
     State.markersLayer.clearLayers();
-    State.clusterLayer.clearLayers();
+    if (State.clusterLayer) State.clusterLayer.clearLayers();
     
     if (State.heatLayer) {
         State.map.removeLayer(State.heatLayer);
+        State.heatLayer = null;
     }
     
     // Filtrar incidentes
     const filtered = filterIncidents();
+    console.log('[Mapa] Incidentes después de filtrar:', filtered.length);
+    
+    if (filtered.length === 0) {
+        console.log('[Mapa] ⚠️ No hay incidentes para mostrar');
+        console.log('[Mapa] Filtros actuales:', JSON.stringify(State.filters));
+        
+        // Si no hay incidentes pero hay datos en State, podría ser problema de filtros
+        if (State.incidents.length > 0) {
+            console.log('[Mapa] Hay', State.incidents.length, 'incidentes pero los filtros no coinciden');
+            console.log('[Mapa] Ejemplo de incidente:', State.incidents[0]);
+        }
+        return;
+    }
     
     // Crear marcadores
     const heatData = [];
+    let markersAdded = 0;
     
     filtered.forEach(incident => {
+        // Validar que tenga coordenadas
+        if (!incident.latitud || !incident.longitud) {
+            console.warn('[Mapa] Incidente sin coordenadas:', incident.id);
+            return;
+        }
+        
         const marker = createMarker(incident);
         
-        if (State.currentView === 'clusters') {
+        if (State.currentView === 'clusters' && State.clusterLayer) {
             State.clusterLayer.addLayer(marker);
         } else {
             State.markersLayer.addLayer(marker);
         }
+        markersAdded++;
         
         // Datos para heatmap
         const intensity = incident.nivel === 'ROJO' ? 1 : 
@@ -292,8 +366,10 @@ function updateMap() {
         heatData.push([incident.latitud, incident.longitud, intensity]);
     });
     
+    console.log('[Mapa] ✅ Marcadores creados:', markersAdded);
+    
     // Aplicar vista actual
-    if (State.currentView === 'heatmap') {
+    if (State.currentView === 'heatmap' && typeof L.heatLayer === 'function') {
         State.markersLayer.clearLayers();
         State.heatLayer = L.heatLayer(heatData, {
             radius: 25,
@@ -306,9 +382,10 @@ function updateMap() {
                 1: '#991B1B'
             }
         }).addTo(State.map);
-    } else if (State.currentView === 'clusters') {
+    } else if (State.currentView === 'clusters' && State.clusterLayer) {
         State.map.addLayer(State.clusterLayer);
     }
+    // Para vista 'markers', los marcadores ya están en State.markersLayer que está en el mapa
 }
 
 function createMarker(incident) {
@@ -563,38 +640,82 @@ function showIncidentDetail(id) {
 // ============================================
 
 function setupFilters() {
-    // Establecer fechas por defecto (últimos 7 días)
+    console.log('[Mapa] Configurando filtros...');
+    
+    // Establecer fechas por defecto (últimos 30 días para mayor flexibilidad)
     const today = new Date();
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
     
-    document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
-    document.getElementById('filter-date-from').value = weekAgo.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split('T')[0];
+    const monthAgoStr = monthAgo.toISOString().split('T')[0];
     
-    State.filters.dateFrom = weekAgo.toISOString().split('T')[0];
-    State.filters.dateTo = today.toISOString().split('T')[0];
+    const dateFromEl = document.getElementById('filter-date-from');
+    const dateToEl = document.getElementById('filter-date-to');
+    
+    if (dateFromEl) dateFromEl.value = monthAgoStr;
+    if (dateToEl) dateToEl.value = todayStr;
+    
+    State.filters.dateFrom = monthAgoStr;
+    State.filters.dateTo = todayStr;
+    
+    // Asegurar que los checkboxes de niveles estén marcados
+    const redCheck = document.getElementById('filter-red');
+    const amberCheck = document.getElementById('filter-amber');
+    const greenCheck = document.getElementById('filter-green');
+    
+    if (redCheck) redCheck.checked = true;
+    if (amberCheck) amberCheck.checked = true;
+    if (greenCheck) greenCheck.checked = true;
+    
+    // Asegurar que los niveles estén en el state
+    State.filters.levels = ['ROJO', 'AMBAR', 'VERDE'];
+    
+    console.log('[Mapa] Filtros iniciales:', State.filters);
 }
 
 function applyFilters() {
-    // Niveles
-    State.filters.levels = [];
-    if (document.getElementById('filter-red').checked) State.filters.levels.push('ROJO');
-    if (document.getElementById('filter-amber').checked) State.filters.levels.push('AMBAR');
-    if (document.getElementById('filter-green').checked) State.filters.levels.push('VERDE');
+    // Niveles - verificar que los elementos existan
+    const redCheck = document.getElementById('filter-red');
+    const amberCheck = document.getElementById('filter-amber');
+    const greenCheck = document.getElementById('filter-green');
+    
+    // Si los checkboxes existen, usarlos; si no, mostrar todos los niveles
+    if (redCheck || amberCheck || greenCheck) {
+        State.filters.levels = [];
+        if (redCheck?.checked !== false) State.filters.levels.push('ROJO');
+        if (amberCheck?.checked !== false) State.filters.levels.push('AMBAR');
+        if (greenCheck?.checked !== false) State.filters.levels.push('VERDE');
+        
+        // Si ninguno está seleccionado, mostrar todos
+        if (State.filters.levels.length === 0) {
+            State.filters.levels = ['ROJO', 'AMBAR', 'VERDE'];
+        }
+    }
     
     // Tipo
-    State.filters.type = document.getElementById('filter-type').value;
+    const typeSelect = document.getElementById('filter-type');
+    State.filters.type = typeSelect?.value || 'all';
     
     // Ubicación ya se maneja con selectDistrito() y clearUbicacion()
     
     // Fechas
-    State.filters.dateFrom = document.getElementById('filter-date-from').value || null;
-    State.filters.dateTo = document.getElementById('filter-date-to').value || null;
+    const dateFrom = document.getElementById('filter-date-from');
+    const dateTo = document.getElementById('filter-date-to');
+    State.filters.dateFrom = dateFrom?.value || null;
+    State.filters.dateTo = dateTo?.value || null;
+    
+    console.log('[Mapa] Filtros aplicados:', State.filters);
+    console.log('[Mapa] Incidentes totales:', State.incidents.length);
     
     // Actualizar
     updateMap();
     updateStats();
     updateIncidentsList();
+    
+    // Log de incidentes filtrados
+    const filtered = filterIncidents();
+    console.log('[Mapa] Incidentes filtrados:', filtered.length);
 }
 
 function clearFilters() {
