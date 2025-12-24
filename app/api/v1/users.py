@@ -1,83 +1,96 @@
 """
 Endpoints para gestión de usuarios
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 from app.core.database import get_db
 from app.models.user import User
-from app.models.store import Store
-from app.core.security import hash_password
 from app.api.dependencies import get_current_user
+from app.services.upload_service import upload_service
 
-#router = APIRouter(prefix="/users", tags=["users"])
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
-class UserCreate(BaseModel):
-    store_id: int
-    full_name: str
-    dni: str
-    pin: str
-    role: str = "seller"  # seller o admin
-    #email: str | None = None
-
-@router.post("/add")
-async def add_user(
-    user_data: UserCreate,
+@router.post("/avatar/upload")
+async def upload_avatar(
+    file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    Agregar usuario a una tienda existente
-    Solo admins pueden agregar usuarios
+    Sube o actualiza el avatar del usuario actual
+    
+    - Acepta: JPG, PNG, GIF, WEBP
+    - Máximo: 5MB
+    - Se optimiza automáticamente a 500x500
+    - Se nombra con DNI del usuario (dni.jpg)
     """
-    # Verificar que el usuario actual sea admin
-    if current_user.role != "admin":
-        raise HTTPException(403, detail="Solo administradores pueden agregar usuarios")
-    
-    # Verificar que la tienda existe
-    store = db.query(Store).filter(Store.id == user_data.store_id).first()
-    if not store:
-        raise HTTPException(404, detail="Tienda no encontrada")
-    
-    # Verificar que no exista usuario con el mismo DNI
-    existing_user = db.query(User).filter(User.dni == user_data.dni).first()
-    if existing_user:
-        raise HTTPException(400, detail="Ya existe un usuario con este DNI")
-    
-    # Validar rol
-    if user_data.role not in ["seller", "admin"]:
-        raise HTTPException(400, detail="Rol inválido. Debe ser 'seller' o 'admin'")
-    
     try:
-        # Crear usuario
-        hashed_pin = hash_password(user_data.pin)
-        
-        new_user = User(
-            full_name=user_data.full_name,
-            dni=user_data.dni,
-            pin_hash=hashed_pin,
-            #email=user_data.email,
-            store_id=user_data.store_id,
-            role=user_data.role,
-            is_active=True
+        # Subir archivo
+        result = await upload_service.upload_avatar(
+            file=file,
+            user_id=current_user.id,
+            dni=current_user.dni  # Usamos DNI para nombrar el archivo
         )
         
-        db.add(new_user)
+        # Actualizar URL en BD
+        current_user.avatar_url = result['url']
         db.commit()
-        db.refresh(new_user)
-        
-        print(f"[UserCreate] ✅ Usuario creado: {new_user.full_name} (DNI: {new_user.dni})")
+        db.refresh(current_user)
         
         return {
-            "id": new_user.id,
-            "full_name": new_user.full_name,
-            "dni": new_user.dni,
-            "role": new_user.role,
-            "store_id": new_user.store_id
+            'message': 'Avatar actualizado exitosamente',
+            'avatar_url': result['url'],
+            'filename': result['filename'],
+            'size': result['size']
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
-        db.rollback()
-        print(f"[UserCreate] ❌ Error: {e}")
-        raise HTTPException(500, detail=f"Error al crear usuario: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al subir avatar: {str(e)}"
+        )
+
+
+@router.get("/me")
+async def get_current_user_info(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Obtiene información del usuario actual
+    """
+    return {
+        'id': current_user.id,
+        'dni': current_user.dni,
+        'full_name': current_user.full_name,
+        'username': current_user.username,
+        'role': current_user.role,
+        'avatar_url': current_user.avatar_url,
+        'store_id': current_user.store_id
+    }
+
+
+@router.delete("/avatar")
+async def delete_avatar(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Elimina el avatar del usuario actual
+    """
+    if not current_user.avatar_url:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No tienes avatar para eliminar"
+        )
+    
+    # Eliminar archivo físico
+    filepath = f"app/static/uploads/avatars/{current_user.dni}.jpg"
+    upload_service.delete_file(filepath)
+    
+    # Actualizar BD
+    current_user.avatar_url = None
+    db.commit()
+    
+    return {'message': 'Avatar eliminado exitosamente'}
