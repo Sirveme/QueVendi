@@ -258,7 +258,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
     
-    const loginUrl = `${API_URL}/api/auth/login`;
+    const loginUrl = `${API_URL}/api/v1/auth/login`;
     console.log('🔐 Intentando login...');
     console.log('📡 URL:', loginUrl);
     console.log('📦 Datos:', { dni, pin: '****' });
@@ -498,4 +498,5 @@ if (!document.getElementById('login-animations')) {
 </body>
 
 </html>
+
 
