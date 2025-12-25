@@ -277,45 +277,82 @@ form.addEventListener('submit', async (e) => {
         
         console.log('✅ Backend disponible');
         
-        // Crear FormData
-        const formData = new FormData();
-        formData.append('dni', dni);
-        formData.append('pin', pin);
+        // ==========================================
+        // CREAR OBJETO JSON (NO FormData)
+        // ==========================================
+        const loginData = {
+            dni: dni,
+            pin: pin
+        };
         
-        console.log('📤 Enviando FormData...');
+        console.log('📤 Enviando JSON:', { dni, pin: '****' });
         
-        // Intentar login
+        // ==========================================
+        // ENVIAR COMO JSON
+        // ==========================================
         const response = await fetch(loginUrl, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'  // ⬅️ IMPORTANTE
+            },
+            body: JSON.stringify(loginData)  // ⬅️ Convertir a JSON
         });
         
         console.log('📡 Response status:', response.status);
         
         // Leer respuesta
         const data = await response.json();
-        console.log('📦 Respuesta:', data);
-        
+        console.log('📦 Respuesta completa:', data);
+
         if (response.ok) {
             // ✅ LOGIN EXITOSO
             console.log('✅ Login exitoso');
             
             // ==========================================
-            // GUARDAR TOKEN
+            // VALIDAR Y GUARDAR TOKEN
             // ==========================================
+            if (!data.access_token || data.access_token === 'null' || data.access_token === '') {
+                console.error('❌ ERROR: No se recibió access_token válido');
+                showError('❌ Error del servidor: No se generó token de sesión');
+                resetButton();
+                return;
+            }
+            
+            console.log('🔑 Token recibido:', data.access_token.substring(0, 30) + '...');
+            console.log('📏 Longitud del token:', data.access_token.length);
+            
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('token_type', data.token_type || 'bearer');
             
+            // Verificar que se guardó correctamente
+            const tokenGuardado = localStorage.getItem('access_token');
+            if (!tokenGuardado || tokenGuardado === 'null' || tokenGuardado === 'undefined') {
+                console.error('❌ ERROR: Token no se guardó correctamente en localStorage');
+                showError('❌ Error al guardar sesión');
+                resetButton();
+                return;
+            }
+            console.log('✅ Token guardado correctamente (primeros 30 chars):', tokenGuardado.substring(0, 30) + '...');
+            
             // ==========================================
-            // GUARDAR OBJETO USER COMPLETO
+            // VALIDAR Y GUARDAR USUARIO
             // ==========================================
+            if (!data.user || !data.user.id) {
+                console.error('❌ ERROR: No se recibió información del usuario');
+                showError('❌ Error del servidor: Datos de usuario incompletos');
+                resetButton();
+                return;
+            }
+            
             const user = {
                 id: data.user.id,
                 username: data.user.username,
                 full_name: data.user.full_name || data.user.username,
                 dni: data.user.dni,
-                store_id: data.user.store_id
+                store_id: data.user.store_id,
+                role: data.user.role || 'owner'
             };
+            
             localStorage.setItem('user', JSON.stringify(user));
             console.log('✅ Usuario guardado:', user);
             
@@ -333,68 +370,62 @@ form.addEventListener('submit', async (e) => {
             console.log('✅ Tienda guardada:', basicStore);
             
             // ==========================================
-            // MOSTRAR ÉXITO Y REDIRIGIR
+            // VERIFICACIÓN FINAL ANTES DE REDIRIGIR
             // ==========================================
+            const verificacion = {
+                access_token: localStorage.getItem('access_token') ? '✅ OK' : '❌ FALTA',
+                user: localStorage.getItem('user') ? '✅ OK' : '❌ FALTA',
+                store: localStorage.getItem('store') ? '✅ OK' : '❌ FALTA'
+            };
+            
+            console.log('📦 Verificación final de localStorage:', verificacion);
+            
+            if (verificacion.access_token !== '✅ OK') {
+                console.error('❌ CRÍTICO: Token no está en localStorage antes de redirigir');
+                showError('❌ Error al guardar sesión. Intenta nuevamente.');
+                resetButton();
+                return;
+            }
+            
+            // Mostrar éxito
             const userName = user.full_name || user.username;
             showSuccess(`¡Bienvenido ${userName}!`);
             
-            console.log('📦 localStorage completo:', {
-                access_token: '✅',
-                user: localStorage.getItem('user'),
-                store: localStorage.getItem('store')
-            });
-            
-            // Redirigir después de 1 segundo
+            // ==========================================
+            // REDIRIGIR CON TOKEN EN MEMORIA
+            // ==========================================
             setTimeout(() => {
-                console.log('🚀 Redirigiendo a /home');
+                console.log('🚀 Redirigiendo a /home con token válido');
+                console.log('🔑 Token a usar:', localStorage.getItem('access_token').substring(0, 30) + '...');
                 window.location.href = '/home';
             }, 1000);
             
         } else {
             // ❌ ERROR DE AUTENTICACIÓN
             console.error('❌ Error de autenticación:', data);
-            console.error('Status:', response.status);
-            console.error('Detail:', data.detail);
             
             let errorMsg = 'DNI o PIN incorrectos';
             
-            if (response.status === 422 && data.detail) {
-                if (Array.isArray(data.detail)) {
-                    // FastAPI validation errors
-                    const errors = data.detail.map(err => {
-                        const field = err.loc ? err.loc[err.loc.length - 1] : 'campo';
-                        const msg = err.msg || 'error de validación';
-                        return `${field}: ${msg}`;
-                    }).join(' | ');
-                    errorMsg = errors;
-                } else if (typeof data.detail === 'string') {
-                    errorMsg = data.detail;
-                } else {
-                    // Si detail es un objeto, convertir a string legible
-                    errorMsg = JSON.stringify(data.detail);
-                }
-            } else if (data.detail) {
+            if (data.detail) {
                 if (typeof data.detail === 'string') {
                     errorMsg = data.detail;
-                } else {
-                    errorMsg = JSON.stringify(data.detail);
+                } else if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(e => e.msg).join(', ');
                 }
             }
             
             showError('❌ ' + errorMsg);
             resetButton();
         }
-        
+
     } catch (error) {
-        // 💥 ERROR DE CONEXIÓN O SERVIDOR
+        // 💥 ERROR DE CONEXIÓN
         console.error('💥 Error en login:', error);
         
         let errorMessage = 'Error de conexión. Intenta nuevamente.';
         
         if (error.message.includes('Failed to fetch')) {
-            errorMessage = 'No se puede conectar al servidor. Verifica tu conexión a internet.';
-        } else if (error.message.includes('servidor no responde')) {
-            errorMessage = error.message;
+            errorMessage = 'No se puede conectar al servidor.';
         } else if (error.message) {
             errorMessage = error.message;
         }
@@ -496,7 +527,4 @@ if (!document.getElementById('login-animations')) {
 }
 </script>
 </body>
-
 </html>
-
-
