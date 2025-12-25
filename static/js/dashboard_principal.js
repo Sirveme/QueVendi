@@ -846,78 +846,80 @@ async function parseAndAddProducts(transcript) {
 // ============================================
 
 function showVariantsModal(variantsList) {
-    // Remover modal existente si hay
     const existingModal = document.getElementById('variants-modal');
     if (existingModal) {
         existingModal.remove();
     }
     
-    // Crear el modal
     const modal = document.createElement('div');
     modal.id = 'variants-modal';
     modal.className = 'modal-overlay open';
     
+    // Calcular total de variantes
+    const totalVariants = variantsList.reduce((sum, item) => sum + item.variants.length, 0);
+    
     let html = `
         <div class="variants-modal">
             <div class="variants-header">
-                <h3><i class="fas fa-list-ul"></i> Selecciona las variantes</h3>
-                <button class="modal-close-btn" onclick="closeVariantsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3><i class="fas fa-search"></i> Selecciona productos</h3>
+                <button class="modal-close-btn" onclick="closeVariantsModal()">×</button>
             </div>
             <div class="variants-body">
     `;
     
-    // Generar sección para cada producto con variantes
     variantsList.forEach((item, itemIndex) => {
-        html += `
-            <div class="variant-group" data-item-index="${itemIndex}">
-                <div class="variant-group-header">
-                    <span class="variant-search-term">${item.search_term.toUpperCase()}</span>
-                    <span class="variant-quantity">× ${item.quantity} ${item.unit_requested || 'unidades'}</span>
-                </div>
-                <div class="variant-options">
-        `;
-        
         item.variants.forEach((variant, variantIndex) => {
+            const isFirst = variantIndex === 0;
             const scoreClass = variant.score >= 0.8 ? 'high' : variant.score >= 0.5 ? 'medium' : 'low';
+            
             html += `
-                <label class="variant-option" data-item="${itemIndex}" data-variant="${variantIndex}">
-                    <input type="radio" 
-                           name="variant-${itemIndex}" 
+                <label class="variant-option-v2" data-item="${itemIndex}" data-variant="${variantIndex}">
+                    <input type="checkbox" 
+                           class="variant-checkbox"
+                           name="variant-${itemIndex}-${variantIndex}" 
                            value="${variant.product_id}"
                            data-name="${variant.name}"
                            data-price="${variant.price}"
                            data-unit="${variant.unit}"
-                           ${variantIndex === 0 ? 'checked' : ''}>
-                    <div class="variant-option-content">
-                        <div class="variant-option-name">${variant.name}</div>
-                        <div class="variant-option-meta">
-                            <span class="variant-price">S/. ${variant.price.toFixed(2)}</span>
-                            ${variant.stock ? `<span class="variant-stock"><i class="fas fa-cubes"></i> ${variant.stock}</span>` : ''}
-                            <span class="variant-score ${scoreClass}">${Math.round(variant.score * 100)}%</span>
+                           data-quantity="${item.quantity}"
+                           ${isFirst ? 'checked' : ''}>
+                    
+                    <div class="variant-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    
+                    <div class="variant-content-v2">
+                        <div class="variant-name-v2">${variant.name}</div>
+                        <div class="variant-meta-v2">
+                            ${variant.stock ? `<span class="variant-stock-badge"><i class="fas fa-cubes"></i> ${variant.stock}</span>` : ''}
+                            <span class="variant-unit-badge">${variant.unit}</span>
                         </div>
                     </div>
-                    <div class="variant-check"><i class="fas fa-check-circle"></i></div>
+                    
+                    <div class="variant-price-v2">S/. ${variant.price.toFixed(2)}</div>
+                    
+                    <div class="variant-check-v2">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
                 </label>
             `;
         });
-        
-        html += `
-                </div>
-            </div>
-        `;
     });
     
     html += `
             </div>
-            <div class="variants-footer">
-                <button class="btn-cancel" onclick="closeVariantsModal()">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-                <button class="btn-confirm" onclick="confirmVariantsSelection()">
-                    <i class="fas fa-check"></i> Agregar seleccionados
-                </button>
+            <div class="variants-footer-v2">
+                <div class="selected-count">
+                    <span id="selected-count">0</span> seleccionados
+                </div>
+                <div class="footer-actions">
+                    <button class="btn-cancel-v2" onclick="closeVariantsModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-confirm-v2" onclick="confirmVariantsSelection()">
+                        <i class="fas fa-shopping-cart"></i> Agregar
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -925,9 +927,15 @@ function showVariantsModal(variantsList) {
     modal.innerHTML = html;
     document.body.appendChild(modal);
     
-    // Anunciar por voz
-    const count = variantsList.length;
-    speak(`${count} producto${count > 1 ? 's' : ''} con opciones. Selecciona las variantes.`);
+    // Event listener para actualizar contador
+    document.querySelectorAll('.variant-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    
+    // Inicializar contador
+    updateSelectedCount();
+    
+    speak(`${totalVariants} opciones disponibles. Selecciona los productos.`);
 }
 
 function closeVariantsModal() {
@@ -940,36 +948,38 @@ function closeVariantsModal() {
 }
 
 function confirmVariantsSelection() {
+    const selectedInputs = document.querySelectorAll('.variant-checkbox:checked');
+    
+    if (selectedInputs.length === 0) {
+        showToast('⚠️ Selecciona al menos un producto', 'warning');
+        return;
+    }
+    
     let addedCount = 0;
     
-    AppState.pendingVariants.forEach((item, itemIndex) => {
-        const selectedInput = document.querySelector(`input[name="variant-${itemIndex}"]:checked`);
+    selectedInputs.forEach(input => {
+        const productId = parseInt(input.value);
+        const name = input.dataset.name;
+        const price = parseFloat(input.dataset.price);
+        const unit = input.dataset.unit;
+        const quantity = parseFloat(input.dataset.quantity) || 1;
         
-        if (selectedInput) {
-            const productId = parseInt(selectedInput.value);
-            const name = selectedInput.dataset.name;
-            const price = parseFloat(selectedInput.dataset.price);
-            const unit = selectedInput.dataset.unit;
-            
-            addToCart({
-                id: productId,
-                name: name,
-                sale_price: price,
-                unit: unit,
-                stock: 999
-            }, item.quantity, true); // true = silent (no announce each)
-            
-            addedCount++;
-        }
+        addToCart({
+            id: productId,
+            name: name,
+            sale_price: price,
+            unit: unit,
+            stock: 999
+        }, quantity, true);
+        
+        addedCount++;
     });
     
     closeVariantsModal();
     
-    if (addedCount > 0) {
-        const total = getCartTotal();
-        showToast(`✅ ${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}`, 'success');
-        speak(`${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}. Total: ${total.toFixed(2)} soles`);
-    }
+    const total = getCartTotal();
+    showToast(`✅ ${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}`, 'success');
+    speak(`${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}. Total: ${total.toFixed(2)} soles`);
 }
 
 function stopVoice() {
@@ -2681,16 +2691,10 @@ function showSearchResultsModal(products) {
 }
 
 function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('.product-checkbox:checked');
-    const countEl = document.getElementById('selected-products-count');
-    if (countEl) {
-        countEl.textContent = checkboxes.length;
-    }
-    
-    // Habilitar/deshabilitar botón
-    const addBtn = document.querySelector('.btn-add-selected');
-    if (addBtn) {
-        addBtn.disabled = checkboxes.length === 0;
+    const checkedCount = document.querySelectorAll('.variant-checkbox:checked').length;
+    const countElement = document.getElementById('selected-count');
+    if (countElement) {
+        countElement.textContent = checkedCount;
     }
 }
 
