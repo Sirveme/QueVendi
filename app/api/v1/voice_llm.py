@@ -1,11 +1,7 @@
 """
 Voice LLM Parser - Parseo de comandos de voz con LLM
 Soporta: Claude, OpenAI, Gemini
-Incluye:
-- Métricas de tiempo detalladas
-- Correcciones para marcas peruanas
-- Soporte para variantes de productos
-- Matching mejorado (evita falsos positivos)
+CORREGIDO: Lógica de búsqueda unificada con VoiceService
 """
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -14,6 +10,8 @@ from pydantic import BaseModel
 from typing import List, Literal, Optional
 import time
 import re
+import unicodedata
+from difflib import SequenceMatcher
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_user
@@ -29,130 +27,85 @@ router = APIRouter(prefix="/voice", tags=["voice-llm"])
 # ============================================
 CORRECCIONES_TRANSCRIPT = {
     # Bebidas
-    "hinca cola": "inca kola",
-    "inka cola": "inca kola",
-    "inca cola": "inca kola",
-    "incacola": "inca kola",
-    "hinca kola": "inca kola",
-    "coca cola": "coca cola",
-    "cocacola": "coca cola",
-    "spore": "sporade",
-    "esporade": "sporade",
-    "sport": "sporade",
-    "gatore": "gatorade",
-    "gatorate": "gatorade",
-    "pilsen": "pilsen",
-    "pilsner": "pilsen",
-    "cusquenia": "cusqueña",
-    "cusquenya": "cusqueña",
-    "cristal": "cristal",
-    "frugos": "frugos",
-    "cifrut": "cifrut",
+    "hinca cola": "inca kola", "inka cola": "inca kola", "inca cola": "inca kola",
+    "incacola": "inca kola", "hinca kola": "inca kola",
+    "coca cola": "coca cola", "cocacola": "coca cola",
+    "spore": "sporade", "esporade": "sporade", "sport": "sporade",
+    "gatore": "gatorade", "gatorate": "gatorade",
+    "pilsen": "pilsen", "pilsner": "pilsen",
+    "cusquenia": "cusqueña", "cusquenya": "cusqueña",
+    "cristal": "cristal", "frugos": "frugos", "cifrut": "cifrut",
     
     # Lácteos
-    "gloría": "gloria",
-    "laive": "laive",
-    "layve": "laive",
-    "pura vida": "pura vida",
-    "puravida": "pura vida",
+    "gloría": "gloria", "laive": "laive", "layve": "laive",
+    "pura vida": "pura vida", "puravida": "pura vida",
     
     # Golosinas
-    "sublime": "sublime",
-    "sublima": "sublime",
-    "triángulo": "triangulo",
-    "triangulo": "triangulo",
-    "cua cua": "cuacua",
-    "cuacuá": "cuacua",
-    "field": "field",
-    "fill": "field",
-    "rellenita": "rellenita",
-    "morocha": "morochas",
+    "sublime": "sublime", "sublima": "sublime",
+    "triángulo": "triangulo", "triangulo": "triangulo",
+    "cua cua": "cuacua", "cuacuá": "cuacua",
+    "field": "field", "fill": "field",
+    "rellenita": "rellenita", "morocha": "morochas",
+    "galletas": "galleta", # Forzamos singular para estandarizar
     
     # Snacks
-    "lays": "lays",
-    "leis": "lays",
-    "doritos": "doritos",
-    "cheetos": "cheetos",
-    "chitos": "cheetos",
-    "piqueos": "piqueo",
-    "piqueo snax": "piqueo snax",
+    "lays": "lays", "leis": "lays", "doritos": "doritos",
+    "cheetos": "cheetos", "chitos": "cheetos",
+    "piqueos": "piqueo", "piqueo snax": "piqueo snax",
     
     # Limpieza
-    "ace": "ace",
-    "ase": "ace",
-    "bolívar": "bolivar",
-    "bolivar": "bolivar",
-    "sapolio": "sapolio",
-    "clorox": "clorox",
-    "poett": "poett",
-    "poet": "poett",
+    "ace": "ace", "ase": "ace", "bolívar": "bolivar", "bolivar": "bolivar",
+    "sapolio": "sapolio", "clorox": "clorox", "poett": "poett", "poet": "poett",
     
-    # Genéricos - singular
-    "galletas": "galleta",
-    "huevos": "huevo",
-    "panes": "pan",
-    "fideos": "fideo",
+    # Básicos
+    "huevos": "huevo", "panes": "pan", "fideos": "fideo",
 }
 
-# Palabras que NO deben hacer match parcial (evita "pan" → "Aji Panca")
-PALABRAS_CORTAS_EXACTAS = ["pan", "sal", "te", "ron", "ace", "gas", "luz"]
-
-
 def corregir_transcript(texto: str) -> str:
-    """Corrige errores comunes de transcripción para marcas peruanas"""
+    """Corrige errores comunes de transcripción"""
     texto_lower = texto.lower()
-    
     for incorrecto, correcto in CORRECCIONES_TRANSCRIPT.items():
-        texto_lower = texto_lower.replace(incorrecto, correcto)
-    
+        # Reemplazo de palabra completa para evitar "pan" en "pantalla"
+        texto_lower = re.sub(r'\b' + re.escape(incorrecto) + r'\b', correcto, texto_lower)
     return texto_lower
 
+def normalize_text(text: str) -> str:
+    """Normalizar texto (quitar tildes, lowercase)"""
+    if not text: return ""
+    return unicodedata.normalize('NFD', text.lower()).encode('ascii', 'ignore').decode('utf-8')
 
-def calcular_score_match(nombre_producto: str, termino_busqueda: str) -> float:
+def calcular_score_avanzado(product_name: str, query: str) -> float:
     """
-    Calcula un score de relevancia para el match
-    1.0 = match exacto
-    0.9 = empieza con el término
-    0.8 = palabra completa dentro del nombre
-    0.5 = contiene el término (parcial)
-    0.0 = no match
+    Calcula score robusto soportando prefijos y contención
     """
-    nombre_lower = nombre_producto.lower()
-    termino_lower = termino_busqueda.lower().strip()
+    p_name = normalize_text(product_name)
+    q = normalize_text(query)
     
-    # Match exacto del nombre completo
-    if nombre_lower == termino_lower:
+    # 1. Match Exacto
+    if p_name == q:
         return 1.0
     
-    # El nombre empieza con el término
-    if nombre_lower.startswith(termino_lower + " ") or nombre_lower == termino_lower:
+    # 2. Empieza con (Sin exigir espacio después, arregla "galletas" vs "galleta")
+    if p_name.startswith(q):
         return 0.95
     
-    # Primera palabra del nombre coincide exactamente
-    primera_palabra = nombre_lower.split()[0] if nombre_lower.split() else ""
-    if primera_palabra == termino_lower:
+    # 3. Palabra contenida exacta
+    # "Galletas Soda" contiene la palabra "Soda" (query="soda")
+    p_words = p_name.split()
+    if q in p_words:
         return 0.9
     
-    # Es una palabra completa dentro del nombre
-    palabras = nombre_lower.split()
-    if termino_lower in palabras:
-        return 0.8
-    
-    # Para palabras cortas (<=3 chars), solo aceptar match de palabra completa
-    if termino_lower in PALABRAS_CORTAS_EXACTAS or len(termino_lower) <= 3:
-        # Buscar como palabra completa con regex
-        pattern = r'\b' + re.escape(termino_lower) + r'\b'
-        if re.search(pattern, nombre_lower):
-            return 0.7
-        else:
-            return 0.0  # NO aceptar match parcial
-    
-    # Contiene el término (solo para términos de 4+ caracteres)
-    if len(termino_lower) >= 4 and termino_lower in nombre_lower:
-        return 0.5
-    
+    # 4. Palabra contenida como prefijo
+    # "Galletas Soda" contiene "Galletas", que empieza con "galleta" (query="galleta")
+    for word in p_words:
+        if word.startswith(q) and len(q) >= 3:
+            return 0.85
+            
+    # 5. Contiene string (fallback)
+    if q in p_name and len(q) >= 4:
+        return 0.6
+        
     return 0.0
-
 
 # ============================================
 # MODELOS PYDANTIC
@@ -163,9 +116,7 @@ class VoiceParseRequest(BaseModel):
     api: Literal["claude", "openai", "gemini"] = "openai"
     session_id: str | None = None
 
-
 class ProductOption(BaseModel):
-    """Una opción de producto (para variantes)"""
     product_id: int
     name: str
     price: float
@@ -173,32 +124,23 @@ class ProductOption(BaseModel):
     stock: Optional[float] = None
     score: float = 0.0
 
-
 class ProductMatch(BaseModel):
-    """Producto encontrado (puede tener variantes)"""
     search_term: str
     quantity: float
     unit_requested: Optional[str] = None
-    
-    # Si hay match único
     product_id: Optional[int] = None
     name: Optional[str] = None
     price: Optional[float] = None
     unit: Optional[str] = None
-    
-    # Si hay variantes
     has_variants: bool = False
     variants: List[ProductOption] = []
-    
 
 class TimingMetrics(BaseModel):
-    """Métricas de tiempo detalladas"""
     total_ms: int
     transcription_ms: int = 0
     llm_ms: int
     db_search_ms: int
     preprocessing_ms: int
-
 
 class VoiceParseResponse(BaseModel):
     success: bool
@@ -222,35 +164,19 @@ async def parse_voice_with_llm(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Parsear comando de voz usando LLM
-    Soporta múltiples productos en un solo comando
-    Devuelve variantes cuando hay múltiples coincidencias
-    """
-    
     total_start = time.time()
     
-    # ========================================
-    # 1. PRE-PROCESAMIENTO
-    # ========================================
+    # 1. Preprocesamiento
     preprocess_start = time.time()
-    
     transcript_original = request.transcript
     transcript_corregido = corregir_transcript(transcript_original)
-    
     preprocess_ms = int((time.time() - preprocess_start) * 1000)
     
     print(f"\n[Voice LLM] ═══════════════════════════════════════════")
-    print(f"[Voice LLM] Transcript original: '{transcript_original}'")
-    if transcript_corregido != transcript_original.lower():
-        print(f"[Voice LLM] Transcript corregido: '{transcript_corregido}'")
-    print(f"[Voice LLM] API: {request.api}")
+    print(f"[Voice LLM] Transcript: '{transcript_original}' -> '{transcript_corregido}'")
     
-    # ========================================
-    # 2. LLAMADA AL LLM
-    # ========================================
+    # 2. LLM
     llm_start = time.time()
-    
     try:
         if request.api == "claude":
             parsed_result, llm_latency, cost = await LLMService.parse_with_claude(transcript_corregido)
@@ -258,209 +184,168 @@ async def parse_voice_with_llm(
             parsed_result, llm_latency, cost = await LLMService.parse_with_openai(transcript_corregido)
         else:
             parsed_result, llm_latency, cost = await LLMService.parse_with_gemini(transcript_corregido)
-        
         llm_ms = int((time.time() - llm_start) * 1000)
-        print(f"[Voice LLM] LLM Response: {llm_ms}ms")
-        
     except Exception as e:
         print(f"[Voice LLM] ❌ Error en LLM: {str(e)}")
         raise HTTPException(500, detail=f"Error en API {request.api}: {str(e)}")
     
-    # ========================================
-    # 3. EXTRAER LISTA DE ITEMS
-    # ========================================
-    if isinstance(parsed_result, dict):
-        items_list = (
-            parsed_result.get('productos') or 
-            parsed_result.get('products') or 
-            parsed_result.get('items') or 
-            []
-        )
-    elif isinstance(parsed_result, list):
-        items_list = parsed_result
-    else:
-        items_list = []
+    # 3. Extraer items
+    items_list = parsed_result.get('productos', []) if isinstance(parsed_result, dict) else parsed_result if isinstance(parsed_result, list) else []
+    print(f"[Voice LLM] Items detectados: {len(items_list)}")
     
-    print(f"[Voice LLM] Items a procesar: {len(items_list)}")
-    
-    # ========================================
-    # 4. BUSCAR PRODUCTOS EN BD
-    # ========================================
+    # 4. Búsqueda en BD (OPTIMIZADA)
     db_start = time.time()
-    
     matched_products = []
     products_with_variants = []
     not_found = []
     
+    # Cargar TODOS los productos activos de la tienda en memoria
+    all_store_products = db.query(Product).filter(
+        Product.store_id == current_user.store_id,
+        Product.is_active == True
+    ).all()
+    
     for item in items_list:
-        # Extraer datos del item
         if isinstance(item, str):
-            search_term = item.lower().strip()
+            search_term = item
             cantidad = 1.0
             unidad = None
-        elif isinstance(item, dict):
-            search_term = str(item.get("nombre", item.get("name", ""))).lower().strip()
-            cantidad = item.get("cantidad", item.get("quantity", 1.0)) or 1.0
+        else:
+            search_term = str(item.get("nombre", item.get("name", "")))
+            cantidad = float(item.get("cantidad", item.get("quantity", 1.0)) or 1.0)
             unidad = item.get("unidad", item.get("unit"))
-        else:
-            continue
+            
+        search_term = normalize_text(search_term.strip())
+        if not search_term or len(search_term) < 2: continue
         
-        if not search_term or len(search_term) < 2:
-            continue
+        # Generar variantes de búsqueda (singular/plural)
+        queries = {search_term}
+        if search_term.endswith('s'): queries.add(search_term.rstrip('s'))
+        else: queries.add(search_term + 's')
         
-        # ----------------------------------------
-        # Buscar candidatos en BD
-        # ----------------------------------------
-        # Para palabras cortas, buscar solo coincidencias de palabra completa
-        if search_term in PALABRAS_CORTAS_EXACTAS or len(search_term) <= 3:
-            # Búsqueda estricta: el nombre debe empezar con el término
-            # o contener el término como palabra completa
-            candidates = db.query(Product).filter(
-                Product.store_id == current_user.store_id,
-                Product.is_active == True,
-                or_(
-                    Product.name.ilike(f"{search_term} %"),  # Empieza con "pan "
-                    Product.name.ilike(f"% {search_term} %"),  # Contiene " pan "
-                    Product.name.ilike(f"% {search_term}"),  # Termina con " pan"
-                    func.lower(Product.name) == search_term  # Es exactamente "pan"
-                )
-            ).limit(10).all()
-        else:
-            # Búsqueda más amplia para términos largos
-            candidates = db.query(Product).filter(
-                Product.store_id == current_user.store_id,
-                Product.is_active == True,
-                Product.name.ilike(f"%{search_term}%")
-            ).limit(15).all()
-        
-        # ----------------------------------------
-        # Calcular scores y filtrar
-        # ----------------------------------------
         scored_candidates = []
-        for product in candidates:
-            score = calcular_score_match(product.name, search_term)
-            if score > 0:
-                scored_candidates.append({
-                    'product': product,
-                    'score': score
-                })
         
-        # Ordenar por score descendente
+        # Scoring contra todos los productos en memoria
+        for product in all_store_products:
+            best_p_score = 0
+            
+            for q in queries:
+                # 1. Score por Nombre Principal
+                score = calcular_score_avanzado(product.name, q)
+                
+                # 2. Score por ALIASES (¡Aquí está la lógica!)
+                if hasattr(product, 'aliases') and product.aliases:
+                    # Manejar si es string ("pan, yema") o lista ["pan", "yema"]
+                    aliases_list = []
+                    if isinstance(product.aliases, list):
+                        aliases_list = product.aliases
+                    elif isinstance(product.aliases, str):
+                        aliases_list = product.aliases.split(',')
+                    
+                    for alias in aliases_list:
+                        if alias and alias.strip():
+                            alias_score = calcular_score_avanzado(alias.strip(), q)
+                            # Si el alias hace match, cuenta igual que el nombre
+                            score = max(score, alias_score)
+                
+                best_p_score = max(best_p_score, score)
+            
+            # Solo considerar si tiene un mínimo de sentido (>0.5)
+            if best_p_score > 0.5:
+                scored_candidates.append({'product': product, 'score': best_p_score})
+        
+        # Ordenar por score descendente (Mejor match primero)
         scored_candidates.sort(key=lambda x: (-x['score'], x['product'].name))
         
-        # ----------------------------------------
-        # Decidir: match único, variantes, o no encontrado
-        # ----------------------------------------
-        if len(scored_candidates) == 0:
-            not_found.append(search_term)
+        # -----------------------------------------------------------
+        # LÓGICA DE DECISIÓN: ¿AUTOMÁTICO O VARIANTES?
+        # -----------------------------------------------------------
+        is_clear_match = False
+        
+        if not scored_candidates:
             print(f"[Voice LLM] ❌ No encontrado: '{search_term}'")
+            not_found.append(search_term)
+            continue
             
-        elif len(scored_candidates) == 1:
-            # Un solo resultado → match único
-            best = scored_candidates[0]['product']
-            matched_products.append(ProductMatch(
-                search_term=search_term,
-                quantity=float(cantidad),
-                unit_requested=unidad,
-                product_id=best.id,
-                name=best.name,
-                price=float(best.sale_price),
-                unit=getattr(best, 'unit', 'unidad'),
-                has_variants=False,
-                variants=[]
-            ))
-            print(f"[Voice LLM] ✅ Match único: '{search_term}' → {best.name} x{cantidad}")
-            
-        elif scored_candidates[0]['score'] >= 0.9:
-            # Score muy alto → confiar en el mejor match
-            best = scored_candidates[0]['product']
-            matched_products.append(ProductMatch(
-                search_term=search_term,
-                quantity=float(cantidad),
-                unit_requested=unidad,
-                product_id=best.id,
-                name=best.name,
-                price=float(best.sale_price),
-                unit=getattr(best, 'unit', 'unidad'),
-                has_variants=False,
-                variants=[]
-            ))
-            print(f"[Voice LLM] ✅ Match confiable (score={scored_candidates[0]['score']:.2f}): '{search_term}' → {best.name}")
-            
+        top_candidate = scored_candidates[0]
+        top_score = top_candidate['score']
+        
+        if len(scored_candidates) == 1:
+            # Solo hay uno. Si el score es decente, pasa.
+            if top_score >= 0.6: 
+                is_clear_match = True
         else:
-            # Múltiples variantes → el usuario debe elegir
+            # Hay competencia. Aplicar "Margen de Victoria"
+            second_score = scored_candidates[1]['score']
+            diff = top_score - second_score
+            
+            # CASO A: Match EXACTO (1.0) mata a todo lo demás
+            if top_score == 1.0 and second_score < 1.0:
+                is_clear_match = True
+            
+            # CASO B: Score alto (>0.85) Y gana por goleada (>0.15)
+            # Ejemplo: Azul (0.90) vs Roja (0.60) -> Diff 0.30 -> Pasa Automático
+            # Ejemplo: Azul (0.90) vs Roja (0.85) -> Diff 0.05 -> NO Pasa (Modal)
+            elif top_score >= 0.85 and diff > 0.15:
+                is_clear_match = True
+        
+        # -----------------------------------------------------------
+        # ASIGNACIÓN FINAL
+        # -----------------------------------------------------------
+        if is_clear_match:
+            # ✅ AUTOMÁTICO
+            best = top_candidate['product']
+            print(f"[Voice LLM] ✅ Match claro: '{search_term}' -> {best.name} (Score: {top_score:.2f})")
+            matched_products.append(ProductMatch(
+                search_term=search_term,
+                quantity=cantidad,
+                unit_requested=unidad,
+                product_id=best.id,
+                name=best.name,
+                price=float(best.sale_price),
+                unit=getattr(best, 'unit', 'unidad'),
+                has_variants=False
+            ))
+        else:
+            # 🔀 AMBIGUO (MODAL)
+            print(f"[Voice LLM] ⚠️ Ambiguo: '{search_term}' (Top: {top_score:.2f}, 2nd: {scored_candidates[1]['score'] if len(scored_candidates)>1 else 0:.2f})")
             variants = [
                 ProductOption(
                     product_id=c['product'].id,
                     name=c['product'].name,
                     price=float(c['product'].sale_price),
                     unit=getattr(c['product'], 'unit', 'unidad'),
-                    stock=float(c['product'].stock) if hasattr(c['product'], 'stock') and c['product'].stock else None,
-                    score=round(c['score'], 2)
-                )
-                for c in scored_candidates[:6]
+                    score=c['score']
+                ) for c in scored_candidates[:6] # Top 6 para el modal
             ]
-            
             products_with_variants.append(ProductMatch(
                 search_term=search_term,
-                quantity=float(cantidad),
+                quantity=cantidad,
                 unit_requested=unidad,
                 has_variants=True,
                 variants=variants
             ))
-            print(f"[Voice LLM] 🔀 Variantes para '{search_term}': {[v.name for v in variants]}")
-    
+
     db_ms = int((time.time() - db_start) * 1000)
-    
-    # ========================================
-    # 5. MÉTRICAS
-    # ========================================
     total_ms = int((time.time() - total_start) * 1000)
     
-    timing = TimingMetrics(
-        total_ms=total_ms,
-        llm_ms=llm_ms,
-        db_search_ms=db_ms,
-        preprocessing_ms=preprocess_ms
-    )
-    
-    print(f"[Voice LLM] ───────────────────────────────────────────")
-    print(f"[Voice LLM] 📊 MÉTRICAS DE TIEMPO:")
-    print(f"[Voice LLM]    • Preprocesamiento: {preprocess_ms}ms")
-    print(f"[Voice LLM]    • LLM ({request.api}): {llm_ms}ms")
-    print(f"[Voice LLM]    • Búsqueda BD: {db_ms}ms")
-    print(f"[Voice LLM]    • TOTAL: {total_ms}ms")
-    print(f"[Voice LLM] 📦 Resultados:")
-    print(f"[Voice LLM]    • Match único: {len(matched_products)}")
-    print(f"[Voice LLM]    • Con variantes: {len(products_with_variants)}")
-    print(f"[Voice LLM]    • No encontrados: {len(not_found)}")
-    print(f"[Voice LLM] ═══════════════════════════════════════════\n")
-    
-    # ========================================
-    # 6. LOG EN BD
-    # ========================================
+    # 5. Logging
     try:
         log_entry = VoiceCommandLog(
             store_id=current_user.store_id,
             user_id=current_user.id,
             transcript=transcript_original,
             api_used=request.api,
-            parsed_result=parsed_result if isinstance(parsed_result, dict) else {"items": parsed_result},
+            parsed_result={"items": items_list},
             products_found=len(matched_products) + len(products_with_variants),
-            products_added=len(matched_products),
-            success=len(matched_products) > 0 or len(products_with_variants) > 0,
+            success=len(matched_products) > 0,
             latency_ms=total_ms,
-            cost_usd=cost,
-            session_id=request.session_id
+            cost_usd=cost
         )
         db.add(log_entry)
         db.commit()
-    except Exception as e:
-        print(f"[Voice LLM] ⚠️ Error guardando log: {e}")
+    except Exception: pass
     
-    # ========================================
-    # 7. RESPUESTA
-    # ========================================
     return VoiceParseResponse(
         success=len(matched_products) > 0 or len(products_with_variants) > 0,
         products=matched_products,
@@ -468,7 +353,7 @@ async def parse_voice_with_llm(
         not_found=not_found,
         api_used=request.api,
         latency_ms=total_ms,
-        timing=timing,
+        timing=TimingMetrics(total_ms=total_ms, llm_ms=llm_ms, db_search_ms=db_ms, preprocessing_ms=preprocess_ms),
         cost_usd=cost,
-        transcript_corregido=transcript_corregido if transcript_corregido != transcript_original.lower() else None
+        transcript_corregido=transcript_corregido
     )
