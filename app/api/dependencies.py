@@ -45,21 +45,21 @@ async def get_current_user(
         )
     
     # 4. Verificar token
-    auth_service = AuthService(db)
-    user = auth_service.get_current_user(token)
-    
-    if not user:
-        print(f"[Auth] ❌ Token inválido")
+    try:
+        auth_service = AuthService(db)
+        user = auth_service.get_current_user(token)
+        
+        if not user:
+            print(f"[Auth] ❌ Usuario no encontrado en DB para este token")
+            raise HTTPException(status_code=401, detail="Token válido pero usuario no existe")
+            
+    except Exception as e:
+        # ESTO ES LO IMPORTANTE: Imprime el error real en la consola de Railway
+        print(f"[Auth] 💥 Excepción al decodificar token: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado.",
+            detail=f"Error de autenticación: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo.",
         )
     
     print(f"[Auth] ✅ Usuario autenticado: {user.full_name}")
