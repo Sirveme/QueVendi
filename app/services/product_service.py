@@ -33,81 +33,66 @@ class ProductService:
     
     def search_products(self, store_id: int, query: str) -> List[Product]:
         """
-        Búsqueda inteligente de productos con similitud de texto
-        
-        Args:
-            store_id: ID de la tienda
-            query: Texto de búsqueda
-        
-        Returns:
-            Lista de productos ordenados por relevancia
+        Búsqueda inteligente optimizada para prefijos y plurales
         """
-        query = query.lower().strip()
+        import unicodedata
         
-        # Obtener todos los productos activos de la tienda
+        def normalize(text):
+            if not text: return ""
+            return unicodedata.normalize('NFD', text.lower()).encode('ascii', 'ignore').decode('utf-8')
+
+        query = normalize(query.strip())
+        if not query: return []
+        
+        # Generar variantes (singular/plural)
+        queries = {query}
+        if query.endswith('s'): queries.add(query.rstrip('s'))
+        else: queries.add(query + 's')
+        
+        # Obtener productos
         all_products = self.db.query(Product).filter(
             Product.store_id == store_id,
             Product.is_active == True
         ).all()
         
-        if not all_products:
-            return []
-        
-        # Calcular similitud para cada producto
         scored_products = []
+        
         for product in all_products:
-            product_name = product.name.lower()
-            
-            # Si el producto tiene aliases, buscar también ahí
-            product_aliases = []
-            if hasattr(product, 'aliases') and product.aliases:
-                # Puede ser una lista o un string separado por comas
-                if isinstance(product.aliases, list):
-                    product_aliases = [a.lower() for a in product.aliases]
-                elif isinstance(product.aliases, str):
-                    product_aliases = [a.strip().lower() for a in product.aliases.split(',')]
+            p_name = normalize(product.name)
+            p_words = p_name.split()
             
             max_score = 0
             
-            # Buscar en el nombre del producto
-            if query == product_name:
-                max_score = 100
-            elif product_name.startswith(query):
-                max_score = 80
-            elif query in product_name:
-                max_score = 60
-            else:
-                similarity = SequenceMatcher(None, query, product_name).ratio()
-                max_score = similarity * 50
-            
-            # Buscar en los aliases (si existen)
-            for alias in product_aliases:
-                if query == alias:
-                    max_score = max(max_score, 100)
-                elif alias.startswith(query):
-                    max_score = max(max_score, 80)
-                elif query in alias:
+            # Chequear variantes
+            for q in queries:
+                # 1. Match Exacto o Inicio de nombre
+                if p_name == q:
+                    max_score = 100
+                elif p_name.startswith(q):
+                    max_score = 90
+                
+                # 2. Match de palabras (El producto contiene la palabra que empieza con q)
+                # Ejemplo: q="galleta", p="soda galletas" -> "galletas" empieza con "galleta" -> 85 pts
+                for word in p_words:
+                    if word == q:
+                        max_score = max(max_score, 95)
+                    elif word.startswith(q) and len(q) >= 3:
+                        max_score = max(max_score, 85)
+                
+                # 3. Contenido general
+                if q in p_name:
                     max_score = max(max_score, 60)
-                else:
-                    similarity = SequenceMatcher(None, query, alias).ratio()
-                    max_score = max(max_score, similarity * 50)
-            
-            # Solo incluir productos con score > 50% (más estricto)
-            if max_score > 50:
+                
+                # 4. Fuzzy (si no hubo match fuerte)
+                if max_score < 60:
+                    ratio = SequenceMatcher(None, q, p_name).ratio()
+                    if ratio > 0.6:
+                        max_score = max(max_score, ratio * 60)
+
+            if max_score >= 50:
                 scored_products.append((product, max_score))
         
-        # Ordenar por score descendente
         scored_products.sort(key=lambda x: x[1], reverse=True)
-        
-        # Log para debug
-        if scored_products:
-            print(f"[ProductService] Búsqueda '{query}':")
-            for product, score in scored_products[:5]:
-                print(f"  - {product.name}: {score:.1f} puntos")
-        else:
-            print(f"[ProductService] Búsqueda '{query}': Sin resultados (ningún producto > 50% similitud)")
-        
-        # Retornar los top 10 productos
         return [p[0] for p in scored_products[:10]]
     
     def get_product_by_id(self, product_id: int) -> Product:

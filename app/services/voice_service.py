@@ -402,24 +402,28 @@ class VoiceService:
     @staticmethod
     def find_product_fuzzy(query: str, products: List[Product]) -> Optional[Product]:
         """
-        Buscar producto con fuzzy matching.
-        Si hay múltiples matches similares, devuelve None y guarda opciones.
+        Buscar producto con fuzzy matching mejorado (Plurales y prefijos)
         """
-        print(f"[VoiceService] 🚨 find_product_fuzzy EJECUTÁNDOSE")
-        print(f"[VoiceService] Query: '{query}'")
-        print(f"[VoiceService] Products: {len(products) if products else 0}")
-        
         if not products:
             return None
         
-        # ⬇️⬇️⬇️ CAMBIAR ESTAS LÍNEAS ⬇️⬇️⬇️
-        query = VoiceService.normalize_text(query.lower().strip())  # ← AGREGAR normalize_text
-        print(f"[VoiceService] Query NORMALIZADO: '{query}'")        # ← AGREGAR log
-        # ⬆️⬆️⬆️ FIN CAMBIO ⬆️⬆️⬆️
-
-        query_singular = query.rstrip('s')
+        # 1. Normalizar query
+        query = VoiceService.normalize_text(query.lower().strip())
         
-        print(f"[VoiceService] 🔍 Buscando '{query}' en {len(products)} productos")
+        # 2. Generar variantes de búsqueda (Singular/Plural)
+        queries = {query}
+        if query.endswith('s'):
+            queries.add(query.rstrip('s'))      # galletas -> galleta
+            queries.add(query.rstrip('es'))     # panes -> pan
+        else:
+            queries.add(query + 's')            # galleta -> galletas
+            queries.add(query + 'es')           # pan -> panes
+            
+        # Limpiar variantes vacías o muy cortas
+        queries = {q for q in queries if len(q) > 2}
+        if not queries: queries = {query}
+
+        print(f"[VoiceService] 🔍 Buscando variantes: {queries}")
         
         matches = []
         
@@ -427,129 +431,87 @@ class VoiceService:
             if not product.is_active:
                 continue
             
-            # ⬇️⬇️⬇️ CAMBIAR ESTA LÍNEA ⬇️⬇️⬇️
-            product_name = VoiceService.normalize_text(product.name.lower())  # ← AGREGAR normalize_text
-            # ⬆️⬆️⬆️ FIN CAMBIO ⬆️⬆️⬆️
-
+            # Normalizar nombre del producto
+            product_name = VoiceService.normalize_text(product.name.lower())
+            
             scores = []
             
-            # Match exacto - NO retornar, evaluar todos
-            if query == product_name:
-                print(f"[VoiceService] ✅ Match exacto: {product.name}")
-                scores.append(100)  # Score perfecto
+            # ---------------------------------------------------------
+            # ESTRATEGIA 1: Palabras individuales (La más efectiva)
+            # ---------------------------------------------------------
+            words_in_name = product_name.split()
             
-            # Empieza con
-            # Empieza con - PERO SOLO SI ES PALABRA COMPLETA
-            if product_name.startswith(query) or product_name.startswith(query_singular):
-                # Verificar si después del query hay espacio (es palabra completa)
-                if (product_name.startswith(query + ' ') or 
-                    product_name.startswith(query_singular + ' ') or
-                    product_name == query or 
-                    product_name == query_singular):
-                    scores.append(85)
-                    print(f"[VoiceService]   ✅ {product.name}: empieza con '{query}' (palabra completa)")
-                else:
-                    scores.append(35)  # Solo prefijo, no palabra completa
-                    print(f"[VoiceService]   ⚠️ {product.name}: empieza con '{query}' pero no es palabra completa (score bajo)")
-            
-            # Contiene
-            # Contiene - SOLO PALABRAS COMPLETAS
-            if query in product_name or query_singular in product_name:
-                # ⬇️⬇️⬇️ VALIDACIÓN DE PALABRA COMPLETA ⬇️⬇️⬇️
-                words_in_name = product_name.split()
-                
-                # Verificar si es palabra completa
-                is_complete_word = False
+            for q in queries:
                 for word in words_in_name:
-                    # Quitar caracteres especiales para comparar
+                    # Limpiar puntuación de la palabra del producto
                     clean_word = word.strip('.,;:()[]{}')
-                    if query == clean_word or query_singular == clean_word:
-                        is_complete_word = True
-                        break
+                    
+                    # A. Coincidencia Exacta de palabra
+                    if q == clean_word:
+                        scores.append(100)
+                        # print(f"   MATCH EXACTO: {q} == {clean_word}")
+                    
+                    # B. La palabra del producto EMPIEZA con la query (galletas empieza con galleta)
+                    elif clean_word.startswith(q) and len(q) >= 4:
+                        scores.append(90) # Puntaje muy alto, casi seguro es lo que buscas
+                        # print(f"   MATCH INICIO: {clean_word} empieza con {q}")
+            
+            # ---------------------------------------------------------
+            # ESTRATEGIA 2: Frase completa
+            # ---------------------------------------------------------
+            for q in queries:
+                if q == product_name:
+                    scores.append(100)
+                elif product_name.startswith(q):
+                    scores.append(85)
+                elif q in product_name:
+                    scores.append(60) # Contiene, pero no al inicio ni palabra exacta
                 
-                if is_complete_word:
-                    scores.append(85)  # Palabra completa
-                    print(f"[VoiceService]   ✅ {product.name}: palabra completa")
-                else:
-                    # Solo subcadena (ej: "agua" en "aguaymanto")
-                    scores.append(35)  # Score bajo
-                    print(f"[VoiceService]   ⚠️ {product.name}: solo subcadena (score bajo)")
-                # ⬆️⬆️⬆️ FIN VALIDACIÓN ⬆️⬆️⬆️
-            
-            # Similaridad general
-            similarity = SequenceMatcher(None, query, product_name).ratio()
-            scores.append(similarity * 50)
-            
-            # Buscar en aliases
+                # Similarity (Diferencias por errores de transcripción: galyeta)
+                similarity = SequenceMatcher(None, q, product_name).ratio()
+                if similarity > 0.8: # Solo si es muy parecido
+                    scores.append(similarity * 100)
+
+            # ---------------------------------------------------------
+            # ESTRATEGIA 3: Aliases
+            # ---------------------------------------------------------
             if hasattr(product, 'aliases') and product.aliases:
                 aliases = []
                 if isinstance(product.aliases, list):
-                    aliases = [a.lower() for a in product.aliases]
+                    aliases = [VoiceService.normalize_text(str(a).lower()) for a in product.aliases]
                 elif isinstance(product.aliases, str):
-                    aliases = [a.strip().lower() for a in product.aliases.split(',')]
+                    aliases = [VoiceService.normalize_text(a.strip().lower()) for a in product.aliases.split(',')]
                 
                 for alias in aliases:
-                    # ⬇️⬇️⬇️ AGREGAR ESTA LÍNEA ⬇️⬇️⬇️
-                    alias = VoiceService.normalize_text(alias)  # ← AGREGAR
-                    # ⬆️⬆️⬆️ FIN CAMBIO ⬆️⬆️⬆️
+                    for q in queries:
+                        if q == alias: scores.append(100)
+                        elif alias.startswith(q): scores.append(90)
+                        elif q in alias: scores.append(70)
 
-                    if query == alias or query_singular == alias:
-                        print(f"[VoiceService] ✅ Match en alias: {product.name} → '{alias}'")
-                        scores.append(100)
-                    
-                    # ⬇️⬇️⬇️ VALIDAR PALABRA COMPLETA EN ALIASES TAMBIÉN ⬇️⬇️⬇️
-                    elif query in alias or query_singular in alias:
-                        # Verificar si es palabra completa
-                        words_in_alias = alias.split()
-                        clean_words = [w.strip('.,;:()[]{}') for w in words_in_alias]
-                        
-                        if query in clean_words or query_singular in clean_words:
-                            scores.append(85)  # Palabra completa en alias
-                            print(f"[VoiceService]   ✅ {product.name}: palabra completa en alias '{alias}'")
-                        else:
-                            scores.append(35)  # Solo subcadena
-                            print(f"[VoiceService]   ⚠️ {product.name}: subcadena en alias '{alias}' (score bajo)")
-                    # ⬆️⬆️⬆️ FIN VALIDACIÓN ⬆️⬆️⬆️
-                    
-                    # Starts with
-                    elif alias.startswith(query) or alias.startswith(query_singular):
-                        scores.append(85)
-                    
-                    # Similarity
-                    similarity = SequenceMatcher(None, query, alias).ratio()
-                    scores.append(similarity * 50)
-            
+            # Evaluar mejor puntaje para este producto
             max_score = max(scores) if scores else 0
             
-            if max_score > 40:
+            if max_score >= 60: # Umbral mínimo de confianza
                 matches.append((product, max_score))
-        
+
+        # Ordenar resultados
         matches.sort(key=lambda x: x[1], reverse=True)
         
-        # LOGS DE MATCHES
         if matches:
-            print(f"[VoiceService] Matches encontrados para '{query}':")
-            for i, (prod, score) in enumerate(matches[:5]):
-                print(f"  {i+1}. {prod.name} (score: {score:.1f})")
-        
-        if not matches:
-            print(f"[VoiceService] '{query}' → NO ENCONTRADO")
-            return None
-        
-        # Verificar ambigüedad: 
-        # Si hay 2+ productos con score >= 80, es ambiguo
-        high_score_matches = [m for m in matches if m[1] >= 80]
-
-        if len(high_score_matches) > 1:
-            print(f"[VoiceService] '{query}' → AMBIGUO: {len(high_score_matches)} opciones con score alto")
-            print(f"[VoiceService] Opciones: {[m[0].name for m in high_score_matches[:4]]}")
-            print(f"[VoiceService] Scores: {[m[1] for m in high_score_matches[:4]]}")
-            VoiceService._last_ambiguous_options = [m[0] for m in high_score_matches[:4]]
-            return None
-        
-        best_match = matches[0][0]
-        print(f"[VoiceService] '{query}' → '{best_match.name}' (score: {matches[0][1]:.1f})")
-        return best_match
+            best_product, best_score = matches[0]
+            print(f"[VoiceService] ✅ Ganador: '{best_product.name}' (Score: {best_score})")
+            
+            # Detección de ambigüedad
+            high_scores = [m for m in matches if m[1] >= 90]
+            if len(high_scores) > 1:
+                print(f"[VoiceService] ⚠️ Ambigüedad detectada entre: {[p.name for p,s in high_scores[:3]]}")
+                VoiceService._last_ambiguous_options = [p for p,s in high_scores[:4]]
+                return None
+                
+            return best_product
+            
+        print(f"[VoiceService] ❌ No encontrado: '{query}'")
+        return None
     
     import unicodedata
 
