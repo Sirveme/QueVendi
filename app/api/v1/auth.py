@@ -230,6 +230,7 @@ async def register(
     
     access_token = create_access_token(
         data={
+            "sub": str(user.id),       # ⬅️ AGREGADO
             "user_id": user.id,
             "dni": user.dni,
             "store_id": store.id,
@@ -294,7 +295,8 @@ async def login(
     # Generar token
     access_token = create_access_token(
         data={
-            "user_id": user.id,
+            "sub": str(user.id),       # ⬅️ AGREGADO: Estándar JWT
+            "user_id": user.id,        # Mantenemos por compatibilidad temporal
             "dni": user.dni,
             "store_id": user.store_id,
             "role": user.role
