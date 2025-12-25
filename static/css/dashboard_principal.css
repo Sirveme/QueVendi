@@ -2766,3 +2766,166 @@ body.is-owner .owner-only {
     background: #059669;
     transform: translateY(-1px);
 }
+
+/* ============================================
+   MODAL VARIANTES V2 (MEJORADO)
+   ============================================ */
+
+.variant-option-v2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+}
+
+.variant-option-v2:hover {
+    border-color: var(--accent-gold);
+    background: var(--bg-tertiary);
+}
+
+.variant-option-v2:has(.variant-checkbox:checked) {
+    border-color: var(--accent-gold);
+    background: rgba(251, 191, 36, 0.1);
+}
+
+.variant-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-gold);
+}
+
+.variant-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    color: var(--accent-gold);
+    font-size: 16px;
+}
+
+.variant-content-v2 {
+    flex: 1;
+    min-width: 0;
+}
+
+.variant-name-v2 {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.variant-meta-v2 {
+    display: flex;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.variant-stock-badge,
+.variant-unit-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.variant-stock-badge {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.variant-unit-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.variant-price-v2 {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-green);
+}
+
+.variant-check-v2 {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: all 0.2s;
+    font-size: 20px;
+}
+
+.variant-option-v2:has(.variant-checkbox:checked) .variant-check-v2 {
+    opacity: 1;
+    color: var(--accent-gold);
+}
+
+.variants-footer-v2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+.selected-count {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.selected-count span {
+    color: var(--accent-gold);
+    font-size: 18px;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-cancel-v2,
+.btn-confirm-v2 {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-cancel-v2 {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-cancel-v2:hover {
+    background: var(--bg-card);
+}
+
+.btn-confirm-v2 {
+    background: var(--accent-green);
+    border: none;
+    color: white;
+}
+
+.btn-confirm-v2:hover {
+    background: #059669;
+}
