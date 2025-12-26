@@ -647,8 +647,9 @@ function setupFilters() {
     const monthAgo = new Date();
     monthAgo.setDate(monthAgo.getDate() - 30);
     
-    const todayStr = today.toISOString().split('T')[0];
-    const monthAgoStr = monthAgo.toISOString().split('T')[0];
+    // 🔥 USAR FECHA LOCAL (no UTC)
+    const todayStr = formatLocalDate(today);
+    const monthAgoStr = formatLocalDate(monthAgo);
     
     const dateFromEl = document.getElementById('filter-date-from');
     const dateToEl = document.getElementById('filter-date-to');
@@ -672,6 +673,14 @@ function setupFilters() {
     State.filters.levels = ['ROJO', 'AMBAR', 'VERDE'];
     
     console.log('[Mapa] Filtros iniciales:', State.filters);
+}
+
+// 🔥 AGREGAR esta función helper
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 function applyFilters() {
@@ -1421,6 +1430,5 @@ function updateLastUpdate(text = null) {
 // ============================================
 // INICIALIZAR
 // ============================================
-
 
 console.log('[Mapa] Script cargado');
