@@ -34,25 +34,41 @@ class AuthService:
     
     def get_current_user(self, token: str) -> Optional[User]:
         """Obtener usuario actual desde token"""
+        print(f"[AuthService] 🔍 Intentando decodificar token...")
+        print(f"[AuthService] Token (primeros 30): {token[:30]}...")
+        
         payload = decode_token(token)
         
         if not payload:
+            print(f"[AuthService] ❌ decode_token retornó None")
+            print(f"[AuthService] Verificar JWT_SECRET_KEY en Railway")
             return None
         
-        # 1. INTENTAR OBTENER ID (Soporta 'sub' estándar y 'user_id' antiguo)
+        print(f"[AuthService] ✅ Payload decodificado: {payload}")
+        
+        # 1. INTENTAR OBTENER ID
         user_id = payload.get("sub") or payload.get("user_id")
         
         if not user_id:
+            print(f"[AuthService] ❌ No hay 'sub' ni 'user_id' en payload")
             return None
         
-        # 2. CONVERTIR A ENTERO (Crucial para PostgreSQL/SQLAlchemy)
+        print(f"[AuthService] User ID extraído: {user_id}")
+        
+        # 2. CONVERTIR A ENTERO
         try:
             user_id_int = int(user_id)
-        except (ValueError, TypeError):
-            # Si el ID no es un número válido, rechazamos
+            print(f"[AuthService] User ID como int: {user_id_int}")
+        except (ValueError, TypeError) as e:
+            print(f"[AuthService] ❌ Error convirtiendo ID a int: {e}")
             return None
         
         # 3. BUSCAR EN BD
         user = self.db.query(User).filter(User.id == user_id_int).first()
         
+        if not user:
+            print(f"[AuthService] ❌ Usuario ID {user_id_int} no existe en BD")
+            return None
+        
+        print(f"[AuthService] ✅ Usuario encontrado: {user.full_name}")
         return user
