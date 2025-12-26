@@ -188,7 +188,7 @@ async function loadIncidents() {
             params.append('fecha_hasta', State.filters.dateTo);
         }
         
-        const url = `${CONFIG.apiBase}/incidentes?${params.toString()}`;
+        const url = `${CONFIG.apiBase}/incidentes/list?${params.toString()}`;
         console.log('[Mapa] URL:', url);
         
         let useTestData = false;
@@ -1421,5 +1421,6 @@ function updateLastUpdate(text = null) {
 // ============================================
 // INICIALIZAR
 // ============================================
+
 
 console.log('[Mapa] Script cargado');
