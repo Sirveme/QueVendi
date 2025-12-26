@@ -80,7 +80,11 @@ class EstadisticasResponse(BaseModel):
 # ============================================
 # ENDPOINTS PÚBLICOS (para el mapa)
 # ============================================
-
+@router.get("/test-public")
+async def test_publico():
+    """Endpoint de prueba SIN dependencias"""
+    return {"status": "ok", "public": True, "message": "Funciona sin auth"}
+    
 @router.get("/", response_model=dict)
 async def listar_incidentes_publicos(
     nivel: Optional[str] = Query(None, description="Filtrar por nivel: ROJO, AMBAR, VERDE"),
@@ -496,4 +500,5 @@ async def bodegueros_cercanos(
 
 
 # Helper para calcular distancia
+
 from math import cos, radians
