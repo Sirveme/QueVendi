@@ -144,6 +144,8 @@ else:
 # ROUTERS API (prefix /api/v1)
 # ========================================
 app.include_router(auth.router, prefix="/api/v1", tags=["Auth"])
+app.include_router(incidentes.router, prefix="/api/v1", tags=["Incidentes"])
+app.include_router(ubigeo.router, prefix="/api/v1", tags=["Ubigeo"])
 app.include_router(products.router, prefix="/api/v1", tags=["Products"])
 app.include_router(sales.router, prefix="/api/v1", tags=["Sales"])
 app.include_router(voice.router, prefix="/api/v1", tags=["Voice"])
@@ -275,6 +277,3 @@ async def onboarding_page(request: Request):
     """
     return templates.TemplateResponse("onboarding_wizard.html", {"request": request})
 
-
-app.include_router(incidentes.router, prefix="/api/v1", tags=["Incidentes"])
-app.include_router(ubigeo.router, prefix="/api/v1", tags=["Ubigeo"])
