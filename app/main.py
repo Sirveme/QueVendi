@@ -22,8 +22,11 @@ from app.models.user import User
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 
+from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+
 from dotenv import load_dotenv
 load_dotenv()
+
 
 # ========================================
 # IMPORTAR ROUTERS API
@@ -120,6 +123,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Agregar después de crear app
+if os.getenv('FORCE_HTTPS') == 'true':
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 
 # ========================================
