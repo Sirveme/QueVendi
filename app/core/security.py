@@ -77,3 +77,43 @@ def decode_token(token: str) -> Optional[dict]:
 
         #print(f"[JWT] Error al decodificar token: {e}")
         return None
+    
+
+# ============================================
+# GET CURRENT USER
+# ============================================
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> dict:
+    token = credentials.credentials
+    payload = decode_token(token)
+    
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user_id = payload.get("user_id") or payload.get("sub")
+    
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido - falta user_id",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return {
+        "user_id": user_id,
+        "store_id": payload.get("store_id"),
+        "email": payload.get("email"),
+        "username": payload.get("username"),
+        "role": payload.get("role")
+    }
