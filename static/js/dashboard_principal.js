@@ -80,10 +80,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Configurar event listeners
     setupEventListeners();
     
+    // ✅ NUEVO: Event listener para modal de fiado
+    const modalFiadoDias = document.getElementById('modal-fiado-dias');
+    if (modalFiadoDias) {
+        modalFiadoDias.addEventListener('change', function() {
+            actualizarResumenFiado();
+        });
+        console.log('[Dashboard] Event listener de fiado configurado');
+    }
+    
     // Seleccionar método de pago por defecto
     selectPaymentUI('efectivo');
     
     console.log('[Dashboard] ✅ Sistema cargado correctamente');
+
+
+    // Event listener para prevenir cierre del modal al hacer click dentro
+    const modalFiadoContent = document.querySelector('.modal-fiado-container');
+    if (modalFiadoContent) {
+        modalFiadoContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Cerrar modal solo al hacer click en el overlay (fondo oscuro)
+    const modalFiadoOverlay = document.getElementById('modal-fiado-overlay');
+    if (modalFiadoOverlay) {
+        modalFiadoOverlay.addEventListener('click', (e) => {
+            // Solo cerrar si el click es en el overlay, no en el contenido
+            if (e.target === modalFiadoOverlay) {
+                cerrarModalFiado();
+            }
+        });
+    }
+
 });
 
 // ============================================
@@ -91,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================================
 
 function getAuthToken() {
-    return localStorage.getItem('access_token') || localStorage.getItem('token');
+    return localStorage.getItem('access_token') || localStorage.getItem('access_token');
 }
 
 function checkAuth() {
@@ -208,6 +238,22 @@ function addToCart(product, quantity = 1, silent = false) {
         const total = getCartTotal();
         speak(`${product.name}. Total: ${total.toFixed(2)} soles`);
     }
+
+    // Sugerir producto complementario
+    if (typeof AudioAssistant !== 'undefined' && product.name) {
+        AudioAssistant.sugerirPorProducto(product.name);
+    }
+
+    // Mostrar confirmación visual si no es silencioso
+    if (!silent) {
+        UIFeedback.showLargeConfirmation([{
+            name: product.name,
+            quantity: quantity,
+            unit: product.unit || 'unidad',
+            price: product.sale_price
+        }]);
+    }
+
 }
 
 function updateQuantity(productId, quantity) {
@@ -289,7 +335,7 @@ function getCartTotal() {
 }
 
 function getCartItemsCount() {
-    return AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
+     return AppState.cart.length;
 }
 
 function saveCart() {
@@ -319,7 +365,7 @@ function renderCart() {
             emptyState.style.display = 'flex';
             container.appendChild(emptyState);
         }
-        countEl.textContent = '0 items';
+        countEl.textContent = '0 productos';  // ✅ CAMBIO 1
         totalEl.textContent = 'S/. 0.00';
         return;
     }
@@ -329,20 +375,27 @@ function renderCart() {
     const total = getCartTotal();
     const itemsCount = getCartItemsCount();
     
-    container.innerHTML = AppState.cart.map(item => {
+    container.innerHTML = AppState.cart.map((item, index) => {  // ✅ CAMBIO 2: Agregar index
         const itemPrice = parseFloat(item.price) || 0;
         const itemQuantity = parseFloat(item.quantity) || 1;
         const itemTotal = itemPrice * itemQuantity;
+        
+        // ✅ CAMBIO 3: Formatear cantidad
+        const quantityDisplay = itemQuantity % 1 === 0 
+            ? itemQuantity 
+            : itemQuantity.toFixed(3);
+        
+        const unitDisplay = item.unit || 'unidad';
         
         return `
         <div class="cart-item">
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">S/. ${itemPrice.toFixed(2)} / ${item.unit}</div>
+                <div class="cart-item-price">S/. ${itemPrice.toFixed(2)} / ${unitDisplay}</div>
             </div>
             <div class="cart-item-qty">
                 <button onclick="decreaseQty(${item.id})">−</button>
-                <span>${itemQuantity}</span>
+                <span>${quantityDisplay} ${unitDisplay}</span>  <!-- ✅ CAMBIO 4 -->
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
             <div class="cart-item-subtotal">S/. ${itemTotal.toFixed(2)}</div>
@@ -351,7 +404,7 @@ function renderCart() {
     }).join('');
     
     totalEl.textContent = `S/. ${total.toFixed(2)}`;
-    countEl.textContent = `${itemsCount} item${itemsCount !== 1 ? 's' : ''}`;
+    countEl.textContent = `${itemsCount} producto${itemsCount !== 1 ? 's' : ''}`;  // ✅ CAMBIO 5
 }
 
 // ============================================
@@ -467,13 +520,30 @@ async function searchAndAdd(productName) {
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
             method: 'POST',
-            body: JSON.stringify({ query: productName, limit: 1 })
+            body: JSON.stringify({ query: productName, limit: 20 })  // ← 20 para variantes
         });
         
         if (response.ok) {
             const products = await response.json();
             if (products && products.length > 0) {
-                addToCart(products[0]);
+                // Si solo hay 1, agregar directo
+                if (products.length === 1) {
+                    addToCart(products[0], 1);
+                } else {
+                    // Si hay múltiples, mostrar variantes
+                    const variantsData = [{
+                        search_term: productName,
+                        quantity: 1,
+                        variants: products.map(p => ({
+                            product_id: p.id,
+                            name: p.name,
+                            price: p.sale_price,
+                            unit: p.unit || 'unidad',
+                            stock: p.stock
+                        }))
+                    }];
+                    showVariantsModal(variantsData);
+                }
             }
         }
     } catch (error) {
@@ -551,7 +621,10 @@ function displaySearchResults(products) {
 }
 
 function selectSearchResult(product) {
-    addToCart(product);
+    // ❌ ANTES: addToCart(product);
+    
+    // ✅ AHORA: Buscar variantes
+    searchProductByVoice(product.name, 1, false);  // false = mostrar modal
     
     // Limpiar búsqueda
     document.getElementById('search-input').value = '';
@@ -853,27 +926,95 @@ function showVariantsModal(variantsList) {
     
     const modal = document.createElement('div');
     modal.id = 'variants-modal';
-    modal.className = 'modal-overlay open';
+    
+    // ✅ ESTILOS INLINE para evitar conflictos CSS
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.2s ease-out;
+    `;
     
     // Calcular total de variantes
     const totalVariants = variantsList.reduce((sum, item) => sum + item.variants.length, 0);
     
     let html = `
-        <div class="variants-modal">
-            <div class="variants-header">
-                <h3><i class="fas fa-search"></i> Selecciona productos</h3>
-                <button class="modal-close-btn" onclick="closeVariantsModal()">×</button>
+        <div class="variants-modal" style="
+            background: #1a1a2e;
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        ">
+            <div class="variants-header" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #3a3a4e;
+                padding-bottom: 15px;
+            ">
+                <h3 style="margin: 0; color: #e0e0e0;">
+                    <i class="fas fa-search"></i> Selecciona productos
+                </h3>
+                <button class="modal-close-btn" onclick="closeVariantsModal()" style="
+                    background: transparent;
+                    border: none;
+                    color: #999;
+                    font-size: 28px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    line-height: 1;
+                ">×</button>
             </div>
-            <div class="variants-body">
+            <div class="variants-body" style="
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 20px;
+            ">
     `;
     
     variantsList.forEach((item, itemIndex) => {
+        // Agregar título del producto buscado
+        html += `
+            <div style="
+                color: #999;
+                font-size: 14px;
+                margin-top: ${itemIndex > 0 ? '15px' : '0'};
+                margin-bottom: 8px;
+            ">
+                Resultados para: <strong style="color: #e0e0e0;">${item.search_term}</strong>
+            </div>
+        `;
+        
         item.variants.forEach((variant, variantIndex) => {
-            const isFirst = variantIndex === 0;
-            const scoreClass = variant.score >= 0.8 ? 'high' : variant.score >= 0.5 ? 'medium' : 'low';
-            
             html += `
-                <label class="variant-option-v2" data-item="${itemIndex}" data-variant="${variantIndex}">
+                <label class="variant-option-v2" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    padding: 15px;
+                    background: #2a2a3e;
+                    border: 2px solid #3a3a4e;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">
                     <input type="checkbox" 
                            class="variant-checkbox"
                            name="variant-${itemIndex}-${variantIndex}" 
@@ -882,25 +1023,45 @@ function showVariantsModal(variantsList) {
                            data-price="${variant.price}"
                            data-unit="${variant.unit}"
                            data-quantity="${item.quantity}"
-                           ${isFirst ? 'checked' : ''}>
+                           style="
+                               width: 20px;
+                               height: 20px;
+                               cursor: pointer;
+                           ">
                     
-                    <div class="variant-icon">
+                    <div class="variant-icon" style="
+                        width: 40px;
+                        height: 40px;
+                        background: #667eea;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                    ">
                         <i class="fas fa-box"></i>
                     </div>
                     
-                    <div class="variant-content-v2">
-                        <div class="variant-name-v2">${variant.name}</div>
-                        <div class="variant-meta-v2">
+                    <div class="variant-content-v2" style="flex: 1;">
+                        <div class="variant-name-v2" style="
+                            font-weight: 600;
+                            margin-bottom: 4px;
+                            color: white;
+                        ">${variant.name}</div>
+                        <div class="variant-meta-v2" style="
+                            font-size: 14px;
+                            color: #999;
+                        ">
                             ${variant.stock ? `<span class="variant-stock-badge"><i class="fas fa-cubes"></i> ${variant.stock}</span>` : ''}
                             <span class="variant-unit-badge">${variant.unit}</span>
                         </div>
                     </div>
                     
-                    <div class="variant-price-v2">S/. ${variant.price.toFixed(2)}</div>
-                    
-                    <div class="variant-check-v2">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
+                    <div class="variant-price-v2" style="
+                        font-size: 20px;
+                        font-weight: 600;
+                        color: #48bb78;
+                    ">S/. ${variant.price.toFixed(2)}</div>
                 </label>
             `;
         });
@@ -908,15 +1069,44 @@ function showVariantsModal(variantsList) {
     
     html += `
             </div>
-            <div class="variants-footer-v2">
-                <div class="selected-count">
-                    <span id="selected-count">0</span> seleccionados
+            <div class="variants-footer-v2" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 15px;
+                border-top: 2px solid #3a3a4e;
+            ">
+                <div class="selected-count" style="color: #999;">
+                    <span id="selected-count" style="
+                        color: #48bb78;
+                        font-weight: 600;
+                        font-size: 18px;
+                    ">0</span> seleccionados
                 </div>
-                <div class="footer-actions">
-                    <button class="btn-cancel-v2" onclick="closeVariantsModal()">
+                <div class="footer-actions" style="display: flex; gap: 10px;">
+                    <button class="btn-cancel-v2" onclick="closeVariantsModal()" style="
+                        padding: 12px 24px;
+                        background: #4a4a6a;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        transition: all 0.2s;
+                    ">
                         <i class="fas fa-times"></i> Cancelar
                     </button>
-                    <button class="btn-confirm-v2" onclick="confirmVariantsSelection()">
+                    <button class="btn-confirm-v2" onclick="confirmVariantsSelection()" style="
+                        padding: 12px 24px;
+                        background: #48bb78;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    ">
                         <i class="fas fa-shopping-cart"></i> Agregar
                     </button>
                 </div>
@@ -932,10 +1122,27 @@ function showVariantsModal(variantsList) {
         checkbox.addEventListener('change', updateSelectedCount);
     });
     
+    // Hover effects
+    document.querySelectorAll('.variant-option-v2').forEach(label => {
+        label.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#667eea';
+            this.style.background = '#3a3a4e';
+        });
+        label.addEventListener('mouseleave', function() {
+            const checkbox = this.querySelector('.variant-checkbox');
+            if (!checkbox.checked) {
+                this.style.borderColor = '#3a3a4e';
+                this.style.background = '#2a2a3e';
+            }
+        });
+    });
+    
     // Inicializar contador
     updateSelectedCount();
     
     speak(`${totalVariants} opciones disponibles. Selecciona los productos.`);
+    
+    console.log('[Variants Modal] Modal creado y mostrado');
 }
 
 function closeVariantsModal() {
@@ -947,7 +1154,7 @@ function closeVariantsModal() {
     AppState.pendingVariants = [];
 }
 
-function confirmVariantsSelection() {
+async function confirmVariantsSelection() {
     const selectedInputs = document.querySelectorAll('.variant-checkbox:checked');
     
     if (selectedInputs.length === 0) {
@@ -956,30 +1163,67 @@ function confirmVariantsSelection() {
     }
     
     let addedCount = 0;
+    let hayConversiones = false;
     
-    selectedInputs.forEach(input => {
+    // Procesar cada producto seleccionado
+    for (const input of selectedInputs) {
         const productId = parseInt(input.value);
         const name = input.dataset.name;
         const price = parseFloat(input.dataset.price);
         const unit = input.dataset.unit;
         const quantity = parseFloat(input.dataset.quantity) || 1;
         
-        addToCart({
-            id: productId,
-            name: name,
-            sale_price: price,
-            unit: unit,
-            stock: 999
-        }, quantity, true);
+        // ✅ Buscar el item en pendingVariants
+        const item = AppState.pendingVariants.find(v => 
+            v.variants.some(variant => variant.product_id === productId)
+        );
         
-        addedCount++;
-    });
+        if (item && item.searchByAmount && item.amount) {
+            // ✅ ES BÚSQUEDA POR MONTO - Calcular conversión
+            console.log(`[Variants] Calculando conversión: ${name}, S/. ${item.amount}`);
+            hayConversiones = true;
+            
+            const product = {
+                id: productId,
+                name: name,
+                sale_price: price,
+                unit: unit,
+                stock: 999
+            };
+            
+            await agregarProductoConConversion(product, item.amount);
+            addedCount++;
+            
+        } else {
+            // ES BÚSQUEDA NORMAL - Agregar con cantidad especificada
+            console.log(`[Variants] Agregando normal: ${name}, cantidad ${quantity}`);
+            
+            addToCart({
+                id: productId,
+                name: name,
+                sale_price: price,
+                unit: unit,
+                stock: 999
+            }, quantity, true);
+            
+            addedCount++;
+        }
+    }
     
+    // Cerrar modal
     closeVariantsModal();
     
-    const total = getCartTotal();
-    showToast(`✅ ${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}`, 'success');
-    speak(`${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}. Total: ${total.toFixed(2)} soles`);
+    // Feedback solo si no hubo conversiones (ya dieron feedback individual)
+    if (!hayConversiones && addedCount > 0) {
+        const total = getCartTotal();
+        showToast(
+            `✅ ${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}`,
+            'success'
+        );
+        speak(
+            `${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''}. Total: ${total.toFixed(2)} soles`
+        );
+    }
 }
 
 function stopVoice() {
@@ -994,74 +1238,222 @@ function stopVoice() {
     }
 }
 
-function processVoiceCommand(transcript) {
+async function processVoiceCommand(transcript) {
     console.log('[Voice] 🎤 Procesando:', transcript);
     
+    // 1. Verificar si es un comando especial
+    const commandType = VoiceCommands.detectCommandType(transcript);
+    
+    if (['query_total', 'confirm', 'cancel', 'remove', 'change_product', 'change_price'].includes(commandType)) {
+        // Es un comando especial
+        const command = VoiceCommands.processCommand(transcript);
+        const success = await VoiceCommands.executeCommand(command);
+        
+        if (success) {
+            return; // Comando ejecutado, terminar
+        }
+    }
+    
+    // 2. Si no es comando especial, procesar como venta
+    const products = window.VoiceParser.parseProductList(transcript);
+    
+    if (products.length === 0) {
+        showToast('No entendí el producto', 'warning');
+        return;
+    }
+    
+    if (products.length > 1) {
+        // LISTA de productos
+        console.log('[Voice] 📋 Lista detectada:', products.length, 'items');
+        showToast(`🔍 Procesando ${products.length} productos...`, 'info');
+        
+        // ✅ NUEVO: Convertir TODOS a formato LayeredVariants
+        const allProductsForLayer = [];
+        
+        for (const parsed of products) {
+            try {
+                const response = await fetch(`${CONFIG.apiBase}/products/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ 
+                        query: parsed.productName,
+                        limit: 20
+                    })
+                });
+                
+                if (response.ok) {
+                    const foundProducts = await response.json();
+                    
+                    if (foundProducts.length > 0) {
+                        // ✅ Agregar con flag de búsqueda por monto si aplica
+                        allProductsForLayer.push({
+                            search_term: parsed.productName,
+                            quantity: parsed.quantity,
+                            searchByAmount: parsed.searchByAmount || false,
+                            amount: parsed.amount || null,
+                            variants: foundProducts.map(p => ({
+                                product_id: p.id,
+                                name: p.name,
+                                price: p.sale_price,
+                                unit: p.unit || 'unidad',
+                                stock: p.stock
+                            }))
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('[Voice] Error buscando:', parsed.productName, error);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // ✅ Mostrar TODO en LayeredVariants
+        if (allProductsForLayer.length > 0) {
+            console.log('[Voice] 🎨 Mostrando', allProductsForLayer.length, 'productos en capas');
+            window.LayeredVariants.show(allProductsForLayer);
+        } else {
+            showToast('No se encontraron productos', 'warning');
+        }
+        
+    } else {
+        // PRODUCTO ÚNICO
+        const parsed = products[0];
+        console.log('[Voice] 📦 Parseado:', parsed);
+        
+        if (parsed.searchByAmount) {
+            console.log('[Voice] 💰 Búsqueda por monto:', parsed.amount);
+            showToast(`🔍 S/. ${parsed.amount} de ${parsed.productName}`, 'info');
+            await searchProductByAmount(parsed.productName, parsed.amount);
+        } else {
+            console.log('[Voice] 📦 Búsqueda por cantidad:', parsed.quantity);
+            const cantidadTexto = parsed.quantity !== 1 ? `${parsed.quantity} ` : '';
+            showToast(`🔍 ${cantidadTexto}${parsed.productName}`, 'info');
+            const result = await searchProductByVoice(parsed.productName, parsed.quantity, false);
+            // false = mostrar modal si hay variantes
+            
+            // Mostrar confirmación visual si se agregó
+            if (result) {
+                UIFeedback.showLargeConfirmation([{
+                    name: result.name,
+                    quantity: parsed.quantity,
+                    unit: result.unit || 'unidad',
+                    price: result.sale_price
+                }]);
+            }
+        }
+    }
+}
+
+async function processVoiceCommandInteligente(transcript) {
+    console.log('[Voice Inteligente] 🎤 Procesando:', transcript);
+    
+    // 1. Extraer info básica
     const parsed = extractProductAndQuantity(transcript);
-    console.log('[Voice] 📦 Parseado:', parsed);
+    console.log('[Voice Inteligente] 📦 Parseado:', parsed);
     
     if (!parsed.productName || parsed.productName.length < 2) {
         showToast('No entendí el producto', 'warning');
         return;
     }
     
+    // 2. Si ya detectó "soles" explícitamente, usar ese flujo
     if (parsed.searchByAmount) {
-        showToast(`🔍 S/. ${parsed.amount} de ${parsed.productName}`, 'info');
+        console.log('[Voice Inteligente] 💰 Búsqueda por monto explícito');
         searchProductByAmount(parsed.productName, parsed.amount);
-    } else {
-        showToast(`🔍 ${parsed.quantity !== 1 ? parsed.quantity + ' ' : ''}${parsed.productName}`, 'info');
+        return;
+    }
+    
+    // 3. CASO AMBIGUO: "X de producto" sin "soles"
+    // Buscar el producto primero para ver si permite venta por monto
+    
+    showToast(`🔍 Buscando ${parsed.productName}...`, 'info');
+    
+    try {
+        const searchResponse = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
+            method: 'POST',
+            body: JSON.stringify({ query: parsed.productName })
+        });
+        
+        if (!searchResponse.ok) {
+            throw new Error('Error al buscar');
+        }
+        
+        const products = await searchResponse.json();
+        
+        if (products.length === 0) {
+            showToast(`❌ No encontré "${parsed.productName}"`, 'error');
+            speak(`No encontré ${parsed.productName}`);
+            return;
+        }
+        
+        // 4. Si hay UN solo producto, decidir basado en su configuración
+        if (products.length === 1) {
+            const product = products[0];
+            
+            // Verificar si tiene conversión configurada
+            const tieneConversion = await verificarConversion(product.id);
+            
+            if (tieneConversion && parsed.quantity <= 10) {
+                // ✅ INTERPRETAR COMO MONTO (común en bodegas)
+                console.log('[Voice Inteligente] 💰 Interpretando como monto:', parsed.quantity);
+                await agregarProductoConConversion(product, parsed.quantity);
+            } else {
+                // Agregar como cantidad normal
+                console.log('[Voice Inteligente] 📦 Interpretando como cantidad:', parsed.quantity);
+                searchProductByVoice(parsed.productName, parsed.quantity);
+            }
+            
+            return;
+        }
+        
+        // 5. Si hay MÚLTIPLES productos
+        // Verificar si TODOS tienen conversión
+        const conversiones = await Promise.all(
+            products.map(p => verificarConversion(p.id))
+        );
+        
+        const todosConConversion = conversiones.every(c => c);
+        
+        if (todosConConversion && parsed.quantity <= 10) {
+            // ✅ INTERPRETAR COMO MONTO
+            console.log('[Voice Inteligente] 💰 Todos con conversión, interpretar como monto');
+            searchProductByAmount(parsed.productName, parsed.quantity);
+        } else {
+            // Interpretar como cantidad
+            console.log('[Voice Inteligente] 📦 Interpretar como cantidad');
+            searchProductByVoice(parsed.productName, parsed.quantity);
+        }
+        
+    } catch (error) {
+        console.error('[Voice Inteligente] Error:', error);
+        // Fallback: usar cantidad
         searchProductByVoice(parsed.productName, parsed.quantity);
     }
 }
 
-function extractProductAndQuantity(text) {
-    let cleaned = text.toLowerCase().trim();
-    
-    // 1. Detectar monto
-    const amountResult = parseAmount(cleaned);
-    if (amountResult.isAmount) {
-        return {
-            quantity: null,
-            amount: amountResult.amount,
-            productName: amountResult.product,
-            searchByAmount: true
-        };
+// ============================================
+// FUNCIÓN HELPER: Verificar si producto tiene conversión
+// ============================================
+
+async function verificarConversion(productId) {
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/conversions/product/${productId}`);
+        
+        if (response.ok) {
+            const config = await response.json();
+            return config.allow_currency_sale === true;
+        }
+        
+        return false;
+        
+    } catch (error) {
+        console.log(`[Conversion Check] Producto ${productId} sin conversión`);
+        return false;
     }
-    
-    // 2. Detectar fracción/cantidad
-    const fractionResult = parseFraction(cleaned);
-    let quantity = fractionResult.quantity;
-    let productName = cleaned;
-    
-    if (fractionResult.matched) {
-        productName = productName.replace(fractionResult.matched, '');
-    }
-    
-    // Limpiar palabras comunes
-    const stopWords = [
-        'de', 'del', 'la', 'el', 'un', 'una',
-        'kilo', 'kilogramo', 'kg', 'litro', 'gramo', 'gr',
-        'unidad', 'unidades', 'paquete', 'paquetes',
-        'dame', 'quiero', 'necesito', 'vender', 'vendeme',
-        'por', 'favor', 'medio', 'cuarto', 'soles', 'sol'
-    ];
-    
-    productName = productName.replace(/\b\d+\b/g, '');
-    productName = productName.replace(/\d+\/\d+/g, '');
-    productName = productName.replace(/\s+/g, ' ');
-    
-    const words = productName.split(' ').filter(word => 
-        word.length > 1 && !stopWords.includes(word)
-    );
-    
-    productName = words.join(' ').trim();
-    
-    return {
-        quantity: quantity,
-        amount: null,
-        productName: productName,
-        searchByAmount: false
-    };
 }
 
 function parseFraction(text) {
@@ -1123,65 +1515,315 @@ function parseAmount(text) {
     return { amount: null, product: text, isAmount: false };
 }
 
-async function searchProductByVoice(productName, quantity = 1) {
+async function searchProductByVoice(query, quantity = 1, autoSelectFirst = false) {
+    console.log('[Voice] Buscando:', query, 'cantidad:', quantity);
+    
     try {
-        const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
+        const response = await fetch(`${CONFIG.apiBase}/products/search`, {
             method: 'POST',
-            body: JSON.stringify({ query: productName, limit: 10 })
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            },
+            body: JSON.stringify({ 
+                query: query,
+                limit: 20
+            })
         });
         
-        const products = await response.json();
+        if (!response.ok) {
+            throw new Error('Error en búsqueda');
+        }
         
-        if (!products || products.length === 0) {
-            showToast(`❌ No encontré: ${productName}`, 'error');
-            playSound('error');
+        const products = await response.json();
+        console.log('[Voice] Productos encontrados:', products.length);
+        
+        if (products.length === 0) {
+            showToast(`❌ No encontré "${query}"`, 'warning');
+            speak(`No encontré ${query}`);
+            return null;
+        }
+        
+        if (products.length === 1) {
+            // Un solo producto, agregar directo
+            addToCart(products[0], quantity);
+            speak(`Agregado ${quantity} ${products[0].name}`);
+            return products[0];
+        }
+        
+        // Múltiples productos
+        if (autoSelectFirst) {
+            // ✅ NUEVO: En listas, agregar el primero automáticamente
+            const selected = products[0];
+            addToCart(selected, quantity);
+            console.log('[Voice] Auto-seleccionado:', selected.name);
+            return selected;
+        } else {
+            // Mostrar modal de variantes
+            const variantsData = [{
+                search_term: query,
+                quantity: quantity,
+                variants: products.map(p => ({
+                    product_id: p.id,
+                    name: p.name,
+                    price: p.sale_price,
+                    unit: p.unit || 'unidad',
+                    stock: p.stock
+                }))
+            }];
+            
+            showVariantsModal(variantsData);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('[Voice] Error búsqueda:', error);
+        showToast('Error al buscar producto', 'error');
+        return null;
+    }
+}
+
+// ============================================
+// REEMPLAZAR: async function searchProductByAmount
+// ============================================
+
+async function searchProductByAmount(productName, amount) {
+    console.log(`[Search Amount] 🔍 S/. ${amount} de ${productName}`);
+    
+    try {
+        showToast(`🔍 S/. ${amount.toFixed(2)} de ${productName}`, 'info');
+        
+        // 1. Buscar productos
+        const searchResponse = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
+            method: 'POST',
+            body: JSON.stringify({ query: productName })
+        });
+        
+        if (!searchResponse.ok) {
+            throw new Error('Error al buscar producto');
+        }
+        
+        const products = await searchResponse.json();
+        console.log(`[Search Amount] Encontrados:`, products.length);
+        
+        if (products.length === 0) {
+            showToast(`❌ No encontré "${productName}"`, 'error');
             speak(`No encontré ${productName}`);
             return;
         }
         
-        // Si hay un solo producto, agregarlo directamente
-        if (products.length === 1) {
-            addToCart(products[0], quantity);
+        // 2. Si hay múltiples, auto-seleccionar MEJOR MATCH
+        if (products.length > 1) {
+            console.log('[Search Amount] Múltiples variantes, auto-seleccionando mejor match');
+            
+            const productNameLower = productName.toLowerCase();
+            
+            // Algoritmo de selección mejorado
+            const product = 
+                // 1. Coincidencia exacta
+                products.find(p => p.name.toLowerCase() === productNameLower) ||
+                
+                // 2. Empieza con término + espacio/fin
+                products.find(p => {
+                    const nameLower = p.name.toLowerCase();
+                    return nameLower.startsWith(productNameLower) && 
+                           (nameLower.length === productNameLower.length || 
+                            nameLower[productNameLower.length] === ' ');
+                }) ||
+                
+                // 3. Palabra completa (\bpapa\b)
+                products.find(p => {
+                    const nameLower = p.name.toLowerCase();
+                    const regex = new RegExp(`\\b${productNameLower}\\b`);
+                    return regex.test(nameLower);
+                }) ||
+                
+                // 4. Fallback
+                products[0];
+            
+            const quantity = amount / product.sale_price;
+            
+            console.log('[Search Amount] Auto-seleccionado:', {
+                busqueda: productName,
+                producto: product.name,
+                precio: product.sale_price,
+                monto: amount,
+                cantidad: quantity,
+                total_opciones: products.length
+            });
+            
+            addToCart(product, quantity);
+            
+            const qtyText = quantity < 1 ? quantity.toFixed(3) : quantity.toFixed(2);
+            showToast(`✅ ${product.name}: ${qtyText} ${product.unit}`, 'success');
             return;
         }
         
-        // Si hay múltiples productos, mostrar modal para elegir
-        AppState.pendingVoiceQuantity = quantity;
-        showSearchResultsModal(products);
-        speak(`Encontré ${products.length} opciones. Selecciona una.`);
-        
-    } catch (error) {
-        console.error('[VoiceSearch] Error:', error);
-        showToast('Error al buscar', 'error');
-        playSound('error');
-    }
-}
-
-async function searchProductByAmount(productName, amount) {
-    try {
-        const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
-            method: 'POST',
-            body: JSON.stringify({ query: productName, limit: 10 })
-        });
-        
-        const products = await response.json();
-        
-        if (!products || products.length === 0) {
-            showToast(`❌ No encontré: ${productName}`, 'error');
-            playSound('error');
-            return;
-        }
-        
+        // 3. Solo un producto - calcular directo
         const product = products[0];
         const quantity = amount / product.sale_price;
         
-        addToCart(product, parseFloat(quantity.toFixed(2)));
-        showToast(`✅ ${quantity.toFixed(2)} ${product.unit} de ${product.name}`, 'success');
+        console.log('[Search Amount] Calculado:', {
+            producto: product.name,
+            precio_real: product.sale_price,
+            monto_solicitado: amount,
+            cantidad_calculada: quantity,
+            unidad: product.unit
+        });
+        
+        addToCart(product, quantity);
+        
+        const qtyText = quantity < 1 ? quantity.toFixed(3) : quantity.toFixed(2);
+        showToast(`✅ ${qtyText} ${product.unit} de ${product.name}`, 'success');
+        speak(`Agregado ${qtyText} ${product.unit} de ${product.name} por ${amount.toFixed(2)} soles`);
         
     } catch (error) {
-        console.error('[AmountSearch] Error:', error);
-        showToast('Error al buscar', 'error');
-        playSound('error');
+        console.error('[Search Amount] Error:', error);
+        showToast('Error al buscar producto', 'error');
+        speak('Error al buscar producto');
+    }
+}
+
+// ============================================
+// AGREGAR ESTA FUNCIÓN en dashboard_principal.js
+// Después de searchProductByAmount
+// ============================================
+
+async function agregarProductoConConversion(product, amount) {
+    try {
+        console.log(`[Conversion] 💰 Calculando S/. ${amount} de producto ${product.id}`);
+        
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/conversions/calculate-by-amount`, {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: product.id,
+                amount: amount
+            })
+        });
+        
+        if (response.ok) {
+            const conversion = await response.json();
+            console.log('[Conversion] ✅ Calculado:', conversion);
+            
+            // Agregar con cantidad calculada
+            addToCart({
+                id: product.id,
+                name: product.name,
+                sale_price: product.sale_price,
+                unit: conversion.unit || product.unit,
+                stock: product.stock || 999
+            }, conversion.quantity);
+            
+            showToast(
+                `✅ ${conversion.quantity.toFixed(2)} ${conversion.unit} de ${product.name} por S/. ${amount.toFixed(2)}`,
+                'success'
+            );
+            
+            speak(`Agregado ${conversion.quantity.toFixed(2)} ${conversion.unit} de ${product.name}`);
+            
+        } else {
+            // Sin conversión configurada - agregar con precio ajustado
+            console.warn('[Conversion] ⚠️ No configurado para este producto');
+            
+            addToCart({
+                id: product.id,
+                name: product.name,
+                sale_price: amount,
+                unit: product.unit || 'unidad',
+                stock: product.stock || 999
+            }, 1);
+            
+            showToast(
+                `⚠️ ${product.name} agregado por S/. ${amount.toFixed(2)} (sin conversión)`,
+                'warning'
+            );
+        }
+        
+    } catch (error) {
+        console.error('[Conversion] Error:', error);
+        
+        // Fallback: agregar con precio como monto
+        addToCart({
+            id: product.id,
+            name: product.name,
+            sale_price: amount,
+            unit: product.unit || 'unidad',
+            stock: product.stock || 999
+        }, 1);
+        
+        showToast(`${product.name} agregado por S/. ${amount.toFixed(2)}`, 'warning');
+    }
+}
+
+
+// ============================================
+// PARTE 2: Nueva función helper
+// AGREGAR después de searchProductByAmount
+// ============================================
+
+async function agregarProductoConConversion(product, amount) {
+    try {
+        console.log(`[Conversion] Calculando S/. ${amount} de producto ${product.id}`);
+        
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/conversions/calculate-by-amount`, {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: product.id,
+                amount: amount
+            })
+        });
+        
+        if (response.ok) {
+            const conversion = await response.json();
+            console.log('[Conversion] ✅ Calculado:', conversion);
+            
+            // Agregar con cantidad calculada
+            addToCart({
+                id: product.id,
+                name: product.name,
+                sale_price: product.sale_price,
+                unit: conversion.unit || product.unit,
+                stock: product.stock || 999
+            }, conversion.quantity);
+            
+            showToast(
+                `✅ ${conversion.quantity.toFixed(2)} ${conversion.unit} de ${product.name} por S/. ${amount.toFixed(2)}`,
+                'success'
+            );
+            
+            speak(`Agregado ${conversion.quantity.toFixed(2)} ${conversion.unit} de ${product.name}`);
+            
+        } else {
+            // Sin conversión configurada - agregar con precio ajustado
+            console.warn('[Conversion] No configurado para este producto');
+            
+            addToCart({
+                id: product.id,
+                name: product.name,
+                sale_price: amount,
+                unit: product.unit || 'unidad',
+                stock: product.stock || 999
+            }, 1);
+            
+            showToast(
+                `⚠️ ${product.name} agregado por S/. ${amount.toFixed(2)} (sin conversión)`,
+                'warning'
+            );
+        }
+        
+    } catch (error) {
+        console.error('[Conversion] Error:', error);
+        
+        // Fallback: agregar con precio como monto
+        addToCart({
+            id: product.id,
+            name: product.name,
+            sale_price: amount,
+            unit: product.unit || 'unidad',
+            stock: product.stock || 999
+        }, 1);
+        
+        showToast(`${product.name} agregado por S/. ${amount.toFixed(2)}`, 'warning');
     }
 }
 
@@ -1189,25 +1831,56 @@ async function searchProductByAmount(productName, amount) {
 // MÉTODOS DE PAGO
 // ============================================
 
-function selectPayment(method) {
+function selectPayment(method, event) {  // ← AGREGAR event como parámetro
+    // Prevenir que el click cierre el modal
+    event?.stopPropagation();
+    
     AppState.paymentMethod = method;
     selectPaymentUI(method);
     
-    // Mostrar/ocultar campo de cliente para fiado
-    const fiadoClient = document.getElementById('fiado-client');
-    const btnCheckout = document.getElementById('btn-checkout');
-    
     if (method === 'fiado') {
-        if (fiadoClient) fiadoClient.style.display = 'block';
-        if (btnCheckout) btnCheckout.style.display = 'none';
-        // Focus en el input
-        setTimeout(() => {
-            document.getElementById('fiado-client-name')?.focus();
-        }, 100);
-    } else {
-        if (fiadoClient) fiadoClient.style.display = 'none';
-        if (btnCheckout) btnCheckout.style.display = 'flex';
+        const modal = document.getElementById('modal-fiado-overlay');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.visibility = 'visible';  // ← AGREGAR
+            
+            setTimeout(() => {
+                actualizarResumenFiado();
+                document.getElementById('modal-fiado-nombre')?.focus();
+            }, 100);
+        } else {
+            console.error('[Fiado] ❌ Modal no existe en DOM');
+        }
     }
+}
+
+
+// ✅ AGREGAR AQUÍ (justo después de selectPayment):
+
+function actualizarResumenFiado() {
+    const total = getCartTotal();
+    const dias = parseInt(document.getElementById('modal-fiado-dias')?.value || 7);
+    
+    // Actualizar total
+    const totalDisplay = document.getElementById('fiado-total-display');
+    if (totalDisplay) {
+        totalDisplay.textContent = `S/. ${total.toFixed(2)}`;
+    }
+    
+    // Calcular fecha de vencimiento
+    const fechaVencimiento = new Date();
+    fechaVencimiento.setDate(fechaVencimiento.getDate() + dias);
+    
+    const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const fechaFormateada = fechaVencimiento.toLocaleDateString('es-PE', opciones);
+    
+    const dueDateDisplay = document.getElementById('fiado-due-date');
+    if (dueDateDisplay) {
+        dueDateDisplay.textContent = fechaFormateada;
+    }
+    
+    console.log('[Fiado] Resumen actualizado: S/.', total, 'Vence:', fechaFormateada);
 }
 
 function selectPaymentUI(method) {
@@ -1215,6 +1888,116 @@ function selectPaymentUI(method) {
         btn.classList.toggle('active', btn.dataset.method === method);
     });
     AppState.paymentMethod = method;
+}
+
+function cerrarModalFiado() {
+    const modal = document.getElementById('modal-fiado-overlay');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Limpiar campos
+    document.getElementById('modal-fiado-nombre').value = '';
+    document.getElementById('modal-fiado-telefono').value = '';
+    document.getElementById('modal-fiado-direccion').value = '';
+    
+    // Restaurar método de pago a efectivo
+    selectPayment('cash');
+    
+    console.log('[Fiado] Modal cerrado');
+}
+
+function confirmarDatosFiado() {
+    // Validar campos
+    const clientName = document.getElementById('modal-fiado-nombre')?.value.trim();
+    const clientPhone = document.getElementById('modal-fiado-telefono')?.value.trim();
+    const clientAddress = document.getElementById('modal-fiado-direccion')?.value.trim();
+    
+    if (!clientName) {
+        showToast('Ingresa el nombre del cliente', 'warning');
+        document.getElementById('modal-fiado-nombre')?.focus();
+        return;
+    }
+    
+    if (!clientPhone) {
+        showToast('Ingresa el teléfono del cliente', 'warning');
+        document.getElementById('modal-fiado-telefono')?.focus();
+        return;
+    }
+    
+    if (!clientAddress) {
+        showToast('Ingresa la dirección del cliente', 'warning');
+        document.getElementById('modal-fiado-direccion')?.focus();
+        return;
+    }
+    
+    // Cerrar modal
+    const modal = document.getElementById('modal-fiado-overlay');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+
+    showToast('Datos confirmados. Ahora presiona Cobrar', 'success');
+    
+    // Procesar venta
+    processSale();
+}
+
+
+// ============================================
+// NUEVA FUNCIÓN: Registrar fiado con todos los datos
+// ============================================
+
+async function registrarFiadoDespuesDeVentaMejorado(saleId, total) {
+    console.log('[Fiado] Registrando fiado para venta:', saleId);
+    
+    // Obtener datos del modal
+    const customerData = {
+        name: document.getElementById('modal-fiado-nombre')?.value.trim(),
+        phone: document.getElementById('modal-fiado-telefono')?.value.trim(),
+        address: document.getElementById('modal-fiado-direccion')?.value.trim(),
+        dni: document.getElementById('modal-fiado-dni')?.value.trim(),
+        credit_days: document.getElementById('modal-fiado-dias')?.value || '7',
+        reference: document.getElementById('modal-fiado-referencia')?.value.trim(),
+        notes: document.getElementById('modal-fiado-notas')?.value.trim()
+    };
+    
+    console.log('[Fiado] Datos del cliente:', customerData);
+    
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/fiados/registrar`, {
+            method: 'POST',
+            body: JSON.stringify({
+                customer_name: customerData.name,
+                customer_phone: customerData.phone,
+                customer_address: customerData.address,
+                customer_dni: customerData.dni || null,
+                sale_id: saleId,
+                total_amount: parseFloat(total),
+                credit_days: parseInt(customerData.credit_days),
+                reference_number: customerData.reference || null,
+                notes: customerData.notes || null
+            })
+        });
+        
+        if (response.ok) {
+            const credit = await response.json();
+            console.log('[Fiado] ✅ Registrado correctamente:', credit);
+            
+            showToast(`Fiado registrado: ${customerData.name} - S/. ${total}`, 'success');
+            speak(`Fiado de ${total} soles registrado para ${customerData.name}. Vence en ${customerData.credit_days} días`);
+            
+            return credit;
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al registrar fiado');
+        }
+        
+    } catch (error) {
+        console.error('[Fiado] Error:', error);
+        showToast(`Error: ${error.message}`, 'error');
+        throw error;
+    }
 }
 
 // ============================================
@@ -1227,12 +2010,23 @@ async function processSale() {
         return;
     }
     
-    // Validar cliente para fiado
+    // Para fiado, verificar que los datos ya fueron capturados
     if (AppState.paymentMethod === 'fiado') {
-        const clientName = document.getElementById('fiado-client-name')?.value.trim();
-        if (!clientName) {
-            showToast('Ingresa el nombre del cliente', 'warning');
-            document.getElementById('fiado-client-name')?.focus();
+        const clientName = document.getElementById('modal-fiado-nombre')?.value.trim();
+        const clientPhone = document.getElementById('modal-fiado-telefono')?.value.trim();
+        const clientAddress = document.getElementById('modal-fiado-direccion')?.value.trim();
+        
+        // Si el modal está visible, significa que aún no confirmaron
+        const modal = document.getElementById('modal-fiado-overlay');
+        if (modal && modal.style.display !== 'none') {
+            showToast('Completa los datos del cliente y presiona Confirmar', 'warning');
+            return;
+        }
+        
+        // Validar que los datos existen (ya fueron confirmados)
+        if (!clientName || !clientPhone || !clientAddress) {
+            showToast('Error: Datos de fiado incompletos', 'error');
+            selectPayment('fiado'); // Reabrir modal
             return;
         }
     }
@@ -1245,26 +2039,41 @@ async function processSale() {
     });
 }
 
+// ============================================
+// REEMPLAZAR: async function executeSale
+// ============================================
+
 async function executeSale(total, printType = 'none') {
+    // 🔥 MOSTRAR LOADER
+    const loader = showLoader('Procesando venta...');
+    
     try {
-        // Formato exacto que espera SaleCreate en schemas/sale.py
+        // ✅ OBTENER DATOS DEL MODAL (si es fiado)
+        let customerData = null;
+        if (AppState.paymentMethod === 'fiado') {
+            customerData = {
+                nombre: document.getElementById('modal-fiado-nombre')?.value.trim(),
+                telefono: document.getElementById('modal-fiado-telefono')?.value.trim(),
+                direccion: document.getElementById('modal-fiado-direccion')?.value.trim(),
+                referencia: document.getElementById('modal-fiado-referencia')?.value.trim() || '',
+                dias: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7
+            };
+        }
+        
         const saleData = {
             items: AppState.cart.map(item => ({
                 product_id: item.id,
                 quantity: parseFloat(item.quantity),
                 unit_price: parseFloat(item.price),
-                subtotal: parseFloat(item.price) * parseFloat(item.quantity)  // REQUERIDO
+                subtotal: parseFloat(item.price) * parseFloat(item.quantity)
             })),
             payment_method: AppState.paymentMethod,
             payment_reference: null,
-            customer_name: AppState.paymentMethod === 'fiado' 
-                ? document.getElementById('fiado-client-name')?.value.trim() 
-                : null,
+            customer_name: customerData?.nombre || null,
             is_credit: AppState.paymentMethod === 'fiado'
         };
         
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
-        console.log('[Sale] Tipo impresión:', printType);
         
         const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
             method: 'POST',
@@ -1272,8 +2081,7 @@ async function executeSale(total, printType = 'none') {
         });
         
         const responseText = await response.text();
-        console.log('[Sale] Response status:', response.status);
-        console.log('[Sale] Response body:', responseText);
+        console.log('[Sale] Response:', response.status, responseText);
         
         if (response.ok) {
             let result;
@@ -1282,12 +2090,17 @@ async function executeSale(total, printType = 'none') {
             } catch (e) {
                 result = {};
             }
+
+            // 🔥 Registrar fiado si es necesario
+            if (AppState.paymentMethod === 'fiado' && result.id && customerData) {
+                await registrarFiadoDespuesDeVentaMejorado(result.id, total, customerData);
+            }
             
             // Actualizar ventas del día
             AppState.dailySales += total;
             updateGoalProgress();
             
-            // Manejar impresión según el tipo seleccionado
+            // Manejar impresión
             handlePrint(printType, result, total);
             
             // Limpiar carrito
@@ -1295,23 +2108,35 @@ async function executeSale(total, printType = 'none') {
             saveCart();
             renderCart();
             
-            // Limpiar campo fiado
-            if (document.getElementById('fiado-client-name')) {
-                document.getElementById('fiado-client-name').value = '';
+            // ✅ Cerrar modal de fiado
+            const modalFiado = document.getElementById('modal-fiado-overlay');
+            if (modalFiado) {
+                modalFiado.style.display = 'none';
+                // Limpiar campos
+                document.getElementById('modal-fiado-nombre').value = '';
+                document.getElementById('modal-fiado-telefono').value = '';
+                document.getElementById('modal-fiado-direccion').value = '';
+                document.getElementById('modal-fiado-referencia').value = '';
+                document.getElementById('modal-fiado-dias').value = '';
+
+                // Resetear a efectivo
+                selectPayment('cash');
             }
-            if (document.getElementById('fiado-client')) {
-                document.getElementById('fiado-client').style.display = 'none';
-            }
-            if (document.getElementById('btn-checkout')) {
-                document.getElementById('btn-checkout').style.display = 'flex';
-            }
+            
+            // Mostrar botón cobrar de nuevo
+            const btnCobrar = document.getElementById('btn-checkout');
+            if (btnCobrar) btnCobrar.style.display = 'flex';
             
             // Reset método de pago
             selectPaymentUI('efectivo');
             AppState.paymentMethod = 'efectivo';
             
             playSound('success');
-            speak(`Venta completada. ${total.toFixed(2)} soles`);
+            
+            // Usar AudioAssistant
+            if (typeof AudioAssistant !== 'undefined') {
+                AudioAssistant.speak(`Venta completada por ${total.toFixed(2)} soles. ¡Gracias por su compra!`);
+            }
             
         } else {
             let errorMsg = 'Error al registrar venta';
@@ -1328,8 +2153,48 @@ async function executeSale(total, printType = 'none') {
     } catch (error) {
         console.error('[Sale] Error:', error);
         showToast('Error de conexión', 'error');
+    } finally {
+        hideLoader();
     }
 }
+
+
+// 🔥 AGREGAR estas funciones helper
+// ============================================
+// LOADER OVERLAY
+// ============================================
+
+function showLoader(message = 'Procesando...') {
+    // Remover loader existente si hay
+    hideLoader();
+    
+    const loader = document.createElement('div');
+    loader.id = 'sale-loader';
+    loader.className = 'loader-overlay';
+    loader.innerHTML = `
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>${message}</p>
+        </div>
+    `;
+    document.body.appendChild(loader);
+    
+    // Forzar reflow para animación
+    loader.offsetHeight;
+    loader.classList.add('show');
+    
+    return loader;
+}
+
+function hideLoader() {
+    const loader = document.getElementById('sale-loader');
+    if (loader) {
+        loader.classList.remove('show');
+        setTimeout(() => loader.remove(), 300);
+    }
+}
+
+
 
 function handlePrint(printType, saleResult, total) {
     switch (printType) {
@@ -1611,6 +2476,58 @@ function activateProTrial() {
     document.getElementById('btn-mic-pro')?.classList.remove('locked');
     showToast('¡PRO activado por 24 horas!', 'success');
 }
+
+
+
+// ============================================
+// FRASES DEL BODEGUERO
+// ============================================
+
+const FRASES_BODEGUERO = [
+    "Casero, ¿con qué acompañará su bebida? 🥤",
+    "Los kekes recién llegaron, ¡están calientitos! 🍰",
+    "Vecina, ¿su bebé no necesita pañales? 👶",
+    "He armado un combo de productos próximos a vencer, ¡mire! 📦",
+    "¿No se lleva unas galletas para el camino? 🍪",
+    "El pan fresco acaba de llegar ☀️",
+    "Tengo promoción en gaseosas 2x1 hoy 🎉",
+    "¿Ya probó las nuevas galletas que trajeron? 😋",
+    "Casera, para el lonche de los niños tengo... 🎒",
+    "El aceite está en oferta esta semana 🛢️",
+    "¿Se lleva algo para el desayuno de mañana? ☕"
+];
+
+function showBodegueroPhrase() {
+    const phraseDiv = document.getElementById('bodeguero-phrase');
+    const phraseText = document.getElementById('phrase-text');
+    
+    if (!phraseDiv || !phraseText) return;
+    
+    // Elegir frase aleatoria
+    const randomPhrase = FRASES_BODEGUERO[Math.floor(Math.random() * FRASES_BODEGUERO.length)];
+    
+    phraseText.textContent = randomPhrase;
+    phraseDiv.style.display = 'flex';
+    
+    // Ocultar después de 8 segundos
+    setTimeout(() => {
+        phraseDiv.classList.add('fade-out');
+        setTimeout(() => {
+            phraseDiv.style.display = 'none';
+            phraseDiv.classList.remove('fade-out');
+        }, 500);
+    }, 8000);
+}
+
+// Mostrar frase cada 30 segundos si hay carrito
+setInterval(() => {
+    if (AppState.cart.length > 0 && Math.random() > 0.5) {
+        showBodegueroPhrase();
+    }
+}, 30000);
+
+
+
 
 // ============================================
 // SEMÁFORO DE PÁNICO (ALERT MENU)
@@ -2691,10 +3608,21 @@ function showSearchResultsModal(products) {
 }
 
 function updateSelectedCount() {
-    const checkedCount = document.querySelectorAll('.variant-checkbox:checked').length;
+    // Contar checkboxes de AMBOS modales
+    const variantChecked = document.querySelectorAll('.variant-checkbox:checked').length;
+    const productChecked = document.querySelectorAll('.product-checkbox:checked').length;
+    const totalChecked = variantChecked + productChecked;
+    
+    // Actualizar contador del modal de variantes (Whisper)
     const countElement = document.getElementById('selected-count');
     if (countElement) {
-        countElement.textContent = checkedCount;
+        countElement.textContent = variantChecked;
+    }
+    
+    // Actualizar contador del modal de búsqueda (Nativa)
+    const productCountElement = document.getElementById('selected-products-count');
+    if (productCountElement) {
+        productCountElement.textContent = productChecked;
     }
 }
 
@@ -2750,8 +3678,541 @@ function closeSearchResultsModal() {
     AppState.pendingVoiceQuantity = 1;
 }
 
+
+// AGREGAR AL FINAL de dashboard_principal.js
+
+async function addSuggestedProduct(keyword) {
+    console.log('=== addSuggestedProduct INICIADO ===');
+    console.log('Keyword:', keyword);
+    
+    try {
+        const response = await fetchWithAuth('/api/v1/products/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                query: keyword,
+                limit: 10  // ⭐ BUSCAR 10 VARIANTES
+            })
+        });
+        
+        const variants = await response.json();
+        console.log('Variantes encontradas:', variants.length);
+        
+        const availableVariants = variants.filter(v => v.stock > 0);
+        console.log('Con stock:', availableVariants.length);
+        
+        if (availableVariants.length === 0) {
+            showToast('❌ Sin stock', 'error');
+            return;
+        }
+        
+        if (availableVariants.length === 1) {
+            console.log('Solo 1 variante, agregando directo');
+            addToCart(availableVariants[0]);
+            showToast('💡 ¡Agregado!', 'success');
+        } else {
+            console.log('Múltiples variantes, mostrando modal');
+            showSearchResultsModal(availableVariants);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error', 'error');
+    }
+}
+
+
+
+// ============================================
+// FIADO - Agregar al FINAL de dashboard_principal.js
+// ============================================
+
+// FUNCIÓN 1: Registrar fiado después de la venta
+async function registrarFiadoDespuesDeVenta(saleId, total, customerName) {
+    try {
+        // 1. Buscar o crear cliente
+        const cliente = await buscarOCrearClienteFiado(customerName);
+        if (!cliente) return;
+
+        // 2. Preguntar días de crédito
+        const dias = parseInt(prompt('¿Cuántos días de crédito?\n\n1 = 7 días\n2 = 15 días\n3 = 30 días', '1'));
+        let diasCredito;
+        if (dias === 1) diasCredito = 7;
+        else if (dias === 2) diasCredito = 15;
+        else if (dias === 3) diasCredito = 30;
+        else return; // Canceló
+
+        // 3. Calcular fecha
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() + diasCredito);
+        const fechaStr = fecha.toISOString().split('T')[0];
+
+        // 4. Llamar API
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/fiados/registrar`, {
+            method: 'POST',
+            body: JSON.stringify({
+                customer_id: cliente.id,
+                sale_id: saleId,
+                amount: total,
+                due_date: fechaStr
+            })
+        });
+
+        if (response.ok) {
+            console.log('✅ Fiado registrado');
+            showToast(`✅ Fiado registrado - Vence en ${diasCredito} días`, 'success');
+        }
+    } catch (error) {
+        console.error('Error fiado:', error);
+    }
+}
+
+// FUNCIÓN 2: Buscar o crear cliente
+async function buscarOCrearClienteFiado(nombre) {
+    try {
+        // Buscar
+        const search = await fetchWithAuth(`${CONFIG.apiBase}/customers/search?q=${encodeURIComponent(nombre)}`);
+        const clientes = await search.json();
+        
+        if (clientes && clientes.length > 0) {
+            return clientes[0]; // Ya existe
+        }
+
+        // Crear nuevo
+        const create = await fetchWithAuth(`${CONFIG.apiBase}/customers`, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: nombre,
+                customer_type: 'regular',
+                credit_limit: 500
+            })
+        });
+
+        return await create.json();
+    } catch (error) {
+        console.error('Error cliente:', error);
+        return null;
+    }
+}
+
+
+// ============================================
+// FUNCIÓN MEJORADA: Modal bonito para días
+// REEMPLAZA la función mostrarModalDiasCredito en dashboard_principal.js
+// ============================================
+
+let resolverModalDias = null;
+
+function mostrarModalDiasCredito() {
+    return new Promise((resolve) => {
+        resolverModalDias = resolve;
+        
+        const modal = document.getElementById('modal-dias-credito-overlay');
+        const input = document.getElementById('modal-dias-input');
+        
+        // Mostrar modal
+        modal.classList.add('active');
+        
+        // Focus en input
+        setTimeout(() => input.focus(), 100);
+        
+        // Enter para confirmar
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                confirmarDias();
+            }
+        };
+        
+        // Escape para cancelar
+        document.onkeydown = (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                cerrarModalDias();
+            }
+        };
+    });
+}
+
+function confirmarDias() {
+    const input = document.getElementById('modal-dias-input');
+    const valor = parseInt(input.value);
+    
+    if (!valor || valor < 1) {
+        alert('Ingresa un valor válido (1, 2, 3 o días personalizados)');
+        input.focus();
+        return;
+    }
+    
+    // Mapear valores
+    let dias;
+    if (valor === 1) dias = 7;
+    else if (valor === 2) dias = 15;
+    else if (valor === 3) dias = 30;
+    else dias = valor; // Personalizado
+    
+    // Cerrar y resolver
+    const modal = document.getElementById('modal-dias-credito-overlay');
+    modal.classList.remove('active');
+    input.value = '';
+    
+    if (resolverModalDias) {
+        resolverModalDias(dias);
+        resolverModalDias = null;
+    }
+}
+
+function cerrarModalDias() {
+    const modal = document.getElementById('modal-dias-credito-overlay');
+    const input = document.getElementById('modal-dias-input');
+    
+    modal.classList.remove('active');
+    input.value = '';
+    
+    if (resolverModalDias) {
+        resolverModalDias(null);
+        resolverModalDias = null;
+    }
+}
+
+// Click fuera del modal para cerrar
+document.getElementById('modal-dias-credito-overlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-dias-credito-overlay') {
+        cerrarModalDias();
+    }
+});
+
+
+// ============================================
+// CANTIDAD EDITABLE EN CARRITO
+// Agregar a dashboard_principal.js
+// ============================================
+
+// ============================================
+// FUNCIÓN: Renderizar item del carrito con cantidad editable
+// REEMPLAZAR tu función renderCartItem() o similar
+// ============================================
+
+function renderCartItem(item, index) {
+    // ✅ DEFINIR quantityDisplay ANTES de usar
+    const quantityDisplay = item.quantity % 1 === 0 
+        ? item.quantity 
+        : item.quantity.toFixed(3);
+    
+    const unitDisplay = item.unit || 'unidad';
+    
+    return `
+        <div class="cart-item" data-index="${index}">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">S/. ${item.price.toFixed(2)} / ${unitDisplay}</div>
+            </div>
+            
+            <div class="cart-item-controls">
+                <button onclick="decreaseQuantity(${index})" class="btn-qty">-</button>
+                
+                <div class="qty-display" onclick="activarEdicionCantidad(${index})">
+                    <span id="qty-text-${index}">${quantityDisplay} ${unitDisplay}</span>
+                    <input 
+                        type="number" 
+                        id="qty-input-${index}" 
+                        value="${item.quantity}"
+                        min="0.001"
+                        step="0.001"
+                        max="9999"
+                        style="display: none;"
+                        onblur="guardarCantidad(${index})"
+                        onkeypress="if(event.key==='Enter') guardarCantidad(${index})"
+                    >
+                </div>
+                
+                <button onclick="increaseQuantity(${index})" class="btn-qty">+</button>
+            </div>
+            
+            <div class="cart-item-subtotal">
+                S/. ${(item.price * item.quantity).toFixed(2)}
+            </div>
+            
+            <button onclick="removeFromCart(${index})" class="btn-remove">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+}
+
+// ============================================
+// FUNCIÓN: Activar edición de cantidad
+// ============================================
+
+function activarEdicionCantidad(index) {
+    // Ocultar texto
+    document.getElementById(`qty-text-${index}`).style.display = 'none';
+    
+    // Mostrar input
+    const input = document.getElementById(`qty-input-${index}`);
+    input.style.display = 'inline-block';
+    input.focus();
+    input.select();
+}
+
+// ============================================
+// FUNCIÓN: Guardar cantidad editada
+// ============================================
+
+function guardarCantidad(index) {
+    const input = document.getElementById(`qty-input-${index}`);
+    const newQuantity = parseInt(input.value);
+    
+    // Validar
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        showToast('Cantidad inválida', 'warning');
+        input.value = AppState.cart[index].quantity;
+        return;
+    }
+    
+    if (newQuantity > 9999) {
+        showToast('Cantidad máxima: 9999', 'warning');
+        input.value = 9999;
+        AppState.cart[index].quantity = 9999;
+    } else {
+        AppState.cart[index].quantity = newQuantity;
+    }
+    
+    // Guardar y actualizar
+    saveCart();
+    renderCart();
+    
+    console.log('[Cart] Cantidad actualizada a:', newQuantity);
+}
+
+// ============================================
+// ALTERNATIVA: Input con botones +/- integrados
+// ============================================
+
+function renderCartItemAlternativo(item, index) {
+    return `
+        <div class="cart-item">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">S/. ${item.price.toFixed(2)}</div>
+            </div>
+            
+            <div class="cart-quantity-group">
+                <button onclick="decreaseQuantity(${index})" class="btn-qty-mini">-</button>
+                <input 
+                    type="number" 
+                    value="${item.quantity}"
+                    min="1"
+                    max="9999"
+                    class="qty-input-inline"
+                    onchange="actualizarCantidadDirecta(${index}, this.value)"
+                    onwheel="this.blur()"
+                >
+                <button onclick="increaseQuantity(${index})" class="btn-qty-mini">+</button>
+            </div>
+            
+            <div class="cart-item-subtotal">
+                S/. ${(item.price * item.quantity).toFixed(2)}
+            </div>
+        </div>
+    `;
+}
+
+function actualizarCantidadDirecta(index, value) {
+    const newQuantity = parseInt(value);
+    
+    // Validar
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        showToast('Cantidad inválida', 'warning');
+        renderCart();
+        return;
+    }
+    
+    if (newQuantity > 9999) {
+        showToast('Cantidad máxima: 9999', 'warning');
+        AppState.cart[index].quantity = 9999;
+    } else {
+        AppState.cart[index].quantity = newQuantity;
+    }
+    
+    saveCart();
+    renderCart();
+    
+    console.log('[Cart] Cantidad actualizada:', newQuantity);
+}
+
+// ============================================
+// BONUS: Atajos de teclado para cantidad
+// ============================================
+
+// Presionar * en el input para multiplicar por 10
+document.addEventListener('keypress', function(e) {
+    const activeElement = document.activeElement;
+    
+    if (activeElement && activeElement.classList.contains('qty-input-inline')) {
+        if (e.key === '*') {
+            e.preventDefault();
+            const valorActual = parseInt(activeElement.value) || 1;
+            activeElement.value = Math.min(valorActual * 10, 9999);
+            activeElement.dispatchEvent(new Event('change'));
+        }
+    }
+});
+
+//==============
+//CSS PARA MODAL:
+//==============
+const variantsCSS = document.createElement('style');
+variantsCSS.textContent = `
+.variants-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.variants-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.variants-content h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.5em;
+}
+
+.variants-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.variant-item {
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.variant-item:hover {
+    border-color: #667eea;
+    background: #f0f0ff;
+}
+
+.variant-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.variant-price {
+    color: #667eea;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.variant-stock {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.cancel-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #ddd;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+}
+`;
+document.head.appendChild(variantsCSS);
+
+
+const cartEditableCSS = document.createElement('style');
+cartEditableCSS.textContent = `
+    .qty-display {
+        min-width: 50px;
+        padding: 5px 10px;
+        background: #f5f5f5;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .qty-display:hover {
+        background: #e0e0e0;
+    }
+    
+    /* Selector genérico para todos los inputs de cantidad */
+    input[id^="qty-input-"] {
+        width: 60px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        border: 2px solid #667eea;
+        border-radius: 6px;
+        padding: 5px;
+    }
+    
+    .qty-input-inline {
+        width: 60px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        padding: 8px 4px;
+        margin: 0 8px;
+    }
+    
+    .qty-input-inline:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .btn-qty-mini {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-qty-mini:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+`;
+document.head.appendChild(cartEditableCSS);
+
 // ============================================
 // INICIALIZAR
 // ============================================
 
 console.log('[Dashboard] Script cargado');
+
+
+// ============================================
+// EXPORTS
+// ============================================
+window.FractionalSales = {
+    validateFractionalSale,
+    handleFractionalRequest,
+    detectProductType,
+    addToCartWithFractionalValidation
+};

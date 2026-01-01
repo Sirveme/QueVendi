@@ -547,16 +547,49 @@ function updateSuggestions() {
 function generateSuggestions() {
     const suggestions = [];
     const cartProductNames = AppState.cart.map(item => 
-        item.name.toLowerCase().split(' ')[0] // Solo primera palabra
+        item.name.toLowerCase().split(' ')[0]
     );
     
-    // Reglas más específicas
+    // 🔥 REGLAS AMPLIADAS
     const rules = {
-        'coca': ['galletas', 'snacks'],
-        'cerveza': ['snacks', 'limón'],
-        'pan': ['mantequilla', 'mermelada'],
-        'leche': ['cereales', 'galletas'],
-        'arroz': ['aceite', 'menestras']
+        // Bebidas
+        'coca': ['galletas', 'snacks', 'papas', 'maní'],
+        'inca': ['galletas', 'snacks', 'papas'],
+        'gaseosa': ['galletas', 'snacks', 'popcorn'],
+        'cerveza': ['snacks', 'limón', 'hielo', 'maní'],
+        'agua': ['galletas', 'caramelos'],
+        'jugo': ['galletas', 'pan'],
+        
+        // Comida
+        'pan': ['mantequilla', 'mermelada', 'queso', 'jamón', 'leche'],
+        'leche': ['cereales', 'galletas', 'pan', 'chocolate'],
+        'arroz': ['aceite', 'menestras', 'atún', 'azúcar'],
+        'fideos': ['atún', 'aceite', 'tomate', 'queso'],
+        'aceite': ['arroz', 'fideos', 'papa'],
+        'huevo': ['pan', 'aceite', 'sal'],
+        'papa': ['aceite', 'cebolla', 'ají'],
+        
+        // Desayuno
+        'avena': ['leche', 'azúcar', 'manzana'],
+        'cereal': ['leche', 'yogurt', 'plátano'],
+        
+        // Snacks
+        'chocolate': ['leche', 'galletas', 'caramelos'],
+        'galletas': ['leche', 'chocolate', 'té'],
+        
+        // Limpieza
+        'detergente': ['lejía', 'suavizante', 'escoba'],
+        'jabón': ['shampoo', 'papel higiénico'],
+        'papel': ['jabón', 'toalla'],
+        
+        // Cuidado personal
+        'shampoo': ['acondicionador', 'jabón'],
+        'cepillo': ['pasta dental', 'enjuague'],
+        'pañales': ['toallitas', 'crema'],
+        
+        // Otros
+        'cigarros': ['fósforos', 'encendedor'],
+        'vela': ['fósforos', 'pilas']
     };
     
     for (const cartItem of AppState.cart) {
@@ -564,6 +597,7 @@ function generateSuggestions() {
         
         if (rules[firstWord]) {
             for (const suggestion of rules[firstWord]) {
+                // No sugerir productos ya en el carrito
                 if (!cartProductNames.includes(suggestion) && 
                     !suggestions.find(s => s.keyword === suggestion)) {
                     suggestions.push({
@@ -575,16 +609,23 @@ function generateSuggestions() {
         }
     }
     
-    return suggestions.slice(0, 3);
+    // Limitar a 4 sugerencias
+    return suggestions.slice(0, 4);
 }
 
+// AL FINAL de pos.js
+
 async function renderSuggestions(suggestions) {
-    const section = document.getElementById('suggestions-section');
-    const grid = document.getElementById('suggestions-grid');
+    const section = document.getElementById('cross-sell');
+    const grid = document.getElementById('cross-sell-items');
     
-    section.style.display = 'block';
+    if (!section || !grid) {
+        console.error('[Suggestions] Contenedores no encontrados');
+        return;
+    }
     
-    // Buscar productos reales que coincidan
+    console.log('[Suggestions] Renderizando:', suggestions.length);
+    
     try {
         const productsPromises = suggestions.map(async (sugg) => {
             const response = await fetchWithAuth('/api/v1/products/search', {
@@ -596,38 +637,105 @@ async function renderSuggestions(suggestions) {
                 })
             });
             const products = await response.json();
-            return products.length > 0 ? { ...products[0], reason: sugg.reason } : null;
+            
+            if (products.length > 0) {
+                return { 
+                    ...products[0], 
+                    reason: sugg.reason,
+                    searchKeyword: sugg.keyword
+                };
+            }
+            return null;
         });
         
-        const products = (await Promise.all(productsPromises)).filter(p => p !== null);
+        const allProducts = (await Promise.all(productsPromises)).filter(p => p !== null);
+        const products = allProducts.filter(p => p.stock > 0);
         
         if (products.length === 0) {
-            hideSuggestions();
+            section.style.display = 'none';
             return;
         }
         
+        // ⭐ GENERAR HTML DINÁMICO
         grid.innerHTML = products.map(p => `
-            <div class="suggestion-card" onclick="addSuggestedProduct(${p.id})">
-                <div class="suggestion-name">${p.name}</div>
-                <div class="suggestion-reason">${p.reason}</div>
+            <div class="suggestion-card" onclick="addSuggestedProduct('${p.searchKeyword}')" data-keyword="${p.searchKeyword}">
+                <div class="suggestion-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="suggestion-content">
+                    <div class="suggestion-name">${p.name}</div>
+                    <div class="suggestion-reason">${p.reason}</div>
+                </div>
                 <div class="suggestion-price">S/. ${p.sale_price.toFixed(2)}</div>
             </div>
         `).join('');
         
+        section.style.display = 'block';
+        console.log('[Suggestions] ✅ Renderizados:', products.length);
+        
     } catch (error) {
         console.error('[Suggestions] Error:', error);
-        hideSuggestions();
+        section.style.display = 'none';
     }
 }
 
-async function addSuggestedProduct(productId) {
+async function addSuggestedProduct(keyword) {
+    console.log('=== addSuggestedProduct INICIADO ===');
+    console.log('Keyword recibido:', keyword, typeof keyword);
+    
     try {
-        const response = await fetchWithAuth(`/api/v1/products/${productId}`);
-        const product = await response.json();
-        addToCart(product);
-        showToast('💡 ¡Buena elección!', 'success');
+        console.log('🔍 Haciendo fetch a /api/v1/products/search');
+        
+        const response = await fetchWithAuth('/api/v1/products/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                query: keyword,
+                limit: 10
+            })
+        });
+        
+        console.log('✅ Response recibido:', response.status);
+        
+        const variants = await response.json();
+        console.log('📦 Variantes totales:', variants.length, variants);
+        
+        const availableVariants = variants.filter(v => v.stock > 0);
+        console.log('✅ Variantes con stock:', availableVariants.length);
+        
+        if (availableVariants.length === 0) {
+            console.log('❌ No hay stock');
+            showToast('❌ Sin stock', 'error');
+            return;
+        }
+        
+        console.log('🔀 Evaluando cantidad de variantes...');
+        
+        if (availableVariants.length === 1) {
+            console.log('➡️ CASO 1: Solo 1 variante');
+            addToCart(availableVariants[0]);
+            showToast('💡 ¡Agregado!', 'success');
+        } else {
+            console.log('➡️ CASO 2: Múltiples variantes:', availableVariants.length);
+            console.log('🔍 Verificando función showSearchResultsModal:', typeof showSearchResultsModal);
+            
+            if (typeof showSearchResultsModal === 'function') {
+                console.log('✅ Función existe, llamando...');
+                showSearchResultsModal(availableVariants);
+                console.log('✅ showSearchResultsModal ejecutado');
+            } else {
+                console.error('❌ showSearchResultsModal NO es una función');
+                addToCart(availableVariants[0]);
+                showToast('Modal no disponible, agregado primero', 'warning');
+            }
+        }
+        
+        console.log('=== addSuggestedProduct FINALIZADO ===');
+        
     } catch (error) {
-        console.error('[Suggestions] Error:', error);
+        console.error('💥 ERROR en addSuggestedProduct:', error);
+        console.error('Stack:', error.stack);
+        showToast('Error', 'error');
     }
 }
 
@@ -1938,10 +2046,10 @@ async function handleAIVoiceResult(event) {
         
         console.log('[Voice AI] ✅ Resultado:', data);
         
-        if (data.success && data.products.length > 0) {
-            // Agregar todos los productos
-            let addedCount = 0;
-            
+        let addedCount = 0;
+        
+        // 1. Agregar productos sin ambigüedad
+        if (data.success && data.products && data.products.length > 0) {
             for (const product of data.products) {
                 try {
                     addToCart({
@@ -1956,29 +2064,57 @@ async function handleAIVoiceResult(event) {
                     console.error('[Voice AI] Error agregando producto:', err);
                 }
             }
+        }
+        
+        // 2. ✨ NUEVO: Manejar productos con variantes
+        if (data.products_with_variants && data.products_with_variants.length > 0) {
+            console.log('[Voice AI] 📦 Variantes detectadas:', data.products_with_variants.length);
             
-            // Feedback detallado
-            const apiLabels = {
-                'claude': '🟠 Claude',
-                'openai': '🟢 OpenAI',
-                'gemini': '🔵 Gemini'
-            };
-            
-            let message = `✅ ${addedCount} producto${addedCount !== 1 ? 's' : ''} agregado${addedCount !== 1 ? 's' : ''}`;
-            
-            if (data.not_found.length > 0) {
-                message += `\n⚠️ No encontrados: ${data.not_found.join(', ')}`;
+            // Guardar variantes pendientes
+            if (typeof AppState !== 'undefined') {
+                AppState.pendingVariants = data.products_with_variants;
+            } else {
+                window.pendingVariants = data.products_with_variants;
             }
             
+            // Mostrar modal de selección
+            if (typeof showVariantsModal === 'function') {
+                showVariantsModal(data.products_with_variants);
+            } else {
+                // Fallback: mostrar primera variante de cada producto
+                mostrarVariantesSimple(data.products_with_variants);
+            }
+        }
+        
+        // 3. Feedback
+        const apiLabels = {
+            'claude': '🟠 Claude',
+            'openai': '🟢 OpenAI',
+            'gemini': '🔵 Gemini'
+        };
+        
+        let message = '';
+        
+        if (addedCount > 0) {
+            message = `✅ ${addedCount} producto${addedCount !== 1 ? 's' : ''} agregado${addedCount !== 1 ? 's' : ''}`;
+        }
+        
+        if (data.products_with_variants && data.products_with_variants.length > 0) {
+            const variantCount = data.products_with_variants.length;
+            if (message) message += '\n';
+            message += `🔍 ${variantCount} producto${variantCount !== 1 ? 's' : ''} con variantes - Selecciona una opción`;
+        }
+        
+        if (data.not_found && data.not_found.length > 0) {
+            if (message) message += '\n';
+            message += `⚠️ No encontrados: ${data.not_found.join(', ')}`;
+        }
+        
+        if (message) {
             message += `\n${apiLabels[data.api_used]} (${data.latency_ms}ms)`;
-            
-            showToast(message, 'success');
-            playSound('success');
-            
-        } else if (data.not_found && data.not_found.length > 0) {
-            showToast(`❌ No encontrados: ${data.not_found.join(', ')}`, 'error');
-            playSound('error');
-        } else {
+            showToast(message, addedCount > 0 ? 'success' : 'info');
+            if (addedCount > 0) playSound('success');
+        } else if (!data.products_with_variants || data.products_with_variants.length === 0) {
             showToast('❌ No se detectaron productos válidos', 'error');
             playSound('error');
         }
@@ -1989,3 +2125,405 @@ async function handleAIVoiceResult(event) {
         playSound('error');
     }
 }
+
+// ============================================
+// FUNCIÓN AUXILIAR: Mostrar variantes simple
+// Si no existe showVariantsModal, usar este fallback
+// ============================================
+
+function mostrarVariantesSimple(productsWithVariants) {
+    console.log('[Voice AI] Mostrando variantes simple');
+    
+    for (const item of productsWithVariants) {
+        if (item.variants && item.variants.length > 0) {
+            const variantNames = item.variants.map((v, i) => 
+                `${i + 1}. ${v.name} (S/. ${v.price.toFixed(2)})`
+            ).join('\n');
+            
+            const selection = prompt(
+                `Producto: ${item.search_term}\n` +
+                `Selecciona una variante:\n\n` +
+                variantNames +
+                `\n\nIngresa el número (1-${item.variants.length}):`
+            );
+            
+            if (selection && !isNaN(selection)) {
+                const index = parseInt(selection) - 1;
+                if (index >= 0 && index < item.variants.length) {
+                    const variant = item.variants[index];
+                    addToCart({
+                        id: variant.product_id,
+                        name: variant.name,
+                        sale_price: variant.price,
+                        unit: variant.unit,
+                        stock: 999
+                    }, item.quantity || 1);
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// SI NO EXISTE showVariantsModal, CREAR UNA VERSIÓN BÁSICA
+// ============================================
+
+if (typeof showVariantsModal === 'undefined') {
+    window.showVariantsModal = function(productsWithVariants) {
+        console.log('[Variants Modal] Creando modal para', productsWithVariants.length, 'productos');
+        
+        // Crear modal HTML
+        const modalHTML = `
+            <div id="variants-modal-overlay" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 99999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <div style="
+                    background: #1a1a2e;
+                    color: white;
+                    padding: 30px;
+                    border-radius: 16px;
+                    max-width: 500px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                ">
+                    <h2 style="margin-top: 0;">Selecciona variante</h2>
+                    <div id="variants-list"></div>
+                    <button onclick="closeVariantsModalSimple()" style="
+                        width: 100%;
+                        padding: 12px;
+                        background: #4a4a6a;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                    ">Cerrar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Renderizar primer producto con variantes
+        renderNextVariant(productsWithVariants, 0);
+    };
+    
+    window.renderNextVariant = function(products, index) {
+        if (index >= products.length) {
+            closeVariantsModalSimple();
+            return;
+        }
+        
+        const item = products[index];
+        const variantsList = document.getElementById('variants-list');
+        
+        if (!variantsList) return;
+        
+        variantsList.innerHTML = `
+            <p style="color: #999; margin-bottom: 15px;">
+                ${item.search_term} (${index + 1} de ${products.length})
+            </p>
+            ${item.variants.map(v => `
+                <button onclick="selectVariantSimple(${v.product_id}, '${v.name}', ${v.price}, ${item.quantity || 1}, ${index}, ${products.length})" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: #2a2a3e;
+                    border: 2px solid #3a3a4e;
+                    border-radius: 8px;
+                    color: white;
+                    text-align: left;
+                    cursor: pointer;
+                    margin-bottom: 10px;
+                ">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>${v.name}</span>
+                        <strong style="color: #48bb78;">S/. ${v.price.toFixed(2)}</strong>
+                    </div>
+                </button>
+            `).join('')}
+        `;
+        
+        // Guardar para siguiente iteración
+        window.currentVariantProducts = products;
+        window.currentVariantIndex = index;
+    };
+    
+    window.selectVariantSimple = function(productId, name, price, quantity, currentIndex, totalProducts) {
+        addToCart({
+            id: productId,
+            name: name,
+            sale_price: price,
+            unit: 'unidad',
+            stock: 999
+        }, quantity);
+        
+        // Siguiente producto
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < totalProducts) {
+            renderNextVariant(window.currentVariantProducts, nextIndex);
+        } else {
+            closeVariantsModalSimple();
+            showToast('✅ Todos los productos agregados', 'success');
+        }
+    };
+    
+    window.closeVariantsModalSimple = function() {
+        const modal = document.getElementById('variants-modal-overlay');
+        if (modal) modal.remove();
+    };
+}
+
+
+// Inicializar cuando cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    AudioAssistant.init();
+    
+    // Cargar voces cuando estén disponibles
+    speechSynthesis.onvoiceschanged = () => {
+        const voices = speechSynthesis.getVoices();
+        AudioAssistant.voice = voices.find(v => v.lang.startsWith('es')) || voices[0];
+    };
+});
+
+
+// ============================================
+// SISTEMA DE AUDIO PARA CLIENTE (AL FINAL)
+// ============================================
+
+const AudioAssistant = {
+    enabled: true,
+    voice: null,
+    
+    init() {
+        if ('speechSynthesis' in window) {
+            setTimeout(() => {
+                const voices = speechSynthesis.getVoices();
+                this.voice = voices.find(v => v.lang.startsWith('es')) || voices[0];
+                console.log('[Audio] ✅ Sistema listo');
+            }, 100);
+        } else {
+            console.warn('[Audio] ⚠️ No soportado');
+            this.enabled = false;
+        }
+    },
+    
+    speak(text, priority = 'normal') {
+        if (!this.enabled || !text) return;
+        
+        if (priority === 'high') {
+            speechSynthesis.cancel();
+        }
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-PE';
+        utterance.voice = this.voice;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        
+        speechSynthesis.speak(utterance);
+    },
+    
+    announceSuggestions(products) {
+        if (products.length === 0) return;
+        
+        const names = products.slice(0, 3).map(p => p.name).join(', ');
+        this.speak(`También puede llevar: ${names}`);
+    },
+    
+    announcePromotion(productName) {
+        const messages = [
+            `¡También tenemos ${productName} en oferta!`,
+            `¿Sabía que tenemos ${productName}? ¡Pregunte por él!`,
+            `Aproveche nuestra promoción en ${productName}`,
+            `No olvide llevar ${productName}, ¡está en oferta!`
+        ];
+        const msg = messages[Math.floor(Math.random() * messages.length)];
+        this.speak(msg);
+    },
+    
+    toggle() {
+        this.enabled = !this.enabled;
+        const btn = document.getElementById('audio-toggle-btn');
+        if (btn) {
+            btn.innerHTML = this.enabled 
+                ? '<i class="fas fa-volume-up"></i>' 
+                : '<i class="fas fa-volume-mute"></i>';
+        }
+        showToast(this.enabled ? '🔊 Audio activado' : '🔇 Audio desactivado', 'info');
+    }
+};
+
+// Inicializar cuando cargue la página
+window.addEventListener('load', () => {
+    AudioAssistant.init();
+    
+    speechSynthesis.onvoiceschanged = () => {
+        const voices = speechSynthesis.getVoices();
+        AudioAssistant.voice = voices.find(v => v.lang.startsWith('es')) || voices[0];
+    };
+});
+
+
+// ==========================================
+// FUNCIÓN: Manejar click en botón Fiado
+// ==========================================
+
+async function pagarConFiado() {
+    // 1. Verificar que hay cliente seleccionado
+    const cliente = obtenerClienteActual(); // Tu función existente
+    
+    if (!cliente || !cliente.id) {
+        mostrarAlerta('⚠️ Debes seleccionar un cliente para hacer fiado');
+        return;
+    }
+
+    // 2. Mostrar modal para seleccionar días de crédito
+    const diasCredito = await mostrarModalDiasCredito();
+    
+    if (!diasCredito) return; // Usuario canceló
+    
+    // 3. Calcular fecha de vencimiento
+    const fechaVencimiento = new Date();
+    fechaVencimiento.setDate(fechaVencimiento.getDate() + diasCredito);
+    
+    // 4. Registrar venta con payment_method = 'credit'
+    const venta = await registrarVenta({
+        customer_id: cliente.id,
+        items: obtenerProductosCarrito(), // Tu función existente
+        total: calcularTotal(),           // Tu función existente
+        payment_method: 'credit',         // ← IMPORTANTE
+        payment_details: {
+            credit_days: diasCredito,
+            due_date: fechaVencimiento.toISOString().split('T')[0]
+        }
+    });
+
+    if (!venta || !venta.id) {
+        mostrarAlerta('❌ Error al registrar la venta');
+        return;
+    }
+
+    // 5. Registrar fiado en sistema
+    const fiado = await registrarFiado({
+        customer_id: cliente.id,
+        sale_id: venta.id,
+        amount: venta.total,
+        due_date: fechaVencimiento.toISOString().split('T')[0],
+        notes: `Fiado ${diasCredito} días - Vence ${fechaVencimiento.toLocaleDateString()}`
+    });
+
+    if (fiado) {
+        // 6. Mostrar confirmación
+        mostrarConfirmacion(`
+            ✅ Fiado registrado
+            
+            Cliente: ${cliente.name}
+            Monto: S/. ${venta.total.toFixed(2)}
+            Vence: ${fechaVencimiento.toLocaleDateString()}
+            (${diasCredito} días)
+        `);
+        
+        // 7. Limpiar carrito y volver al inicio
+        limpiarCarrito();
+    } else {
+        mostrarAlerta('❌ Error al registrar el fiado');
+    }
+}
+
+// ==========================================
+// FUNCIÓN: Modal para seleccionar días
+// ==========================================
+
+function mostrarModalDiasCredito() {
+    return new Promise((resolve) => {
+        // Crear modal (puedes usar tu modal existente o crear uno nuevo)
+        const opciones = [
+            { dias: 7, texto: '7 días (1 semana)' },
+            { dias: 15, texto: '15 días (quincena)' },
+            { dias: 30, texto: '30 días (mes)' },
+            { dias: 0, texto: 'Personalizado' }
+        ];
+
+        // Mostrar opciones
+        const seleccion = prompt(
+            'Selecciona plazo de crédito:\n\n' +
+            opciones.map((o, i) => `${i + 1}. ${o.texto}`).join('\n')
+        );
+
+        if (!seleccion) {
+            resolve(null); // Cancelado
+            return;
+        }
+
+        const opcion = opciones[parseInt(seleccion) - 1];
+        
+        if (!opcion) {
+            resolve(null);
+            return;
+        }
+
+        if (opcion.dias === 0) {
+            // Personalizado
+            const dias = parseInt(prompt('¿Cuántos días de crédito?'));
+            resolve(dias || null);
+        } else {
+            resolve(opcion.dias);
+        }
+    });
+}
+
+// ==========================================
+// FUNCIÓN: Registrar fiado en API
+// ==========================================
+
+async function registrarFiado(datos) {
+    try {
+        const response = await fetch('/api/v1/fiados/registrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('Error al registrar fiado:', error);
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error en registrarFiado:', error);
+        return null;
+    }
+}
+
+// ==========================================
+// FUNCIÓN: Mostrar alerta (personalízala)
+// ==========================================
+
+function mostrarAlerta(mensaje) {
+    // Usa tu sistema de alertas existente o:
+    alert(mensaje);
+}
+
+function mostrarConfirmacion(mensaje) {
+    // Usa tu sistema de confirmación existente o:
+    alert(mensaje);
+}
+
+
+// Hacer disponible globalmente
+window.AudioAssistant = AudioAssistant;
