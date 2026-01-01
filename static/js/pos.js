@@ -680,12 +680,9 @@ async function renderSuggestions(suggestions) {
 }
 
 async function addSuggestedProduct(keyword) {
-    console.log('=== addSuggestedProduct INICIADO ===');
-    console.log('Keyword recibido:', keyword, typeof keyword);
+    console.log('[Suggestions] Agregando:', keyword);
     
     try {
-        console.log('🔍 Haciendo fetch a /api/v1/products/search');
-        
         const response = await fetchWithAuth('/api/v1/products/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -695,46 +692,36 @@ async function addSuggestedProduct(keyword) {
             })
         });
         
-        console.log('✅ Response recibido:', response.status);
-        
         const variants = await response.json();
-        console.log('📦 Variantes totales:', variants.length, variants);
-        
         const availableVariants = variants.filter(v => v.stock > 0);
-        console.log('✅ Variantes con stock:', availableVariants.length);
         
         if (availableVariants.length === 0) {
-            console.log('❌ No hay stock');
             showToast('❌ Sin stock', 'error');
             return;
         }
         
-        console.log('🔀 Evaluando cantidad de variantes...');
-        
         if (availableVariants.length === 1) {
-            console.log('➡️ CASO 1: Solo 1 variante');
             addToCart(availableVariants[0]);
             showToast('💡 ¡Agregado!', 'success');
         } else {
-            console.log('➡️ CASO 2: Múltiples variantes:', availableVariants.length);
-            console.log('🔍 Verificando función showSearchResultsModal:', typeof showSearchResultsModal);
+            // ✅ Usar LayeredVariants para múltiples opciones
+            const variantsData = [{
+                search_term: keyword,
+                quantity: 1,
+                variants: availableVariants.map(p => ({
+                    product_id: p.id,
+                    name: p.name,
+                    price: p.sale_price,
+                    unit: p.unit || 'unidad',
+                    stock: p.stock
+                }))
+            }];
             
-            if (typeof showSearchResultsModal === 'function') {
-                console.log('✅ Función existe, llamando...');
-                showSearchResultsModal(availableVariants);
-                console.log('✅ showSearchResultsModal ejecutado');
-            } else {
-                console.error('❌ showSearchResultsModal NO es una función');
-                addToCart(availableVariants[0]);
-                showToast('Modal no disponible, agregado primero', 'warning');
-            }
+            window.LayeredVariants.show(variantsData);
         }
         
-        console.log('=== addSuggestedProduct FINALIZADO ===');
-        
     } catch (error) {
-        console.error('💥 ERROR en addSuggestedProduct:', error);
-        console.error('Stack:', error.stack);
+        console.error('[Suggestions] Error:', error);
         showToast('Error', 'error');
     }
 }

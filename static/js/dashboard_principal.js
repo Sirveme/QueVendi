@@ -504,6 +504,10 @@ function quickAddFromRecent(productId) {
 // VENTA CRUZADA (CROSS-SELL)
 // ============================================
 
+// ============================================
+// VENTA CRUZADA (CROSS-SELL)
+// ============================================
+
 function showCrossSell(productName) {
     const suggestions = findCrossSellProducts(productName);
     
@@ -525,9 +529,29 @@ function showCrossSell(productName) {
 function findCrossSellProducts(productName) {
     const name = productName.toLowerCase();
     
+    // ✅ OBTENER productos ya en carrito (normalizados)
+    const productsInCart = AppState.cart.map(item => 
+        normalizeText(item.name)
+    );
+    
     for (const [key, suggestions] of Object.entries(CONFIG.crossSellRules)) {
         if (name.includes(key)) {
-            return suggestions.slice(0, 3);
+            // ✅ FILTRAR productos ya en carrito
+            const filteredSuggestions = suggestions.filter(suggestion => {
+                const normalizedSuggestion = normalizeText(suggestion);
+                return !productsInCart.some(cartItem => 
+                    cartItem.includes(normalizedSuggestion) || 
+                    normalizedSuggestion.includes(cartItem)
+                );
+            });
+            
+            // Si no quedan sugerencias después de filtrar
+            if (filteredSuggestions.length === 0) {
+                console.log('[CrossSell] Todos los productos sugeridos ya están en carrito');
+                return [];
+            }
+            
+            return filteredSuggestions.slice(0, 3);
         }
     }
     
@@ -536,36 +560,54 @@ function findCrossSellProducts(productName) {
 
 async function searchAndAdd(productName) {
     try {
+        console.log('[CrossSell] Buscando:', productName);
+        
         const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
             method: 'POST',
-            body: JSON.stringify({ query: productName, limit: 20 })  // ← 20 para variantes
+            body: JSON.stringify({ query: productName, limit: 20 })
         });
         
         if (response.ok) {
             const products = await response.json();
-            if (products && products.length > 0) {
-                // Si solo hay 1, agregar directo
-                if (products.length === 1) {
-                    addToCart(products[0], 1);
-                } else {
-                    // Si hay múltiples, mostrar variantes
-                    const variantsData = [{
-                        search_term: productName,
-                        quantity: 1,
-                        variants: products.map(p => ({
-                            product_id: p.id,
-                            name: p.name,
-                            price: p.sale_price,
-                            unit: p.unit || 'unidad',
-                            stock: p.stock
-                        }))
-                    }];
-                    showVariantsModal(variantsData);
-                }
+            
+            if (!products || products.length === 0) {
+                showToast(`❌ No encontré "${productName}"`, 'warning');
+                return;
+            }
+            
+            // ✅ Filtrar productos con stock
+            const availableProducts = products.filter(p => p.stock > 0);
+            
+            if (availableProducts.length === 0) {
+                showToast(`❌ Sin stock de "${productName}"`, 'warning');
+                return;
+            }
+            
+            // Si solo hay 1, agregar directo
+            if (availableProducts.length === 1) {
+                addToCart(availableProducts[0], 1);
+                showToast(`✅ ${availableProducts[0].name} agregado`, 'success');
+            } else {
+                // ✅ Si hay múltiples, usar LayeredVariants
+                const variantsData = [{
+                    search_term: productName,
+                    quantity: 1,
+                    variants: availableProducts.map(p => ({
+                        product_id: p.id,
+                        name: p.name,
+                        price: p.sale_price,
+                        unit: p.unit || 'unidad',
+                        stock: p.stock
+                    }))
+                }];
+                
+                console.log('[CrossSell] Mostrando modal de variantes:', availableProducts.length);
+                window.LayeredVariants.show(variantsData);
             }
         }
     } catch (error) {
         console.error('[CrossSell] Error:', error);
+        showToast('Error al buscar producto', 'error');
     }
 }
 

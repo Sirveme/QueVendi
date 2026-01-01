@@ -1,7 +1,10 @@
 // ============================================
-// AUDIO ASSISTANT - Text-to-Speech
-// AGREGAR AL INICIO de dashboard_principal.js
+// AUDIO ASSISTANT - Text-to-Speech con QUEUE
 // ============================================
+
+// ✅ QUEUE DE AUDIO
+let speechQueue = [];
+let isSpeaking = false;
 
 const AudioAssistant = {
     // Configuración
@@ -37,14 +40,41 @@ const AudioAssistant = {
         }
     },
     
-    // Hablar texto
+    // ✅ HABLAR CON QUEUE (previene "interrupted")
     speak: function(text, options = {}) {
-        if (!this.enabled || !text) return;
+        if (!this.enabled || !text || text.trim().length === 0) return;
+        
+        console.log('[AudioAssistant] 🔊 Solicitado:', text);
+        
+        // Si es prioritario, limpiar queue y hablar inmediatamente
+        if (options.priority) {
+            window.speechSynthesis.cancel();
+            speechQueue = [];
+            isSpeaking = false;
+        }
+        
+        // Agregar a queue
+        speechQueue.push({ text, options });
+        
+        // Procesar queue si no está hablando
+        if (!isSpeaking) {
+            this.processQueue();
+        }
+    },
+    
+    // ✅ PROCESAR QUEUE
+    processQueue: function() {
+        if (speechQueue.length === 0) {
+            isSpeaking = false;
+            return;
+        }
+        
+        isSpeaking = true;
+        const { text, options } = speechQueue.shift();
+        
+        console.log('[AudioAssistant] 🔊 Hablando:', text);
         
         try {
-            // Cancelar cualquier mensaje anterior
-            window.speechSynthesis.cancel();
-            
             // Crear mensaje
             const utterance = new SpeechSynthesisUtterance(text);
             
@@ -57,13 +87,25 @@ const AudioAssistant = {
             utterance.rate = options.rate || this.rate;
             utterance.pitch = options.pitch || this.pitch;
             
-            // Callbacks
-            utterance.onstart = () => {
-                console.log('[AudioAssistant] 🔊 Hablando:', text);
+            // ✅ CALLBACKS
+            utterance.onend = () => {
+                console.log('[AudioAssistant] ✅ Terminado');
+                isSpeaking = false;
+                
+                // Procesar siguiente en queue después de pequeña pausa
+                setTimeout(() => {
+                    this.processQueue();
+                }, 300);
             };
             
-            utterance.onerror = (e) => {
-                console.error('[AudioAssistant] Error:', e);
+            utterance.onerror = (event) => {
+                console.log('[AudioAssistant] Error:', event);
+                isSpeaking = false;
+                
+                // Intentar siguiente en queue
+                setTimeout(() => {
+                    this.processQueue();
+                }, 300);
             };
             
             // Hablar
@@ -71,17 +113,31 @@ const AudioAssistant = {
             
         } catch (error) {
             console.error('[AudioAssistant] Error al hablar:', error);
+            isSpeaking = false;
+            
+            // Continuar con siguiente
+            setTimeout(() => {
+                this.processQueue();
+            }, 300);
         }
     },
     
-    // Detener audio
+    // Detener audio y limpiar queue
     stop: function() {
         window.speechSynthesis.cancel();
+        speechQueue = [];
+        isSpeaking = false;
+        console.log('[AudioAssistant] 🛑 Audio detenido y queue limpiado');
     },
     
     // Toggle enabled
     toggle: function() {
         this.enabled = !this.enabled;
+        
+        if (!this.enabled) {
+            this.stop(); // Detener si se desactiva
+        }
+        
         console.log('[AudioAssistant] Estado:', this.enabled ? 'Activado' : 'Desactivado');
         return this.enabled;
     },
@@ -98,16 +154,40 @@ const AudioAssistant = {
         fiado: "Su fiado ha sido registrado correctamente. Recuerde la fecha de pago"
     },
     
-    // Sugerir según producto
+    // ✅ SUGERIR CON FILTRO DE CARRITO
     sugerirPorProducto: function(productName) {
-        const nombre = productName.toLowerCase();
+        const nombre = normalizeText(productName);
+        
+        // Obtener productos en carrito
+        const productsInCart = AppState.cart.map(item => 
+            normalizeText(item.name)
+        );
+        
+        // Determinar sugerencia según producto
+        let sugerencia = null;
         
         if (nombre.includes('gaseosa') || nombre.includes('coca') || nombre.includes('inca')) {
-            this.speak(this.sugerencias.gaseosa);
+            // Solo sugerir si NO hay galletas/snacks en carrito
+            if (!productsInCart.some(p => p.includes('galleta') || p.includes('snack'))) {
+                sugerencia = this.sugerencias.gaseosa;
+            }
         } else if (nombre.includes('pan')) {
-            this.speak(this.sugerencias.pan);
+            // Solo sugerir si NO hay mantequilla/mermelada en carrito
+            if (!productsInCart.some(p => p.includes('mantequilla') || p.includes('mermelada'))) {
+                sugerencia = this.sugerencias.pan;
+            }
         } else if (nombre.includes('cerveza') || nombre.includes('cristal') || nombre.includes('pilsen')) {
-            this.speak(this.sugerencias.cerveza);
+            // Solo sugerir si NO hay limón/hielo en carrito
+            if (!productsInCart.some(p => p.includes('limon') || p.includes('hielo'))) {
+                sugerencia = this.sugerencias.cerveza;
+            }
+        }
+        
+        // Hablar si hay sugerencia válida
+        if (sugerencia) {
+            this.speak(sugerencia);
+        } else {
+            console.log('[AudioAssistant] No hay sugerencias relevantes (productos ya en carrito)');
         }
     }
 };
@@ -119,13 +199,21 @@ if (document.readyState === 'loading') {
     AudioAssistant.init();
 }
 
+// ✅ ALIAS GLOBAL para compatibilidad
+window.speak = function(text, priority = false) {
+    AudioAssistant.speak(text, { priority });
+};
+
 // ============================================
 // EJEMPLOS DE USO:
 // ============================================
 
 // En cualquier parte del código:
 // AudioAssistant.speak("¡Bienvenido a la bodega!");
-// AudioAssistant.speak(AudioAssistant.sugerencias.gaseosa);
+// AudioAssistant.speak("Producto agregado", { priority: true }); // Prioritario
 // AudioAssistant.sugerirPorProducto("Coca Cola 1.5L");
-// AudioAssistant.stop(); // Detener audio
+// AudioAssistant.stop(); // Detener audio y limpiar queue
 // AudioAssistant.toggle(); // Activar/desactivar
+
+// O usar el alias global:
+// speak("¡Hola!");
