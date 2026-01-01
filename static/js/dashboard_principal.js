@@ -7,13 +7,29 @@
 // CONFIGURACIÓN
 // ============================================
 
+// ============================================
+// CONFIGURACIÓN
+// ============================================
 const CONFIG = {
+    // API base - detección automática de entorno
+    apiBase: (() => {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol; // http: o https:
+        
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:5050/api/v1';
+        } else {
+            // Producción: usar protocolo actual (https)
+            return `${protocol}//${hostname}/api/v1`;
+        }
+    })(),
+    
     micTimer: 10,
     dailyGoal: 500,
     lowStockThreshold: 10,
     maxRecentProducts: 8,
-    apiBase: '/api/v1',
     emergencyHoldTime: 3000,
+    
     crossSellRules: {
         'coca cola': ['galletas', 'snacks', 'chocolate'],
         'pan': ['mantequilla', 'mermelada', 'queso'],
