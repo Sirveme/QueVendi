@@ -39,7 +39,11 @@ from app.api.v1 import (
     catalogs,
     voice_llm,
     incidentes,
-    ubigeo
+    ubigeo,
+    fiados,
+    comunicaciones,
+    customers,
+    conversions
 )
 
 # ========================================
@@ -143,18 +147,21 @@ else:
 # ========================================
 # ROUTERS API (prefix /api/v1)
 # ========================================
-app.include_router(auth.router, prefix="/api/v1", tags=["Auth"])
-app.include_router(incidentes.router, prefix="/api/v1", tags=["Incidentes"])
-app.include_router(ubigeo.router, prefix="/api/v1", tags=["Ubigeo"])
-app.include_router(products.router, prefix="/api/v1", tags=["Products"])
-app.include_router(sales.router, prefix="/api/v1", tags=["Sales"])
-app.include_router(voice.router, prefix="/api/v1", tags=["Voice"])
-app.include_router(reports.router, prefix="/api/v1", tags=["Reports"])
-app.include_router(stores.router, prefix="/api/v1", tags=["Stores"])
-app.include_router(users.router, prefix="/api/v1", tags=["Users"])
-app.include_router(catalogs.router, prefix="/api/v1", tags=["Catalogs"])
-app.include_router(voice_llm.router, prefix="/api/v1", tags=["Voice LLM"])
-
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+app.include_router(incidentes.router, prefix="/api/v1", tags=["incidentes"])
+app.include_router(ubigeo.router, prefix="/api/v1", tags=["ubigeo"])
+app.include_router(products.router, prefix="/api/v1", tags=["products"])
+app.include_router(sales.router, prefix="/api/v1", tags=["sales"])
+app.include_router(voice.router, prefix="/api/v1", tags=["voice"])
+app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
+app.include_router(stores.router, prefix="/api/v1", tags=["stores"])
+app.include_router(users.router, prefix="/api/v1", tags=["users"])
+app.include_router(catalogs.router, prefix="/api/v1", tags=["catalogs"])
+app.include_router(voice_llm.router, prefix="/api/v1", tags=["voice LLM"])
+app.include_router(fiados.router, prefix="/api/v1", tags=["fiados"])
+app.include_router(comunicaciones.router, prefix="/api/v1", tags=["comunicaciones"])
+app.include_router(customers.router, prefix="/api/v1", tags=["customers"])
+app.include_router(conversions.router, prefix="/api/v1", tags=["conversions"])
 
 # ========================================
 # RUTAS HTML - PÚBLICAS (sin auth)
