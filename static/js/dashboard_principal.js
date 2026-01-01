@@ -7,20 +7,17 @@
 // CONFIGURACIÓN
 // ============================================
 
-// ============================================
-// CONFIGURACIÓN
-// ============================================
 const CONFIG = {
-    // API base - detección automática de entorno
+    // API base - detección automática
     apiBase: (() => {
         const hostname = window.location.hostname;
-        const protocol = window.location.protocol; // http: o https:
+        const protocol = window.location.protocol;
         
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:5050/api/v1';
         } else {
-            // Producción: usar protocolo actual (https)
-            return `${protocol}//${hostname}/api/v1`;
+            // Producción: SIEMPRE https en Railway
+            return `https://${hostname}/api/v1`;
         }
     })(),
     
@@ -40,6 +37,11 @@ const CONFIG = {
         'gaseosa': ['galletas', 'snacks', 'pizza']
     }
 };
+
+// Log para verificar
+console.log('[Config] 🌐 API Base:', CONFIG.apiBase);
+console.log('[Config] 📍 Hostname:', window.location.hostname);
+console.log('[Config] 🔒 Protocol:', window.location.protocol);
 
 // ============================================
 // ESTADO GLOBAL
