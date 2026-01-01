@@ -22,8 +22,6 @@ from app.models.user import User
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 
-from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -286,5 +284,6 @@ async def onboarding_page(request: Request):
     Wizard de onboarding para nuevas tiendas
     """
     return templates.TemplateResponse("onboarding_wizard.html", {"request": request})
+
 
 
