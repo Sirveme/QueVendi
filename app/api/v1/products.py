@@ -14,7 +14,7 @@ from typing import List
 from app.services.product_service import ProductService
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix="/products")
 
 class ProductResponse(BaseModel):
     id: int
@@ -295,37 +295,55 @@ async def search_products(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Buscar productos por nombre, barcode o alias"""
+    """Buscar productos por nombre con reglas mejoradas"""
     
     try:
         query_text = search.query.lower().strip()
         
-        # Consulta SQL básica
-        products = db.query(Product).filter(
-            Product.store_id == current_user.store_id,
-            Product.is_active == True,
-            Product.name.ilike(f"%{query_text}%")
-        ).limit(search.limit).all()
+        # Limpiar puntuación
+        query_text = query_text.rstrip('.,;:!?¡¿')
         
-        # Retornar lista simple
-        result = []
-        for p in products:
-            result.append({
+        # Mínimo 3 caracteres
+        if len(query_text) < 3:
+            return []
+        
+        # 🔥 REGLAS PARA PALABRAS CORTAS (≤3 chars)
+        if len(query_text) <= 3:
+            products = db.query(Product).filter(
+                Product.store_id == current_user.store_id,
+                Product.is_active == True,
+                or_(
+                    Product.name.ilike(f"{query_text} %"),      # Empieza con
+                    Product.name.ilike(f"% {query_text} %"),    # Contiene palabra
+                    Product.name.ilike(f"% {query_text}"),      # Termina con
+                    func.lower(Product.name) == query_text      # Exacto
+                )
+            ).limit(search.limit).all()
+        else:
+            # Búsqueda normal para palabras largas
+            products = db.query(Product).filter(
+                Product.store_id == current_user.store_id,
+                Product.is_active == True,
+                Product.name.ilike(f"%{query_text}%")
+            ).limit(search.limit).all()
+        
+        result = [
+            {
                 "id": p.id,
                 "name": p.name,
                 "barcode": p.barcode or "",
                 "sale_price": float(p.sale_price),
                 "stock": p.stock,
                 "unit": getattr(p, 'unit', 'unidad')
-            })
+            }
+            for p in products
+        ]
         
         print(f"[Search] Query: '{query_text}' → {len(result)} productos")
         return result
         
     except Exception as e:
         print(f"[Search] ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 

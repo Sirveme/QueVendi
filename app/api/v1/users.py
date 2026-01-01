@@ -8,7 +8,7 @@ from app.models.user import User
 from app.api.dependencies import get_current_user
 from app.services.upload_service import upload_service
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users")
 
 @router.post("/avatar/upload")
 async def upload_avatar(

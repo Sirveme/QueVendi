@@ -11,6 +11,7 @@ import time
 import re
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
+from sqlalchemy import func, or_ 
 from pydantic import BaseModel
 from typing import Optional, List
 
@@ -60,7 +61,7 @@ except ImportError:
     print("[Voice] AVISO: Instalar httpx con: pip install httpx")
 
 
-router = APIRouter(prefix="/voice", tags=["voice"])
+router = APIRouter(prefix="/voice")
 
 
 # URL de OpenAI Whisper
@@ -399,17 +400,31 @@ def extract_products_local(transcript: str) -> list:
 
 
 def find_product_in_db(db: Session, search_term: str, store_id: Optional[int] = None):
-    """Busca un producto en la base de datos."""
+    """Busca un producto en la base de datos con reglas mejoradas"""
     try:
         from app.models.product import Product
     except ImportError:
         print("[Voice] No se pudo importar modelo Product")
         return None
     
-    query = db.query(Product).filter(
-        Product.is_active == True,
-        Product.name.ilike(f"%{search_term}%")
-    )
+    # 🔥 REGLAS MEJORADAS PARA PALABRAS CORTAS
+    if len(search_term) <= 3:
+        # Solo buscar al INICIO de palabras (word boundary)
+        query = db.query(Product).filter(
+            Product.is_active == True,
+            or_(
+                Product.name.ilike(f"{search_term} %"),    # Empieza con "pan "
+                Product.name.ilike(f"% {search_term} %"),  # Contiene " pan "
+                Product.name.ilike(f"% {search_term}"),    # Termina con " pan"
+                func.lower(Product.name) == search_term    # Es exactamente "pan"
+            )
+        )
+    else:
+        # Para palabras largas, búsqueda normal
+        query = db.query(Product).filter(
+            Product.is_active == True,
+            Product.name.ilike(f"%{search_term}%")
+        )
     
     if store_id:
         query = query.filter(Product.store_id == store_id)
@@ -419,7 +434,7 @@ def find_product_in_db(db: Session, search_term: str, store_id: Optional[int] = 
     if product:
         return product
     
-    # Búsqueda por palabras individuales
+    # Búsqueda por palabras individuales (fallback)
     words = search_term.split()
     if len(words) > 1:
         for word in words:

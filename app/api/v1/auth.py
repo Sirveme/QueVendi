@@ -15,7 +15,7 @@ from app.models.subscription import Subscription
 from app.services.validation_service import validation_service
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth")
 
 
 # ============================================

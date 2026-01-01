@@ -10,7 +10,7 @@ from sqlalchemy import text
 from app.core.database import get_db
 
 
-router = APIRouter(prefix="/ubigeo", tags=["Ubigeo"])
+router = APIRouter(prefix="/ubigeo")
 
 
 @router.get("/search")

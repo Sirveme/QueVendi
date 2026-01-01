@@ -7,7 +7,16 @@ from app.models.product import Product
 from app.models.user import User
 from app.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/api/v1/catalogs", tags=["Catalogs"])
+router = APIRouter(prefix="/catalogs")
+
+def require_owner(current_user: User = Depends(get_current_user)):
+    """Solo owners pueden gestionar catálogos"""
+    if current_user.role != "owner":
+        raise HTTPException(
+            status_code=403, 
+            detail="Solo los dueños pueden gestionar catálogos"
+        )
+    return current_user
 
 @router.get("/available")
 async def get_available_catalogs():
@@ -52,7 +61,7 @@ async def get_available_catalogs():
 async def copy_catalog_to_store(
     catalog_code: str,
     initial_stock: int = 200,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_owner),
     db: Session = Depends(get_db)
 ):
     """
@@ -65,7 +74,8 @@ async def copy_catalog_to_store(
         # Obtener productos maestros del catálogo
         master_products = db.query(Product).filter(
             Product.store_id == 0,
-            Product.catalog_code == catalog_code
+            Product.catalog_code == catalog_code,
+            Product.is_active == True
         ).all()
         
         if not master_products:
@@ -83,7 +93,8 @@ async def copy_catalog_to_store(
             existing = db.query(Product).filter(
                 Product.store_id == current_user.store_id,
                 Product.name == master.name,
-                Product.category == master.category
+                Product.category == master.category,
+                Product.is_active == True
             ).first()
             
             if existing:
@@ -129,7 +140,7 @@ async def copy_catalog_to_store(
 
 @router.get("/my-products/stats")
 async def get_my_products_stats(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_owner),
     db: Session = Depends(get_db)
 ):
     """

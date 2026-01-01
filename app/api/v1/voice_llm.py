@@ -20,13 +20,26 @@ from app.models.product import Product
 from app.models.voice_log import VoiceCommandLog
 from app.services.llm_service import LLMService
 
-router = APIRouter(prefix="/voice", tags=["voice-llm"])
+router = APIRouter(prefix="/voice")
+
+# ============================================
+# PALABRAS CORTAS QUE REQUIEREN MATCH EXACTO
+# ============================================
+PALABRAS_CORTAS_EXACTAS = [
+    "pan", "sal", "te", "ron", "ace", "gas", "luz", "aji", "col"
+]
 
 # ============================================
 # CORRECCIONES PARA MARCAS PERUANAS
 # ============================================
 CORRECCIONES_TRANSCRIPT = {
     # Bebidas
+    "coca cola": "coca-cola",
+    "coca-cola": "coca cola",
+    "cocacola": "coca cola",
+    "hinca cola": "inca kola",
+    "inka cola": "inca kola",
+    "inca cola": "inca kola",
     "hinca cola": "inca kola", "inka cola": "inca kola", "inca cola": "inca kola",
     "incacola": "inca kola", "hinca kola": "inca kola",
     "coca cola": "coca cola", "cocacola": "coca cola",
@@ -36,6 +49,11 @@ CORRECCIONES_TRANSCRIPT = {
     "cusquenia": "cusqueña", "cusquenya": "cusqueña",
     "cristal": "cristal", "frugos": "frugos", "cifrut": "cifrut",
     
+    # Panadería
+    "pang": "pan",
+    "pan!": "pan",
+    "pán": "pan",
+
     # Lácteos
     "gloría": "gloria", "laive": "laive", "layve": "laive",
     "pura vida": "pura vida", "puravida": "pura vida",
@@ -64,9 +82,20 @@ CORRECCIONES_TRANSCRIPT = {
 def corregir_transcript(texto: str) -> str:
     """Corrige errores comunes de transcripción"""
     texto_lower = texto.lower()
+
+    # Limpiar signos de puntuación
+    texto_lower = texto_lower.strip('¡!¿?.,;:')
+
+    # 🔥 NORMALIZAR: Quitar guiones de marcas
+    # "coca-cola" → "coca cola" para match con BD
+    texto_lower = texto_lower.replace('-', ' ')
+    
+    # Eliminar espacios dobles
+    texto_lower = re.sub(r'\s+', ' ', texto_lower)
+
     for incorrecto, correcto in CORRECCIONES_TRANSCRIPT.items():
-        # Reemplazo de palabra completa para evitar "pan" en "pantalla"
         texto_lower = re.sub(r'\b' + re.escape(incorrecto) + r'\b', correcto, texto_lower)
+    
     return texto_lower
 
 def normalize_text(text: str) -> str:
@@ -77,6 +106,7 @@ def normalize_text(text: str) -> str:
 def calcular_score_avanzado(product_name: str, query: str) -> float:
     """
     Calcula score robusto soportando prefijos y contención
+    Versión mejorada con reglas estrictas para palabras cortas
     """
     p_name = normalize_text(product_name)
     q = normalize_text(query)
@@ -85,25 +115,39 @@ def calcular_score_avanzado(product_name: str, query: str) -> float:
     if p_name == q:
         return 1.0
     
-    # 2. Empieza con (Sin exigir espacio después, arregla "galletas" vs "galleta")
-    if p_name.startswith(q):
+    # 2. Empieza con (producto empieza con query)
+    if p_name.startswith(q + " ") or p_name == q:
         return 0.95
     
-    # 3. Palabra contenida exacta
-    # "Galletas Soda" contiene la palabra "Soda" (query="soda")
+    # 3. Primera palabra coincide exactamente
     p_words = p_name.split()
-    if q in p_words:
+    if p_words and p_words[0] == q:
         return 0.9
     
-    # 4. Palabra contenida como prefijo
-    # "Galletas Soda" contiene "Galletas", que empieza con "galleta" (query="galleta")
-    for word in p_words:
-        if word.startswith(q) and len(q) >= 3:
-            return 0.85
-            
-    # 5. Contiene string (fallback)
-    if q in p_name and len(q) >= 4:
-        return 0.6
+    # 4. Palabra contenida exacta (query es una palabra completa en el producto)
+    if q in p_words:
+        return 0.85
+    
+    # 🔥 REGLAS ESTRICTAS PARA PALABRAS CORTAS (3 chars o menos)
+    if q in PALABRAS_CORTAS_EXACTAS or len(q) <= 3:
+        # Solo aceptar match de palabra completa con word boundaries
+        import re
+        pattern = r'\b' + re.escape(q) + r'\b'
+        if re.search(pattern, p_name):
+            return 0.75
+        else:
+            # NO aceptar substring match para palabras cortas
+            return 0.0
+    
+    # 5. Palabra contenida como prefijo (solo para palabras 4+ chars)
+    if len(q) >= 4:
+        for word in p_words:
+            if word.startswith(q):
+                return 0.7
+    
+    # 6. Contiene string (fallback, solo para queries largas)
+    if q in p_name and len(q) >= 5:
+        return 0.5
         
     return 0.0
 
