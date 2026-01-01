@@ -819,47 +819,246 @@ body {
     text-align: right;
 }
 
-/* Cross Sell */
+/* ============================================
+   SUGERENCIAS DE VENTA CRUZADA - ÚNICO
+   ============================================ */
+
+/* Contenedor principal */
 .cross-sell {
-    padding: 0.75rem;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    margin-top: 0.5rem;
+    background: linear-gradient(135deg, 
+        rgba(251, 191, 36, 0.12) 0%, 
+        rgba(245, 158, 11, 0.06) 100%);
+    border: 2px solid rgba(251, 191, 36, 0.4);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    position: relative;
+    animation: slideInUp 0.4s ease;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.15);
 }
 
+/* Etiqueta "También llevan:" */
 .cross-sell-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-}
-
-.cross-sell-label i {
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     color: var(--accent-gold);
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Animación del foco 💡 */
+.cross-sell-label i {
+    font-size: 1.5rem;
+    animation: pulse-glow 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+    }
+    50% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 16px rgba(251, 191, 36, 1)) 
+                drop-shadow(0 0 24px rgba(251, 191, 36, 0.6));
+    }
+}
+
+/* Grid de productos */
 .cross-sell-items {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
 }
 
-.cross-sell-chip {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+/* Cards de productos sugeridos */
+.suggestion-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 70px;
 }
 
-.cross-sell-chip:hover {
-    background: var(--accent-gold);
-    color: var(--bg-primary);
-    border-color: var(--accent-gold);
+/* Efecto de brillo al hover */
+.suggestion-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.4), 
+        transparent);
+    transition: left 0.6s;
+}
+
+.suggestion-card:hover::before {
+    left: 100%;
+}
+
+.suggestion-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.suggestion-card:active {
+    transform: translateY(-2px) scale(1);
+}
+
+/* Variantes de color (4 colores rotativos) */
+.suggestion-card:nth-child(4n+1) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+}
+
+.suggestion-card:nth-child(4n+1):hover {
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.suggestion-card:nth-child(4n+2) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.35);
+}
+
+.suggestion-card:nth-child(4n+2):hover {
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.5);
+}
+
+.suggestion-card:nth-child(4n+3) {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.35);
+}
+
+.suggestion-card:nth-child(4n+3):hover {
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+}
+
+.suggestion-card:nth-child(4n+4) {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.35);
+}
+
+.suggestion-card:nth-child(4n+4):hover {
+    box-shadow: 0 8px 25px rgba(67, 233, 123, 0.5);
+}
+
+/* Icono circular con animación */
+.suggestion-icon {
+    width: 46px;
+    height: 46px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.suggestion-card:hover .suggestion-icon {
+    transform: rotate(90deg);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* Contenido del card */
+.suggestion-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.suggestion-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: white;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-reason {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-style: italic;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Precio */
+.suggestion-price {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: white;
+    flex-shrink: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* Animación de entrada */
+@keyframes slideInUp {
+    from {
+        transform: translateY(15px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cross-sell-items {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .suggestion-card {
+        min-height: 65px;
+        padding: 12px 14px;
+    }
+    
+    .suggestion-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .suggestion-name {
+        font-size: 0.9rem;
+    }
+    
+    .suggestion-price {
+        font-size: 1.1rem;
+        padding: 3px 8px;
+    }
 }
 
 /* ============================================
@@ -2928,4 +3127,568 @@ body.is-owner .owner-only {
 
 .btn-confirm-v2:hover {
     background: #059669;
+}
+
+
+/* ============================================
+   LOADER OVERLAY
+   ============================================ */
+
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.loader-overlay.show {
+    opacity: 1;
+}
+
+.loader-content {
+    background: var(--bg-secondary);
+    padding: 2.5rem 3rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+}
+
+.loader-content p {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(251, 191, 36, 0.2);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ============================================
+   FRASES DEL BODEGUERO
+   ============================================ */
+
+.bodeguero-phrase {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideInLeft 0.5s ease;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.phrase-icon {
+    font-size: 2rem;
+    animation: wave 1.5s ease-in-out infinite;
+}
+
+.phrase-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.bodeguero-phrase.fade-out {
+    animation: fadeOut 0.5s ease;
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* ============================================
+   BOTÓN DE AUDIO
+   ============================================ */  
+/* En dashboard_principal.css */
+.audio-toggle-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.audio-toggle-btn:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+.audio-toggle-btn:active {
+    transform: scale(1);
+}
+
+
+
+/* ============================================
+   MODAL FIADO - DIAS DE CREDITO
+   ============================================ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: #1a1a2e;
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s;
+}
+
+.modal-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+}
+
+.modal-options {
+    margin: 20px 0;
+    font-size: 14px;
+    color: #b0b0b0;
+    line-height: 1.8;
+}
+
+.modal-input-group {
+    margin: 20px 0;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 15px;
+    background: #2a2a3e;
+    border: 2px solid #3a3a4e;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+    border-color: #667eea;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn-primary {
+    background: #a78bfa;
+    color: white;
+}
+
+.modal-btn-primary:hover {
+    background: #9575fa;
+    transform: translateY(-2px);
+}
+
+.modal-btn-secondary {
+    background: #4a4a6a;
+    color: white;
+}
+
+.modal-btn-secondary:hover {
+    background: #5a5a7a;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   MODAL FIADO overlay
+   ============================================ */
+.btn-plazo-rapido:hover {
+    background: #667eea !important;
+    border-color: #667eea !important;
+    transform: translateY(-2px);
+}
+
+.btn-plazo-rapido.selected {
+    background: #667eea !important;
+    border-color: #667eea !important;
+}
+
+#modal-fiado-overlay input:focus {
+    border-color: #667eea !important;
+}
+
+
+/* ============================================
+   CSS PARA CANTIDAD EDITABLE
+   ============================================ */
+.qty-display {
+    width: 50px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a2a3e;
+    border: 2px solid #3a3a4e;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.qty-display:hover {
+    border-color: #667eea;
+    background: #3a3a4e;
+}
+
+.qty-display span {
+    font-weight: 600;
+    color: white;
+    font-size: 16px;
+}
+
+.qty-display input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: #3a3a4e;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    border-radius: 4px;
+}
+
+.qty-display input:focus {
+    background: #4a4a5e;
+}   
+
+
+/* ============================================
+// CSS PARA INPUT INLINE
+// ============================================*/
+
+
+.cart-quantity-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.qty-input-inline {
+    width: 60px;
+    height: 35px;
+    text-align: center;
+    background: #2a2a3e;
+    border: 2px solid #3a3a4e;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.qty-input-inline:focus {
+    border-color: #667eea;
+}
+
+.btn-qty-mini {
+    width: 30px;
+    height: 30px;
+    background: #667eea;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-qty-mini:hover {
+    background: #5568d3;
+    transform: scale(1.1);
+}
+
+.btn-qty-mini:active {
+    transform: scale(0.95);
+}
+
+
+
+
+/* ============================================
+   CSS PMIUM PARA MODAL
+   ============================================ */
+.modal-fiado-container {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-fiado-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-fiado-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-fiado-body {
+    padding: 30px;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.form-section h3 {
+    color: #667eea;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: #667eea;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.fiado-summary {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.summary-row strong {
+    font-size: 1.2em;
+    color: #667eea;
+}
+
+.modal-fiado-footer {
+    padding: 20px 30px;
+    background: #f5f5f5;
+    border-radius: 0 0 16px 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-secondary,
+.btn-primary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: #ddd;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #ccc;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 }
