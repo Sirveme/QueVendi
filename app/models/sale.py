@@ -1,7 +1,7 @@
 """
 Modelos Sale y SaleItem - Actualizados para Fase 1
 """
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Numeric
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Numeric, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -23,6 +23,7 @@ class Sale(Base):
     total = Column(Float, nullable=False)
     
     # Pago
+    payment_details = Column(JSON, nullable=True)
     payment_method = Column(String(20), nullable=False)  # 'efectivo', 'yape', 'plin', 'tarjeta'
     payment_reference = Column(String(50), nullable=True)  # Últimos 4 dígitos / código
     payment_status = Column(String(20), default='paid')  # 'paid', 'pending', 'cancelled'
@@ -48,6 +49,7 @@ class Sale(Base):
     user = relationship("User", back_populates="sales", foreign_keys=[user_id])
     items = relationship("SaleItem", back_populates="sale", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="sale")
+    credit = relationship("Credit", back_populates="sale", uselist=False)
 
 
 class SaleItem(Base):

@@ -8,6 +8,9 @@ from app.models.sale import Sale, SaleItem
 from app.models.subscription import SubscriptionPlan, Subscription
 from app.models.order import Order, OrderItem
 from app.models.invoice import Invoice
+from app.models.incidente import Incidente, ContactoEmergencia, RedBodegueros, Notificacion, PushSubscription
+from app.models.customer import Customer
+from app.models.credit import Credit, CreditPayment
 
 __all__ = [
     "Store",
@@ -19,5 +22,13 @@ __all__ = [
     "Subscription",
     "Order",
     "OrderItem",
-    "Invoice"
+    "Invoice",
+    "Incidente",
+    "ContactoEmergencia",
+    "RedBodegueros",
+    "Notificacion",
+    "PushSubscription",
+    "Customer",
+    "Credit",
+    "CreditPayment"
 ]
