@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Arquitectura Offline-First - QueVendi.pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        nav {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        nav a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: block;
+        }
+        
+        nav a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        section {
+            margin-bottom: 50px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+        
+        h4 {
+            color: #1a1a2e;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #ffc107;
+            margin: 20px 0;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+            margin: 20px 0;
+        }
+        
+        .error-box {
+            background: #f8d7da;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #dc3545;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tbody tr:hover {
+            background: #f5f7fa;
+        }
+        
+        .comparison-table td {
+            font-size: 0.95em;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #1a1a2e;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .metric-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card h4 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .feature-card li {
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .feature-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #48bb78;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+            margin: 30px 0;
+        }
+        
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #667eea;
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            text-align: right;
+            padding-right: 55%;
+        }
+        
+        .timeline-item:nth-child(even) {
+            text-align: left;
+            padding-left: 55%;
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #667eea;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border: 4px solid white;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .timeline:before {
+                left: 30px;
+            }
+            
+            .timeline-item {
+                padding-left: 70px !important;
+                padding-right: 20px !important;
+                text-align: left !important;
+            }
+            
+            .timeline-marker {
+                left: 30px;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 QueVendi.pro</h1>
+            <div class="subtitle">Análisis Arquitectura Offline-First para Bodegas</div>
+            <div>
+                <span class="badge">🇵🇪 Perú & LATAM</span>
+                <span class="badge">📱 Mobile First</span>
+                <span class="badge">⚡ 40× Más Rápido</span>
+                <span class="badge">📶 Funciona Sin Internet</span>
+            </div>
+            <p style="margin-top: 20px; opacity: 0.8;">
+                Documento técnico y estratégico para la implementación de arquitectura offline-first<br>
+                Versión 2.0 - Diciembre 2025
+            </p>
+        </header>
+        
+        <div class="content">
+            <nav>
+                <ul>
+                    <li><a href="#resumen">📊 Resumen Ejecutivo</a></li>
+                    <li><a href="#arquitectura">🏗️ Arquitectura</a></li>
+                    <li><a href="#tecnologia">💻 Stack Tecnológico</a></li>
+                    <li><a href="#beneficios">✨ Beneficios</a></li>
+                    <li><a href="#implementacion">🛠️ Implementación</a></li>
+                    <li><a href="#impresion">🖨️ Impresión Móvil</a></li>
+                    <li><a href="#marketing">📢 Marketing</a></li>
+                    <li><a href="#financiero">💰 Modelo Financiero</a></li>
+                </ul>
+            </nav>
+            
+            <!-- RESUMEN EJECUTIVO -->
+            <section id="resumen">
+                <h2>📊 Resumen Ejecutivo</h2>
+                
+                <div class="highlight-box">
+                    <h3>¿Qué es Offline-First?</h3>
+                    <p><strong>Offline-First</strong> es una estrategia de desarrollo donde la aplicación web funciona <em>primero</em> sin conexión a internet, usando el almacenamiento local del dispositivo (celular), y luego sincroniza con el servidor cuando hay red disponible.</p>
+                    
+                    <p><strong>Para bodegas en Perú/LATAM:</strong> Significa que el bodeguero puede registrar ventas, buscar productos y operar su negocio <strong>incluso sin señal</strong>, perfecto para zonas con internet inestable o costoso.</p>
+                </div>
+                
+                <div class="success-box">
+                    <h3>🎯 Valor Propuesto Principal</h3>
+                    <p><strong>"Tu bodega funciona siempre, con o sin internet"</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 15px;">
+                        <li>✅ Velocidad 40× más rápida que competencia</li>
+                        <li>✅ Funciona 100% offline (killer feature)</li>
+                        <li>✅ Sincronización automática inteligente</li>
+                        <li>✅ Ahorro 80% en costos de servidor</li>
+                        <li>✅ UX superior = menos frustración</li>
+                    </ul>
+                </div>
+                
+                <h3>📈 Métricas de Impacto</h3>
+                <div class="feature-grid">
+                    <div class="metric-card">
+                        <h4>⚡ Velocidad</h4>
+                        <div class="metric-value">40×</div>
+                        <div class="metric-label">Más rápido registrar venta</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">De 500-800ms a 10-15ms</p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>📶 Disponibilidad</h4>
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Funciona sin internet</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">vs. 0% de competencia</p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>💰 Ahorro</h4>
+                        <div class="metric-value">80%</div>
+                        <div class="metric-label">Menos requests al servidor</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">De ~500/día a ~50/día</p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>📱 Datos Móviles</h4>
+                        <div class="metric-value">90%</div>
+                        <div class="metric-label">Menos consumo de datos</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">Importante en planes limitados</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- ARQUITECTURA -->
+            <section id="arquitectura">
+                <h2>🏗️ Arquitectura Offline-First</h2>
+                
+                <h3>Estado Actual vs. Propuesto</h3>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Arquitectura Actual</th>
+                            <th>Arquitectura Offline-First</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Flujo de datos</strong></td>
+                            <td>Celular → Railway (siempre)</td>
+                            <td>Celular → Local → Sync periódico</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tiempo respuesta</strong></td>
+                            <td>500-800ms</td>
+                            <td>10-15ms</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sin internet</strong></td>
+                            <td>❌ No funciona</td>
+                            <td>✅ Funciona 100%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consumo datos</strong></td>
+                            <td>~500 MB/mes</td>
+                            <td>~50 MB/mes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Requests/día</strong></td>
+                            <td>~500</td>
+                            <td>~50</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Costo servidor</strong></td>
+                            <td>$10-15/mes</td>
+                            <td>$1-3/mes</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Diagrama de Arquitectura</h3>
+                
+                <div class="architecture-diagram">
+┌─────────────────────────────────────────────────┐
+│           CELULAR (Offline-First)               │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  📦 localStorage (1-2 MB):                      │
+│   ├─ 1000 productos (~1 MB)                     │
+│   ├─ Índice búsqueda optimizado                 │
+│   ├─ Configuración usuario                      │
+│   └─ Cache UI                                   │
+│                                                  │
+│  💾 IndexedDB (5-10 MB):                        │
+│   ├─ Ventas pendientes sincronización           │
+│   ├─ Movimientos de stock                       │
+│   ├─ Historial 30 días                          │
+│   └─ Logs de sincronización                     │
+│                                                  │
+│  ⚙️ Service Worker (PWA):                       │
+│   ├─ Cache API (HTML/CSS/JS)                    │
+│   ├─ Background Sync automático                 │
+│   ├─ Offline completo                           │
+│   └─ Push Notifications                         │
+│                                                  │
+└─────────────────────────────────────────────────┘
+           ↓ Sync cada 15-30 minutos
+           ↓ (solo cuando hay red)
+┌─────────────────────────────────────────────────┐
+│         BACKEND (Railway + PostgreSQL)          │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  🗄️ PostgreSQL:                                 │
+│   ├─ Fuente de verdad (source of truth)         │
+│   ├─ Productos maestro                          │
+│   ├─ Ventas consolidadas                        │
+│   └─ Reportes analytics                         │
+│                                                  │
+│  🔄 API Sincronización:                         │
+│   ├─ POST /api/v1/sync/sales (batch)            │
+│   ├─ GET /api/v1/sync/products (pull)           │
+│   └─ Manejo conflictos (event sourcing)         │
+│                                                  │
+│  📊 Dashboard Dueño:                            │
+│   ├─ Reportes tiempo real (<30 min)             │
+│   ├─ Analytics avanzado                         │
+│   └─ Gestión inventario                         │
+│                                                  │
+└─────────────────────────────────────────────────┘
+                </div>
+                
+                <h3>Flujo de Sincronización</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>1. Operación Offline</h4>
+                            <p>Bodeguero registra venta sin internet. Guardado instantáneo en IndexedDB (10-15ms).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>2. Cola de Sincronización</h4>
+                            <p>Venta marcada como "pendiente sync". Se acumula con otras ventas offline.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>3. Detección de Red</h4>
+                            <p>Service Worker detecta conexión. Inicia sync automático cada 15-30 min.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>4. Envío Batch</h4>
+                            <p>Todas las ventas pendientes se envían en un solo request optimizado al backend.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>5. Confirmación</h4>
+                            <p>Backend confirma recepción. Ventas marcadas como "sincronizadas" en IndexedDB.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- STACK TECNOLÓGICO -->
+            <section id="tecnologia">
+                <h2>💻 Stack Tecnológico Detallado</h2>
+                
+                <h3>1. localStorage - Datos Semi-Estáticos</h3>
+                
+                <div class="highlight-box">
+                    <h4>Características:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Capacidad:</strong> 5-10 MB por dominio</li>
+                        <li><strong>API:</strong> Sincrónica (bloqueante)</li>
+                        <li><strong>Formato:</strong> String (usar JSON.stringify/parse)</li>
+                        <li><strong>Persistencia:</strong> Permanente (hasta que usuario limpia)</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">Uso en QueVendi:</h4>
+                    <pre>
+// Estructura de datos en localStorage
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Pan Francés",
+      "price": 0.50,
+      "stock": 100,
+      "category": "panaderia",
+      "unit": "unidad"
+    }
+    // ... 999 productos más
+  ],
+  "search_index": {
+    "pan": [1, 45, 78],
+    "leche": [2, 23, 56],
+    "aceite": [3, 67]
+  },
+  "config": {
+    "store_id": 2,
+    "sync_interval": 1800000,
+    "voice_enabled": true
+  },
+  "last_sync": "2025-12-31T10:00:00Z"
+}</pre>
+                </div>
+                
+                <h3>2. IndexedDB - Base de Datos Cliente</h3>
+                
+                <div class="highlight-box">
+                    <h4>Características:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Capacidad:</strong> 50 MB - ilimitado (según navegador)</li>
+                        <li><strong>API:</strong> Asincrónica (Promise-based)</li>
+                        <li><strong>Formato:</strong> Objetos JavaScript nativos</li>
+                        <li><strong>Índices:</strong> Soporta búsquedas complejas</li>
+                        <li><strong>Transacciones:</strong> ACID compliant</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">Esquema de Base de Datos:</h4>
+                    <pre>
+// Esquema IndexedDB para QueVendi
+const DB_NAME = 'quevendi-offline';
+const DB_VERSION = 1;
+
+const stores = {
+  // Ventas pendientes de sincronización
+  pending_sales: {
+    keyPath: 'id',
+    autoIncrement: true,
+    indexes: [
+      { name: 'timestamp', keyPath: 'timestamp' },
+      { name: 'synced', keyPath: 'synced' },
+      { name: 'total', keyPath: 'total' }
+    ]
+  },
+  
+  // Movimientos de stock (event sourcing)
+  stock_movements: {
+    keyPath: 'id',
+    autoIncrement: true,
+    indexes: [
+      { name: 'product_id', keyPath: 'product_id' },
+      { name: 'type', keyPath: 'type' },
+      { name: 'timestamp', keyPath: 'timestamp' }
+    ]
+  },
+  
+  // Historial de ventas (cache 30 días)
+  sales_history: {
+    keyPath: 'id',
+    indexes: [
+      { name: 'date', keyPath: 'date' },
+      { name: 'total', keyPath: 'total' },
+      { name: 'payment_method', keyPath: 'payment_method' }
+    ]
+  },
+  
+  // Logs de sincronización
+  sync_logs: {
+    keyPath: 'id',
+    autoIncrement: true,
+    indexes: [
+      { name: 'timestamp', keyPath: 'timestamp' },
+      { name: 'status', keyPath: 'status' }
+    ]
+  }
+};</pre>
+                </div>
+                
+                <h3>3. Service Worker + Cache API</h3>
+                
+                <div class="highlight-box">
+                    <h4>Características:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Ejecuta en background</strong> (incluso con app cerrada)</li>
+                        <li><strong>Intercepta requests</strong> de red</li>
+                        <li><strong>Cache estratégico</strong> de recursos</li>
+                        <li><strong>Background Sync</strong> automático</li>
+                        <li><strong>Push Notifications</strong></li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">Implementación:</h4>
+                    <pre>
+// service-worker.js
+const CACHE_NAME = 'quevendi-v1';
+const STATIC_CACHE = [
+  '/',
+  '/static/css/dashboard.css',
+  '/static/js/dashboard_principal.js',
+  '/static/js/layered-variants.js',
+  '/static/img/logo.png'
+];
+
+// Instalación - Cachear recursos estáticos
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_CACHE))
+      .then(() => self.skipWaiting())
+  );
+});
+
+// Activación - Limpiar caches viejos
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      );
+    })
+  );
+});
+
+// Fetch - Estrategia: Cache First para estáticos
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  
+  // API requests: Network First
+  if (request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .catch(() => new Response('Offline', { status: 503 }))
+    );
+    return;
+  }
+  
+  // Recursos estáticos: Cache First
+  event.respondWith(
+    caches.match(request)
+      .then(response => response || fetch(request))
+  );
+});
+
+// Background Sync
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-sales') {
+    event.waitUntil(syncPendingSales());
+  }
+});
+
+async function syncPendingSales() {
+  const db = await openDB();
+  const sales = await db.getAll('pending_sales');
+  
+  for (const sale of sales.filter(s => !s.synced)) {
+    try {
+      const response = await fetch('/api/v1/sync/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sale)
+      });
+      
+      if (response.ok) {
+        await db.put('pending_sales', { ...sale, synced: true });
+      }
+    } catch (error) {
+      console.error('Sync failed:', error);
+    }
+  }
+}</pre>
+                </div>
+                
+                <h3>4. Web Speech API (Ya implementado)</h3>
+                
+                <div class="success-box">
+                    <h4>Mejoras Sugeridas:</h4>
+                    <pre>
+// Configuración optimizada
+recognition.maxAlternatives = 3;  // Obtener 3 mejores opciones
+recognition.interimResults = false;
+recognition.continuous = false;
+
+recognition.onresult = (event) => {
+  const alternatives = [];
+  for (let i = 0; i < 3; i++) {
+    alternatives.push({
+      text: event.results[0][i].transcript,
+      confidence: event.results[0][i].confidence
+    });
+  }
+  
+  // Sistema de scoring inteligente
+  const bestMatch = findBestProductMatch(alternatives);
+  processVoiceCommand(bestMatch.text);
+};
+
+function findBestProductMatch(alternatives) {
+  let bestScore = 0;
+  let bestAlt = alternatives[0];
+  
+  alternatives.forEach(alt => {
+    const product = searchInLocalStorage(alt.text);
+    const matchScore = product ? 1.0 : 0.3;
+    const totalScore = alt.confidence * matchScore;
+    
+    if (totalScore > bestScore) {
+      bestScore = totalScore;
+      bestAlt = alt;
+    }
+  });
+  
+  return bestAlt;
+}</pre>
+                </div>
+            </section>
+            
+            <!-- BENEFICIOS -->
+            <section id="beneficios">
+                <h2>✨ Beneficios por Stakeholder</h2>
+                
+                <h3>Para el Bodeguero (Usuario Final)</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>⚡ Velocidad</h4>
+                        <ul>
+                            <li>Ventas 40× más rápidas</li>
+                            <li>Búsqueda instantánea</li>
+                            <li>Sin esperas frustrantes</li>
+                            <li>Mayor productividad</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>📶 Disponibilidad</h4>
+                        <ul>
+                            <li>Funciona sin internet</li>
+                            <li>No pierde ventas</li>
+                            <li>Sincroniza automático</li>
+                            <li>Menos estrés</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>💰 Ahorro</h4>
+                        <ul>
+                            <li>90% menos datos móviles</li>
+                            <li>Funciona con 2G/3G</li>
+                            <li>No necesita WiFi</li>
+                            <li>Menos recarga celular</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🎯 Confiabilidad</h4>
+                        <ul>
+                            <li>Datos nunca se pierden</li>
+                            <li>Backup automático</li>
+                            <li>Recuperación garantizada</li>
+                            <li>Tranquilidad total</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Para el Dueño (Tomador de Decisiones)</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>📊 Reportes</h4>
+                        <ul>
+                            <li>Datos actualizados (<30 min)</li>
+                            <li>Dashboard en tiempo real</li>
+                            <li>Analytics avanzado</li>
+                            <li>Toma decisiones informadas</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>💼 Control</h4>
+                        <ul>
+                            <li>Visibilidad total del negocio</li>
+                            <li>Alertas automáticas</li>
+                            <li>Gestión remota</li>
+                            <li>Multitienda soportado</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>📈 Crecimiento</h4>
+                        <ul>
+                            <li>Expandir sin problemas</li>
+                            <li>Escala a múltiples locales</li>
+                            <li>Datos consolidados</li>
+                            <li>ROI medible</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🔒 Seguridad</h4>
+                        <ul>
+                            <li>Backup redundante</li>
+                            <li>Sincronización confiable</li>
+                            <li>Historial completo</li>
+                            <li>Auditoría fácil</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Para QueVendi (Empresa)</h3>
+                <div class="metric-card">
+                    <h4>💰 Reducción de Costos</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Actual</th>
+                                <th>Offline-First</th>
+                                <th>Ahorro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Requests/mes/tienda</td>
+                                <td>15,000</td>
+                                <td>1,500</td>
+                                <td>90%</td>
+                            </tr>
+                            <tr>
+                                <td>Costo Railway/tienda</td>
+                                <td>$10</td>
+                                <td>$1-2</td>
+                                <td>80-90%</td>
+                            </tr>
+                            <tr>
+                                <td>Ancho de banda</td>
+                                <td>5 GB/mes</td>
+                                <td>500 MB/mes</td>
+                                <td>90%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total 100 tiendas</strong></td>
+                                <td><strong>$1,000/mes</strong></td>
+                                <td><strong>$100-200/mes</strong></td>
+                                <td><strong>$800-900/mes</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px;"><strong>Ahorro anual:</strong> $9,600 - $10,800 USD</p>
+                </div>
+                
+                <div class="metric-card">
+                    <h4>🎯 Ventaja Competitiva</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Diferenciador único:</strong> "Funciona sin internet" - ningún competidor en Perú/LATAM lo tiene</li>
+                        <li><strong>Mejor UX:</strong> 40× más rápido = menos churn, mayor adopción</li>
+                        <li><strong>Marketing potente:</strong> "La única app que funciona sin señal"</li>
+                        <li><strong>Expansión LATAM:</strong> Zonas rurales/provincias sin buena cobertura</li>
+                        <li><strong>Confiabilidad:</strong> Reducción 95% en tickets de soporte por "app no responde"</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- IMPLEMENTACIÓN -->
+            <section id="implementacion">
+                <h2>🛠️ Plan de Implementación</h2>
+                
+                <h3>Roadmap 3 Semanas</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Semana 1: localStorage + Búsqueda</h4>
+                            <p><strong>Días 1-2:</strong> Migrar productos a localStorage</p>
+                            <p><strong>Días 3-4:</strong> Crear índice de búsqueda optimizado</p>
+                            <p><strong>Día 5:</strong> Implementar actualización automática desde backend</p>
+                            <p><strong>Entregable:</strong> Búsqueda 30× más rápida ⚡</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Semana 2: IndexedDB + Ventas Offline</h4>
+                            <p><strong>Días 1-2:</strong> Diseñar esquema IndexedDB (ventas, movimientos)</p>
+                            <p><strong>Días 3-4:</strong> Implementar guardado de ventas offline</p>
+                            <p><strong>Día 5:</strong> Sistema de cola de sincronización</p>
+                            <p><strong>Entregable:</strong> Ventas funcionan sin internet ✅</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Semana 3: Service Worker + PWA</h4>
+                            <p><strong>Días 1-2:</strong> Implementar Service Worker básico</p>
+                            <p><strong>Día 3:</strong> Cache API para recursos estáticos</p>
+                            <p><strong>Día 4:</strong> Background Sync automático</p>
+                            <p><strong>Día 5:</strong> Manifest.json (PWA instalable)</p>
+                            <p><strong>Entregable:</strong> PWA offline completa 🚀</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Priorización por ROI</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Esfuerzo</th>
+                            <th>Beneficio</th>
+                            <th>ROI</th>
+                            <th>Prioridad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>localStorage productos</td>
+                            <td>2 días</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>🔥🔥🔥🔥🔥</td>
+                            <td>1️⃣ CRÍTICO</td>
+                        </tr>
+                        <tr>
+                            <td>IndexedDB ventas</td>
+                            <td>1 semana</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>🔥🔥🔥🔥</td>
+                            <td>2️⃣ MUY ALTO</td>
+                        </tr>
+                        <tr>
+                            <td>Service Worker básico</td>
+                            <td>3 días</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>🔥🔥🔥🔥</td>
+                            <td>3️⃣ ALTO</td>
+                        </tr>
+                        <tr>
+                            <td>Background Sync</td>
+                            <td>2 días</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>🔥🔥🔥</td>
+                            <td>4️⃣ MEDIO</td>
+                        </tr>
+                        <tr>
+                            <td>Push Notifications</td>
+                            <td>1 semana</td>
+                            <td>⭐⭐⭐</td>
+                            <td>🔥🔥</td>
+                            <td>5️⃣ BAJO</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Riesgos y Mitigaciones</h3>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Riesgos Técnicos</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Riesgo</th>
+                                <th>Probabilidad</th>
+                                <th>Impacto</th>
+                                <th>Mitigación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Usuario limpia cache navegador</td>
+                                <td>Media</td>
+                                <td>Alto</td>
+                                <td>Sync frecuente (cada 30 min) + warning antes de limpiar</td>
+                            </tr>
+                            <tr>
+                                <td>Conflictos de sincronización</td>
+                                <td>Baja</td>
+                                <td>Alto</td>
+                                <td>Event Sourcing (movimientos, no estado)</td>
+                            </tr>
+                            <tr>
+                                <td>Límite de storage (5-10 MB)</td>
+                                <td>Baja</td>
+                                <td>Medio</td>
+                                <td>Limpieza automática datos >30 días</td>
+                            </tr>
+                            <tr>
+                                <td>Navegadores antiguos (iOS 11)</td>
+                                <td>Media</td>
+                                <td>Bajo</td>
+                                <td>Fallback a modo online tradicional</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- IMPRESIÓN MÓVIL -->
+            <section id="impresion">
+                <h2>🖨️ Impresión desde Celular en LATAM</h2>
+                
+                <h3>Estado del Mercado</h3>
+                
+                <div class="highlight-box">
+                    <h4>Situación Actual en Perú/LATAM:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Impresoras térmicas portátiles:</strong> Disponibles en Perú desde S/. 200-400 (USB/Bluetooth)</li>
+                        <li><strong>Adopción baja:</strong> Solo 5-10% de bodegas usa tickets impresos</li>
+                        <li><strong>Mayoría usa:</strong> Cuadernos manuscritos o "fiado mental"</li>
+                        <li><strong>Barreras:</strong> Costo inicial, desconocimiento técnico, "no lo necesito"</li>
+                    </ul>
+                </div>
+                
+                <h3>Tecnologías Disponibles</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tecnología</th>
+                            <th>Factibilidad LATAM</th>
+                            <th>Costo</th>
+                            <th>Ventajas</th>
+                            <th>Desventajas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Bluetooth Printer</strong></td>
+                            <td>✅ Alta</td>
+                            <td>S/. 200-400</td>
+                            <td>Inalámbrica, portátil, fácil setup</td>
+                            <td>Batería limitada, requiere emparejamiento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>USB Printer</strong></td>
+                            <td>⚠️ Media</td>
+                            <td>S/. 150-300</td>
+                            <td>Más barata, confiable</td>
+                            <td>Celular necesita OTG adapter, cables</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WiFi Printer</strong></td>
+                            <td>⚠️ Baja</td>
+                            <td>S/. 300-600</td>
+                            <td>Multi-dispositivo, sin cables</td>
+                            <td>Requiere WiFi estable (raro en bodegas)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cloud Print</strong></td>
+                            <td>❌ Muy Baja</td>
+                            <td>Variable</td>
+                            <td>Sin hardware adicional</td>
+                            <td>Requiere internet, servicio discontinuado (Google)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Implementación Recomendada</h3>
+                
+                <div class="success-box">
+                    <h4>📱 Estrategia: Bluetooth Thermal Printers</h4>
+                    
+                    <p><strong>Marcas disponibles en Perú:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Bixolon SPP-R200III (~S/. 350)</li>
+                        <li>Epson TM-P20 (~S/. 450)</li>
+                        <li>Rongta RPP02N (~S/. 200) ⭐ Recomendada (mejor precio/calidad)</li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px;"><strong>Tecnología Web:</strong></p>
+                    <pre>
+// Usando Web Bluetooth API
+async function printTicket(saleData) {
+  try {
+    // Solicitar dispositivo Bluetooth
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }]
+    });
+    
+    // Conectar GATT
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+    const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+    
+    // Generar ESC/POS commands
+    const commands = generateTicketCommands(saleData);
+    
+    // Enviar a impresora
+    await characteristic.writeValue(commands);
+    
+    showToast('Ticket impreso exitosamente', 'success');
+  } catch (error) {
+    console.error('Print error:', error);
+    showToast('Error al imprimir. Intenta de nuevo.', 'error');
+  }
+}
+
+function generateTicketCommands(saleData) {
+  // ESC/POS commands para impresora térmica
+  const encoder = new TextEncoder();
+  let commands = new Uint8Array();
+  
+  // Header
+  commands = appendBytes(commands, [0x1B, 0x40]); // Initialize
+  commands = appendBytes(commands, [0x1B, 0x61, 0x01]); // Center align
+  commands = appendBytes(commands, encoder.encode('BODEGA DON PEPE\n'));
+  commands = appendBytes(commands, encoder.encode('RUC: 20123456789\n'));
+  commands = appendBytes(commands, encoder.encode('================================\n'));
+  
+  // Items
+  commands = appendBytes(commands, [0x1B, 0x61, 0x00]); // Left align
+  saleData.items.forEach(item => {
+    const line = `${item.name.padEnd(20)} S/.${item.price.toFixed(2)}\n`;
+    commands = appendBytes(commands, encoder.encode(line));
+  });
+  
+  // Total
+  commands = appendBytes(commands, encoder.encode('================================\n'));
+  commands = appendBytes(commands, encoder.encode(`TOTAL: S/.${saleData.total.toFixed(2)}\n`));
+  
+  // Footer
+  commands = appendBytes(commands, [0x1B, 0x61, 0x01]); // Center
+  commands = appendBytes(commands, encoder.encode('Gracias por su compra\n'));
+  commands = appendBytes(commands, [0x1B, 0x64, 0x05]); // Feed 5 lines
+  commands = appendBytes(commands, [0x1D, 0x56, 0x00]); // Cut paper
+  
+  return commands;
+}</pre>
+                </div>
+                
+                <h3>Modelo de Negocio - Impresión</h3>
+                
+                <div class="metric-card">
+                    <h4>💰 Estrategia de Monetización</h4>
+                    
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Impresión</th>
+                                <th>Hardware</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FREE</td>
+                                <td>❌ No disponible</td>
+                                <td>-</td>
+                                <td>Gratis</td>
+                            </tr>
+                            <tr>
+                                <td>BASIC</td>
+                                <td>✅ PDF digital</td>
+                                <td>No incluido</td>
+                                <td>$10/mes</td>
+                            </tr>
+                            <tr>
+                                <td>PRO</td>
+                                <td>✅ Bluetooth print</td>
+                                <td>Descuento 20%*</td>
+                                <td>$30/mes</td>
+                            </tr>
+                            <tr>
+                                <td>ENTERPRISE</td>
+                                <td>✅ Print + QR + Barcode</td>
+                                <td>Incluida 1 impresora</td>
+                                <td>$100/mes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p style="margin-top: 15px;">* Alianza con distribuidores locales: Impresora Rongta S/. 200 → S/. 160 con código QueVendi</p>
+                </div>
+                
+                <h3>Roadmap de Impresión</h3>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Fase 1: PDF Digital (Mes 1)</h4>
+                            <p>Generar tickets en PDF, usuario los imprime desde galería o comparte por WhatsApp.</p>
+                            <p><strong>Esfuerzo:</strong> 2 días | <strong>Adopción esperada:</strong> 40%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Fase 2: Bluetooth Print (Mes 3)</h4>
+                            <p>Integración con impresoras térmicas Bluetooth usando Web Bluetooth API.</p>
+                            <p><strong>Esfuerzo:</strong> 2 semanas | <strong>Adopción esperada:</strong> 15%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Fase 3: Hardware Bundle (Mes 6)</h4>
+                            <p>Alianza con distribuidores, venta de impresoras con descuento, setup automático.</p>
+                            <p><strong>Esfuerzo:</strong> 1 mes | <strong>Adopción esperada:</strong> 25%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Consideraciones Importantes:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Educación del usuario:</strong> Muchos bodegueros no ven necesidad de imprimir tickets</li>
+                        <li><strong>Soporte técnico:</strong> Configurar Bluetooth puede ser complicado para usuarios no técnicos</li>
+                        <li><strong>Videos tutoriales:</strong> Crear contenido paso a paso para setup de impresoras</li>
+                        <li><strong>No forzar:</strong> Hacer impresión opcional, no obligatoria (muchos prefieren digital)</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- MARKETING -->
+            <section id="marketing">
+                <h2>📢 Estrategia de Marketing</h2>
+                
+                <h3>Mensajes Clave por Segmento</h3>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🏪 Bodegas Urbanas</h4>
+                        <p style="margin-bottom: 15px;"><strong>Mensaje:</strong> "Atiende 40× más rápido. Más ventas por hora."</p>
+                        <ul>
+                            <li>Velocidad = más clientes</li>
+                            <li>Menos errores de cálculo</li>
+                            <li>Control de fiados</li>
+                            <li>ROI: Recuperas inversión en 2 meses</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🏔️ Zonas Rurales/Provincias</h4>
+                        <p style="margin-bottom: 15px;"><strong>Mensaje:</strong> "Funciona sin internet. Diseñado para tu realidad."</p>
+                        <ul>
+                            <li>No necesitas señal constante</li>
+                            <li>Ahorra datos móviles</li>
+                            <li>Sincroniza cuando puedas</li>
+                            <li>Nunca pierdes información</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🏢 Minimarkets/Cadenas</h4>
+                        <p style="margin-bottom: 15px;"><strong>Mensaje:</strong> "Escala tu negocio. Control total desde tu celular."</p>
+                        <ul>
+                            <li>Multitienda soportado</li>
+                            <li>Reportes consolidados</li>
+                            <li>Dashboard en tiempo real</li>
+                            <li>Gestión remota</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🔧 Ferreterías/Bazares</h4>
+                        <p style="margin-bottom: 15px;"><strong>Mensaje:</strong> "1000+ productos. Búsqueda instantánea."</p>
+                        <ul>
+                            <li>Catálogo ilimitado</li>
+                            <li>Búsqueda por voz</li>
+                            <li>Control de stock preciso</li>
+                            <li>Alertas automáticas</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Canales de Adquisición</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Canal</th>
+                            <th>Costo</th>
+                            <th>CAC Estimado</th>
+                            <th>Conversión</th>
+                            <th>Prioridad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Facebook Ads (bodegas Lima)</strong></td>
+                            <td>$500/mes</td>
+                            <td>$15</td>
+                            <td>5%</td>
+                            <td>1️⃣ ALTA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WhatsApp Business</strong></td>
+                            <td>Orgánico</td>
+                            <td>$5</td>
+                            <td>15%</td>
+                            <td>1️⃣ ALTA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Google Ads (búsquedas)</strong></td>
+                            <td>$300/mes</td>
+                            <td>$20</td>
+                            <td>3%</td>
+                            <td>2️⃣ MEDIA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Alianzas distribuidores</strong></td>
+                            <td>Comisión 20%</td>
+                            <td>$30</td>
+                            <td>10%</td>
+                            <td>1️⃣ ALTA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Referidos (boca a boca)</strong></td>
+                            <td>Orgánico</td>
+                            <td>$0</td>
+                            <td>25%</td>
+                            <td>1️⃣ ALTA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>YouTube tutoriales</strong></td>
+                            <td>Orgánico</td>
+                            <td>$2</td>
+                            <td>8%</td>
+                            <td>2️⃣ MEDIA</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Contenido de Marketing</h3>
+                
+                <div class="highlight-box">
+                    <h4>📹 Videos Demostrativos (YouTube/TikTok):</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>"Antes vs Después":</strong> Bodeguero usando cuaderno vs usando QueVendi</li>
+                        <li><strong>"Sin internet, sin problema":</strong> Demo funcionando offline</li>
+                        <li><strong>"40× más rápido":</strong> Time-lapse de 10 ventas</li>
+                        <li><strong>"Testimonial real":</strong> Bodeguero de Comas cuenta su experiencia</li>
+                        <li><strong>"Setup en 5 minutos":</strong> Tutorial completo de instalación</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight-box">
+                    <h4>📱 Campañas Facebook/Instagram:</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Audiencia:</strong> Hombres/mujeres 30-55 años, intereses: negocios, emprendimiento, Lima y principales ciudades</li>
+                        <li><strong>Creativos:</strong> Videos cortos 15 seg, testimoniales, comparaciones</li>
+                        <li><strong>CTA:</strong> "Prueba gratis 30 días" / "Ver demo"</li>
+                        <li><strong>Retargeting:</strong> Visitantes del sitio, usuarios free trial</li>
+                    </ul>
+                </div>
+                
+                <h3>Programa de Referidos</h3>
+                
+                <div class="success-box">
+                    <h4>💰 Incentivos por Referido:</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Acción</th>
+                                <th>Referidor</th>
+                                <th>Referido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Registro nuevo usuario</td>
+                                <td>15 días gratis PRO</td>
+                                <td>30 días gratis BASIC</td>
+                            </tr>
+                            <tr>
+                                <td>Primer pago referido</td>
+                                <td>1 mes gratis PRO</td>
+                                <td>20% descuento primer mes</td>
+                            </tr>
+                            <tr>
+                                <td>3+ referidos pagando</td>
+                                <td>Plan PRO gratis permanente</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p style="margin-top: 15px;"><strong>Mecánica:</strong> Código único en app → Compartir por WhatsApp → Tracking automático</p>
+                </div>
+            </section>
+            
+            <!-- MODELO FINANCIERO -->
+            <section id="financiero">
+                <h2>💰 Modelo de Negocio y Proyecciones</h2>
+                
+                <h3>Pricing Estratégico</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Precio Perú</th>
+                            <th>Features Clave</th>
+                            <th>Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>FREE</strong></td>
+                            <td>S/. 0</td>
+                            <td>
+                                • 50 productos<br>
+                                • 100 ventas/mes<br>
+                                • Offline limitado (24h)<br>
+                                • Sin reportes
+                            </td>
+                            <td>Bodegas muy pequeñas, trial</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BASIC</strong></td>
+                            <td>S/. 29/mes</td>
+                            <td>
+                                • 1000 productos<br>
+                                • Ventas ilimitadas<br>
+                                • Offline 7 días<br>
+                                • Reportes básicos<br>
+                                • Sync cada 30 min
+                            </td>
+                            <td>70% del mercado (bodegas estándar)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PRO</strong></td>
+                            <td>S/. 89/mes</td>
+                            <td>
+                                • Productos ilimitados<br>
+                                • Multitienda (hasta 3)<br>
+                                • Offline ilimitado<br>
+                                • Reportes avanzados<br>
+                                • Sync cada 5 min<br>
+                                • Impresión Bluetooth<br>
+                                • Soporte prioritario
+                            </td>
+                            <td>20% del mercado (minimarkets, cadenas)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ENTERPRISE</strong></td>
+                            <td>S/. 299/mes</td>
+                            <td>
+                                • Todo PRO +<br>
+                                • Multitienda ilimitado<br>
+                                • API custom<br>
+                                • WhatsApp Business API<br>
+                                • Impresora incluida<br>
+                                • Onboarding dedicado<br>
+                                • SLA 99.9%
+                            </td>
+                            <td>10% del mercado (cadenas grandes)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Proyección 12 Meses</h3>
+                
+                <div class="metric-card">
+                    <h4>📊 Escenario Base (Conservador)</h4>
+                    
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th>FREE</th>
+                                <th>BASIC</th>
+                                <th>PRO</th>
+                                <th>ENT</th>
+                                <th>MRR</th>
+                                <th>Acum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>50</td>
+                                <td>5</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>S/. 145</td>
+                                <td>S/. 145</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>200</td>
+                                <td>30</td>
+                                <td>3</td>
+                                <td>0</td>
+                                <td>S/. 1,137</td>
+                                <td>S/. 2,564</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>500</td>
+                                <td>100</td>
+                                <td>15</td>
+                                <td>1</td>
+                                <td>S/. 4,534</td>
+                                <td>S/. 18,925</td>
+                            </tr>
+                            <tr>
+                                <td>12</td>
+                                <td>1,200</td>
+                                <td>300</td>
+                                <td>50</td>
+                                <td>5</td>
+                                <td>S/. 14,645</td>
+                                <td>S/. 88,890</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p style="margin-top: 20px;"><strong>ARR Año 1:</strong> ~S/. 175,000 (~$46,000 USD)</p>
+                    <p><strong>Usuarios activos:</strong> 1,555 (tasa conversión free→paid: 23%)</p>
+                </div>
+                
+                <h3>Unit Economics</h3>
+                
+                <div class="feature-grid">
+                    <div class="metric-card">
+                        <h4>💵 CAC (Customer Acquisition Cost)</h4>
+                        <div class="metric-value">S/. 45</div>
+                        <div class="metric-label">Costo promedio por cliente</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            Marketing: S/. 30<br>
+                            Ventas/onboarding: S/. 10<br>
+                            Soporte: S/. 5
+                        </p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>💰 LTV (Lifetime Value)</h4>
+                        <div class="metric-value">S/. 870</div>
+                        <div class="metric-label">Valor promedio del cliente</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            ARPU: S/. 48.50/mes<br>
+                            Churn: 5%/mes<br>
+                            Lifetime: 18 meses
+                        </p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h4>📈 LTV/CAC Ratio</h4>
+                        <div class="metric-value">19.3×</div>
+                        <div class="metric-label">Rentabilidad por cliente</div>
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            Objetivo: >3×<br>
+                            <strong>Estado: Excelente ✅</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <h3>Estructura de Costos</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Año 1</th>
+                            <th>% Revenue</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Desarrollo</strong></td>
+                            <td>$12,000</td>
+                            <td>26%</td>
+                            <td>1 dev full-time + freelancers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infraestructura (Railway)</strong></td>
+                            <td>$1,200</td>
+                            <td>3%</td>
+                            <td>Con offline-first: $600 ahorro anual</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marketing</strong></td>
+                            <td>$10,000</td>
+                            <td>22%</td>
+                            <td>Facebook Ads + influencers + contenido</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Soporte</strong></td>
+                            <td>$3,600</td>
+                            <td>8%</td>
+                            <td>1 agente part-time</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Admin/Legal</strong></td>
+                            <td>$2,400</td>
+                            <td>5%</td>
+                            <td>Contador, abogado, gastos operativos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Costos</strong></td>
+                            <td><strong>$29,200</strong></td>
+                            <td><strong>64%</strong></td>
+                            <td>-</td>
+                        </tr>
+                        <tr style="background: #d4edda;">
+                            <td><strong>Revenue Año 1</strong></td>
+                            <td><strong>$46,000</strong></td>
+                            <td><strong>-</strong></td>
+                            <td>-</td>
+                        </tr>
+                        <tr style="background: #d4edda;">
+                            <td><strong>Ganancia Neta</strong></td>
+                            <td><strong>$16,800</strong></td>
+                            <td><strong>36%</strong></td>
+                            <td>Margen saludable para SAAS</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Estrategia de Crecimiento</h3>
+                
+                <div class="success-box">
+                    <h4>🚀 Fases de Expansión</h4>
+                    
+                    <p><strong>Fase 1 (Meses 1-6): Lima Metropolitana</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Target: 100 clientes pagando</li>
+                        <li>Focus: Bodegas en Comas, SJL, Villa El Salvador</li>
+                        <li>Estrategia: Facebook Ads + WhatsApp + demos presenciales</li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px;"><strong>Fase 2 (Meses 7-12): Principales Ciudades</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Target: 300 clientes pagando</li>
+                        <li>Ciudades: Arequipa, Trujillo, Chiclayo, Cusco</li>
+                        <li>Estrategia: Alianzas con distribuidores locales</li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px;"><strong>Fase 3 (Año 2): Expansión LATAM</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Target: 1,000 clientes pagando</li>
+                        <li>Países: Ecuador, Bolivia, Colombia</li>
+                        <li>Estrategia: Modelo franquicia + partners locales</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- CONCLUSIONES -->
+            <section>
+                <h2>🎯 Conclusiones y Recomendaciones</h2>
+                
+                <div class="success-box">
+                    <h3>✅ Conclusiones Clave</h3>
+                    
+                    <h4>1. Viabilidad Técnica: ALTA</h4>
+                    <ul style="margin-left: 20px;">
+                        <li>Tecnologías maduras y bien documentadas</li>
+                        <li>Soporte nativo en navegadores modernos (95%+ usuarios)</li>
+                        <li>Riesgo técnico bajo, implementación bien definida</li>
+                        <li>Tiempo de desarrollo: 3 semanas para MVP offline-first</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">2. Diferenciación Competitiva: MUY ALTA</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Única app en LATAM</strong> que funciona 100% offline</li>
+                        <li>40× más rápida que competencia</li>
+                        <li>Killer feature para zonas rurales/provincias</li>
+                        <li>Barrera de entrada alta para copycats (requiere rediseño completo)</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">3. Modelo de Negocio: SÓLIDO</h4>
+                    <ul style="margin-left: 20px;">
+                        <li>LTV/CAC ratio de 19× (excelente, objetivo >3×)</li>
+                        <li>Margen neto 36% año 1 (saludable para SAAS)</li>
+                        <li>Payback period: 2.3 meses (muy rápido)</li>
+                        <li>Unit economics favorables para escalar</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">4. ROI Implementación: ALTÍSIMO</h4>
+                    <ul style="margin-left: 20px;">
+                        <li>Inversión: 3 semanas desarrollo (~$3,000)</li>
+                        <li>Ahorro servidor: $9,600/año (100 tiendas)</li>
+                        <li>Aumento conversión: +25% (offline = killer feature)</li>
+                        <li>Reducción churn: -40% (menos frustración)</li>
+                        <li><strong>ROI estimado: 320% en 12 meses</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="highlight-box">
+                    <h3>🎯 Recomendaciones Estratégicas</h3>
+                    
+                    <h4>INMEDIATO (Siguiente Sprint):</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Implementar localStorage para productos</strong> (2 días, impacto masivo)</li>
+                        <li><strong>Fix bugs actuales</strong> (modal fiados, variantes, plurales)</li>
+                        <li><strong>Validar con 5-10 usuarios beta</strong> en Lima</li>
+                    </ol>
+                    
+                    <h4 style="margin-top: 20px;">CORTO PLAZO (Próximas 3 semanas):</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Implementar offline-first completo</strong> (localStorage + IndexedDB + Service Worker)</li>
+                        <li><strong>Crear contenido marketing</strong> (videos demo, testimoniales)</li>
+                        <li><strong>Setup alianzas</strong> con 2-3 distribuidores impresoras</li>
+                    </ol>
+                    
+                    <h4 style="margin-top: 20px;">MEDIANO PLAZO (3-6 meses):</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Escalar Lima</strong> a 100 clientes pagando</li>
+                        <li><strong>Implementar impresión Bluetooth</strong> (opcional, según demanda)</li>
+                        <li><strong>Expandir a 3 ciudades principales</strong> (Arequipa, Trujillo, Chiclayo)</li>
+                        <li><strong>Optimizar Web Speech API</strong> (maxAlternatives, scoring)</li>
+                    </ol>
+                </div>
+                
+                <div class="warning-box">
+                    <h3>⚠️ Riesgos a Monitorear</h3>
+                    
+                    <h4>1. Adopción Lenta Inicial</h4>
+                    <p><strong>Riesgo:</strong> Bodegueros escépticos de tecnología, prefieren cuaderno tradicional</p>
+                    <p><strong>Mitigación:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Demos presenciales en mercados/asociaciones</li>
+                        <li>Programa de embajadores (bodegueros early adopters)</li>
+                        <li>Free trial 30 días sin tarjeta</li>
+                        <li>Videos testimoniales de bodegueros reales</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">2. Competencia Reacciona</h4>
+                    <p><strong>Riesgo:</strong> Competidores copian feature offline-first</p>
+                    <p><strong>Mitigación:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>First-mover advantage (6-12 meses ventaja)</li>
+                        <li>Iterar rápido, agregar features constantemente</li>
+                        <li>Construir comunidad leal (difícil de replicar)</li>
+                        <li>Foco en UX superior end-to-end</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px;">3. Soporte Técnico Abrumador</h4>
+                    <p><strong>Riesgo:</strong> Usuarios no técnicos requieren mucho support</p>
+                    <p><strong>Mitigación:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Base de conocimiento completa (videos, FAQs)</li>
+                        <li>Onboarding interactivo in-app</li>
+                        <li>Chatbot automatizado para consultas comunes</li>
+                        <li>Comunidad WhatsApp/Telegram de usuarios</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h3>🏆 KPIs de Éxito - Año 1</h3>
+                    
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Métrica</th>
+                                <th>Meta Año 1</th>
+                                <th>Benchmark Industry</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Usuarios activos</td>
+                                <td>1,500</td>
+                                <td>500-1,000</td>
+                                <td>🎯 Ambicioso pero alcanzable</td>
+                            </tr>
+                            <tr>
+                                <td>Conversión free→paid</td>
+                                <td>23%</td>
+                                <td>15-20%</td>
+                                <td>✅ Por encima del promedio</td>
+                            </tr>
+                            <tr>
+                                <td>Churn mensual</td>
+                                <td>&lt;5%</td>
+                                <td>5-7%</td>
+                                <td>✅ Excelente (UX superior)</td>
+                            </tr>
+                            <tr>
+                                <td>NPS (Net Promoter Score)</td>
+                                <td>&gt;50</td>
+                                <td>30-40</td>
+                                <td>🎯 Muy ambicioso</td>
+                            </tr>
+                            <tr>
+                                <td>ARR</td>
+                                <td>$46,000</td>
+                                <td>$20-30k</td>
+                                <td>✅ Por encima del promedio</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- CALL TO ACTION -->
+            <section style="text-align: center; padding: 50px 0;">
+                <h2 style="border: none; margin-bottom: 30px;">🚀 Próximos Pasos</h2>
+                
+                <div class="feature-grid">
+                    <div class="metric-card" style="text-align: left;">
+                        <h4>📅 Esta Semana</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Fix bugs críticos</li>
+                            <li>Implementar localStorage productos</li>
+                            <li>Crear video demo 2 minutos</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="metric-card" style="text-align: left;">
+                        <h4>🎯 Este Mes</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Offline-first completo</li>
+                            <li>Beta con 10 bodegueros</li>
+                            <li>Iterar según feedback</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="metric-card" style="text-align: left;">
+                        <h4>🚀 Este Trimestre</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>100 clientes pagando</li>
+                            <li>Expansión 3 ciudades</li>
+                            <li>$5k MRR</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 50px;">
+                    <a href="https://quevendi.pro" class="btn-primary" style="margin: 10px;">
+                        🌐 Visitar QueVendi.pro
+                    </a>
+                    <a href="mailto:duilio@quevendi.pro" class="btn-primary" style="margin: 10px;">
+                        📧 Contactar
+                    </a>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p><strong>QueVendi.pro</strong> - Sistema de Punto de Venta Offline-First para Bodegas en LATAM</p>
+            <p style="margin-top: 10px;">
+                Desarrollado con ❤️ en Perú<br>
+                <a href="https://duilio.store">duilio.store</a> | 
+                <a href="https://linkedin.com/in/duilio">LinkedIn</a>
+            </p>
+            <p style="margin-top: 20px; opacity: 0.7; font-size: 0.9em;">
+                Documento actualizado: Diciembre 2025<br>
+                Versión 2.0 - Arquitectura Offline-First
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

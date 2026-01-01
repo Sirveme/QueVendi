@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobrar Fiados - QueVendi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .clientes-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cliente-item {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cliente-item:hover {
+            background: #f7fafc;
+        }
+
+        .cliente-info h3 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .cliente-info p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .deuda-badge {
+            background: #fc8181;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .deuda-badge.vencida {
+            background: #e53e3e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .fiados-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .fiados-section.active {
+            display: block;
+        }
+
+        .fiado-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .fiado-card.vencido {
+            border-color: #fc8181;
+            background: #fff5f5;
+        }
+
+        .fiado-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .fiado-monto {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .fiado-vence {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .fiado-vence.vencido {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        .fiado-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .fiado-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fiado-detail-label {
+            color: #718096;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .fiado-detail-value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .btn-cobrar {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-cobrar:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-volver {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .btn-volver:hover {
+            background: #4a5568;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #2d3748;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .payment-method:hover {
+            border-color: #667eea;
+        }
+
+        .payment-method.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #e2e8f0;
+            color: #2d3748;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Cobrar Fiados</h1>
+            <p>Busca al cliente y registra el pago</p>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="search-box">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput"
+                placeholder="🔍 Buscar cliente por nombre o teléfono..."
+            >
+        </div>
+
+        <!-- Lista de clientes con deuda -->
+        <div class="clientes-list" id="clientesList">
+            <div class="loading">Cargando clientes...</div>
+        </div>
+
+        <!-- Detalle de fiados del cliente -->
+        <div class="fiados-section" id="fiadosSection">
+            <button class="btn-volver" onclick="volverALista()">← Volver a la lista</button>
+            <div id="fiadosContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal de pago -->
+    <div class="modal" id="pagoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Registrar Pago</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Saldo pendiente</label>
+                <div style="font-size: 32px; font-weight: bold; color: #667eea;" id="saldoPendiente">S/. 0.00</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Monto a pagar</label>
+                <input type="number" class="form-input" id="montoPago" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Método de pago</label>
+                <div class="payment-methods">
+                    <div class="payment-method selected" data-method="cash">💵 Efectivo</div>
+                    <div class="payment-method" data-method="yape">📱 Yape</div>
+                    <div class="payment-method" data-method="plin">💳 Plin</div>
+                    <div class="payment-method" data-method="card">💳 Tarjeta</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" onclick="procesarPago()">Registrar Pago</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let clientesConDeuda = [];
+        let clienteActual = null;
+        let creditoActual = null;
+        let metodoSeleccionado = 'cash';
+
+        // Cargar clientes al inicio
+        cargarClientes();
+
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('input', filtrarClientes);
+
+        // Métodos de pago
+        document.querySelectorAll('.payment-method').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                metodoSeleccionado = this.dataset.method;
+            });
+        });
+
+        async function cargarClientes() {
+            try {
+                const response = await fetch('/api/v1/fiados/reporte?status=approved', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                
+                clientesConDeuda = await response.json();
+                mostrarClientes(clientesConDeuda);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('clientesList').innerHTML = 
+                    '<div class="empty-state"><p>Error al cargar clientes</p></div>';
+            }
+        }
+
+        function mostrarClientes(clientes) {
+            const container = document.getElementById('clientesList');
+            
+            if (clientes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>✅ No hay clientes con deudas pendientes</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = clientes.map(cliente => `
+                <div class="cliente-item" onclick="verFiados(${cliente.customer_id})">
+                    <div class="cliente-info">
+                        <h3>${cliente.customer_name}</h3>
+                        <p>${cliente.customer_phone || 'Sin teléfono'} • ${cliente.total_credits} fiado(s)</p>
+                    </div>
+                    <div class="deuda-badge ${cliente.days_overdue > 0 ? 'vencida' : ''}">
+                        S/. ${cliente.total_balance.toFixed(2)}
+                        ${cliente.days_overdue > 0 ? `<br><small>${cliente.days_overdue} días vencido</small>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrarClientes() {
+            const busqueda = document.getElementById('searchInput').value.toLowerCase();
+            const clientesFiltrados = clientesConDeuda.filter(c => 
+                c.customer_name.toLowerCase().includes(busqueda) ||
+                (c.customer_phone && c.customer_phone.includes(busqueda))
+            );
+            mostrarClientes(clientesFiltrados);
+        }
+
+        async function verFiados(customerId) {
+            clienteActual = customerId;
+            
+            try {
+                const response = await fetch(`/api/v1/fiados/cliente/${customerId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                
+                const fiados = await response.json();
+                mostrarFiados(fiados);
+                
+                document.getElementById('clientesList').style.display = 'none';
+                document.querySelector('.search-box').style.display = 'none';
+                document.getElementById('fiadosSection').classList.add('active');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los fiados del cliente');
+            }
+        }
+
+        function mostrarFiados(fiados) {
+            const container = document.getElementById('fiadosContainer');
+            
+            container.innerHTML = fiados.map(fiado => {
+                const vencido = fiado.days_overdue > 0;
+                return `
+                    <div class="fiado-card ${vencido ? 'vencido' : ''}">
+                        <div class="fiado-header">
+                            <div>
+                                <div class="fiado-monto">S/. ${fiado.balance.toFixed(2)}</div>
+                                <div class="fiado-vence ${vencido ? 'vencido' : ''}">
+                                    ${vencido ? `⚠️ Vencido hace ${fiado.days_overdue} días` : `Vence: ${fiado.due_date}`}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fiado-details">
+                            <div class="fiado-detail">
+                                <span class="fiado-detail-label">Total fiado</span>
+                                <span class="fiado-detail-value">S/. ${fiado.amount.toFixed(2)}</span>
+                            </div>
+                            <div class="fiado-detail">
+                                <span class="fiado-detail-label">Pagado</span>
+                                <span class="fiado-detail-value">S/. ${fiado.amount_paid.toFixed(2)}</span>
+                            </div>
+                            <div class="fiado-detail">
+                                <span class="fiado-detail-label">Pendiente</span>
+                                <span class="fiado-detail-value">S/. ${fiado.balance.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        ${fiado.notes ? `<p style="color: #718096; font-size: 14px; margin-bottom: 15px;">${fiado.notes}</p>` : ''}
+                        <button class="btn-cobrar" onclick="abrirModalPago(${fiado.credit_id}, ${fiado.balance})">
+                            💰 Cobrar S/. ${fiado.balance.toFixed(2)}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function volverALista() {
+            document.getElementById('fiadosSection').classList.remove('active');
+            document.getElementById('clientesList').style.display = 'block';
+            document.querySelector('.search-box').style.display = 'block';
+            clienteActual = null;
+        }
+
+        function abrirModalPago(creditId, saldo) {
+            creditoActual = creditId;
+            document.getElementById('saldoPendiente').textContent = `S/. ${saldo.toFixed(2)}`;
+            document.getElementById('montoPago').value = saldo.toFixed(2);
+            document.getElementById('montoPago').max = saldo;
+            document.getElementById('pagoModal').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('pagoModal').classList.remove('active');
+            creditoActual = null;
+        }
+
+        async function procesarPago() {
+            const monto = parseFloat(document.getElementById('montoPago').value);
+            
+            if (!monto || monto <= 0) {
+                alert('Ingresa un monto válido');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/fiados/pagar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        credit_request_id: creditoActual,
+                        amount: monto,
+                        payment_method: metodoSeleccionado
+                    })
+                });
+
+                const resultado = await response.json();
+                
+                if (response.ok) {
+                    alert(`✅ Pago registrado\nSaldo pendiente: S/. ${resultado.remaining_balance.toFixed(2)}`);
+                    cerrarModal();
+                    verFiados(clienteActual); // Recargar fiados
+                    cargarClientes(); // Actualizar lista
+                } else {
+                    alert('Error: ' + resultado.detail);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al procesar el pago');
+            }
+        }
+    </script>
+</body>
+</html>

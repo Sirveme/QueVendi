@@ -253,6 +253,15 @@
                 <span class="header-username" id="header-username">Usuario</span>
                 <span class="header-store" id="header-store">Mi Bodega</span>
             </div>
+
+            <!-- En dashboard_principal.html, agregar en el header -->
+            <button id="audio-toggle-btn" 
+                    onclick="AudioAssistant.toggle()" 
+                    class="audio-toggle-btn" 
+                    title="Activar/desactivar anuncios de audio">
+                <i class="fas fa-volume-up"></i>
+            </button>
+
             <div class="header-actions">
                 <button class="btn-header" id="btn-notifications" onclick="showNotifications()">
                     <i class="fas fa-bell"></i>
@@ -328,12 +337,21 @@
                 </div>
             </div>
             
-            <!-- Sugerencias de venta cruzada -->
-            <div class="cross-sell" id="cross-sell" style="display:none;">
+            <!-- Sugerencias de venta cruzada (dinámico vía JS) -->
+            <div class="cross-sell" id="cross-sell" style="display: none;">
                 <span class="cross-sell-label">
                     <i class="fas fa-lightbulb"></i> También llevan:
                 </span>
-                <div class="cross-sell-items" id="cross-sell-items"></div>
+                <div class="cross-sell-items" id="cross-sell-items">
+                    <!-- Se llena dinámicamente desde pos.js -->
+                </div>
+            </div>
+
+
+            <!-- Frases promocionales del bodeguero -->
+            <div class="bodeguero-phrase" id="bodeguero-phrase" style="display:none;">
+                <div class="phrase-icon">🗣️</div>
+                <div class="phrase-text" id="phrase-text"></div>
             </div>
         </section>
 
@@ -345,7 +363,7 @@
             </div>
             
             <div class="payment-methods" id="payment-methods">
-                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo')">
+                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo, event')">
                     <i class="fas fa-money-bill-wave"></i> Efectivo
                 </button>
                 <button class="payment-btn" data-method="yape" onclick="selectPayment('yape')">
@@ -354,21 +372,147 @@
                 <button class="payment-btn" data-method="plin" onclick="selectPayment('plin')">
                     <img src="/static/img/plin-icon.png" alt="Plin" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Plin
                 </button>
-                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta')">
+                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta, event')">
                     <i class="fas fa-credit-card"></i> Tarjeta
                 </button>
-                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado')">
+                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado, event')">
                     <i class="fas fa-handshake"></i> Fiado
                 </button>
             </div>
             
-            <!-- Campo cliente para Fiado -->
-            <div class="fiado-client" id="fiado-client" style="display:none;">
-                <div class="fiado-input-group">
-                    <input type="text" id="fiado-client-name" placeholder="Nombre del cliente...">
-                    <button class="btn-fiado-confirm" onclick="processSale()">
-                        <i class="fas fa-check"></i>
-                    </button>
+            <!-- Campo cliente para Fiado - VERSIÓN COMPLETA -->
+            <!-- Overlay oscuro flotante -->
+            <div id="modal-fiado-overlay" class="modal-overlay" style="display: none;">
+                <div class="modal-fiado-container">
+                    <div class="modal-fiado-header">
+                        <h2>
+                            <i class="fas fa-user-tag"></i>
+                            Datos del Cliente - Fiado
+                        </h2>
+                        <button onclick="cerrarModalFiado()" class="btn-close-modal">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-fiado-body">
+                        <!-- Información del cliente -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-user"></i> Información Personal</h3>
+                            
+                            <div class="form-group">
+                                <label for="modal-fiado-nombre">
+                                    <i class="fas fa-user"></i> Nombre Completo *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="modal-fiado-nombre" 
+                                    placeholder="Ej: Juan Pérez García"
+                                    required
+                                    autocomplete="off">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="modal-fiado-telefono">
+                                        <i class="fas fa-phone"></i> Teléfono *
+                                    </label>
+                                    <input 
+                                        type="tel" 
+                                        id="modal-fiado-telefono" 
+                                        placeholder="987654321"
+                                        required
+                                        maxlength="9">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="modal-fiado-dni">
+                                        <i class="fas fa-id-card"></i> DNI
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="modal-fiado-dni" 
+                                        placeholder="12345678"
+                                        maxlength="8">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modal-fiado-direccion">
+                                    <i class="fas fa-map-marker-alt"></i> Dirección *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="modal-fiado-direccion" 
+                                    placeholder="Ej: Jr. Lima 123, Breña"
+                                    required>
+                            </div>
+                        </div>
+                        
+                        <!-- Términos del crédito -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-calendar-alt"></i> Términos del Crédito</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="modal-fiado-dias">
+                                        <i class="fas fa-clock"></i> Días de Crédito *
+                                    </label>
+                                    <select id="modal-fiado-dias" required>
+                                        <option value="7">7 días (1 semana)</option>
+                                        <option value="15">15 días (2 semanas)</option>
+                                        <option value="30" selected>30 días (1 mes)</option>
+                                        <option value="60">60 días (2 meses)</option>
+                                        <option value="90">90 días (3 meses)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="modal-fiado-referencia">
+                                        <i class="fas fa-hashtag"></i> N° Referencia
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="modal-fiado-referencia" 
+                                        placeholder="Ej: FI-001"
+                                        maxlength="20">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modal-fiado-notas">
+                                    <i class="fas fa-sticky-note"></i> Notas Adicionales
+                                </label>
+                                <textarea 
+                                    id="modal-fiado-notas" 
+                                    placeholder="Información adicional sobre el crédito..."
+                                    rows="3"
+                                    maxlength="500"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Resumen -->
+                        <div class="fiado-summary">
+                            <div class="summary-row">
+                                <span>Monto Total:</span>
+                                <strong id="fiado-total-display">S/. 0.00</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Fecha de Vencimiento:</span>
+                                <strong id="fiado-due-date">--/--/----</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-fiado-footer">
+                        <button onclick="cerrarModalFiado()" class="btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button onclick="confirmarDatosFiado()" class="btn-primary">
+                            <i class="fas fa-check-circle"></i>
+                            Confirmar Datos
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -469,11 +613,249 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Modal de resultados de búsqueda -->
+    <div id="search-results-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Selecciona el producto</h3>
+                <button onclick="closeSearchResultsModal()" class="modal-close">✕</button>
+            </div>
+            <div id="modal-products-grid" class="modal-products-grid"></div>
+        </div>
+    </div>
+
+
+    <!-- Modal de BOTÓN FIADO -->
+     <div id="modal-fiado" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Seleccionar plazo de crédito</h2>
+            <div class="plazo-options">
+                <button onclick="seleccionarPlazo(7)">7 días</button>
+                <button onclick="seleccionarPlazo(15)">15 días</button>
+                <button onclick="seleccionarPlazo(30)">30 días</button>
+            </div>
+            <input type="number" id="plazo-custom" placeholder="Días personalizados">
+            <button onclick="confirmarPlazoCustom()">Confirmar</button>
+            <button onclick="cerrarModalFiado()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal de días de crédito -->
+    <div id="modal-dias-credito-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">¿Cuántos días de crédito?</div>
+            
+            <div class="modal-options">
+                1 = 7 días<br>
+                2 = 15 días<br>
+                3 = 30 días
+            </div>
+            
+            <div class="modal-input-group">
+                <input 
+                    type="number" 
+                    id="modal-dias-input" 
+                    class="modal-input" 
+                    placeholder="Ingrese 1, 2, 3 o días personalizados"
+                    min="1"
+                    max="365"
+                    autofocus
+                >
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" onclick="cerrarModalDias()">
+                    Cancelar
+                </button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmarDias()">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+<style>
+.btn-plazo:hover {
+    background: #667eea !important;
+    color: white !important;
+    border-color: #667eea !important;
+    transform: translateY(-2px);
+}
+</style>
+
+
+<script>
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+let datosClienteFiado = null;
+let diasCreditoSeleccionado = null;
+
+// ============================================
+// ABRIR MODAL
+// ============================================
+function abrirModalFiado() {
+    const modal = document.getElementById('modal-fiado-overlay');
+    modal.style.display = 'flex';
+    
+    // Focus en nombre
+    setTimeout(() => {
+        document.getElementById('modal-fiado-nombre')?.focus();
+    }, 100);
+    
+    // Resetear selección
+    diasCreditoSeleccionado = null;
+    document.querySelectorAll('.btn-plazo-rapido').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    document.getElementById('modal-fiado-dias').value = '';
+}
+
+// ============================================
+// CERRAR MODAL
+// ============================================
+function cerrarModalFiado() {
+    const modal = document.getElementById('modal-fiado-overlay');
+    modal.style.display = 'none';
+    
+    // Limpiar campos
+    document.getElementById('modal-fiado-nombre').value = '';
+    document.getElementById('modal-fiado-telefono').value = '';
+    document.getElementById('modal-fiado-direccion').value = '';
+    document.getElementById('modal-fiado-referencia').value = '';
+    document.getElementById('modal-fiado-dias').value = '';
+    
+    datosClienteFiado = null;
+    diasCreditoSeleccionado = null;
+}
+
+// ============================================
+// BOTONES RÁPIDOS DE DÍAS
+// ============================================
+document.querySelectorAll('.btn-plazo-rapido').forEach(btn => {
+    btn.onclick = function() {
+        // Deseleccionar otros
+        document.querySelectorAll('.btn-plazo-rapido').forEach(b => {
+            b.classList.remove('selected');
+        });
+        
+        // Seleccionar este
+        this.classList.add('selected');
+        diasCreditoSeleccionado = parseInt(this.dataset.dias);
+        
+        // Limpiar input personalizado
+        document.getElementById('modal-fiado-dias').value = '';
+    };
+});
+
+// ============================================
+// INPUT PERSONALIZADO
+// ============================================
+document.getElementById('modal-fiado-dias')?.addEventListener('input', function() {
+    // Deseleccionar botones rápidos
+    document.querySelectorAll('.btn-plazo-rapido').forEach(b => {
+        b.classList.remove('selected');
+    });
+    
+    diasCreditoSeleccionado = parseInt(this.value) || null;
+});
+
+// ============================================
+// CONFIRMAR FIADO
+// ============================================
+function confirmarFiado() {
+    // Validar nombre
+    const nombre = document.getElementById('modal-fiado-nombre').value.trim();
+    if (!nombre) {
+        alert('Ingresa el nombre del cliente');
+        document.getElementById('modal-fiado-nombre').focus();
+        return;
+    }
+    
+    // Validar teléfono
+    const telefono = document.getElementById('modal-fiado-telefono').value.trim();
+    if (!telefono) {
+        alert('Ingresa el teléfono del cliente');
+        document.getElementById('modal-fiado-telefono').focus();
+        return;
+    }
+    
+    // Validar dirección
+    const direccion = document.getElementById('modal-fiado-direccion').value.trim();
+    if (!direccion) {
+        alert('Ingresa la dirección del cliente');
+        document.getElementById('modal-fiado-direccion').focus();
+        return;
+    }
+    
+    // Validar días
+    const diasInput = document.getElementById('modal-fiado-dias').value;
+    if (diasInput) {
+        diasCreditoSeleccionado = parseInt(diasInput);
+    }
+    
+    if (!diasCreditoSeleccionado || diasCreditoSeleccionado < 1) {
+        alert('Selecciona el plazo de crédito');
+        return;
+    }
+    
+    // Guardar datos
+    datosClienteFiado = {
+        nombre: nombre,
+        telefono: telefono,
+        direccion: direccion,
+        referencia: document.getElementById('modal-fiado-referencia').value.trim(),
+        dias: diasCreditoSeleccionado
+    };
+    
+    // Cerrar modal
+    cerrarModalFiado();
+    
+    // Procesar venta
+    processSale();
+}
+
+// ============================================
+// CLICK FUERA DEL MODAL PARA CERRAR
+// ============================================
+document.getElementById('modal-fiado-overlay')?.addEventListener('click', function(e) {
+    if (e.target.id === 'modal-fiado-overlay') {
+        cerrarModalFiado();
+    }
+});
+
+// ============================================
+// ESC PARA CERRAR
+// ============================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('modal-fiado-overlay');
+        if (modal && modal.style.display === 'flex') {
+            cerrarModalFiado();
+        }
+    }
+});
+</script>
     
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
 
+    <!-- Audio Assistant -->
+    <script src="/static/js/audio_assistant.js"></script>
+
+    <!-- ✅ MÓDULOS DE VOZ (AGREGAR ESTO) -->
+    <script src="/static/js/modules/voice-parser.js"></script>
+    <script src="/static/js/modules/voice-commands.js"></script>
+    <script src="/static/js/modules/voice-help.js"></script>
+    <script src="/static/js/modules/ui-feedback.js"></script>
+    <script src="/static/js/modules/fractional-sales.js"></script>
+    <script src="/static/js/modules/cart-animations.js"></script>
+    <script src="/static/js/modules/layered-variants.js"></script>
+
     <!-- Scripts -->
     <script src="/static/js/dashboard_principal.js"></script>
+
 </body>
 </html>
