@@ -124,10 +124,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Agregar después de crear app
-if os.getenv('FORCE_HTTPS') == 'true':
-    app.add_middleware(HTTPSRedirectMiddleware)
-
 
 # ========================================
 # MIDDLEWARE - CORS
@@ -290,4 +286,5 @@ async def onboarding_page(request: Request):
     Wizard de onboarding para nuevas tiendas
     """
     return templates.TemplateResponse("onboarding_wizard.html", {"request": request})
+
 
