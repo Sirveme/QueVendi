@@ -383,7 +383,7 @@ async def parse_voice_command(
     
     return response
 
-@router.post("/", response_model=SaleResponse)
+@router.post("", response_model=SaleResponse)
 async def create_sale(
     sale_data: SaleCreate,
     db: Session = Depends(get_db),
@@ -625,4 +625,5 @@ async def void_sale(
     sale.voided_by = current_user.id
     db.commit()
     
+
     return {"message": "Venta anulada", "sale_id": sale_id}
