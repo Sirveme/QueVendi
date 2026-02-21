@@ -44,7 +44,8 @@ from app.api.v1 import (
     fiados,
     comunicaciones,
     customers,
-    conversions
+    conversions,
+    billing
 )
 
 # ========================================
@@ -163,6 +164,7 @@ app.include_router(fiados.router, prefix="/api/v1", tags=["fiados"])
 app.include_router(comunicaciones.router, prefix="/api/v1", tags=["comunicaciones"])
 app.include_router(customers.router, prefix="/api/v1", tags=["customers"])
 app.include_router(conversions.router, prefix="/api/v1", tags=["conversions"])
+app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
 
 # ========================================
 # RUTAS HTML - PÚBLICAS (sin auth)
@@ -286,4 +288,10 @@ async def onboarding_page(request: Request):
     return templates.TemplateResponse("onboarding_wizard.html", {"request": request})
 
 
+@app.get("/cobrar-fiados", response_class=HTMLResponse)
+async def cobrar_fiados_page(request: Request):
+    """
+    Página para cobrar fiados pendientes
+    """
+    return templates.TemplateResponse("cobrar_fiados.html", {"request": request})
 
