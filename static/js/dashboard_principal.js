@@ -143,6 +143,7 @@ function checkAuth() {
 }
 
 async function fetchWithAuth(url, options = {}) {
+    alert('fetchWithAuth: ' + url); // Debugging line
     const token = getAuthToken();
     
     if (!token) {
