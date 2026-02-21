@@ -50,6 +50,7 @@ class Sale(Base):
     items = relationship("SaleItem", back_populates="sale", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="sale")
     credit = relationship("Credit", back_populates="sale", uselist=False)
+    comprobante = relationship("Comprobante", back_populates="sale", uselist=False)
 
 
 class SaleItem(Base):

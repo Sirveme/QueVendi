@@ -84,3 +84,4 @@ class Store(Base):
     sales = relationship("Sale", back_populates="store")
     subscriptions = relationship("Subscription", back_populates="store")
     orders = relationship("Order", back_populates="store")
+    billing_config = relationship("StoreBillingConfig", back_populates="store", uselist=False)

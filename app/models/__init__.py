@@ -11,6 +11,7 @@ from app.models.invoice import Invoice
 from app.models.incidente import Incidente, ContactoEmergencia, RedBodegueros, Notificacion, PushSubscription
 from app.models.customer import Customer
 from app.models.credit import Credit, CreditPayment
+from app.models.billing import StoreBillingConfig, Comprobante
 
 __all__ = [
     "Store",
@@ -30,5 +31,7 @@ __all__ = [
     "PushSubscription",
     "Customer",
     "Credit",
-    "CreditPayment"
+    "CreditPayment",
+    "StoreBillingConfig",
+    "Comprobante"
 ]
