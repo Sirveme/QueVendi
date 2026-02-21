@@ -31,11 +31,10 @@ class Settings(BaseSettings):
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:5050",
-        "http://127.0.0.1:4040",
-        "http://localhost:3030",
-        "http://127.0.0.1:2020",
-        "http://127.0.0.1:1010",
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
         "https://quevendi.pro",
         "https://www.quevendi.pro"
     ]
