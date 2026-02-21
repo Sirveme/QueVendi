@@ -2142,7 +2142,7 @@ async function executeSale(total, printType = 'none') {
         
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
         
-        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales/`, {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
             method: 'POST',
             body: JSON.stringify(saleData)
         });
