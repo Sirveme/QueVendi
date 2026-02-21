@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-from app.db.session import get_db
-from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.models.customer import Customer
 from app.models.credit import Credit, CreditPayment
