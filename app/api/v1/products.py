@@ -16,6 +16,94 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/products")
 
+# ============================================
+# ENDPOINT TEMPORAL: Cargar productos de prueba
+# ============================================
+@router.post("/load-sample-products")
+async def load_sample_products(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Carga productos de prueba para la tienda actual.
+    ENDPOINT TEMPORAL - Eliminar en producción.
+    """
+    store_id = current_user.store_id
+
+    # Verificar si ya hay productos
+    existing = db.query(Product).filter(
+        Product.store_id == store_id,
+        Product.is_active == True
+    ).count()
+
+    if existing > 0:
+        return {"message": f"Ya hay {existing} productos cargados", "loaded": 0}
+
+    # Productos de bodega básicos
+    sample_products = [
+        # BEBIDAS
+        {"name": "Coca Cola 500ml", "category": "Bebidas", "sale_price": 3.50, "stock": 50, "aliases": ["coca", "cola", "gaseosa"]},
+        {"name": "Coca Cola 1L", "category": "Bebidas", "sale_price": 5.50, "stock": 30, "aliases": ["coca grande"]},
+        {"name": "Inca Kola 500ml", "category": "Bebidas", "sale_price": 3.50, "stock": 50, "aliases": ["inca", "inka", "kola"]},
+        {"name": "Agua San Luis 625ml", "category": "Bebidas", "sale_price": 2.00, "stock": 100, "aliases": ["agua", "san luis"]},
+        {"name": "Gatorade 500ml", "category": "Bebidas", "sale_price": 4.50, "stock": 30, "aliases": ["gatorade"]},
+        {"name": "Cerveza Pilsen 620ml", "category": "Bebidas", "sale_price": 6.00, "stock": 48, "aliases": ["pilsen", "cerveza", "birra"]},
+
+        # ABARROTES
+        {"name": "Arroz Costeño 1kg", "category": "Abarrotes", "sale_price": 5.50, "stock": 50, "aliases": ["arroz", "costeño"]},
+        {"name": "Azúcar Rubia 1kg", "category": "Abarrotes", "sale_price": 4.50, "stock": 50, "aliases": ["azucar", "azúcar"]},
+        {"name": "Aceite Primor 1L", "category": "Abarrotes", "sale_price": 12.00, "stock": 30, "aliases": ["aceite", "primor"]},
+        {"name": "Fideos Don Vittorio 500g", "category": "Abarrotes", "sale_price": 3.50, "stock": 50, "aliases": ["fideos", "tallarines", "spaguetti"]},
+        {"name": "Sal Marina 1kg", "category": "Abarrotes", "sale_price": 2.50, "stock": 40, "aliases": ["sal"]},
+        {"name": "Leche Gloria 400ml", "category": "Abarrotes", "sale_price": 4.50, "stock": 48, "aliases": ["leche", "gloria", "tarro"]},
+        {"name": "Atún Florida 170g", "category": "Abarrotes", "sale_price": 6.50, "stock": 30, "aliases": ["atun", "atún", "florida"]},
+
+        # PAN Y GALLETAS
+        {"name": "Pan Francés", "category": "Panadería", "sale_price": 0.20, "stock": 200, "aliases": ["pan", "frances"]},
+        {"name": "Galletas Soda Field", "category": "Galletas", "sale_price": 2.50, "stock": 30, "aliases": ["galleta", "soda", "field"]},
+        {"name": "Galletas Oreo", "category": "Galletas", "sale_price": 3.50, "stock": 30, "aliases": ["galleta", "oreo"]},
+        {"name": "Galletas Casino", "category": "Galletas", "sale_price": 1.50, "stock": 50, "aliases": ["galleta", "casino"]},
+
+        # SNACKS
+        {"name": "Papitas Lays 42g", "category": "Snacks", "sale_price": 2.50, "stock": 50, "aliases": ["papitas", "lays", "papa"]},
+        {"name": "Doritos 40g", "category": "Snacks", "sale_price": 2.50, "stock": 40, "aliases": ["doritos"]},
+        {"name": "Sublime 30g", "category": "Snacks", "sale_price": 2.00, "stock": 40, "aliases": ["sublime", "chocolate"]},
+
+        # LÁCTEOS
+        {"name": "Yogurt Gloria 1L", "category": "Lácteos", "sale_price": 8.50, "stock": 20, "aliases": ["yogurt", "gloria"]},
+        {"name": "Queso Fresco 250g", "category": "Lácteos", "sale_price": 8.00, "stock": 15, "aliases": ["queso", "fresco"]},
+
+        # LIMPIEZA
+        {"name": "Detergente Ace 500g", "category": "Limpieza", "sale_price": 5.50, "stock": 30, "aliases": ["detergente", "ace"]},
+        {"name": "Lejía Clorox 1L", "category": "Limpieza", "sale_price": 6.00, "stock": 25, "aliases": ["lejia", "clorox"]},
+        {"name": "Papel Higiénico Elite 4 rollos", "category": "Limpieza", "sale_price": 7.00, "stock": 30, "aliases": ["papel", "higienico", "elite"]},
+    ]
+
+    loaded = 0
+    for p in sample_products:
+        product = Product(
+            store_id=store_id,
+            name=p["name"],
+            category=p["category"],
+            sale_price=p["sale_price"],
+            cost_price=p["sale_price"] * 0.8,
+            stock=p["stock"],
+            unit="unidad",
+            aliases=p.get("aliases", []),
+            is_active=True,
+            min_stock_alert=5
+        )
+        db.add(product)
+        loaded += 1
+
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"✅ {loaded} productos cargados para tu tienda",
+        "loaded": loaded
+    }
+
 class ProductResponse(BaseModel):
     id: int
     name: str

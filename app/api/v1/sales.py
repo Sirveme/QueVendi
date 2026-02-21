@@ -625,5 +625,4 @@ async def void_sale(
     sale.voided_by = current_user.id
     db.commit()
     
-
     return {"message": "Venta anulada", "sale_id": sale_id}

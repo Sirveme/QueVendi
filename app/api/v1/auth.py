@@ -1,7 +1,8 @@
 """
 Endpoints de autenticación - Con registro completo y validación
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
@@ -270,40 +271,42 @@ async def register(
 @router.post("/login")
 async def login(
     data: LoginRequest,
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """Login de usuario"""
-    
+
     user = db.query(User).filter(User.dni == data.dni).first()
-    
+
     if not user or not verify_password(data.pin, user.pin_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="DNI o PIN incorrectos"
         )
-    
+
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Usuario inactivo"
         )
-    
+
     # Actualizar último login
     user.last_login = datetime.now(timezone.utc)
     db.commit()
-    
+
     # Generar token
     access_token = create_access_token(
         data={
-            "sub": str(user.id),       # ⬅️ AGREGADO: Estándar JWT
-            "user_id": user.id,        # Mantenemos por compatibilidad temporal
+            "sub": str(user.id),
+            "user_id": user.id,
             "dni": user.dni,
             "store_id": user.store_id,
             "role": user.role
         }
     )
-    
-    return {
+
+    # Respuesta JSON + cookie
+    response_data = {
         "access_token": access_token,
         "token_type": "bearer",
         "user": {
@@ -316,3 +319,20 @@ async def login(
             "store_id": user.store_id
         }
     }
+
+    response = JSONResponse(content=response_data)
+
+    # Detectar si estamos en HTTPS (producción) o HTTP (local)
+    is_secure = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
+
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,
+        secure=is_secure,
+        samesite="lax",
+        max_age=86400,  # 24 horas
+        path="/"
+    )
+
+    return response
