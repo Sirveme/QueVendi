@@ -9,17 +9,7 @@
 
 const CONFIG = {
     // API base - detección automática
-    apiBase: (() => {
-        const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-        
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:5050/api/v1';
-        } else {
-            // Producción: SIEMPRE https en Railway
-            return `https://${hostname}/api/v1`;
-        }
-    })(),
+    apiBase: `${window.location.origin}/api/v1`,
     
     micTimer: 10,
     dailyGoal: 500,
@@ -633,13 +623,30 @@ function searchProducts(query) {
                 method: 'POST',
                 body: JSON.stringify({ query: query, limit: 20 })
             });
-            
+
             if (response.ok) {
                 const products = await response.json();
                 displaySearchResults(products);
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                console.error('[Search] API error:', response.status, errData);
+                const container = document.getElementById('search-results');
+                container.innerHTML = `
+                    <div class="search-result-item" style="color: #f87171;">
+                        <span>Error al buscar (${response.status}). Reintenta.</span>
+                    </div>
+                `;
+                container.style.display = 'block';
             }
         } catch (error) {
             console.error('[Search] Error:', error);
+            const container = document.getElementById('search-results');
+            container.innerHTML = `
+                <div class="search-result-item" style="color: #f87171;">
+                    <span>Error de conexion. Verifica tu sesion.</span>
+                </div>
+            `;
+            container.style.display = 'block';
         }
     }, 300);
 }
@@ -2135,7 +2142,7 @@ async function executeSale(total, printType = 'none') {
         
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
         
-        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/sales/`, {
             method: 'POST',
             body: JSON.stringify(saleData)
         });
@@ -2261,24 +2268,27 @@ function handlePrint(printType, saleResult, total) {
         case 'none':
             showToast('✅ Venta registrada', 'success');
             break;
-            
+
         case 'simple':
             showToast('🖨️ Imprimiendo ticket simple...', 'info');
             printSimpleTicket(saleResult, total);
             break;
-            
+
+        case 'ticket_electronico':
+            showToast('🧾 Generando Ticket Electrónico...', 'info');
+            printTicketElectronico(saleResult, total);
+            break;
+
         case 'boleta':
             showToast('📄 Generando Boleta SUNAT...', 'info');
-            // TODO: Integrar con API de facturación electrónica
             printBoletaSunat(saleResult, total);
             break;
-            
+
         case 'factura':
             showToast('📋 Generando Factura SUNAT...', 'info');
-            // TODO: Solicitar datos del cliente (RUC, razón social)
             requestFacturaData(saleResult, total);
             break;
-            
+
         default:
             showToast('✅ Venta registrada', 'success');
     }
@@ -2287,14 +2297,18 @@ function handlePrint(printType, saleResult, total) {
 function printSimpleTicket(saleResult, total) {
     // Crear ventana de impresión con ticket simple
     const ticketHtml = generateSimpleTicketHtml(saleResult, total);
-    
+
     const printWindow = window.open('', '_blank', 'width=300,height=600');
+    if (!printWindow) {
+        showToast('Popup bloqueado. Permite popups para imprimir.', 'warning');
+        return;
+    }
     printWindow.document.write(ticketHtml);
     printWindow.document.close();
-    
+
     setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
+        try { printWindow.print(); } catch(e) { /* ignore */ }
+        setTimeout(() => { try { printWindow.close(); } catch(e) {} }, 500);
     }, 250);
 }
 
@@ -2389,16 +2403,580 @@ function generateSimpleTicketHtml(saleResult, total) {
     `;
 }
 
-function printBoletaSunat(saleResult, total) {
-    // TODO: Implementar integración con SUNAT
-    showToast('⚠️ Boleta SUNAT: Próximamente', 'warning');
-    // Por ahora, imprimir ticket simple con nota
-    printSimpleTicket(saleResult, total);
+// ============================================
+// MODAL UNIFICADO POST-EMISION (Preview + Descargar + Compartir)
+// ============================================
+
+let _comprobanteModalBlobUrl = null;
+
+function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, formato) {
+    // formato: 'A4' (default para Boleta/Factura), 'TICKET' (para Ticket Electrónico)
+    formato = formato || 'A4';
+    const labels = { '01': 'Factura', '03': 'Boleta' };
+    const tipoLabel = formato === 'TICKET' ? 'Ticket Electr\u00f3nico' : (labels[tipoDoc] || 'Comprobante');
+    const emitidoLabel = formato === 'TICKET' ? 'Emitido' : 'Emitida';
+
+    let modal = document.getElementById('comprobante-success-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comprobante-success-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 20px; padding: 20px; max-width: 500px; width: 95%; display: flex; flex-direction: column; max-height: 90vh;">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 36px; margin-bottom: 4px;">&#9989;</div>
+                <h3 style="color: white; margin: 0 0 2px; font-size: 18px;">${tipoLabel} ${emitidoLabel}</h3>
+                <p style="color: #a78bfa; font-size: 18px; font-weight: bold; margin: 0;">${numeroFormato || ''}</p>
+            </div>
+
+            <div id="pdf-preview-container" style="flex: 1; min-height: 300px; max-height: 55vh; background: #0d0d1a; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 12px;">
+                <div id="pdf-preview-loader" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                    <div style="text-align: center;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                        Cargando PDF...
+                    </div>
+                </div>
+                <iframe id="pdf-preview-iframe" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button id="btn-modal-download"
+                    style="flex: 1; padding: 12px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-download"></i> Descargar
+                </button>
+                <button id="btn-modal-share"
+                    style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fab fa-whatsapp"></i> Compartir
+                </button>
+                <button id="btn-modal-close"
+                    style="padding: 12px 16px; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; color: #94a3b8; font-size: 14px; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10005 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+
+    // Cargar PDF en el iframe con el formato correcto
+    _loadPdfPreview(comprobanteId, formato, numeroFormato);
+
+    // Bind buttons
+    modal.querySelector('#btn-modal-download').onclick = () => {
+        _downloadComprobantePdf(comprobanteId, numeroFormato, formato);
+    };
+    modal.querySelector('#btn-modal-share').onclick = () => {
+        _shareComprobantePdf(comprobanteId, numeroFormato, formato);
+    };
+    modal.querySelector('#btn-modal-close').onclick = () => {
+        closeComprobanteModal();
+    };
+}
+
+async function _loadPdfPreview(comprobanteId, formato, numeroFormato) {
+    const loader = document.getElementById('pdf-preview-loader');
+    const iframe = document.getElementById('pdf-preview-iframe');
+    if (!iframe) return;
+
+    try {
+        const response = await fetchWithAuth(
+            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}/pdf?formato=${formato}`
+        );
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}`);
+        }
+        const blob = await response.blob();
+
+        // Revocar URL anterior si existe
+        if (_comprobanteModalBlobUrl) {
+            window.URL.revokeObjectURL(_comprobanteModalBlobUrl);
+        }
+        _comprobanteModalBlobUrl = window.URL.createObjectURL(blob);
+
+        iframe.src = _comprobanteModalBlobUrl;
+        iframe.style.display = 'block';
+        if (loader) loader.style.display = 'none';
+    } catch (error) {
+        console.error('[PDF] Error preview:', error);
+        if (loader) {
+            loader.innerHTML = `
+                <div style="text-align: center; color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                    No se pudo cargar el PDF<br>
+                    <small style="color: #64748b;">${error.message}</small>
+                </div>
+            `;
+        }
+    }
+}
+
+async function _downloadComprobantePdf(comprobanteId, numeroFormato, formato) {
+    try {
+        showToast('Descargando PDF...', 'info');
+        const response = await fetchWithAuth(
+            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}/pdf?formato=${formato || 'A4'}`
+        );
+        if (!response.ok) throw new Error(`Error ${response.status}`);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (numeroFormato || 'comprobante') + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+    } catch (error) {
+        console.error('[PDF] Error descarga:', error);
+        showToast('Error al descargar PDF', 'error');
+    }
+}
+
+async function _shareComprobantePdf(comprobanteId, numeroFormato, formato) {
+    try {
+        const response = await fetchWithAuth(
+            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}/pdf?formato=${formato || 'A4'}`
+        );
+        if (!response.ok) throw new Error(`Error ${response.status}`);
+        const blob = await response.blob();
+        const file = new File([blob], (numeroFormato || 'comprobante') + '.pdf', { type: 'application/pdf' });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: `Comprobante ${numeroFormato}`,
+                files: [file]
+            });
+        } else {
+            // Fallback: descargar
+            showToast('Compartir no disponible. Descargando...', 'info');
+            _downloadComprobantePdf(comprobanteId, numeroFormato);
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            console.error('[PDF] Error compartir:', error);
+            showToast('Error al compartir', 'error');
+        }
+    }
+}
+
+function closeComprobanteModal() {
+    const modal = document.getElementById('comprobante-success-modal');
+    if (modal) modal.style.display = 'none';
+    if (_comprobanteModalBlobUrl) {
+        window.URL.revokeObjectURL(_comprobanteModalBlobUrl);
+        _comprobanteModalBlobUrl = null;
+    }
+}
+
+async function printTicketElectronico(saleResult, total) {
+    _showBoletaClienteModal(saleResult, total, 'TICKET');
+}
+
+async function printBoletaSunat(saleResult, total) {
+    _showBoletaClienteModal(saleResult, total, 'A4');
+}
+
+function _showBoletaClienteModal(saleResult, total, formato) {
+    const saleId = saleResult.id || saleResult.sale_id;
+    if (!saleId) {
+        showToast('Error: No se encontró ID de venta', 'error');
+        return;
+    }
+
+    const tipoLabel = formato === 'TICKET' ? 'Ticket Electr\u00f3nico' : 'Boleta SUNAT';
+    const inputStyle = 'width:100%;padding:10px;border:2px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.08);color:white;font-size:15px;';
+
+    let modal = document.getElementById('boleta-cliente-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'boleta-cliente-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 20px; padding: 24px; max-width: 400px; width: 92%;">
+            <div style="text-align: center; margin-bottom: 16px;">
+                <h3 style="color: white; margin: 0 0 4px; font-size: 17px;">
+                    <i class="fas fa-${formato === 'TICKET' ? 'receipt' : 'file-invoice'}"></i> ${tipoLabel}
+                </h3>
+                <div style="color: #a78bfa; font-size: 24px; font-weight: bold;">S/. ${total.toFixed(2)}</div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                <div style="color: #64748b; font-size: 12px; margin-bottom: 10px; text-align: center;">Datos del cliente (opcional)</div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <select id="boleta-tipo-doc" style="padding:10px;border:2px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.08);color:white;font-size:14px;">
+                        <option value="0">Sin doc</option>
+                        <option value="1">DNI</option>
+                        <option value="6">RUC</option>
+                    </select>
+                    <div style="flex: 1; display: flex; gap: 6px;">
+                        <input type="text" id="boleta-num-doc" placeholder="N\u00ba documento" maxlength="11"
+                            style="${inputStyle}flex:1;">
+                        <button id="btn-buscar-doc-boleta"
+                            style="padding:10px 12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;color:white;cursor:pointer;font-size:13px;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="boleta-doc-status" style="font-size: 11px; min-height: 14px; margin-bottom: 6px;"></div>
+                <input type="text" id="boleta-nombre" placeholder="Nombre / Raz\u00f3n Social"
+                    style="${inputStyle}">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-boleta-cancel"
+                    style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; color: #94a3b8; font-size: 14px; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button id="btn-boleta-emitir"
+                    style="flex: 2; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 10px; color: white; font-size: 15px; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-paper-plane"></i> Emitir
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important; height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10004 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+
+    // Bind events
+    modal.querySelector('#btn-boleta-cancel').onclick = () => { modal.style.display = 'none'; };
+    modal.querySelector('#btn-boleta-emitir').onclick = () => _emitirBoletaConCliente(saleId, formato);
+    modal.querySelector('#btn-buscar-doc-boleta').onclick = () => _buscarDocBoleta();
+
+    // Auto-buscar al completar 8 (DNI) o 11 (RUC) dígitos
+    const docInput = modal.querySelector('#boleta-num-doc');
+    docInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '');
+        const tipoDoc = modal.querySelector('#boleta-tipo-doc').value;
+        if ((tipoDoc === '1' && e.target.value.length === 8) || (tipoDoc === '6' && e.target.value.length === 11)) {
+            _buscarDocBoleta();
+        }
+    });
+
+    // Cambiar maxlength según tipo doc
+    modal.querySelector('#boleta-tipo-doc').addEventListener('change', (e) => {
+        const maxLen = e.target.value === '6' ? 11 : 8;
+        docInput.maxLength = maxLen;
+        docInput.value = '';
+        document.getElementById('boleta-nombre').value = '';
+        document.getElementById('boleta-doc-status').innerHTML = '';
+    });
+}
+
+async function _buscarDocBoleta() {
+    const tipoDoc = document.getElementById('boleta-tipo-doc')?.value;
+    const numDoc = document.getElementById('boleta-num-doc')?.value.trim();
+    const statusEl = document.getElementById('boleta-doc-status');
+    const nombreInput = document.getElementById('boleta-nombre');
+
+    if (!numDoc) return;
+
+    if (tipoDoc === '1' && numDoc.length !== 8) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">DNI: 8 d\u00edgitos</span>';
+        return;
+    }
+    if (tipoDoc === '6' && numDoc.length !== 11) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">RUC: 11 d\u00edgitos</span>';
+        return;
+    }
+
+    if (statusEl) statusEl.innerHTML = '<span style="color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+
+    try {
+        let url;
+        if (tipoDoc === '6') {
+            url = `${CONFIG.apiBase}/billing/consulta/ruc/${numDoc}`;
+        } else if (tipoDoc === '1') {
+            url = `${CONFIG.apiBase}/billing/consulta/dni/${numDoc}`;
+        } else {
+            return;
+        }
+
+        const response = await fetchWithAuth(url);
+        const data = await response.json();
+
+        if (data.success) {
+            nombreInput.value = data.razon_social || data.nombre || '';
+            if (statusEl) statusEl.innerHTML = '<span style="color:#10b981;"><i class="fas fa-check"></i> Encontrado</span>';
+        } else {
+            if (statusEl) statusEl.innerHTML = `<span style="color:#f59e0b;">${data.error || 'No encontrado'}</span>`;
+            nombreInput.focus();
+        }
+    } catch (error) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">Error al consultar</span>';
+    }
+}
+
+async function _emitirBoletaConCliente(saleId, formato) {
+    const tipoDoc = document.getElementById('boleta-tipo-doc')?.value || '0';
+    const numDoc = document.getElementById('boleta-num-doc')?.value.trim() || '00000000';
+    const nombre = document.getElementById('boleta-nombre')?.value.trim() || 'CLIENTE VARIOS';
+
+    // Cerrar modal
+    const modal = document.getElementById('boleta-cliente-modal');
+    if (modal) modal.style.display = 'none';
+
+    const tipoLabel = formato === 'TICKET' ? 'Ticket' : 'Boleta';
+    showToast(`Emitiendo ${tipoLabel}...`, 'info');
+
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sale_id: saleId,
+                tipo: '03',
+                cliente_tipo_doc: tipoDoc,
+                cliente_num_doc: numDoc,
+                cliente_nombre: nombre
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showToast(`${tipoLabel} emitida: ${data.numero_formato}`, 'success');
+
+            if (data.comprobante_id) {
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '03', formato);
+            }
+        } else {
+            throw new Error(data.detail || data.error || `Error al emitir ${tipoLabel.toLowerCase()}`);
+        }
+    } catch (error) {
+        console.error('[Billing] Error:', error);
+
+        if (error.message && (error.message.includes('no configurada') || error.message.includes('not configured'))) {
+            showToast('Facturaci\u00f3n no configurada. Ve a Configuraci\u00f3n.', 'warning');
+        } else {
+            showToast(`Error: ${error.message}`, 'error');
+        }
+    }
 }
 
 function requestFacturaData(saleResult, total) {
-    // TODO: Mostrar modal para solicitar RUC y razón social
-    showToast('⚠️ Factura SUNAT: Próximamente', 'warning');
+    const saleId = saleResult.id || saleResult.sale_id;
+
+    let modal = document.getElementById('factura-data-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'factura-data-modal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    const inputStyle = 'width:100%;padding:12px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:white;font-size:16px;';
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 420px; background: var(--bg-secondary, #1a1a2e); border-radius: 16px; padding: 24px;">
+            <h3 style="color: white; margin-bottom: 20px; text-align: center;">
+                <i class="fas fa-file-invoice-dollar"></i> Datos para Factura
+            </h3>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: #94a3b8; font-size: 13px; display: block; margin-bottom: 4px;">RUC <span style="color: #ef4444;">*</span></label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="modal-factura-ruc" placeholder="20XXXXXXXXX" maxlength="11"
+                        style="${inputStyle}font-size:18px;letter-spacing:1px;flex:1;">
+                    <button id="btn-buscar-ruc"
+                        style="padding: 12px 16px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                <div id="ruc-search-status" style="font-size: 12px; margin-top: 4px; min-height: 16px;"></div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: #94a3b8; font-size: 13px; display: block; margin-bottom: 4px;">Raz\u00f3n Social <span style="color: #ef4444;">*</span></label>
+                <input type="text" id="modal-factura-razon" placeholder="Se autocompleta al buscar RUC"
+                    style="${inputStyle}" readonly>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #94a3b8; font-size: 13px; display: block; margin-bottom: 4px;">Direcci\u00f3n <span style="color: #ef4444;">*</span></label>
+                <input type="text" id="modal-factura-direccion" placeholder="Se autocompleta al buscar RUC"
+                    style="${inputStyle}" readonly>
+            </div>
+
+            <div style="background: rgba(139, 92, 246, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                <div style="color: #94a3b8; font-size: 13px;">Total a facturar</div>
+                <div style="color: #a78bfa; font-size: 26px; font-weight: bold;">S/. ${total.toFixed(2)}</div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-factura-cancel"
+                    style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button id="btn-factura-emitir"
+                    style="flex: 2; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; opacity: 0.5;" disabled>
+                    <i class="fas fa-file-invoice-dollar"></i> Emitir Factura
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10003 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+
+    // Bind events
+    modal.querySelector('#btn-buscar-ruc').onclick = () => _buscarRucFactura();
+    modal.querySelector('#btn-factura-cancel').onclick = () => closeFacturaDataModal();
+    modal.querySelector('#btn-factura-emitir').onclick = () => emitFacturaFromModal(saleId, total);
+
+    // Auto-buscar al escribir 11 dígitos
+    const rucInput = modal.querySelector('#modal-factura-ruc');
+    rucInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '');
+        if (e.target.value.length === 11) {
+            _buscarRucFactura();
+        }
+    });
+
+    // Enter en RUC → buscar
+    rucInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            _buscarRucFactura();
+        }
+    });
+
+    setTimeout(() => rucInput?.focus(), 100);
+}
+
+async function _buscarRucFactura() {
+    const ruc = document.getElementById('modal-factura-ruc')?.value.trim();
+    const statusEl = document.getElementById('ruc-search-status');
+    const razonInput = document.getElementById('modal-factura-razon');
+    const dirInput = document.getElementById('modal-factura-direccion');
+    const emitBtn = document.getElementById('btn-factura-emitir');
+
+    if (!ruc || ruc.length !== 11) {
+        if (statusEl) statusEl.innerHTML = '<span style="color: #ef4444;">RUC debe tener 11 d\u00edgitos</span>';
+        return;
+    }
+
+    if (statusEl) statusEl.innerHTML = '<span style="color: #64748b;"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/consulta/ruc/${ruc}`);
+        const data = await response.json();
+
+        if (data.success) {
+            razonInput.value = data.razon_social || '';
+            dirInput.value = data.direccion || '';
+            razonInput.removeAttribute('readonly');
+            dirInput.removeAttribute('readonly');
+            if (statusEl) statusEl.innerHTML = '<span style="color: #10b981;"><i class="fas fa-check"></i> Encontrado</span>';
+            if (emitBtn) { emitBtn.disabled = false; emitBtn.style.opacity = '1'; }
+        } else {
+            if (statusEl) statusEl.innerHTML = `<span style="color: #ef4444;">${data.error || 'RUC no encontrado'}</span>`;
+            // Permitir edición manual si no se encuentra
+            razonInput.removeAttribute('readonly');
+            dirInput.removeAttribute('readonly');
+            razonInput.placeholder = 'Ingresa manualmente';
+            dirInput.placeholder = 'Ingresa manualmente';
+            razonInput.focus();
+        }
+    } catch (error) {
+        console.error('[RUC] Error:', error);
+        if (statusEl) statusEl.innerHTML = '<span style="color: #ef4444;">Error al consultar</span>';
+        razonInput.removeAttribute('readonly');
+        dirInput.removeAttribute('readonly');
+    }
+}
+
+function closeFacturaDataModal() {
+    const modal = document.getElementById('factura-data-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function emitFacturaFromModal(saleId, total) {
+    const ruc = document.getElementById('modal-factura-ruc')?.value.trim();
+    const razon = document.getElementById('modal-factura-razon')?.value.trim();
+    const direccion = document.getElementById('modal-factura-direccion')?.value.trim();
+
+    if (!ruc || ruc.length !== 11) {
+        showToast('RUC debe tener 11 d\u00edgitos', 'warning');
+        return;
+    }
+    if (!razon) {
+        showToast('Raz\u00f3n Social es obligatoria para Factura', 'warning');
+        document.getElementById('modal-factura-razon')?.focus();
+        return;
+    }
+    if (!direccion) {
+        showToast('Direcci\u00f3n es obligatoria para Factura', 'warning');
+        document.getElementById('modal-factura-direccion')?.focus();
+        return;
+    }
+
+    closeFacturaDataModal();
+    showToast('Emitiendo Factura SUNAT...', 'info');
+
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sale_id: saleId,
+                tipo: '01',
+                cliente_tipo_doc: '6',
+                cliente_num_doc: ruc,
+                cliente_nombre: razon,
+                cliente_direccion: direccion
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showToast(`Factura emitida: ${data.numero_formato}`, 'success');
+
+            if (data.comprobante_id) {
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '01');
+            }
+        } else {
+            throw new Error(data.detail || data.error || 'Error al emitir factura');
+        }
+    } catch (error) {
+        console.error('[Billing] Error factura:', error);
+        showToast(`Error: ${error.message}`, 'error');
+    }
 }
 
 // ============================================
@@ -3251,27 +3829,65 @@ function closeDocEmissionModal() {
 
 async function emitDocument(saleId, docType) {
     const docName = docType === 'boleta' ? 'Boleta' : 'Factura';
-    
+
+    let ruc = null, razon = null, direccion = null;
+
     if (docType === 'factura') {
-        const ruc = document.getElementById('factura-ruc')?.value.trim();
-        const razon = document.getElementById('factura-razon')?.value.trim();
+        ruc = document.getElementById('factura-ruc')?.value.trim();
+        razon = document.getElementById('factura-razon')?.value.trim();
         if (!ruc || ruc.length !== 11) {
-            showToast('RUC inválido (11 dígitos)', 'warning');
+            showToast('❌ RUC inválido (11 dígitos)', 'warning');
             return;
         }
         if (!razon) {
-            showToast('Ingresa razón social', 'warning');
+            showToast('❌ Ingresa razón social', 'warning');
             return;
         }
     }
-    
+
     closeDocEmissionModal();
     showToast(`📤 Emitiendo ${docName}...`, 'info');
-    
-    // TODO: Integrar con facturación electrónica
-    setTimeout(() => {
-        showToast(`⚠️ ${docName} SUNAT: Próximamente`, 'warning');
-    }, 1500);
+
+    try {
+        let response;
+
+        const payload = {
+            sale_id: saleId,
+            tipo: docType === 'factura' ? '01' : '03',
+            cliente_tipo_doc: docType === 'factura' ? '6' : '0',
+            cliente_num_doc: ruc || '00000000',
+            cliente_nombre: razon || 'CLIENTE VARIOS',
+            cliente_direccion: direccion || null
+        };
+
+        response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showToast(`✅ ${docName} emitida: ${data.numero_formato}`, 'success');
+
+            // Mostrar modal con opciones de PDF
+            if (data.comprobante_id) {
+                const tipoCode = docType === 'factura' ? '01' : '03';
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, tipoCode);
+            }
+        } else {
+            throw new Error(data.detail || data.error || `Error al emitir ${docName.toLowerCase()}`);
+        }
+    } catch (error) {
+        console.error(`[Billing] Error ${docType}:`, error);
+
+        if (error.message.includes('no configurada') || error.message.includes('not configured')) {
+            showToast('⚠️ Facturación no configurada. Ve a Configuración.', 'warning');
+        } else {
+            showToast(`❌ ${error.message}`, 'error');
+        }
+    }
 }
 
 function printTicketFromSale(sale, docType = 'simple') {
@@ -3538,6 +4154,10 @@ function showConfirmModal(total, paymentMethod, onConfirm) {
                     <button class="confirm-action-btn simple" data-print="simple">
                         <i class="fas fa-receipt"></i>
                         <span>Ticket Simple</span>
+                    </button>
+                    <button class="confirm-action-btn sunat" data-print="ticket_electronico" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                        <i class="fas fa-receipt"></i>
+                        <span>Ticket Electr&oacute;nico</span>
                     </button>
                     <button class="confirm-action-btn sunat" data-print="boleta">
                         <i class="fas fa-file-invoice"></i>

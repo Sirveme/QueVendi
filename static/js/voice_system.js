@@ -34,11 +34,11 @@ const IDLE_TIMEOUT = 180000; // 3 minutos
 
 // Configuración de rutas API (SIN duplicar /sales)
 const API_ROUTES = {
-    parseCommand: '/api/sales/voice/parse',
-    createSale: '/api/sales/',           // ✅ Ruta correcta
-    voiceSettings: '/api/sales/voice/settings',
-    todaySales: '/api/sales/today',
-    todayTotal: '/api/sales/today/total'
+    parseCommand: '/api/v1/sales/voice/parse',
+    createSale: '/api/v1/sales/',           // ✅ Ruta correcta
+    voiceSettings: '/api/v1/sales/voice/settings',
+    todaySales: '/api/v1/sales/today',
+    todayTotal: '/api/v1/sales/today/total'
 };;
 
 console.log('[VoiceSystem] Rutas configuradas:', API_ROUTES);
@@ -53,22 +53,30 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 1. Detectar si es móvil
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
-    // 2. Inicializar audio SOLO si no es móvil
+
+    // 2. Variable para audio (fuera del bloque)
+    let audioOk = false;
+
+    // 3. Inicializar audio SOLO si no es móvil
     if (!isMobile) {
-        // NO inicializar audio en móvil
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        if (!isMobile) {
-            const audioOk = await initAudioWithFilters();
-        } else {
-            console.log('[Voice] Móvil: audio se maneja automáticamente');
+        try {
+            audioOk = await initAudioWithFilters();
+            console.log('[Voice] Audio inicializado:', audioOk ? '✅' : '❌');
+        } catch (error) {
+            console.warn('[Voice] Error inicializando audio:', error);
+            audioOk = false;
         }
+        
         if (!audioOk) {
             console.warn('[VoiceSystem] ⚠️ Audio no configurado, pero continuando...');
         }
     } else {
         console.log('[VoiceSystem] 📱 Móvil detectado - audio se activará al tocar');
+        audioOk = true; // En móvil se maneja automáticamente
     }
+
+    // Ahora audioOk es accesible aquí
+    console.log('[Voice] Estado final audioOk:', audioOk);
     
     // 3. Inicializar reconocimiento
     initSpeechRecognition();
@@ -167,6 +175,7 @@ function initSpeechRecognition() {
     VoiceState.recognition.onend = function() {
         console.log('[Voice] Reconocimiento terminado');
         VoiceState.isListening = false;
+        
         const micStatus = document.getElementById('mic-status');
         if (micStatus) {
             micStatus.textContent = '🎤 TOCA PARA ACTIVAR';
@@ -276,6 +285,92 @@ async function processCommand(text) {
     console.log('[Voice] 🔄 Procesando:', text);
     
     try {
+        // ⬇️⬇️⬇️ MANEJO DE SELECCIÓN AMBIGUA (AL INICIO) ⬇️⬇️⬇️
+        if (VoiceState.pendingAmbiguous) {
+            console.log('[Voice] 🔍 Procesando selección ambigua:', text);
+            
+            const { options, quantity } = VoiceState.pendingAmbiguous;
+            let selectedIndex = -1;
+            
+            const textLower = text.toLowerCase().trim();
+            
+            // Opción 1: Usuario dice número directo ("uno", "dos", "1", "2")
+            const numbers = {
+                'uno': 1, 'una': 1, '1': 1, 'primero': 1, 'primera': 1,
+                'dos': 2, '2': 2, 'segundo': 2, 'segunda': 2,
+                'tres': 3, '3': 3, 'tercero': 3, 'tercera': 3,
+                'cuatro': 4, '4': 4, 'cuarto': 4, 'cuarta': 4,
+                'cinco': 5, '5': 5, 'quinto': 5, 'quinta': 5
+            };
+            
+            for (const [word, num] of Object.entries(numbers)) {
+                if (textLower === word || textLower === `opción ${num}` || textLower === `opcion ${num}`) {
+                    if (num >= 1 && num <= options.length) {
+                        selectedIndex = num - 1;
+                        break;
+                    }
+                }
+            }
+            
+            // Opción 2: Usuario dice el nombre o parte del nombre ("cielo", "san carlos", "pilsen")
+            if (selectedIndex === -1) {
+                for (let i = 0; i < options.length; i++) {
+                    const optionName = options[i].name.toLowerCase();
+                    // Buscar coincidencia por palabras (mínimo 3 caracteres)
+                    const words = textLower.split(' ');
+                    for (const word of words) {
+                        if (word.length >= 3 && optionName.includes(word)) {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+                    if (selectedIndex !== -1) break;
+                }
+            }
+            
+            // Si encontró selección, procesar
+            if (selectedIndex !== -1) {
+                const selected = options[selectedIndex];
+                console.log('[Voice] ✅ Seleccionado:', selected.name);
+                
+                // Cerrar modal
+                closeAmbiguousModal();
+                
+                // Limpiar estado pendiente
+                VoiceState.pendingAmbiguous = null;
+                
+                // Agregar producto al carrito
+                await handleAdd({
+                    type: 'add',
+                    items: [{
+                        product: selected,
+                        quantity: quantity,
+                        subtotal: selected.price * quantity
+                    }],
+                    total: selected.price * quantity
+                });
+                
+                return; // ⬅️ IMPORTANTE: Terminar aquí sin hacer fetch
+            }
+            
+            // Si no entendió, pedir de nuevo
+            console.log('[Voice] ❌ No se entendió la selección');
+            await speak('No entendí. Di el número de la opción.');
+            playSound('error');
+            
+            // Reactivar micrófono
+            setTimeout(() => {
+                if (VoiceState.isActive) {
+                    console.log('[Voice] 🎤 Reactivando micrófono');
+                    startListening();
+                }
+            }, 1500);
+            
+            return; // ⬅️ Terminar sin hacer fetch
+        }
+        // ⬆️⬆️⬆️ FIN MANEJO AMBIGUO ⬆️⬆️⬆️
+        
+        // Flujo normal: hacer fetch al backend
         const response = await fetchWithAuth(API_ROUTES.parseCommand, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -299,6 +394,7 @@ async function processCommand(text) {
 }
 
 async function handleCommand(data) {
+    console.log('[Voice] 🎯 Comando:', data.type);
     const type = data.type;
     
     switch (type) {
@@ -309,9 +405,23 @@ async function handleCommand(data) {
         case 'confirm':
             await handleConfirm();
             break;
+
+        case 'ambiguous':
+            await handleAmbiguous(data);
+            break;
+
+        // ⬇️⬇️⬇️ AGREGAR ESTE CASO NUEVO ⬇️⬇️⬇️
+        case 'ambiguous_sale_by_price':
+            await handleAmbiguousSaleByPrice(data);
+            break;
+        // ⬆️⬆️⬆️ FIN CASO NUEVO ⬆️⬆️⬆️
         
         case 'add':
             await handleAdd(data);
+            break;
+
+        case 'add_by_price':  
+            await handleAddByPrice(data);
             break;
         
         case 'sale':
@@ -341,29 +451,212 @@ async function handleCommand(data) {
     }
 }
 
-async function handleAmbiguous(data) {
-    console.log('[Voice] Productos ambiguos:', data.ambiguous_products);
+async function handleAmbiguousSaleByPrice(data) {
+    console.log('[Voice] 💰 Venta por precio ambigua:', data);
     
-    const ambiguous = data.ambiguous_products[0];  // Por ahora solo el primero
+    const { product_query, target_amount, options } = data;
+    
+    // Guardar contexto especial para sale_by_price
+    VoiceState.pendingAmbiguous = {
+        query: product_query,
+        options: options,
+        quantity: null,  // No hay cantidad fija
+        targetAmount: target_amount,  // Guardar el monto objetivo
+        isSaleByPrice: true  // Flag especial
+    };
+    
+    // Mensaje de voz
+    const shortOptions = options.map((opt, i) => {
+        const words = opt.name.split(' ');
+        const shortName = words.slice(0, 2).join(' ');
+        return `${shortName} opción ${i + 1}`;
+    });
+    
+    const optionsText = shortOptions.join(', ');
+    
+    await speakWithoutStop(`Encontré ${optionsText} por ${target_amount} soles`);
+    
+    // Mostrar modal adaptado
+    showAmbiguousOptionsSaleByPrice(product_query, options, target_amount);
+    
+    // Reiniciar reconocimiento
+    console.log('[Voice] 🎤 Reactivando reconocimiento para selección...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (VoiceState.isActive && VoiceState.recognition) {
+        try {
+            try {
+                VoiceState.recognition.stop();
+            } catch (e) {}
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            VoiceState.recognition.start();
+            VoiceState.isListening = true;
+            
+            const micStatus = document.getElementById('mic-status');
+            if (micStatus) {
+                micStatus.textContent = '🎤 ESCUCHANDO...';
+                micStatus.classList.add('listening');
+            }
+            
+            console.log('[Voice] ✅ Reconocimiento reiniciado');
+        } catch (error) {
+            console.error('[Voice] ❌ Error al reiniciar:', error);
+        }
+    }
+}
+
+function showAmbiguousOptionsSaleByPrice(query, options, targetAmount) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.id = 'ambiguous-modal';
+    modal.style.display = 'flex';
+    
+    const html = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>¿Cuál "${query}" por S/. ${targetAmount}?</h2>
+                <button class="modal-close" onclick="closeAmbiguousModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                ${options.map((opt, i) => {
+                    // Calcular cantidad basada en precio
+                    const calculatedQty = (targetAmount / opt.price).toFixed(2);
+                    const unit = opt.unit || 'kg';
+                    
+                    return `
+                        <div class="ambiguous-option" onclick="selectAmbiguousOptionFromUI(${i})">
+                            <div class="option-number">${i + 1}</div>
+                            <div class="option-info">
+                                <div class="option-name">${opt.name}</div>
+                                <div class="option-price">
+                                    S/. ${opt.price.toFixed(2)}/${unit} 
+                                    → <strong>${calculatedQty} ${unit}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+                <button onclick="closeAmbiguousModal()" 
+                        style="width: 100%; margin-top: 16px; padding: 12px; 
+                               background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+                               color: white; border-radius: 8px; cursor: pointer;">
+                    Cancelar
+                </button>
+                <div style="margin-top: 16px; text-align: center; color: rgba(255,255,255,0.6); font-size: 12px;">
+                    🎤 Di el número o toca una opción
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.innerHTML = html;
+    document.body.appendChild(modal);
+}
+
+async function handleAmbiguous(data) {
+    console.log('[Voice] Productos ambiguos:', data.ambiguous_items);
+    
+    const ambiguous = data.ambiguous_items[0];
     const query = ambiguous.query;
     const options = ambiguous.options;
     
-    // Crear mensaje de voz con opciones
-    const optionsText = options.map((opt, i) => 
-        `${i + 1}: ${opt.name}`
-    ).join(', ');
+    // Guardar contexto
+    VoiceState.pendingAmbiguous = {
+        query: query,
+        options: options,
+        quantity: ambiguous.quantity
+    };
     
-    await speak(`Encontré varios ${query}. ${optionsText}. ¿Cuál quieres?`);
+    // Mensaje natural
+    const shortOptions = options.map((opt, i) => {
+        const words = opt.name.split(' ');
+        const shortName = words.slice(0, 2).join(' ');
+        return `${shortName} opción ${i + 1}`;
+    });
     
-    // Mostrar opciones en pantalla
-    showAmbiguousOptions(query, options);
+    const optionsText = shortOptions.join(', ');
     
-    // Esperar respuesta del usuario
-    // El usuario puede decir el número o el nombre completo
+    // Mostrar modal
+    showAmbiguousOptions(query, options, ambiguous.quantity);
+    
+    // Hablar
+    await speakWithoutStop(`Encontré ${optionsText}`);
+    
+    // ⬇️⬇️⬇️ REINICIAR RECONOCIMIENTO AQUÍ ⬇️⬇️⬇️
+    console.log('[Voice] 🎤 Reactivando reconocimiento para selección...');
+    
+    // Pequeña pausa para que termine el TTS
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (VoiceState.isActive && VoiceState.recognition) {
+        try {
+            // Asegurar que esté detenido antes de reiniciar
+            try {
+                VoiceState.recognition.stop();
+            } catch (e) {
+                // Ignorar error si ya estaba detenido
+            }
+            
+            // Esperar un poco
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Reiniciar
+            VoiceState.recognition.start();
+            VoiceState.isListening = true;
+            
+            // Actualizar UI
+            const micStatus = document.getElementById('mic-status');
+            if (micStatus) {
+                micStatus.textContent = '🎤 ESCUCHANDO...';
+                micStatus.classList.add('listening');
+            }
+            
+            console.log('[Voice] ✅ Reconocimiento reiniciado para escuchar selección');
+        } catch (error) {
+            console.error('[Voice] ❌ Error al reiniciar reconocimiento:', error);
+        }
+    }
+    // ⬆️⬆️⬆️ FIN REINICIO ⬆️⬆️⬆️
 }
 
-function showAmbiguousOptions(query, options) {
-    // Crear modal con opciones
+// ⬇️⬇️⬇️ NUEVA FUNCIÓN ⬇️⬇️⬇️
+/**
+ * Hablar sin detener el reconocimiento de voz
+ */
+async function speakWithoutStop(text) {
+    console.log('[TTS] 🔊 Diciendo (sin detener mic):', text);
+    
+    if (!window.speechSynthesis) {
+        console.warn('[TTS] ⚠️ Speech synthesis no disponible');
+        return;
+    }
+    
+    return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        utterance.onend = () => {
+            console.log('[TTS] ✅ Finalizado (mic sigue activo)');
+            resolve();
+        };
+        
+        utterance.onerror = (event) => {
+            console.error('[TTS] ❌ Error:', event);
+            resolve();
+        };
+        
+        window.speechSynthesis.speak(utterance);
+        console.log('[TTS] ✅ Reproduciendo (mic activo)...');
+    });
+}
+// ⬆️⬆️⬆️ FIN FUNCIÓN ⬆️⬆️⬆️
+
+
+function showAmbiguousOptions(query, options, quantity) {  // ⬅️ AGREGAR quantity
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.id = 'ambiguous-modal';
@@ -377,7 +670,7 @@ function showAmbiguousOptions(query, options) {
             </div>
             <div class="modal-body">
                 ${options.map((opt, i) => `
-                    <div class="ambiguous-option" onclick="selectAmbiguousOption(${i}, ${opt.id}, '${opt.name}', ${opt.price})">
+                    <div class="ambiguous-option" onclick="selectAmbiguousOptionFromUI(${i})">
                         <div class="option-number">${i + 1}</div>
                         <div class="option-info">
                             <div class="option-name">${opt.name}</div>
@@ -385,8 +678,14 @@ function showAmbiguousOptions(query, options) {
                         </div>
                     </div>
                 `).join('')}
+                <button onclick="closeAmbiguousModal()" 
+                        style="width: 100%; margin-top: 16px; padding: 12px; 
+                               background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+                               color: white; border-radius: 8px; cursor: pointer;">
+                    Cancelar
+                </button>
                 <div style="margin-top: 16px; text-align: center; color: rgba(255,255,255,0.6); font-size: 12px;">
-                    Di el número o toca una opción
+                    🎤 Di el número o toca una opción
                 </div>
             </div>
         </div>
@@ -394,6 +693,49 @@ function showAmbiguousOptions(query, options) {
     
     modal.innerHTML = html;
     document.body.appendChild(modal);
+}
+
+
+// ⬇️⬇️⬇️ AGREGAR ESTA FUNCIÓN ⬇️⬇️⬇️
+async function selectAmbiguousOptionFromUI(index) {
+    if (!VoiceState.pendingAmbiguous) return;
+    
+    const { options, quantity, targetAmount, isSaleByPrice } = VoiceState.pendingAmbiguous;
+    const selected = options[index];
+    
+    console.log('[Voice] ✅ Seleccionado por click:', selected.name);
+    
+    closeAmbiguousModal();
+    VoiceState.pendingAmbiguous = null;
+    
+    // ⬇️⬇️⬇️ SI ES VENTA POR PRECIO, CALCULAR CANTIDAD ⬇️⬇️⬇️
+    let finalQuantity = quantity;
+    
+    if (isSaleByPrice) {
+        finalQuantity = targetAmount / selected.price;
+        console.log(`[Voice] 💰 Calculando: ${targetAmount} / ${selected.price} = ${finalQuantity.toFixed(2)}`);
+    }
+    // ⬆️⬆️⬆️ FIN CÁLCULO ⬆️⬆️⬆️
+    
+    await handleAdd({
+        type: 'add',
+        items: [{
+            product: selected,
+            quantity: finalQuantity,
+            subtotal: selected.price * finalQuantity
+        }],
+        total: selected.price * finalQuantity
+    });
+}
+// ⬆️⬆️⬆️ FIN FUNCIÓN ⬆️⬆️⬆️
+
+function closeAmbiguousModal() {
+    const modal = document.getElementById('ambiguous-modal');
+    if (modal) {
+        modal.remove();
+    }
+    // Limpiar estado pendiente
+    VoiceState.pendingAmbiguous = null;
 }
 
 
@@ -509,21 +851,60 @@ async function handleConfirm() {
 }
 
 async function handleAdd(data) {
-    // Agregar al carrito existente
-    for (const item of data.items) {
-        VoiceState.cart.push(item);
+    console.log('[Voice] Agregando items:', data.items);
+    
+    // Para cada item a agregar
+    for (const newItem of data.items) {
+        // Buscar si ya existe en carrito
+        const existingIndex = VoiceState.cart.findIndex(
+            item => item.product.id === newItem.product.id
+        );
+        
+        if (existingIndex !== -1) {
+            // ✅ YA EXISTE - SUMAR CANTIDAD
+            const existing = VoiceState.cart[existingIndex];
+            existing.quantity += newItem.quantity;
+            existing.subtotal = existing.quantity * existing.product.price;
+            
+            console.log(`[Voice] ➕ Sumado a existente: ${newItem.product.name} (ahora ${existing.quantity})`);
+        } else {
+            // ✅ NO EXISTE - AGREGAR NUEVO
+            VoiceState.cart.push(newItem);
+            console.log(`[Voice] 🆕 Agregado nuevo: ${newItem.product.name}`);
+        }
     }
     
     updateCartDisplay();
     
     const total = VoiceState.cart.reduce((sum, item) => sum + item.subtotal, 0);
-    const itemNames = data.items.map(i => `${formatQuantity(i.quantity)} ${i.product.name}`).join(' y ');
     
-    await speak(`Agregado ${itemNames}. Van ${formatPrice(total)}`);
+    // Mensaje de confirmación
+    if (data.items.length === 1) {
+        const item = data.items[0];
+        
+        if (data.by_price) {
+            // Venta por precio
+            await speak(`${item.quantity} ${item.product.unit} de ${item.product.name} por ${formatPrice(item.subtotal)}`);
+        } else {
+            // Venta normal
+            await speak(`${formatQuantity(item.quantity)} ${item.product.name}. Van ${formatPrice(total)}`);
+        }
+    } else {
+        // Múltiples items
+        const itemNames = data.items.map(i => `${formatQuantity(i.quantity)} ${i.product.name}`).join(' y ');
+        await speak(`${itemNames}. Van ${formatPrice(total)}`);
+    }
+    
+    playSound('success');
     
     if (data.warning) {
         await speak(data.warning);
     }
+}
+
+async function handleAddByPrice(data) {
+    // Es lo mismo que handleAdd, pero con mensaje especial
+    await handleAdd(data);
 }
 
 async function handleSale(data) {
@@ -665,7 +1046,7 @@ async function confirmSale() {
     
     try {
         // ✅ Ruta hardcoded para evitar duplicación
-        const response = await fetchWithAuth('/api/sales/', {
+        const response = await fetchWithAuth('/api/v1/sales/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(saleData)
@@ -678,23 +1059,29 @@ async function confirmSale() {
         
         const result = await response.json();
         console.log('[Voice] ✅ Venta guardada:', result);
-        
+
         const total = VoiceState.cart.reduce((sum, i) => sum + i.subtotal, 0);
-        
+        const saleId = result.id;
+
         // Limpiar carrito
         VoiceState.cart = [];
         updateCartDisplay();
-        
+
         // Actualizar UI
-        htmx.ajax('GET', '/api/sales/today/total/html', {target: '#daily-summary', swap: 'innerHTML'});
-        htmx.ajax('GET', '/api/sales/today/html', {target: '#sales-list', swap: 'innerHTML'});
-        
+        htmx.ajax('GET', '/api/v1/sales/today/total/html', {target: '#daily-summary', swap: 'innerHTML'});
+        htmx.ajax('GET', '/api/v1/sales/today/html', {target: '#sales-list', swap: 'innerHTML'});
+
         // Evento personalizado para actualizar otras partes
         document.body.dispatchEvent(new CustomEvent('salesUpdated'));
-        
+
         // Respuesta de voz
         await speak(`Venta confirmada por ${formatPrice(total)}. Siguiente cliente`);
         playSound('confirm');
+
+        // Mostrar modal de boleta si está disponible
+        if (typeof showBoletaModal === 'function') {
+            showBoletaModal(saleId, total);
+        }
         
     } catch (error) {
         console.error('[Voice] ❌ Error al confirmar:', error);

@@ -62,7 +62,7 @@ const AudioAssistant = {
         }
     },
     
-    // ✅ PROCESAR QUEUE
+    // ✅ PROCESAR QUEUE (corregido con arrow functions)
     processQueue: function() {
         if (speechQueue.length === 0) {
             isSpeaking = false;
@@ -75,10 +75,8 @@ const AudioAssistant = {
         console.log('[AudioAssistant] 🔊 Hablando:', text);
         
         try {
-            // Crear mensaje
             const utterance = new SpeechSynthesisUtterance(text);
             
-            // Configurar voz
             if (this.selectedVoice) {
                 utterance.voice = this.selectedVoice;
             }
@@ -87,37 +85,33 @@ const AudioAssistant = {
             utterance.rate = options.rate || this.rate;
             utterance.pitch = options.pitch || this.pitch;
             
-            // ✅ CALLBACKS
+            // ✅ USAR ARROW FUNCTIONS para mantener contexto
             utterance.onend = () => {
                 console.log('[AudioAssistant] ✅ Terminado');
                 isSpeaking = false;
                 
-                // Procesar siguiente en queue después de pequeña pausa
                 setTimeout(() => {
-                    this.processQueue();
+                    AudioAssistant.processQueue();  // ← Llamada explícita
                 }, 300);
             };
             
             utterance.onerror = (event) => {
-                console.log('[AudioAssistant] Error:', event);
+                console.log('[AudioAssistant] ⚠️ Error:', event.error);
                 isSpeaking = false;
                 
-                // Intentar siguiente en queue
                 setTimeout(() => {
-                    this.processQueue();
+                    AudioAssistant.processQueue();  // ← Llamada explícita
                 }, 300);
             };
             
-            // Hablar
             window.speechSynthesis.speak(utterance);
             
         } catch (error) {
-            console.error('[AudioAssistant] Error al hablar:', error);
+            console.error('[AudioAssistant] 💥 Error:', error);
             isSpeaking = false;
             
-            // Continuar con siguiente
             setTimeout(() => {
-                this.processQueue();
+                AudioAssistant.processQueue();  // ← Llamada explícita
             }, 300);
         }
     },
