@@ -143,7 +143,6 @@ function checkAuth() {
 }
 
 async function fetchWithAuth(url, options = {}) {
-    alert('fetchWithAuth: ' + url); // Debugging line
     const token = getAuthToken();
     
     if (!token) {
@@ -156,9 +155,9 @@ async function fetchWithAuth(url, options = {}) {
         'Content-Type': 'application/json',
         ...options.headers
     };
-    alert('fetchWithAuth: ' + url); // Debugging line
+
     const response = await fetch(url, { ...options, headers });
-    alert('fetchWithAuth: ' + url); // Debugging line
+
     if (response.status === 401) {
         localStorage.clear();
         window.location.href = '/auth/login';
