@@ -118,7 +118,6 @@ class BillingService:
             tipo=tipo,
             serie=serie,
             numero=0,  # ← Temporal, se actualiza después
-            numero_formato=f"{serie}-PENDIENTE",  # ← Temporal
             subtotal=subtotal_sin_igv,
             igv=igv,
             total=subtotal,
@@ -142,7 +141,6 @@ class BillingService:
             numero_formato_real = resultado.get("numero_formato", f"{serie}-{str(numero_real).zfill(8)}")
             
             comprobante.numero = numero_real
-            comprobante.numero_formato = numero_formato_real
             comprobante.status = "accepted"
             comprobante.facturalo_id = resultado.get("facturalo_id")
             comprobante.facturalo_response = resultado.get("response")
@@ -168,7 +166,7 @@ class BillingService:
                 "comprobante_id": comprobante.id,
                 "serie": serie,
                 "numero": numero_real,
-                "numero_formato": numero_formato_real,
+                "numero_formato": comprobante.numero_formato,  # ✅ Usar la property
                 "pdf_url": comprobante.pdf_url,
                 "error": None
             }
