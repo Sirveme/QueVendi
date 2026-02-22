@@ -44,6 +44,14 @@ class BillingService:
             and self.config.is_active
         )
 
+    # ============================================
+# FIX: billing_service.py
+# Problema: QueVendi y facturalo.pro calculaban correlativos independientemente
+# Solución: facturalo.pro es la fuente de verdad del correlativo
+# ============================================
+
+# REEMPLAZAR el método emitir_comprobante completo:
+
     async def emitir_comprobante(
         self,
         sale_id: int,
@@ -56,24 +64,9 @@ class BillingService:
     ) -> Dict[str, Any]:
         """
         Emite un comprobante electrónico para una venta.
-
-        Args:
-            sale_id: ID de la venta
-            tipo: '01'=Factura, '03'=Boleta (default)
-            cliente_tipo_doc: '0'=Sin doc, '1'=DNI, '6'=RUC
-            cliente_num_doc: Número de documento
-            cliente_nombre: Nombre/Razón social
-            cliente_direccion: Dirección (opcional)
-            cliente_email: Email para enviar PDF (opcional)
-
-        Returns:
-            {
-                "success": True/False,
-                "comprobante_id": int,
-                "numero_formato": "B001-00000001",
-                "pdf_url": "https://...",
-                "error": "mensaje de error si falla"
-            }
+        
+        FIX: El correlativo lo asigna facturalo.pro, no QueVendi.
+        Esto evita desfases entre el número mostrado y el del PDF.
         """
         if not self.esta_configurado():
             return {"success": False, "error": "Facturación no configurada para esta tienda"}
@@ -96,27 +89,14 @@ class BillingService:
         if not sale:
             return {"success": False, "error": "Venta no encontrada"}
 
-        # Determinar serie y número (usar MAX de BD para evitar colisiones)
+        # Determinar serie
         if tipo == "01":
             serie = self.config.serie_factura
         else:
             serie = self.config.serie_boleta
 
-        from sqlalchemy import func
-        max_numero = self.db.query(func.max(Comprobante.numero)).filter(
-            Comprobante.store_id == self.store_id,
-            Comprobante.tipo == tipo,
-            Comprobante.serie == serie
-        ).scalar() or 0
-
-        # Usar el mayor entre config y BD real
-        if tipo == "01":
-            config_numero = self.config.ultimo_numero_factura
-        else:
-            config_numero = self.config.ultimo_numero_boleta
-
-        numero = max(max_numero, config_numero) + 1
-        logger.info(f"[Billing] Correlativo: max_bd={max_numero}, config={config_numero}, siguiente={numero}")
+        # ✅ FIX: NO pre-calculamos el número
+        # El número lo asigna facturalo.pro
 
         # Construir items del comprobante
         items = self._construir_items(sale)
@@ -124,21 +104,21 @@ class BillingService:
         # Calcular totales
         subtotal = Decimal(str(sale.total))
         if self.config.tipo_afectacion_igv == "10":
-            # Gravado: separar IGV
             igv = round(subtotal - (subtotal / Decimal("1.18")), 2)
             subtotal_sin_igv = subtotal - igv
         else:
-            # Exonerado
             igv = Decimal("0")
             subtotal_sin_igv = subtotal
 
-        # Crear comprobante en BD local
+        # ✅ FIX: Crear comprobante con número temporal (0)
+        # Se actualizará con el número real de facturalo.pro
         comprobante = Comprobante(
             store_id=self.store_id,
             sale_id=sale_id,
             tipo=tipo,
             serie=serie,
-            numero=numero,
+            numero=0,  # ← Temporal, se actualiza después
+            numero_formato=f"{serie}-PENDIENTE",  # ← Temporal
             subtotal=subtotal_sin_igv,
             igv=igv,
             total=subtotal,
@@ -157,6 +137,12 @@ class BillingService:
         resultado = await self._enviar_a_facturalo(comprobante)
 
         if resultado["success"]:
+            # ✅ FIX: Usar el número que devolvió facturalo.pro
+            numero_real = resultado.get("numero", 0)
+            numero_formato_real = resultado.get("numero_formato", f"{serie}-{str(numero_real).zfill(8)}")
+            
+            comprobante.numero = numero_real
+            comprobante.numero_formato = numero_formato_real
             comprobante.status = "accepted"
             comprobante.facturalo_id = resultado.get("facturalo_id")
             comprobante.facturalo_response = resultado.get("response")
@@ -167,37 +153,152 @@ class BillingService:
             comprobante.xml_url = resultado.get("xml_url")
             comprobante.cdr_url = resultado.get("cdr_url")
 
-            # Actualizar correlativo en config
+            # ✅ FIX: Actualizar correlativo en config con el número REAL
             if tipo == "01":
-                self.config.ultimo_numero_factura = numero
+                self.config.ultimo_numero_factura = numero_real
             else:
-                self.config.ultimo_numero_boleta = numero
+                self.config.ultimo_numero_boleta = numero_real
 
             self.db.commit()
+            
+            logger.info(f"[Billing] ✅ Comprobante emitido: {numero_formato_real}")
+
+            return {
+                "success": True,
+                "comprobante_id": comprobante.id,
+                "serie": serie,
+                "numero": numero_real,
+                "numero_formato": numero_formato_real,
+                "pdf_url": comprobante.pdf_url,
+                "error": None
+            }
         else:
-            # Rollback: no guardar comprobantes rechazados (no gastar correlativos)
+            # Rollback: no guardar comprobantes rechazados
             self.db.rollback()
-            logger.warning(f"[Billing] Comprobante rechazado, rollback: {resultado.get('error')}")
+            logger.warning(f"[Billing] ❌ Comprobante rechazado: {resultado.get('error')}")
 
             return {
                 "success": False,
                 "comprobante_id": None,
                 "serie": serie,
-                "numero": numero,
-                "numero_formato": f"{serie}-{str(numero).zfill(8)}",
+                "numero": None,
+                "numero_formato": None,
                 "pdf_url": None,
                 "error": resultado.get("error")
             }
 
-        return {
-            "success": resultado["success"],
-            "comprobante_id": comprobante.id,
-            "serie": serie,
-            "numero": numero,
-            "numero_formato": f"{serie}-{str(numero).zfill(8)}",
-            "pdf_url": comprobante.pdf_url,
-            "error": resultado.get("error")
+
+# ============================================
+# REEMPLAZAR el método _enviar_a_facturalo:
+# ============================================
+
+    async def _enviar_a_facturalo(self, comprobante: Comprobante) -> Dict:
+        """Envía el comprobante a facturalo.pro"""
+
+        # Fecha y hora de emisión en timezone Perú
+        ahora_peru = datetime.now(TZ_PERU)
+
+        payload = {
+            "tipo_comprobante": comprobante.tipo,
+            "serie": comprobante.serie,
+            # ✅ FIX: NO enviamos número, facturalo.pro lo asigna
+            "fecha_emision": ahora_peru.strftime("%Y-%m-%d"),
+            "hora_emision": ahora_peru.strftime("%H:%M:%S"),
+            "moneda": "PEN",
+            "forma_pago": "Contado",
+            "cliente": {
+                "tipo_documento": comprobante.cliente_tipo_doc,
+                "numero_documento": comprobante.cliente_num_doc,
+                "razon_social": comprobante.cliente_nombre,
+                "direccion": comprobante.cliente_direccion,
+                "email": comprobante.cliente_email
+            },
+            "items": [{
+                "descripcion": item.get("descripcion"),
+                "cantidad": item.get("cantidad", 1),
+                "unidad_medida": item.get("unidad", "NIU"),
+                "precio_unitario": item.get("precio_unitario"),
+                "tipo_afectacion_igv": self.config.tipo_afectacion_igv
+            } for item in (comprobante.items or [])],
+            "enviar_email": bool(comprobante.cliente_email),
+            "referencia_externa": f"QUEVENDI-VENTA-{comprobante.sale_id}"
         }
+
+        api_url = f"{self.config.facturalo_url}/comprobantes"
+        logger.info(f"[Billing] Enviando a {api_url}: serie={comprobante.serie}, tipo={comprobante.tipo}")
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    api_url,
+                    json=payload,
+                    headers={
+                        "Content-Type": "application/json",
+                        "X-API-Key": self.config.facturalo_token,
+                        "X-API-Secret": self.config.facturalo_secret
+                    }
+                )
+
+                logger.info(f"[Billing] Respuesta: status={response.status_code}")
+
+                try:
+                    data = response.json()
+                except Exception:
+                    body_preview = response.text[:500] if response.text else "(vacío)"
+                    logger.error(f"[Billing] Respuesta no-JSON: {body_preview}")
+                    return {
+                        "success": False,
+                        "error": f"facturalo.pro respondió con formato inválido (HTTP {response.status_code})",
+                        "response": {"raw": body_preview}
+                    }
+
+                if response.status_code in [200, 201] and data.get("exito"):
+                    comp_data = data.get("comprobante", {})
+                    archivos = data.get("archivos", {})
+                    
+                    # ✅ FIX: Extraer número y numero_formato de la respuesta
+                    numero = comp_data.get("numero")
+                    numero_formato = comp_data.get("numero_formato")
+                    
+                    logger.info(f"[Billing] ✅ facturalo.pro asignó: {numero_formato}")
+                    
+                    return {
+                        "success": True,
+                        "facturalo_id": comp_data.get("id"),
+                        "numero": numero,  # ✅ Número real asignado por facturalo
+                        "numero_formato": numero_formato,  # ✅ Formato completo
+                        "response": data,
+                        "sunat_code": comp_data.get("codigo_sunat", "0"),
+                        "sunat_description": comp_data.get("mensaje_sunat"),
+                        "hash": comp_data.get("hash_cpe"),
+                        "pdf_url": archivos.get("pdf_url"),
+                        "xml_url": archivos.get("xml_url"),
+                        "cdr_url": archivos.get("cdr_url"),
+                    }
+                else:
+                    error_msg = data.get("mensaje", data.get("error", "Error desconocido"))
+                    if isinstance(data.get("detail"), dict):
+                        error_msg = data["detail"].get("error", error_msg)
+                    elif isinstance(data.get("detail"), str):
+                        error_msg = data["detail"]
+                    
+                    logger.error(f"[Billing] ❌ Rechazado: {error_msg}")
+                    return {
+                        "success": False,
+                        "error": error_msg,
+                        "response": data
+                    }
+
+        except httpx.TimeoutException:
+            logger.error("[Billing] Timeout conectando a facturalo.pro")
+            return {"success": False, "error": "Timeout conectando a facturalo.pro"}
+        except httpx.RequestError as e:
+            logger.error(f"[Billing] Error de conexión: {str(e)}")
+            return {"success": False, "error": f"Error de conexión: {str(e)}"}
+        except Exception as e:
+            logger.error(f"[Billing] Error inesperado: {str(e)}")
+            return {"success": False, "error": f"Error inesperado: {str(e)}"}
+
 
     def _construir_items(self, sale: Sale) -> List[Dict]:
         """Construye la lista de items para el comprobante"""
