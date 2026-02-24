@@ -256,12 +256,6 @@ async def reports_page(request: Request):
     return templates.TemplateResponse("reports.html", {"request": request})
 
 
-@app.get("/settings", response_class=HTMLResponse)
-async def settings_page(request: Request):
-    """Configuración (solo owners)"""
-    return templates.TemplateResponse("settings.html", {"request": request})
-
-
 @app.get("/users/add", response_class=HTMLResponse)
 async def add_user_page(request: Request):
     """Agregar usuarios"""
@@ -276,6 +270,17 @@ async def add_user_page(request: Request):
 async def landing_fundadores(request: Request):
     """Landing page - Campaña Fundadores"""
     return templates.TemplateResponse("lanza/fundadores/fundadores.html", {"request": request})
+
+
+# ========================================
+# GUÍA - ESTRATÉGICA / MAESTRA
+# ========================================
+
+@app.get("/guia", response_class=HTMLResponse)
+async def guia_maestra(request: Request):
+    """Landing - Guía estratégica para bodegas"""
+    return templates.TemplateResponse("lanza/guia_maestra.html", {"request": request})
+
 
 
 # ========================================
