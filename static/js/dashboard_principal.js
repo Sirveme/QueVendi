@@ -1969,7 +1969,7 @@ function cerrarModalFiado() {
     document.getElementById('modal-fiado-direccion').value = '';
     
     // Restaurar método de pago a efectivo
-    selectPayment('cash');
+    selectPayment('efectivo');  // ← FIX: era 'cash', debe ser 'efectivo'
     
     console.log('[Fiado] Modal cerrado');
 }
@@ -2187,7 +2187,7 @@ async function executeSale(total, printType = 'none') {
                 document.getElementById('modal-fiado-dias').value = '';
 
                 // Resetear a efectivo
-                selectPayment('cash');
+                selectPayment('efectivo');
             }
             
             // Mostrar botón cobrar de nuevo
