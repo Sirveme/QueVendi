@@ -268,6 +268,15 @@ async def get_low_stock(
     ]
 
 
+# ══════════════════════════════════════════════════════════════
+# FIX: app/api/v1/products.py → reemplazar search_products completo
+# ══════════════════════════════════════════════════════════════
+# Cambio clave: unnest() → array_to_string()
+# unnest() es set-returning y NO puede ir en WHERE en PostgreSQL
+# array_to_string convierte ['coca','gaseosa'] → 'coca gaseosa'
+# y se busca con ILIKE normal, sin error.
+# ══════════════════════════════════════════════════════════════
+
 @router.post("/search")
 async def search_products(
     search: ProductSearch,
@@ -275,8 +284,8 @@ async def search_products(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Buscar productos por nombre (endpoint existente que usa el POS).
-    MEJORADO: ahora también busca en aliases.
+    Buscar productos por nombre + aliases.
+    FIX: array_to_string() en vez de unnest() para búsqueda en aliases.
     """
     try:
         query_text = search.query.lower().strip()
@@ -285,9 +294,12 @@ async def search_products(
         if len(query_text) < 2:
             return []
 
-        # Búsqueda en nombre + aliases (MEJORA V2)
+        # Aliases array → texto: ['coca','gaseosa'] → 'coca gaseosa'
+        aliases_str = func.lower(
+            func.coalesce(func.array_to_string(Product.aliases, ' '), '')
+        )
+
         if len(query_text) <= 3:
-            # Palabras cortas: match exacto de palabras
             products = db.query(Product).filter(
                 Product.store_id == current_user.store_id,
                 Product.is_active == True,
@@ -297,20 +309,18 @@ async def search_products(
                     Product.name.ilike(f"% {query_text} %"),
                     Product.name.ilike(f"% {query_text}"),
                     func.lower(Product.name) == query_text,
-                    # V2: buscar en aliases
-                    query_text == any_(func.lower(func.unnest(Product.aliases)))
+                    aliases_str.ilike(f"{query_text}%"),
+                    aliases_str.ilike(f"% {query_text}%"),
                 )
             ).limit(search.limit).all()
         else:
-            # Palabras largas: contiene
             products = db.query(Product).filter(
                 Product.store_id == current_user.store_id,
                 Product.is_active == True,
                 Product.deleted_at.is_(None),
                 or_(
                     Product.name.ilike(f"%{query_text}%"),
-                    # V2: buscar en aliases con LIKE
-                    Product.aliases.any(query_text)
+                    aliases_str.ilike(f"%{query_text}%"),
                 )
             ).limit(search.limit).all()
 
