@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo QueVendi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); }
+        
+        .header { background: #4CAF50; color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        
+        .search-bar { background: white; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .search-bar form { max-width: 800px; margin: 0 auto; display: flex; gap: 10px; }
+        .search-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .search-bar button { padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        
+        .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .store-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .store-card:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        .store-card img { width: 100%; height: 200px; object-fit: cover; background: #f0f0f0; }
+        .store-card-body { padding: 20px; }
+        .store-card h3 { margin-bottom: 10px; color: #333; }
+        .store-card p { color: #666; margin: 5px 0; }
+        .store-card a { display: block; margin-top: 15px; padding: 10px; background: #4CAF50; color: white; text-align: center; text-decoration: none; border-radius: 8px; }
+        
+        .empty { text-align: center; padding: 60px 20px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛒 Catálogo QueVendi</h1>
+        <p>Encuentra tu tienda más cercana</p>
+    </div>
+    
+    <div class="search-bar">
+        <form method="GET">
+            <input type="text" name="buscar" placeholder="Buscar por nombre, RUC o teléfono..." value="{{ buscar or '' }}">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+    
+    <div class="container">
+        {% if stores %}
+        <div class="stores-grid">
+            {% for store in stores %}
+            <div class="store-card">
+                <img src="{{ store.logo_url or '/static/img/store-default.png' }}" alt="{{ store.name }}">
+                <div class="store-card-body">
+                    <h3>{{ store.commercial_name or store.business_name }}</h3>
+                    <p>📍 {{ store.district or 'Lima' }}</p>
+                    <p>📱 {{ store.phone }}</p>
+                    <p>🏪 {{ store.business_type or 'Tienda' }}</p>
+                    <a href="/catalogo/{{ store.catalog_slug }}">Ver productos</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <h2>No se encontraron tiendas</h2>
+            <p>Intenta con otra búsqueda</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

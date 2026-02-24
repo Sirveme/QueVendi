@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guía profesional para aumentar ventas en bodegas y minimarkets de Latinoamérica">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Bodega Inteligente | Guía Profesional para Aumentar Ventas</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest_bodegas.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw_bodegas.js', {
+                scope: '/'
+            });
+        }
+    </script>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/static/css/guia/main.css" as="style">
+    <link rel="preload" href="/static/css/guia/themes.css" as="style">
+    <link rel="preload" href="/static/js/guia/app.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/guia/main.css">
+    <link rel="stylesheet" href="/static/css/guia/themes.css">
+    <link rel="stylesheet" href="/static/css/guia/components.css">
+    <link rel="stylesheet" href="/static/css/guia/animations.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark" data-reading-mode="comfortable">
+    
+    <!-- Loader inicial con efecto premium -->
+    <div id="app-loader" class="app-loader">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="35" stroke="url(#gradient)" stroke-width="3" fill="none" 
+                            stroke-dasharray="220" stroke-dashoffset="220" class="loader-circle"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="loader-icon">🏪</div>
+            </div>
+            <h2 class="loader-text">Bodega Inteligente</h2>
+            <p class="loader-subtext">Cargando tu guía profesional...</p>
+        </div>
+    </div>
+
+    <!-- Navigation principal -->
+    <nav id="main-nav" class="main-nav" role="navigation">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">🏪</div>
+                <span class="brand-name">Bodega<span class="brand-accent">Pro</span></span>
+            </div>
+            
+            <div class="nav-progress">
+                <div class="progress-bar" id="reading-progress">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text">0% completado</span>
+            </div>
+
+            <div class="nav-actions">
+                <!-- User profile -->
+                <div class="user-profile" id="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Usuario&background=3b82f6&color=fff" alt="Avatar" class="user-avatar">
+                    <span class="user-name">Usuario</span>
+                </div>
+
+                <!-- Theme toggle -->
+                <button class="icon-btn" id="theme-toggle" aria-label="Cambiar tema">
+                    <svg class="theme-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                    </svg>
+                </button>
+
+                <!-- Font settings -->
+                <button class="icon-btn" id="font-settings-toggle" aria-label="Configuración de fuente">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z"/>
+                    </svg>
+                </button>
+
+                <!-- Menu toggle -->
+                <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menú">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar navigation -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Contenido</h3>
+            <button class="icon-btn sidebar-close" aria-label="Cerrar menú">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <nav class="toc">
+                <div class="toc-section">
+                    <h4 class="toc-category">Introducción</h4>
+                    <a href="#hero" class="toc-item active" data-section="hero">
+                        <span class="toc-icon">🎯</span>
+                        <span class="toc-title">Inicio</span>
+                    </a>
+                    <a href="#diagnostico" class="toc-item" data-section="diagnostico">
+                        <span class="toc-icon">📊</span>
+                        <span class="toc-title">Diagnóstico Rápido</span>
+                    </a>
+                </div>
+
+                <div class="toc-section">
+                    <h4 class="toc-category">Acción Inmediata</h4>
+                    <a href="#minimo-hoy" class="toc-item featured" data-section="minimo-hoy">
+                        <span class="toc-icon">⚡</span>
+                        <span class="toc-title">Lo Mínimo para HOY</span>
+                        <span class="toc-badge">Popular</span>
+                    </a>
+                </div>
+
+                <div class="toc-section">
+                    <h4 class="toc-category">Sin Tecnología</h4>
+                    <a href="#cap1" class="toc-item" data-section="cap1">
+                        <span class="toc-icon">🎨</span>
+                        <span class="toc-title">Exhibición que Vende</span>
+                        <span class="toc-progress">100%</span>
+                    </a>
+                    <a href="#cap2" class="toc-item" data-section="cap2">
+                        <span class="toc-icon">📦</span>
+                        <span class="toc-title">Gestión de Stock</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                    <a href="#cap3" class="toc-item" data-section="cap3">
+                        <span class="toc-icon">🤝</span>
+                        <span class="toc-title">Atención al Cliente</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                    <a href="#cap4" class="toc-item" data-section="cap4">
+                        <span class="toc-icon">💰</span>
+                        <span class="toc-title">Pricing Estratégico</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                </div>
+
+                <div class="toc-section">
+                    <h4 class="toc-category">Con Tecnología</h4>
+                    <a href="#cap5" class="toc-item" data-section="cap5">
+                        <span class="toc-icon">💻</span>
+                        <span class="toc-title">Sistemas POS</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                    <a href="#cap6" class="toc-item" data-section="cap6">
+                        <span class="toc-icon">📱</span>
+                        <span class="toc-title">Equipos y Dispositivos</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                    <a href="#cap7" class="toc-item" data-section="cap7">
+                        <span class="toc-icon">📈</span>
+                        <span class="toc-title">ROI de Digitalización</span>
+                        <span class="toc-progress">0%</span>
+                    </a>
+                </div>
+
+                <div class="toc-section">
+                    <h4 class="toc-category">Casos de Éxito</h4>
+                    <a href="#casos" class="toc-item" data-section="casos">
+                        <span class="toc-icon">🏆</span>
+                        <span class="toc-title">Historias Reales</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-stats">
+                <h4>Tu Progreso</h4>
+                <div class="stat-item">
+                    <div class="stat-label">Tiempo de lectura</div>
+                    <div class="stat-value" id="reading-time">0 min</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Capítulos completados</div>
+                    <div class="stat-value" id="chapters-completed">0/8</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Badges obtenidos</div>
+                    <div class="stat-value" id="badges-earned">0/12</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Font settings panel -->
+    <div id="font-settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h3>Configuración de Lectura</h3>
+            <button class="icon-btn" id="font-settings-close" aria-label="Cerrar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="15" y1="5" x2="5" y2="15"></line>
+                    <line x1="5" y1="5" x2="15" y2="15"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="settings-content">
+            <div class="setting-group">
+                <label class="setting-label">Tamaño de fuente</label>
+                <div class="font-size-controls">
+                    <button class="size-btn" data-size="small">A</button>
+                    <button class="size-btn active" data-size="medium">A</button>
+                    <button class="size-btn" data-size="large">A</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Familia de fuente</label>
+                <select id="font-family-select" class="setting-select">
+                    <option value="inter">Inter (Sans-serif)</option>
+                    <option value="playfair">Playfair Display (Serif)</option>
+                    <option value="mono">Roboto Mono (Monospace)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Espaciado</label>
+                <select id="line-height-select" class="setting-select">
+                    <option value="compact">Compacto</option>
+                    <option value="comfortable" selected>Confortable</option>
+                    <option value="relaxed">Relajado</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Ancho de contenido</label>
+                <select id="content-width-select" class="setting-select">
+                    <option value="narrow">Estrecho</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="wide">Amplio</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main id="main-content" class="main-content">
+        
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section" data-section="hero">
+            <div class="hero-background">
+                <div class="hero-gradient"></div>
+                <div class="hero-pattern"></div>
+            </div>
+            
+            <div class="hero-content">
+                <div class="hero-badge animate-fade-in">
+                    <span class="badge-icon">🚀</span>
+                    <span class="badge-text">Actualizado Noviembre 2025</span>
+                </div>
+                
+                <h1 class="hero-title animate-slide-up">
+                    Aumenta las Ventas de tu
+                    <span class="title-highlight">Bodega o Minimarket</span>
+                    <span class="title-number">30-50%</span>
+                    en 90 días
+                </h1>
+                
+                <p class="hero-subtitle animate-slide-up delay-1">
+                    La guía profesional más completa para bodegueros y propietarios de minimarkets en Latinoamérica. 
+                    Estrategias probadas, sin importar si usas o no tecnología.
+                </p>
+
+                <div class="hero-stats animate-slide-up delay-2">
+                    <div class="stat-card">
+                        <div class="stat-number">2,847</div>
+                        <div class="stat-label">Bodegueros</div>
+                        <div class="stat-sublabel">ya mejoraron sus ventas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">42%</div>
+                        <div class="stat-label">Promedio</div>
+                        <div class="stat-sublabel">de incremento en ventas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">9</div>
+                        <div class="stat-label">Países</div>
+                        <div class="stat-sublabel">de Latinoamérica</div>
+                    </div>
+                </div>
+
+                <div class="hero-cta animate-fade-in delay-3">
+                    <a href="#diagnostico" class="btn btn-primary btn-large">
+                        <span>Comenzar Diagnóstico</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+                        </svg>
+                    </a>
+                    <button class="btn btn-secondary btn-large" id="watch-intro-video">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                        </svg>
+                        <span>Ver Video (2 min)</span>
+                    </button>
+                </div>
+
+                <div class="hero-trust animate-fade-in delay-4">
+                    <p class="trust-text">Usado por bodegueros en</p>
+                    <div class="country-flags">
+                        <span class="flag" title="Perú">🇵🇪</span>
+                        <span class="flag" title="Colombia">🇨🇴</span>
+                        <span class="flag" title="México">🇲🇽</span>
+                        <span class="flag" title="Chile">🇨🇱</span>
+                        <span class="flag" title="Argentina">🇦🇷</span>
+                        <span class="flag" title="Ecuador">🇪🇨</span>
+                        <span class="more-countries">+3 más</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-indicator">
+                <div class="scroll-mouse">
+                    <div class="scroll-wheel"></div>
+                </div>
+                <p>Desliza para continuar</p>
+            </div>
+        </section>
+
+        <!-- Diagnóstico Section -->
+        <section id="diagnostico" class="section section-diagnostic" data-section="diagnostico">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-badge">Paso 1</span>
+                    <h2 class="section-title">Diagnóstico Rápido de tu Negocio</h2>
+                    <p class="section-subtitle">Responde 8 preguntas simples y descubre qué tan preparada está tu bodega para crecer. Toma solo 2 minutos.</p>
+                </div>
+
+                <div class="diagnostic-quiz" id="diagnostic-quiz">
+                    <div class="quiz-progress">
+                        <div class="quiz-progress-bar">
+                            <div class="quiz-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="quiz-progress-text">Pregunta <span id="current-question">1</span> de 8</span>
+                    </div>
+
+                    <div class="quiz-container">
+                        <!-- Las preguntas se generarán dinámicamente via JS -->
+                    </div>
+
+                    <div class="quiz-navigation">
+                        <button class="btn btn-secondary" id="quiz-prev" disabled>Anterior</button>
+                        <button class="btn btn-primary" id="quiz-next">Siguiente</button>
+                    </div>
+
+                    <div class="quiz-result" id="quiz-result" style="display: none;">
+                        <!-- Resultado se mostrará aquí -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lo Mínimo para HOY Section -->
+        <section id="minimo-hoy" class="section section-minimum-today" data-section="minimo-hoy">
+            <div class="container-fluid">
+                <div class="minimum-today-wrapper">
+                    <div class="minimum-today-header">
+                        <div class="pulsating-badge">
+                            <span class="pulse-dot"></span>
+                            <span>ACCIÓN INMEDIATA</span>
+                        </div>
+                        <h2 class="mega-title">
+                            Lo Mínimo que debes hacer para
+                            <span class="gradient-text">Vender MÁS</span>
+                            <span class="highlight-box">HOY MISMO</span>
+                        </h2>
+                        <p class="mega-subtitle">
+                            5 acciones concretas que puedes implementar en las próximas 2 horas. 
+                            Sin inversión, sin tecnología, solo decisión y acción.
+                        </p>
+                    </div>
+
+                    <div class="action-cards-grid">
+                        <div class="action-card" data-action="1">
+                            <div class="action-number">01</div>
+                            <div class="action-icon">🎯</div>
+                            <h3 class="action-title">Productos Estrella al Frente</h3>
+                            <p class="action-description">
+                                Identifica tus 5 productos más vendidos y colócalos a la altura de los ojos del cliente (entre 1.20m y 1.60m). 
+                                Esto aumenta las ventas impulsivas en 23%.
+                            </p>
+                            <div class="action-details">
+                                <button class="btn-link tooltip-trigger" data-tooltip="ubicacion">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                    ¿Por qué funciona?
+                                </button>
+                                <span class="action-time">⏱️ 15 min</span>
+                                <span class="action-impact">📈 +23%</span>
+                            </div>
+                            <button class="action-check-btn">
+                                <span class="check-icon">✓</span>
+                                <span class="check-text">Marcar como hecho</span>
+                            </button>
+                        </div>
+
+                        <div class="action-card" data-action="2">
+                            <div class="action-number">02</div>
+                            <div class="action-icon">💰</div>
+                            <h3 class="action-title">Precios Psicológicos</h3>
+                            <p class="action-description">
+                                Cambia los precios redondos por terminaciones en .90 o .95. En lugar de S/. 5.00, pon S/. 4.90. 
+                                Aumenta percepción de mejor precio en 18%.
+                            </p>
+                            <div class="action-details">
+                                <button class="btn-link tooltip-trigger" data-tooltip="precios">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                    ¿Por qué funciona?
+                                </button>
+                                <span class="action-time">⏱️ 20 min</span>
+                                <span class="action-impact">📈 +18%</span>
+                            </div>
+                            <button class="action-check-btn">
+                                <span class="check-icon">✓</span>
+                                <span class="check-text">Marcar como hecho</span>
+                            </button>
+                        </div>
+
+                        <div class="action-card" data-action="3">
+                            <div class="action-number">03</div>
+                            <div class="action-icon">✨</div>
+                            <h3 class="action-title">Limpieza y Orden Visible</h3>
+                            <p class="action-description">
+                                Dedica 30 minutos a limpiar estantes, quitar polvo de productos y organizar por categorías. 
+                                Un local limpio incrementa ventas en 31%.
+                            </p>
+                            <div class="action-details">
+                                <button class="btn-link tooltip-trigger" data-tooltip="limpieza">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                    ¿Por qué funciona?
+                                </button>
+                                <span class="action-time">⏱️ 30 min</span>
+                                <span class="action-impact">📈 +31%</span>
+                            </div>
+                            <button class="action-check-btn">
+                                <span class="check-icon">✓</span>
+                                <span class="check-text">Marcar como hecho</span>
+                            </button>
+                        </div>
+
+                        <div class="action-card" data-action="4">
+                            <div class="action-number">04</div>
+                            <div class="action-icon">🎁</div>
+                            <h3 class="action-title">Combo del Día</h3>
+                            <p class="action-description">
+                                Crea un "Combo del Día" con 2-3 productos relacionados a precio especial. 
+                                Escríbelo en un cartel llamativo. Aumenta ticket promedio en 28%.
+                            </p>
+                            <div class="action-details">
+                                <button class="btn-link tooltip-trigger" data-tooltip="combo">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                    ¿Por qué funciona?
+                                </button>
+                                <span class="action-time">⏱️ 25 min</span>
+                                <span class="action-impact">📈 +28%</span>
+                            </div>
+                            <button class="action-check-btn">
+                                <span class="check-icon">✓</span>
+                                <span class="check-text">Marcar como hecho</span>
+                            </button>
+                        </div>
+
+                        <div class="action-card" data-action="5">
+                            <div class="action-number">05</div>
+                            <div class="action-icon">😊</div>
+                            <h3 class="action-title">Saludo y Sonrisa</h3>
+                            <p class="action-description">
+                                Saluda a CADA cliente que entra con una sonrisa genuina y "¡Buenos días! ¿En qué te puedo ayudar?". 
+                                Aumenta recompra en 45%.
+                            </p>
+                            <div class="action-details">
+                                <button class="btn-link tooltip-trigger" data-tooltip="saludo">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                    ¿Por qué funciona?
+                                </button>
+                                <span class="action-time">⏱️ 0 min</span>
+                                <span class="action-impact">📈 +45%</span>
+                            </div>
+                            <button class="action-check-btn">
+                                <span class="check-icon">✓</span>
+                                <span class="check-text">Marcar como hecho</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="minimum-today-footer">
+                        <div class="completion-tracker">
+                            <div class="tracker-header">
+                                <h3>Tu Progreso</h3>
+                                <span class="tracker-count"><span id="completed-actions">0</span>/5 acciones completadas</span>
+                            </div>
+                            <div class="tracker-bar">
+                                <div class="tracker-fill" style="width: 0%"></div>
+                            </div>
+                            <p class="tracker-message" id="tracker-message">¡Comienza con la primera acción!</p>
+                        </div>
+
+                        <div class="social-proof">
+                            <div class="proof-avatars">
+                                <img src="https://ui-avatars.com/api/?name=M+S&background=3b82f6&color=fff" alt="">
+                                <img src="https://ui-avatars.com/api/?name=J+R&background=8b5cf6&color=fff" alt="">
+                                <img src="https://ui-avatars.com/api/?name=L+T&background=ec4899&color=fff" alt="">
+                                <span class="proof-more">+2,843</span>
+                            </div>
+                            <p class="proof-text">bodegueros ya implementaron estas acciones con éxito</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capítulo 1: Exhibición que Vende (COMPLETO) -->
+        <section id="cap1" class="section section-chapter" data-section="cap1">
+            <div class="container">
+                <!-- Chapter header -->
+                <div class="chapter-header">
+                    <div class="chapter-meta">
+                        <span class="chapter-badge">Capítulo 1</span>
+                        <span class="chapter-category">Sin Tecnología</span>
+                        <div class="chapter-actions">
+                            <button class="icon-btn tooltip-trigger" data-tooltip="audio" aria-label="Escuchar resumen">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" aria-label="Marcar como favorito">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" aria-label="Compartir">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h2 class="chapter-title">Exhibición que Vende: El Arte de Mostrar para Vender Más</h2>
+                    <p class="chapter-intro">
+                        Aprende cómo la ubicación estratégica de productos puede aumentar tus ventas hasta 47% sin inversión adicional. 
+                        Técnicas probadas por especialistas en merchandising y visual retail.
+                    </p>
+                    <div class="chapter-stats">
+                        <div class="stat-item-small">
+                            <span class="stat-icon">📚</span>
+                            <span class="stat-text">12 min de lectura</span>
+                        </div>
+                        <div class="stat-item-small">
+                            <span class="stat-icon">🎯</span>
+                            <span class="stat-text">Dificultad: Básica</span>
+                        </div>
+                        <div class="stat-item-small">
+                            <span class="stat-icon">📈</span>
+                            <span class="stat-text">Impacto: +35% ventas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Version selector -->
+                <div class="version-selector">
+                    <button class="version-btn active" data-version="simple">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                        Versión Sencilla
+                    </button>
+                    <button class="version-btn" data-version="technical">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                        </svg>
+                        Versión Técnica
+                    </button>
+                </div>
+
+                <!-- Content - Simple version -->
+                <div class="chapter-content version-simple active" data-version="simple">
+                    <div class="content-block">
+                        <h3 class="content-subtitle">¿Por qué es importante cómo muestras tus productos?</h3>
+                        <p class="content-text">
+                            Imagina que entras a dos bodegas. En la primera, los productos están desordenados, con precios que no se ven bien, 
+                            y no sabes dónde buscar lo que necesitas. En la segunda, todo está organizado por categorías, los productos más 
+                            vendidos están justo donde los ves fácilmente, y los precios están claros.
+                        </p>
+                        <p class="content-text">
+                            ¿A cuál volverías? La respuesta es obvia. Y así piensan tus clientes también.
+                        </p>
+                        
+                        <div class="callout callout-info">
+                            <div class="callout-icon">💡</div>
+                            <div class="callout-content">
+                                <h4 class="callout-title">Dato Importante</h4>
+                                <p>Los clientes deciden comprar un producto en los primeros 7 segundos de verlo. Si no lo encuentran rápido, 
+                                simplemente no lo compran.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h3 class="content-subtitle">La Regla de Oro: La Zona de los Ojos</h3>
+                        <p class="content-text">
+                            Existe una regla simple pero poderosa que usan todos los supermercados grandes: 
+                            <strong class="highlight-text">los productos que están a la altura de los ojos se venden 5 veces más</strong> 
+                            que los que están en el piso o muy arriba.
+                        </p>
+                        
+                        <div class="visual-guide">
+                            <div class="guide-header">
+                                <h4>Zonas de Venta en tu Estante</h4>
+                            </div>
+                            <div class="shelf-zones">
+                                <div class="zone zone-low">
+                                    <div class="zone-label">Zona Baja (0-80cm)</div>
+                                    <div class="zone-products">Productos pesados, económicos, de alta rotación</div>
+                                    <div class="zone-impact">Ventas: ⭐⭐</div>
+                                </div>
+                                <div class="zone zone-gold">
+                                    <div class="zone-label">Zona de Oro (80cm-160cm)</div>
+                                    <div class="zone-products">TUS PRODUCTOS ESTRELLA AQUÍ</div>
+                                    <div class="zone-impact">Ventas: ⭐⭐⭐⭐⭐</div>
+                                </div>
+                                <div class="zone zone-high">
+                                    <div class="zone-label">Zona Alta (160cm+)</div>
+                                    <div class="zone-products">Productos de ocasión, inventario extra</div>
+                                    <div class="zone-impact">Ventas: ⭐⭐</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-box">
+                            <h4 class="action-box-title">🎯 Acción Inmediata</h4>
+                            <ol class="action-list">
+                                <li>Identifica tus 10 productos más vendidos (los que vendes todos los días)</li>
+                                <li>Muévelos a la zona de oro (entre tu cintura y tus ojos)</li>
+                                <li>Pon varios de cada uno (no solo 1), que se vean abundantes</li>
+                                <li>Asegúrate que el precio esté visible y claro</li>
+                            </ol>
+                            <button class="btn btn-primary btn-small">
+                                <span>✓ Marcar como completado</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h3 class="content-subtitle">Organiza por Categorías (Como Piensa el Cliente)</h3>
+                        <p class="content-text">
+                            Tu cliente no piensa "voy a comprar algo de la marca X". Piensa "necesito algo para el desayuno" o 
+                            "quiero algo para picar". Por eso debes agrupar tus productos según el momento en que se usan.
+                        </p>
+
+                        <div class="category-grid">
+                            <div class="category-card">
+                                <div class="category-icon">🌅</div>
+                                <h4 class="category-name">Zona Desayuno</h4>
+                                <ul class="category-items">
+                                    <li>Pan y tostadas</li>
+                                    <li>Leche y yogurt</li>
+                                    <li>Café, té, avena</li>
+                                    <li>Mermeladas y mantequilla</li>
+                                </ul>
+                            </div>
+
+                            <div class="category-card">
+                                <div class="category-icon">🍽️</div>
+                                <h4 class="category-name">Zona Comida</h4>
+                                <ul class="category-items">
+                                    <li>Arroz, fideos, menestras</li>
+                                    <li>Aceite y condimentos</li>
+                                    <li>Enlatados y conservas</li>
+                                    <li>Salsas</li>
+                                </ul>
+                            </div>
+
+                            <div class="category-card">
+                                <div class="category-icon">🍿</div>
+                                <h4 class="category-name">Zona Snacks</h4>
+                                <ul class="category-items">
+                                    <li>Galletas</li>
+                                    <li>Papas fritas</li>
+                                    <li>Chocolates</li>
+                                    <li>Caramelos</li>
+                                </ul>
+                            </div>
+
+                            <div class="category-card">
+                                <div class="category-icon">🥤</div>
+                                <h4 class="category-name">Zona Bebidas</h4>
+                                <ul class="category-items">
+                                    <li>Gaseosas</li>
+                                    <li>Jugos</li>
+                                    <li>Agua</li>
+                                    <li>Cervezas</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="tip-box">
+                            <div class="tip-icon">💰</div>
+                            <div class="tip-content">
+                                <h4>Consejo de Oro</h4>
+                                <p>Pon productos relacionados juntos. Si alguien compra pan, probablemente quiera mantequilla o mermelada. 
+                                Si compra cerveza, tal vez quiera papas fritas. Esto aumenta el ticket promedio en 25%.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h3 class="content-subtitle">El Poder del Mostrador</h3>
+                        <p class="content-text">
+                            El mostrador es tu mejor vendedor. Es el último lugar que ve el cliente antes de pagar, 
+                            y ahí es donde puedes hacer la venta extra más fácil.
+                        </p>
+
+                        <div class="counter-display">
+                            <h4>Qué poner en el mostrador (Zona Impulso)</h4>
+                            <div class="impulse-items">
+                                <div class="impulse-item">
+                                    <span class="item-emoji">🍬</span>
+                                    <span class="item-name">Caramelos y chicles</span>
+                                    <span class="item-price">Precio bajo (S/. 0.50 - 1.00)</span>
+                                </div>
+                                <div class="impulse-item">
+                                    <span class="item-emoji">🔋</span>
+                                    <span class="item-name">Pilas</span>
+                                    <span class="item-price">Necesidad repentina</span>
+                                </div>
+                                <div class="impulse-item">
+                                    <span class="item-emoji">🔥</span>
+                                    <span class="item-name">Encendedores y fósforos</span>
+                                    <span class="item-price">Compra rápida</span>
+                                </div>
+                                <div class="impulse-item">
+                                    <span class="item-emoji">🍫</span>
+                                    <span class="item-name">Chocolates individuales</span>
+                                    <span class="item-price">Antojo del momento</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="callout callout-success">
+                            <div class="callout-icon">✅</div>
+                            <div class="callout-content">
+                                <h4 class="callout-title">Caso Real: Bodega "San José" - Lima</h4>
+                                <p>Don Miguel reorganizó su mostrador siguiendo estas reglas. En el primer mes aumentó sus ventas 
+                                de productos impulso en <strong>S/. 280 soles adicionales</strong>, solo por tener los productos correctos 
+                                en el lugar correcto.</p>
+                                <button class="btn-link">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445z"/>
+                                    </svg>
+                                    Ver video testimonio (2:30 min)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h3 class="content-subtitle">Limpieza = Ventas</h3>
+                        <p class="content-text">
+                            Puede sonar simple, pero un estante limpio y ordenado genera más confianza. Los clientes prefieren comprar 
+                            en lugares donde los productos se ven bien cuidados.
+                        </p>
+
+                        <div class="checklist-box">
+                            <h4>Rutina Diaria de 15 Minutos</h4>
+                            <div class="checklist">
+                                <label class="checklist-item">
+                                    <input type="checkbox">
+                                    <span>Limpiar el polvo de los estantes visibles</span>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox">
+                                    <span>Rotar productos (los próximos a vencer adelante)</span>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox">
+                                    <span>Verificar que los precios estén visibles</span>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox">
+                                    <span>Llenar espacios vacíos (nunca dejes huecos)</span>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox">
+                                    <span>Barrer la entrada y mantenerla despejada</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <h3 class="content-subtitle">Señalización Simple pero Efectiva</h3>
+                        <p class="content-text">
+                            No necesitas invertir en señalética profesional. Con cartulinas de colores y un marcador grueso puedes 
+                            hacer carteles que guíen a tus clientes y aumenten tus ventas.
+                        </p>
+
+                        <div class="signage-examples">
+                            <div class="sign-card sign-promo">
+                                <div class="sign-preview">
+                                    <div class="sign-header">OFERTA DEL DÍA</div>
+                                    <div class="sign-product">Coca Cola 1.5L</div>
+                                    <div class="sign-price">
+                                        <span class="old-price">S/. 5.50</span>
+                                        <span class="new-price">S/. 4.90</span>
+                                    </div>
+                                </div>
+                                <p class="sign-tip">Color: Amarillo o naranja (llama la atención)</p>
+                            </div>
+
+                            <div class="sign-card sign-category">
+                                <div class="sign-preview">
+                                    <div class="sign-simple">← LÁCTEOS</div>
+                                </div>
+                                <p class="sign-tip">Color: Azul o verde (categorías)</p>
+                            </div>
+
+                            <div class="sign-card sign-new">
+                                <div class="sign-preview">
+                                    <div class="sign-badge">NUEVO</div>
+                                </div>
+                                <p class="sign-tip">Color: Rojo (productos nuevos)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-box">
+                        <h3 class="summary-title">📋 Resumen del Capítulo</h3>
+                        <div class="summary-content">
+                            <h4>Lo que aprendiste:</h4>
+                            <ul class="summary-list">
+                                <li>Los productos a la altura de los ojos se venden 5 veces más</li>
+                                <li>Organizar por categorías hace que el cliente compre más rápido</li>
+                                <li>El mostrador es tu mejor espacio para ventas impulso</li>
+                                <li>La limpieza aumenta la confianza y las ventas</li>
+                                <li>Los carteles simples pueden aumentar ventas en 20%</li>
+                            </ul>
+
+                            <h4>Acciones para esta semana:</h4>
+                            <ol class="summary-actions">
+                                <li>Reorganiza tus productos estrella en la zona de oro</li>
+                                <li>Agrupa productos por categorías de uso</li>
+                                <li>Limpia y ordena tu mostrador con productos impulso</li>
+                                <li>Crea 3 carteles llamativos para ofertas</li>
+                            </ol>
+
+                            <div class="summary-impact">
+                                <strong>Impacto esperado:</strong> +25-35% en ventas en las próximas 4 semanas
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chapter navigation -->
+                    <div class="chapter-navigation">
+                        <button class="btn btn-secondary" disabled>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Capítulo Anterior
+                        </button>
+                        <a href="#cap2" class="btn btn-primary">
+                            Siguiente Capítulo
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <!-- Chapter feedback -->
+                    <div class="chapter-feedback">
+                        <h4>¿Te fue útil este capítulo?</h4>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn">
+                                <span class="feedback-emoji">👍</span>
+                                <span>Muy útil</span>
+                            </button>
+                            <button class="feedback-btn">
+                                <span class="feedback-emoji">😊</span>
+                                <span>Útil</span>
+                            </button>
+                            <button class="feedback-btn">
+                                <span class="feedback-emoji">😐</span>
+                                <span>Regular</span>
+                            </button>
+                            <button class="feedback-btn">
+                                <span class="feedback-emoji">😕</span>
+                                <span>Poco útil</span>
+                            </button>
+                        </div>
+                        <div class="feedback-comment">
+                            <textarea placeholder="¿Qué podríamos mejorar? (opcional)" rows="3"></textarea>
+                            <button class="btn btn-small btn-primary">Enviar comentario</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content - Technical version -->
+                <div class="chapter-content version-technical" data-version="technical">
+                    <p class="content-text"><em>Versión técnica en desarrollo... El contenido completo se agregará próximamente.</em></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Placeholder sections para otros capítulos -->
+        <section id="cap2" class="section section-placeholder" data-section="cap2">
+            <div class="container">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">📦</div>
+                    <h2>Capítulo 2: Gestión de Stock sin Sistema</h2>
+                    <p>Próximamente disponible</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating action buttons -->
+    <div class="fab-container">
+        <button class="fab fab-bookmark" aria-label="Marcador de lectura" title="Guardar posición">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+        </button>
+        <button class="fab fab-top" aria-label="Ir arriba" title="Volver arriba">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Tooltips container -->
+    <div id="tooltips-container"></div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/guia/app.js" defer></script>
+    <script src="/static/js/guia/navigation.js" defer></script>
+    <script src="/static/js/guia/quiz.js" defer></script>
+    <script src="/static/js/guia/animations.js" defer></script>
+    <script src="/static/js/guia/settings.js" defer></script>
+    <script src="/static/js/guia/tracking.js" defer></script>
+    <script src="/static/js/guia/pwa.js" defer></script>
+
+</body>
+</html>

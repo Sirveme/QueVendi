@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-color-scheme="moderno" data-font-size="small">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <title>Configuración - QueVendi.pro</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="/static/css/base/layout.css">
+    <link rel="stylesheet" href="/static/css/base/toast.css">
+    <link rel="stylesheet" href="/static/css/base/modal.css">
+    <link rel="stylesheet" href="/static/css/settings/settings.css">
+</head>
+<body>
+    
+    <div class="settings-page">
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR NAVEGACIÓN
+             ═══════════════════════════════════════════════════════════════ -->
+        <aside class="settings-sidebar">
+            <div class="settings-sidebar-header">
+                <h1 class="settings-sidebar-title">
+                    <span>⚙️</span> Configuración
+                </h1>
+            </div>
+            
+            <nav class="settings-nav">
+                <!-- Grupo: Mi Negocio -->
+                <div class="settings-nav-group">
+                    <div class="settings-nav-group-title">Mi Negocio</div>
+                    
+                    <button class="settings-nav-item active" data-section="negocio">
+                        <span class="settings-nav-item-icon">🏪</span>
+                        Datos del Negocio
+                    </button>
+                    
+                    <button class="settings-nav-item" data-section="tributario">
+                        <span class="settings-nav-item-icon">📊</span>
+                        Perfil Tributario
+                    </button>
+                    
+                    <button class="settings-nav-item" data-section="contador">
+                        <span class="settings-nav-item-icon">👨‍💼</span>
+                        Mi Contador
+                    </button>
+                </div>
+                
+                <!-- Grupo: Facturación -->
+                <div class="settings-nav-group">
+                    <div class="settings-nav-group-title">Facturación</div>
+                    
+                    <button class="settings-nav-item" data-section="facturacion">
+                        <span class="settings-nav-item-icon">🧾</span>
+                        Facturación Electrónica
+                        <span class="settings-nav-item-badge">Nuevo</span>
+                    </button>
+                    
+                    <button class="settings-nav-item" data-section="ticket">
+                        <span class="settings-nav-item-icon">🖨️</span>
+                        Impresora y Ticket
+                    </button>
+                </div>
+                
+                <!-- Grupo: Equipo -->
+                <div class="settings-nav-group">
+                    <div class="settings-nav-group-title">Equipo</div>
+                    
+                    <button class="settings-nav-item" data-section="usuarios">
+                        <span class="settings-nav-item-icon">👥</span>
+                        Usuarios y Permisos
+                    </button>
+                </div>
+                
+                <!-- Grupo: Sistema -->
+                <div class="settings-nav-group">
+                    <div class="settings-nav-group-title">Sistema</div>
+                    
+                    <button class="settings-nav-item" data-section="preferencias">
+                        <span class="settings-nav-item-icon">🎨</span>
+                        Preferencias
+                    </button>
+                    
+                    <button class="settings-nav-item" data-section="suscripcion">
+                        <span class="settings-nav-item-icon">💎</span>
+                        Suscripción
+                    </button>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             CONTENIDO PRINCIPAL
+             ═══════════════════════════════════════════════════════════════ -->
+        <main class="settings-content">
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: DATOS DEL NEGOCIO
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section active" id="section-negocio">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>🏪</span> Datos del Negocio
+                    </h2>
+                    <p class="settings-section-description">
+                        Información básica de tu negocio que aparecerá en comprobantes y catálogo
+                    </p>
+                </div>
+                
+                <form id="form-negocio">
+                    <!-- Logo -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🖼️</span>
+                                Logo del Negocio
+                            </h3>
+                        </div>
+                        
+                        <div class="logo-upload">
+                            <div class="logo-preview" id="logo-preview">🏪</div>
+                            <div class="logo-upload-info">
+                                <div class="logo-upload-title">Sube tu logo</div>
+                                <div class="logo-upload-hint">PNG o JPG. Máximo 2MB. Recomendado: 200x200px</div>
+                                <div class="logo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm">
+                                        📤 Subir imagen
+                                        <input type="file" id="logo-input" accept="image/*" hidden>
+                                    </label>
+                                    <button type="button" class="btn btn-ghost btn-sm">🗑️ Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información básica -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">📝</span>
+                                Información Básica
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre Comercial <span class="required">*</span></label>
+                                <input type="text" class="form-input" id="commercial_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">RUC / DNI</label>
+                                <input type="text" class="form-input" id="ruc" maxlength="11" readonly>
+                                <span class="form-helper">No editable</span>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Negocio</label>
+                                <select class="form-input form-select" id="business_type">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="bodega">🏪 Bodega</option>
+                                    <option value="minimarket">🛒 Minimarket</option>
+                                    <option value="restaurante">🍽️ Restaurante</option>
+                                    <option value="cafeteria">☕ Cafetería</option>
+                                    <option value="farmacia">💊 Farmacia</option>
+                                    <option value="ferreteria">🔧 Ferretería</option>
+                                    <option value="bazar">🎁 Bazar</option>
+                                    <option value="panaderia">🥖 Panadería</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="email" placeholder="contacto@minegocio.com">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-input" id="phone" placeholder="01 234 5678">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input type="tel" class="form-input" id="whatsapp" placeholder="999 888 777">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ubicación -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">📍</span>
+                                Ubicación
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Dirección</label>
+                                <input type="text" class="form-input" id="address" placeholder="Av. Principal 123, Local 5">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-form-row triple">
+                            <div class="form-group">
+                                <label class="form-label">Departamento</label>
+                                <select class="form-input form-select" id="department">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Lima">Lima</option>
+                                    <option value="Arequipa">Arequipa</option>
+                                    <option value="Cusco">Cusco</option>
+                                    <option value="La Libertad">La Libertad</option>
+                                    <option value="Piura">Piura</option>
+                                    <option value="Loreto">Loreto</option>
+                                    <option value="Lambayeque">Lambayeque</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Provincia</label>
+                                <select class="form-input form-select" id="province">
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Distrito</label>
+                                <select class="form-input form-select" id="district">
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-actions">
+                        <button type="button" class="btn btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: PERFIL TRIBUTARIO
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-tributario">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>📊</span> Perfil Tributario
+                    </h2>
+                    <p class="settings-section-description">
+                        Tu régimen tributario determina tus obligaciones con SUNAT
+                    </p>
+                </div>
+                
+                <form id="form-tributario">
+                    <!-- Régimen Tributario -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🏛️</span>
+                                Régimen Tributario
+                            </h3>
+                        </div>
+                        
+                        <input type="hidden" id="regimen" value="">
+                        
+                        <div class="regimen-grid">
+                            <div class="regimen-card" data-regimen="NRUS">
+                                <div class="regimen-card-header">
+                                    <span class="regimen-card-icon">🏪</span>
+                                    <span class="regimen-card-name">Nuevo RUS</span>
+                                    <span class="regimen-card-code">NRUS</span>
+                                </div>
+                                <ul class="regimen-card-details">
+                                    <li>Ingresos hasta S/ 96,000/año</li>
+                                    <li>No emite facturas</li>
+                                    <li>Cuota fija mensual</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="regimen-card" data-regimen="RER">
+                                <div class="regimen-card-header">
+                                    <span class="regimen-card-icon">📊</span>
+                                    <span class="regimen-card-name">Régimen Especial</span>
+                                    <span class="regimen-card-code">RER</span>
+                                </div>
+                                <ul class="regimen-card-details">
+                                    <li>Ingresos hasta S/ 525,000/año</li>
+                                    <li>IGV: 18%</li>
+                                    <li>Renta: 1.5% mensual</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="regimen-card" data-regimen="MYPE">
+                                <div class="regimen-card-header">
+                                    <span class="regimen-card-icon">🏢</span>
+                                    <span class="regimen-card-name">Mype Tributario</span>
+                                    <span class="regimen-card-code">MYPE</span>
+                                </div>
+                                <ul class="regimen-card-details">
+                                    <li>Ingresos hasta 1,700 UIT</li>
+                                    <li>IGV: 18%</li>
+                                    <li>Renta: 10%/29.5%</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="regimen-card" data-regimen="GENERAL">
+                                <div class="regimen-card-header">
+                                    <span class="regimen-card-icon">🏛️</span>
+                                    <span class="regimen-card-name">Régimen General</span>
+                                    <span class="regimen-card-code">RG</span>
+                                </div>
+                                <ul class="regimen-card-details">
+                                    <li>Sin límite de ingresos</li>
+                                    <li>IGV: 18%</li>
+                                    <li>Renta: 29.5% anual</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actividades Económicas -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">💼</span>
+                                Actividades Económicas (CIIU)
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Actividad Principal</label>
+                                <select class="form-input form-select" id="ciiu_principal">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="4711">4711 - Venta al por menor en comercios no especializados</option>
+                                    <option value="5610">5610 - Actividades de restaurantes</option>
+                                    <option value="5630">5630 - Actividades de bares</option>
+                                    <option value="4772">4772 - Venta de productos farmacéuticos</option>
+                                    <option value="4752">4752 - Venta de artículos de ferretería</option>
+                                    <option value="1071">1071 - Elaboración de productos de panadería</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Actividad Secundaria (opcional)</label>
+                                <select class="form-input form-select" id="ciiu_secundario">
+                                    <option value="">Ninguna</option>
+                                    <option value="4711">4711 - Venta al por menor en comercios no especializados</option>
+                                    <option value="5610">5610 - Actividades de restaurantes</option>
+                                    <option value="4772">4772 - Venta de productos farmacéuticos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Obligaciones -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">📅</span>
+                                Mis Obligaciones Tributarias
+                            </h3>
+                        </div>
+                        
+                        <div class="obligations-list" id="obligations-list">
+                            <div class="obligation-item">
+                                <span class="obligation-icon">ℹ️</span>
+                                <div class="obligation-info">
+                                    <div class="obligation-name">Selecciona tu régimen para ver tus obligaciones</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-actions">
+                        <button type="submit" class="btn btn-primary">💾 Guardar Perfil Tributario</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: MI CONTADOR
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-contador">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>👨‍💼</span> Mi Contador
+                    </h2>
+                    <p class="settings-section-description">
+                        Datos de tu contador para enviarle alertas y reportes automáticos
+                    </p>
+                </div>
+                
+                <form id="form-contador">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">📇</span>
+                                Datos del Contador
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-input" id="contador_nombre" placeholder="CPC Juan Pérez García">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">N° Colegiatura</label>
+                                <input type="text" class="form-input" id="contador_colegiatura" placeholder="Ej: 12345-CCPL">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Teléfono / WhatsApp</label>
+                                <input type="tel" class="form-input" id="contador_telefono" placeholder="999 888 777">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="contador_email" placeholder="contador@email.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alertas al contador -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🔔</span>
+                                Alertas Automáticas
+                            </h3>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <div class="preference-title">Enviar resumen de ventas semanal</div>
+                                <div class="preference-description">Cada lunes, tu contador recibirá un resumen de ventas</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" data-preference="alert_ventas_semanal" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <div class="preference-title">Alerta de vencimiento de declaraciones</div>
+                                <div class="preference-description">5 días antes del vencimiento</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" data-preference="alert_vencimientos" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <div class="preference-title">Reporte mensual completo</div>
+                                <div class="preference-description">Incluye ventas, compras, IGV y proyección de impuestos</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" data-preference="alert_reporte_mensual" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-actions">
+                        <button type="submit" class="btn btn-primary">💾 Guardar Datos del Contador</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: FACTURACIÓN ELECTRÓNICA
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-facturacion">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>🧾</span> Facturación Electrónica
+                    </h2>
+                    <p class="settings-section-description">
+                        Configura tu conexión con SUNAT para emitir comprobantes electrónicos
+                    </p>
+                </div>
+                
+                <form id="form-facturacion">
+                    <!-- Estado -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🔗</span>
+                                Estado de Conexión
+                            </h3>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--color-warning-bg); border-radius: 10px;">
+                            <span style="font-size: 2rem;">⚠️</span>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">Pendiente de configuración</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Completa los datos para habilitar facturación electrónica</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Credenciales SUNAT -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🔐</span>
+                                Credenciales SUNAT
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Usuario SOL</label>
+                                <input type="text" class="form-input" id="sunat_usuario" placeholder="MODDATOS">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Clave SOL</label>
+                                <input type="password" class="form-input" id="sunat_clave" placeholder="••••••••">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Certificado Digital (.pfx)</label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <span id="certificate-status" style="color: var(--text-tertiary);">❌ No cargado</span>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="Settings.uploadCertificate()">
+                                    📤 Cargar certificado
+                                </button>
+                            </div>
+                            <span class="form-helper">Certificado digital emitido por SUNAT o proveedor autorizado</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Series -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">
+                                <span class="settings-card-title-icon">🔢</span>
+                                Series de Comprobantes
+                            </h3>
+                        </div>
+                        
+                        <div class="settings-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Serie Factura</label>
+                                <input type="text" class="form-input" id="serie_factura" value="F001" maxlength="4">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Serie Boleta</label>
+                                <input type="text" class="form-input" id="serie_boleta" value="B001" maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-actions">
+                        <button type="button" class="btn btn-secondary">🧪 Probar conexión</button>
+                        <button type="submit" class="btn btn-primary">💾 Guardar Configuración</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: IMPRESORA Y TICKET
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-ticket">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>🖨️</span> Impresora y Ticket
+                    </h2>
+                    <p class="settings-section-description">
+                        Configura cómo se imprimirán tus tickets de venta
+                    </p>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <span class="settings-card-title-icon">📄</span>
+                            Formato del Ticket
+                        </h3>
+                    </div>
+                    
+                    <div class="settings-form-row">
+                        <div class="form-group">
+                            <label class="form-label">Ancho del papel</label>
+                            <select class="form-input form-select" id="paper_width">
+                                <option value="58">58mm (térmico pequeño)</option>
+                                <option value="80" selected>80mm (térmico estándar)</option>
+                                <option value="A4">A4 (hoja completa)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tamaño de letra</label>
+                            <select class="form-input form-select" id="font_size">
+                                <option value="small">Pequeño</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="large">Grande</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Mostrar logo en ticket</div>
+                            <div class="preference-description">El logo se imprimirá en la parte superior</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="ticket_logo" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Mostrar QR de pago</div>
+                            <div class="preference-description">Yape/Plin para pago rápido</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="ticket_qr" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Mensaje personalizado al pie</div>
+                            <div class="preference-description">Ej: "¡Gracias por su compra!"</div>
+                        </div>
+                        <input type="text" class="form-input" id="ticket_footer" placeholder="¡Gracias por su compra!" style="max-width: 300px;">
+                    </div>
+                </div>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: USUARIOS Y PERMISOS
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-usuarios">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>👥</span> Usuarios y Permisos
+                    </h2>
+                    <p class="settings-section-description">
+                        Administra quién puede acceder y qué pueden hacer en tu negocio
+                    </p>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <span class="settings-card-title-icon">👤</span>
+                            Usuarios del Sistema
+                        </h3>
+                        <button class="btn btn-primary btn-sm" id="btn-add-user">
+                            ➕ Agregar Usuario
+                        </button>
+                    </div>
+                    
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: PREFERENCIAS
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-preferencias">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>🎨</span> Preferencias
+                    </h2>
+                    <p class="settings-section-description">
+                        Personaliza la apariencia y comportamiento de la aplicación
+                    </p>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <span class="settings-card-title-icon">🌙</span>
+                            Apariencia
+                        </h3>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Modo oscuro</div>
+                            <div class="preference-description">Reduce fatiga visual en ambientes con poca luz</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="dark_mode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Modo compacto</div>
+                            <div class="preference-description">Reduce espaciado para ver más información</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="compact_mode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <span class="settings-card-title-icon">🔊</span>
+                            Sonidos
+                        </h3>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Sonidos de la aplicación</div>
+                            <div class="preference-description">Feedback sonoro al registrar ventas</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="sounds" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-title">Comandos de voz</div>
+                            <div class="preference-description">Habilitar ventas por voz</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-preference="voice_commands" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 SECCIÓN: SUSCRIPCIÓN
+                 ═══════════════════════════════════════════════════════════ -->
+            <section class="settings-section" id="section-suscripcion">
+                <div class="settings-section-header">
+                    <h2 class="settings-section-title">
+                        <span>💎</span> Suscripción
+                    </h2>
+                    <p class="settings-section-description">
+                        Tu plan actual y opciones de mejora
+                    </p>
+                </div>
+                
+                <!-- Plan Actual -->
+                <div class="plan-current">
+                    <div class="plan-current-icon">🚀</div>
+                    <div class="plan-current-info">
+                        <div class="plan-current-name" id="plan-name">Plan Fundador</div>
+                        <div class="plan-current-status" id="plan-status">Activo</div>
+                    </div>
+                    <div class="plan-current-days">
+                        <div class="plan-current-days-number" id="plan-days">30</div>
+                        <div class="plan-current-days-label">días restantes</div>
+                    </div>
+                </div>
+                
+                <!-- Planes Disponibles -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3 class="settings-card-title">
+                            <span class="settings-card-title-icon">📦</span>
+                            Planes Disponibles
+                        </h3>
+                    </div>
+                    
+                    <div class="plans-grid">
+                        <div class="plan-card">
+                            <div class="plan-card-name">Básico</div>
+                            <div class="plan-card-price">
+                                <span class="plan-card-price-amount">S/ 29</span>
+                                <span class="plan-card-price-period">/mes</span>
+                            </div>
+                            <ul class="plan-card-features">
+                                <li>1 usuario</li>
+                                <li>500 productos</li>
+                                <li>Boletas ilimitadas</li>
+                                <li>Reportes básicos</li>
+                            </ul>
+                            <button class="btn btn-secondary btn-block">Seleccionar</button>
+                        </div>
+                        
+                        <div class="plan-card popular">
+                            <div class="plan-card-name">Profesional</div>
+                            <div class="plan-card-price">
+                                <span class="plan-card-price-amount">S/ 59</span>
+                                <span class="plan-card-price-period">/mes</span>
+                            </div>
+                            <ul class="plan-card-features">
+                                <li>5 usuarios</li>
+                                <li>Productos ilimitados</li>
+                                <li>Facturas electrónicas</li>
+                                <li>Reportes avanzados</li>
+                                <li>Reporte IA mensual</li>
+                            </ul>
+                            <button class="btn btn-primary btn-block">Seleccionar</button>
+                        </div>
+                        
+                        <div class="plan-card">
+                            <div class="plan-card-name">Empresarial</div>
+                            <div class="plan-card-price">
+                                <span class="plan-card-price-amount">S/ 99</span>
+                                <span class="plan-card-price-period">/mes</span>
+                            </div>
+                            <ul class="plan-card-features">
+                                <li>Usuarios ilimitados</li>
+                                <li>Multi-sucursal</li>
+                                <li>API personalizada</li>
+                                <li>Soporte prioritario</li>
+                                <li>Reporte IA semanal</li>
+                            </ul>
+                            <button class="btn btn-secondary btn-block">Seleccionar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container toast-top-center"></div>
+    
+    <!-- JS Base -->
+    <script src="/static/js/base/layout.js"></script>
+    <script src="/static/js/base/toast.js"></script>
+    <script src="/static/js/base/modal.js"></script>
+    <script src="/static/js/settings/settings.js"></script>
+    
+</body>
+</html>

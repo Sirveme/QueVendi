@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ store.commercial_name or store.business_name }} - QueVendi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            /*background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);*/
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            /*background: linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%);*/
+            /*background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #6b21a8 100%);*/
+            /*background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);*/
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .store-header { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px);
+            padding: 20px; 
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .store-header h1 { 
+            font-size: 24px; 
+            margin-bottom: 10px; 
+        }
+        
+        .store-header p { 
+            opacity: 0.9; 
+            margin: 5px 0; 
+        }
+        
+        .whatsapp-btn { 
+            display: inline-block; 
+            margin-top: 10px; 
+            padding: 10px 20px; 
+            background: #25D366; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-size: 14px;
+        }
+        
+        .search-container { 
+            max-width: 600px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+        }
+        
+        .search-label { 
+            font-size: 14px; 
+            margin-bottom: 10px; 
+            opacity: 0.9;
+            display: block;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 0 0 3px rgba(66, 153, 225, 0.5),
+                0 4px 12px rgba(66, 153, 225, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .voice-btn, .confirm-btn {
+            width: 55px;
+            height: 55px;
+            border: none;
+            border-radius: 14px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .voice-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .voice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(59, 130, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            animation: pulse 1s infinite, glow 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.8),
+                            0 0 40px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(239, 68, 68, 1),
+                            0 0 60px rgba(239, 68, 68, 0.6);
+            }
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .results-list {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(76, 175, 80, 0.5);
+            transform: translateX(5px);
+            box-shadow: 
+                -5px 0 15px rgba(76, 175, 80, 0.3),
+                0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-item input[type="checkbox"]:checked {
+            accent-color: #4CAF50;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 8px 25px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 35px rgba(16, 185, 129, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="store-header">
+        <h1>{{ store.commercial_name or store.business_name }}</h1>
+        <p>📍 {{ store.district or 'Lima' }}</p>
+        <p>📱 {{ store.phone }}</p>
+        {% if store.delivery_enabled %}
+        <p>🚚 Delivery disponible</p>
+        {% endif %}
+        <a href="https://wa.me/51{{ store.phone }}" class="whatsapp-btn" target="_blank">
+            💬 Contactar por WhatsApp
+        </a>
+    </div>
+    
+    <a href="/catalogo" class="back-link">← Volver</a>
+    
+    <div class="search-container">
+        <label class="search-label">BUSCAR PRODUCTOS</label>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Escribe o di el nombre del producto...">
+            <button class="voice-btn" id="voice-btn">🎤</button>
+            <button class="confirm-btn" id="confirm-btn">✓</button>
+        </div>
+        
+        <div class="selected-count" id="selected-count">0 seleccionados</div>
+        
+        <div id="results-container" style="display:none;">
+            <div class="results-list" id="results-list">
+                <!-- Productos aquí -->
+            </div>
+            <button class="add-btn" id="add-btn" disabled>Agregar al pedido</button>
+        </div>
+    </div>
+    
+    <script>
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-PE';
+        recognition.continuous = false;
+        
+        const voiceBtn = document.getElementById('voice-btn');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsList = document.getElementById('results-list');
+        const selectedCount = document.getElementById('selected-count');
+        const addBtn = document.getElementById('add-btn');
+        
+        let selectedProducts = [];
+        
+        // Reconocimiento de voz
+        voiceBtn.addEventListener('click', () => {
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '🔴';
+            recognition.start();
+        });
+        
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            searchInput.value = transcript;
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤';
+            performSearch(transcript);
+        };
+        
+        recognition.onerror = () => {
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤';
+        };
+        
+        // Búsqueda por botón confirmar
+        confirmBtn.addEventListener('click', () => {
+            performSearch(searchInput.value);
+        });
+        
+        // Búsqueda por Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch(searchInput.value);
+            }
+        });
+        
+        async function performSearch(query) {
+            if (!query.trim()) return;
+            
+            resultsContainer.style.display = 'block';
+            resultsList.innerHTML = '<div class="empty-state">🔍 Buscando...</div>';
+            
+            try {
+                const response = await fetch(`/catalogo/{{ store.catalog_slug }}/buscar?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.products.length === 0) {
+                    resultsList.innerHTML = '<div class="empty-state">❌ No se encontraron productos</div>';
+                    return;
+                }
+                
+                displayResults(data.products);
+            } catch (error) {
+                resultsList.innerHTML = '<div class="empty-state">❌ Error al buscar</div>';
+            }
+        }
+        
+        function displayResults(products) {
+            selectedProducts = [];
+            updateSelectedCount();
+            
+            let html = '';
+            products.forEach((p, index) => {
+                html += `
+                <div class="result-item" onclick="toggleProduct(${index})">
+                    <input type="checkbox" id="check-${index}" onchange="event.stopPropagation(); toggleProduct(${index})">
+                    <div class="result-info">
+                        <div class="result-name">${p.name}</div>
+                        <div class="result-meta">Código: ${p.id} • Stock: ${p.stock}</div>
+                    </div>
+                    <div class="result-price">S/ ${p.sale_price.toFixed(2)}</div>
+                </div>
+                `;
+            });
+            
+            resultsList.innerHTML = html;
+            window.searchResults = products;
+        }
+        
+        function toggleProduct(index) {
+            const checkbox = document.getElementById(`check-${index}`);
+            checkbox.checked = !checkbox.checked;
+            
+            const product = window.searchResults[index];
+            
+            if (checkbox.checked) {
+                selectedProducts.push(product);
+            } else {
+                selectedProducts = selectedProducts.filter(p => p.id !== product.id);
+            }
+            
+            updateSelectedCount();
+        }
+        
+        function updateSelectedCount() {
+            selectedCount.textContent = `${selectedProducts.length} seleccionados`;
+            addBtn.disabled = selectedProducts.length === 0;
+        }
+        
+        addBtn.addEventListener('click', () => {
+            if (selectedProducts.length === 0) return;
+            
+            const items = selectedProducts.map(p => `• ${p.name} - S/ ${p.sale_price.toFixed(2)}`).join('\n');
+            const total = selectedProducts.reduce((sum, p) => sum + p.sale_price, 0);
+            
+            const message = `Hola! Me gustaría hacer un pedido:\n\n${items}\n\nTotal: S/ ${total.toFixed(2)}`;
+            const phone = '{{ store.phone }}';
+            const whatsappUrl = `https://wa.me/51${phone}?text=${encodeURIComponent(message)}`;
+            
+            window.open(whatsappUrl, '_blank');
+        });
+    </script>
+</body>
+</html>

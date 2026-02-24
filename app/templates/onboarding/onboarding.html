@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-color-scheme="moderno" data-font-size="small">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <title>Configurar mi Negocio - QueVendi.pro</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="/static/css/base/layout.css">
+    <link rel="stylesheet" href="/static/css/base/toast.css">
+    <link rel="stylesheet" href="/static/css/base/modal.css">
+    <link rel="stylesheet" href="/static/css/base/loader.css">
+    <link rel="stylesheet" href="/static/css/onboarding/onboarding.css">
+</head>
+<body>
+    
+    <div class="onboarding-page">
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             HEADER
+             ═══════════════════════════════════════════════════════════════ -->
+        <header class="onboarding-header">
+            <div class="onboarding-logo">
+                <div class="onboarding-logo-icon">🛒</div>
+                <span class="onboarding-logo-text">QueVendi.pro</span>
+            </div>
+            <a href="/home" class="onboarding-skip">Saltar por ahora →</a>
+        </header>
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             PROGRESS BAR
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="onboarding-progress">
+            <div class="progress-steps">
+                <div class="progress-dot active">1</div>
+                <div class="progress-line"></div>
+                <div class="progress-dot">2</div>
+                <div class="progress-line"></div>
+                <div class="progress-dot">3</div>
+                <div class="progress-line"></div>
+                <div class="progress-dot">4</div>
+                <div class="progress-line"></div>
+                <div class="progress-dot">5</div>
+            </div>
+            <div class="progress-info">
+                <div class="progress-title">Tipo de Negocio</div>
+                <div class="progress-subtitle">Paso 1 de 5</div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             CONTENIDO - PASOS
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="onboarding-content">
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 PASO 1: TIPO DE NEGOCIO
+                 ═══════════════════════════════════════════════════════════ -->
+            <div class="onboarding-step active" id="step-1">
+                <div class="step-header">
+                    <div class="step-icon">🏪</div>
+                    <h2 class="step-title">¿Qué tipo de negocio tienes?</h2>
+                    <p class="step-description">Esto nos ayuda a personalizar tu experiencia</p>
+                </div>
+                
+                <div class="business-type-grid">
+                    <div class="business-type-card" data-type="bodega">
+                        <div class="business-type-icon">🏪</div>
+                        <div class="business-type-name">Bodega</div>
+                        <div class="business-type-desc">Tienda de barrio</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="minimarket">
+                        <div class="business-type-icon">🛒</div>
+                        <div class="business-type-name">Minimarket</div>
+                        <div class="business-type-desc">Autoservicio</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="restaurante">
+                        <div class="business-type-icon">🍽️</div>
+                        <div class="business-type-name">Restaurante</div>
+                        <div class="business-type-desc">Comida y menús</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="cafeteria">
+                        <div class="business-type-icon">☕</div>
+                        <div class="business-type-name">Cafetería</div>
+                        <div class="business-type-desc">Café y postres</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="farmacia">
+                        <div class="business-type-icon">💊</div>
+                        <div class="business-type-name">Farmacia</div>
+                        <div class="business-type-desc">Medicinas y salud</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="ferreteria">
+                        <div class="business-type-icon">🔧</div>
+                        <div class="business-type-name">Ferretería</div>
+                        <div class="business-type-desc">Herramientas</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="bazar">
+                        <div class="business-type-icon">🎁</div>
+                        <div class="business-type-name">Bazar</div>
+                        <div class="business-type-desc">Regalos y varios</div>
+                    </div>
+                    
+                    <div class="business-type-card" data-type="panaderia">
+                        <div class="business-type-icon">🥖</div>
+                        <div class="business-type-name">Panadería</div>
+                        <div class="business-type-desc">Pan y pasteles</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 PASO 2: DATOS DEL NEGOCIO
+                 ═══════════════════════════════════════════════════════════ -->
+            <div class="onboarding-step" id="step-2">
+                <div class="step-header">
+                    <div class="step-icon">✏️</div>
+                    <h2 class="step-title">Datos de tu negocio</h2>
+                    <p class="step-description">Así te verán tus clientes</p>
+                </div>
+                
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Nombre comercial <span class="required">*</span></label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="commercial-name"
+                               placeholder="Ej: Bodega Don Pepe, Minimarket El Sol"
+                               maxlength="50"
+                               required>
+                        <span class="form-helper">Este nombre aparecerá en tus tickets y catálogo</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp del negocio</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">📱</span>
+                            <input type="tel" 
+                                   class="form-input" 
+                                   id="phone"
+                                   placeholder="999888777"
+                                   maxlength="9"
+                                   inputmode="numeric"
+                                   style="padding-left: 2.75rem;">
+                        </div>
+                        <span class="form-helper">Para que tus clientes te contacten</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 PASO 3: UBICACIÓN
+                 ═══════════════════════════════════════════════════════════ -->
+            <div class="onboarding-step" id="step-3">
+                <div class="step-header">
+                    <div class="step-icon">📍</div>
+                    <h2 class="step-title">¿Dónde está tu negocio?</h2>
+                    <p class="step-description">Para mostrar tu ubicación a clientes cercanos</p>
+                </div>
+                
+                <div class="card">
+                    <div class="ubigeo-grid">
+                        <div class="form-group">
+                            <label class="form-label">Departamento <span class="required">*</span></label>
+                            <select class="form-input form-select" id="department" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Lima">Lima</option>
+                                <option value="Arequipa">Arequipa</option>
+                                <option value="Cusco">Cusco</option>
+                                <option value="La Libertad">La Libertad</option>
+                                <option value="Piura">Piura</option>
+                                <option value="Loreto">Loreto</option>
+                                <option value="Lambayeque">Lambayeque</option>
+                                <option value="Junín">Junín</option>
+                                <option value="Cajamarca">Cajamarca</option>
+                                <option value="Ancash">Ancash</option>
+                                <option value="Ica">Ica</option>
+                                <option value="Puno">Puno</option>
+                                <option value="San Martín">San Martín</option>
+                                <option value="Tacna">Tacna</option>
+                                <option value="Ucayali">Ucayali</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Provincia</label>
+                            <select class="form-input form-select" id="province">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Distrito</label>
+                            <select class="form-input form-select" id="district">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="address"
+                               placeholder="Av. Principal 123, cerca al parque">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 PASO 4: PRODUCTOS INICIALES
+                 ═══════════════════════════════════════════════════════════ -->
+            <div class="onboarding-step" id="step-4">
+                <div class="step-header">
+                    <div class="step-icon">📦</div>
+                    <h2 class="step-title">Selecciona tus productos</h2>
+                    <p class="step-description">Puedes agregar más después</p>
+                </div>
+                
+                <div class="card">
+                    <div class="products-header">
+                        <span class="products-count" id="products-count">
+                            <strong>0</strong> productos seleccionados
+                        </span>
+                        <div class="products-actions">
+                            <button type="button" class="btn btn-ghost btn-sm" id="select-all">
+                                Todos
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-sm" id="select-none">
+                                Ninguno
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="products-search">
+                        <span class="products-search-icon">🔍</span>
+                        <input type="text" 
+                               class="form-input" 
+                               id="products-search"
+                               placeholder="Buscar producto..."
+                               style="padding-left: 2.5rem;">
+                    </div>
+                    
+                    <div class="products-categories" id="products-categories">
+                        <span class="category-chip active" data-category="all">Todos</span>
+                    </div>
+                    
+                    <div class="products-grid" id="products-grid">
+                        <!-- Productos se cargan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════
+                 PASO 5: ¡LISTO!
+                 ═══════════════════════════════════════════════════════════ -->
+            <div class="onboarding-step" id="step-5">
+                <div class="step-header">
+                    <div class="success-animation">🎉</div>
+                    <h2 class="step-title">¡Tu negocio está listo!</h2>
+                    <p class="step-description">Ya puedes empezar a vender</p>
+                </div>
+                
+                <div class="success-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-products">0</div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">30</div>
+                        <div class="stat-label">Días gratis</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">∞</div>
+                        <div class="stat-label">Ventas</div>
+                    </div>
+                </div>
+                
+                <div class="catalog-preview">
+                    <div class="catalog-preview-title">🔗 Tu catálogo online estará en:</div>
+                    <div class="catalog-url">
+                        <input type="text" id="catalog-url-input" readonly>
+                        <button type="button" class="btn btn-sm btn-secondary" id="copy-catalog-url">
+                            📋 Copiar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4 style="margin-bottom: 0.75rem;">📱 ¿Qué puedes hacer ahora?</h4>
+                    <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        <li style="margin-bottom: 0.5rem;">Registrar tu primera venta</li>
+                        <li style="margin-bottom: 0.5rem;">Agregar más productos a tu catálogo</li>
+                        <li style="margin-bottom: 0.5rem;">Configurar facturación electrónica</li>
+                        <li>Compartir tu catálogo por WhatsApp</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             FOOTER - NAVEGACIÓN
+             ═══════════════════════════════════════════════════════════════ -->
+        <footer class="onboarding-footer">
+            <button type="button" class="btn-back" data-action="prev" id="btn-prev">
+                ← Anterior
+            </button>
+            
+            <button type="button" class="btn btn-primary btn-lg" data-action="next" id="btn-next">
+                Siguiente →
+            </button>
+            
+            <button type="button" class="btn btn-success btn-lg" data-action="finish" id="btn-finish" style="display: none;">
+                🚀 Empezar a vender
+            </button>
+        </footer>
+        
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container toast-top-center"></div>
+    
+    <!-- Loader -->
+    <div class="loader-overlay" id="loader-overlay">
+        <div class="loader-icon" id="loader-icon">🛒</div>
+        <div class="loader-text">Cargando...</div>
+    </div>
+    
+    <!-- JS Base -->
+    <script src="/static/js/base/layout.js"></script>
+    <script src="/static/js/base/toast.js"></script>
+    <script src="/static/js/base/modal.js"></script>
+    <script src="/static/js/base/loader.js"></script>
+    <script src="/static/js/onboarding/onboarding.js"></script>
+    
+    <script>
+        // Control de botones según paso
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const btnFinish = document.getElementById('btn-finish');
+            
+            // Observar cambios de paso
+            const observer = new MutationObserver(() => {
+                const currentStep = Onboarding.currentStep;
+                
+                // Botón anterior
+                btnPrev.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+                
+                // Botón siguiente/finalizar
+                if (currentStep === 5) {
+                    btnNext.style.display = 'none';
+                    btnFinish.style.display = 'block';
+                } else {
+                    btnNext.style.display = 'block';
+                    btnFinish.style.display = 'none';
+                }
+            });
+            
+            observer.observe(document.querySelector('.onboarding-content'), {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            
+            // Estado inicial
+            btnPrev.style.visibility = 'hidden';
+        });
+    </script>
+    
+</body>
+</html>

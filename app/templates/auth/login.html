@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-color-scheme="moderno" data-font-size="small">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <title>Iniciar Sesión - QueVendi.pro</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="/static/css/base/layout.css">
+    <link rel="stylesheet" href="/static/css/base/toast.css">
+    <link rel="stylesheet" href="/static/css/base/modal.css">
+    <link rel="stylesheet" href="/static/css/auth/login.css">
+</head>
+<body>
+    
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-card">
+                
+                <!-- Logo -->
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">🛒</div>
+                    <h1 class="auth-logo-title">QueVendi.pro</h1>
+                    <p class="auth-logo-subtitle">Tu negocio, más fácil</p>
+                </div>
+                
+                <!-- Mensaje de error/éxito -->
+                <div class="auth-message" id="auth-message"></div>
+                
+                <!-- Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+                    <button class="auth-tab" data-tab="registro">Registrarse</button>
+                </div>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     FORMULARIO DE LOGIN
+                     ═══════════════════════════════════════════════════════════ -->
+                <form id="form-login" class="auth-form active">
+                    
+                    <!-- DNI -->
+                    <div class="form-group">
+                        <label class="form-label">DNI</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">👤</span>
+                            <input type="text" 
+                                   class="form-input" 
+                                   id="login-dni"
+                                   data-type="dni"
+                                   maxlength="8"
+                                   inputmode="numeric"
+                                   placeholder="Ingresa tu DNI (8 dígitos)"
+                                   autocomplete="username"
+                                   required>
+                        </div>
+                        <span class="form-error" style="display: none;"></span>
+                    </div>
+                    
+                    <!-- PIN/Clave -->
+                    <div class="form-group">
+                        <label class="form-label">Clave</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" 
+                                   class="form-input" 
+                                   id="login-pin"
+                                   data-type="pin"
+                                   maxlength="6"
+                                   inputmode="numeric"
+                                   placeholder="Tu clave (4-6 dígitos)"
+                                   autocomplete="current-password"
+                                   style="padding-right: 3rem;"
+                                   required>
+                            <button type="button" class="input-toggle" data-visible="false" title="Mostrar/ocultar clave">
+                                <span class="eye-closed">👁️</span>
+                                <span class="eye-open">🙈</span>
+                            </button>
+                        </div>
+                        <span class="form-error" style="display: none;"></span>
+                    </div>
+                    
+                    <!-- Recordarme y Olvidé clave -->
+                    <div class="auth-actions">
+                        <label class="auth-remember">
+                            <input type="checkbox" id="remember-me">
+                            <span>Recordarme</span>
+                        </label>
+                        <a href="#" class="auth-forgot" id="forgot-password-link">¿Olvidaste tu clave?</a>
+                    </div>
+                    
+                    <!-- Botón submit -->
+                    <button type="submit" class="auth-submit">
+                        <span class="btn-text">Ingresar</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                    
+                </form>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     FORMULARIO DE REGISTRO
+                     ═══════════════════════════════════════════════════════════ -->
+                <form id="form-registro" class="auth-form">
+                    
+                    <!-- Tipo de documento -->
+                    <div class="form-group">
+                        <label class="form-label">Tipo de documento del negocio</label>
+                        <select class="form-input form-select" id="register-doc-type" required>
+                            <option value="DNI">DNI (Persona Natural)</option>
+                            <option value="RUC">RUC (Empresa)</option>
+                        </select>
+                        <span class="form-helper">Si tienes RUC podrás emitir facturas</span>
+                    </div>
+                    
+                    <!-- Número de documento -->
+                    <div class="form-group">
+                        <label class="form-label">Número de documento</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">📄</span>
+                            <input type="text" 
+                                   class="form-input" 
+                                   id="register-doc-number"
+                                   maxlength="11"
+                                   inputmode="numeric"
+                                   placeholder="DNI o RUC"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp / Teléfono</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">📱</span>
+                            <input type="tel" 
+                                   class="form-input" 
+                                   id="register-phone"
+                                   data-type="phone"
+                                   maxlength="9"
+                                   inputmode="numeric"
+                                   placeholder="999888777"
+                                   required>
+                        </div>
+                        <span class="form-helper">Usaremos este número para recuperar tu cuenta</span>
+                    </div>
+                    
+                    <!-- Tipo de negocio -->
+                    <div class="form-group">
+                        <label class="form-label">¿Qué tipo de negocio tienes?</label>
+                        <select class="form-input form-select" id="register-business-type" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="bodega">🏪 Bodega</option>
+                            <option value="minimarket">🛒 Minimarket</option>
+                            <option value="bazar">🎁 Bazar</option>
+                            <option value="farmacia">💊 Farmacia</option>
+                            <option value="ferreteria">🔧 Ferretería</option>
+                            <option value="panaderia">🥖 Panadería</option>
+                            <option value="restaurante">🍽️ Restaurante</option>
+                            <option value="cafeteria">☕ Cafetería</option>
+                        </select>
+                    </div>
+                    
+                    <div class="auth-divider">Datos del administrador</div>
+                    
+                    <!-- DNI del owner -->
+                    <div class="form-group">
+                        <label class="form-label">Tu DNI</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">👤</span>
+                            <input type="text" 
+                                   class="form-input" 
+                                   id="register-owner-dni"
+                                   data-type="dni"
+                                   maxlength="8"
+                                   inputmode="numeric"
+                                   placeholder="Tu DNI personal"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <!-- Clave -->
+                    <div class="form-group">
+                        <label class="form-label">Crea tu clave</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" 
+                                   class="form-input" 
+                                   id="register-password"
+                                   minlength="6"
+                                   placeholder="Mínimo 6 caracteres"
+                                   style="padding-right: 3rem;"
+                                   required>
+                            <button type="button" class="input-toggle" data-visible="false">
+                                <span class="eye-closed">👁️</span>
+                                <span class="eye-open">🙈</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Indicador de fuerza -->
+                        <div class="password-strength">
+                            <div class="password-strength-bar">
+                                <div class="password-strength-fill"></div>
+                            </div>
+                            <span class="password-strength-text"></span>
+                        </div>
+                        
+                        <!-- Requisitos -->
+                        <div class="password-requirements">
+                            <div class="password-requirements-title">Tu clave debe tener:</div>
+                            <div class="password-requirement" id="req-length">
+                                <span class="password-requirement-icon">○</span>
+                                <span>Al menos 6 caracteres</span>
+                            </div>
+                            <div class="password-requirement" id="req-uppercase">
+                                <span class="password-requirement-icon">○</span>
+                                <span>Una mayúscula (recomendado)</span>
+                            </div>
+                            <div class="password-requirement" id="req-number">
+                                <span class="password-requirement-icon">○</span>
+                                <span>Un número (recomendado)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón submit -->
+                    <button type="submit" class="auth-submit">
+                        <span class="btn-text">Crear mi cuenta</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                    
+                </form>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     FORMULARIO DE CAMBIO DE CLAVE (Primera vez)
+                     ═══════════════════════════════════════════════════════════ -->
+                <form id="form-change-password" class="auth-form">
+                    
+                    <div class="auth-first-time">
+                        <div class="auth-first-time-icon">🔐</div>
+                        <div class="auth-first-time-title">Primera vez</div>
+                        <div class="auth-first-time-text">
+                            Por seguridad, debes crear una clave personal
+                        </div>
+                    </div>
+                    
+                    <!-- Nueva clave -->
+                    <div class="form-group">
+                        <label class="form-label">Nueva clave</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" 
+                                   class="form-input" 
+                                   id="new-password"
+                                   minlength="6"
+                                   placeholder="Mínimo 6 caracteres"
+                                   style="padding-right: 3rem;"
+                                   required>
+                            <button type="button" class="input-toggle" data-visible="false">
+                                <span class="eye-closed">👁️</span>
+                                <span class="eye-open">🙈</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmar clave -->
+                    <div class="form-group">
+                        <label class="form-label">Confirmar clave</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" 
+                                   class="form-input" 
+                                   id="confirm-password"
+                                   minlength="6"
+                                   placeholder="Repite tu clave"
+                                   style="padding-right: 3rem;"
+                                   required>
+                            <button type="button" class="input-toggle" data-visible="false">
+                                <span class="eye-closed">👁️</span>
+                                <span class="eye-open">🙈</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón submit -->
+                    <button type="submit" class="auth-submit">
+                        <span class="btn-text">Guardar y continuar</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                    
+                </form>
+                
+                <!-- Tips de seguridad -->
+                <div class="security-tips">
+                    <div class="security-tips-title">🛡️ Tips de seguridad</div>
+                    <ul>
+                        <li>No compartas tu clave con nadie</li>
+                        <li>Usa una clave que no sea tu DNI ni fecha de nacimiento</li>
+                        <li>Cambia tu clave periódicamente</li>
+                    </ul>
+                </div>
+                
+                <!-- Footer -->
+                <div class="auth-footer">
+                    ¿Necesitas ayuda? <a href="https://wa.me/51999888777" target="_blank">Contáctanos</a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container toast-top-right"></div>
+    
+    <!-- JS Base -->
+    <script src="/static/js/base/layout.js"></script>
+    <script src="/static/js/base/toast.js"></script>
+    <script src="/static/js/base/modal.js"></script>
+    <script src="/static/js/auth/login.js"></script>
+    
+</body>
+</html>
