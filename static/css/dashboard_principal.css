@@ -3692,3 +3692,20 @@ body.is-owner .owner-only {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ============================================
+   CSS PARA BOTÓN DE FIADO
+   ============================================ */
+.payment-methods {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+.payment-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: fit-content;
+}
