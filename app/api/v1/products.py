@@ -283,10 +283,6 @@ async def search_products(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Buscar productos por nombre + aliases.
-    FIX: array_to_string() en vez de unnest() para búsqueda en aliases.
-    """
     try:
         query_text = search.query.lower().strip()
         query_text = query_text.rstrip('.,;:!?¡¿')
@@ -294,7 +290,7 @@ async def search_products(
         if len(query_text) < 2:
             return []
 
-        # Aliases array → texto: ['coca','gaseosa'] → 'coca gaseosa'
+        # FIX: array_to_string en vez de unnest (unnest no va en WHERE)
         aliases_str = func.lower(
             func.coalesce(func.array_to_string(Product.aliases, ' '), '')
         )
