@@ -33,6 +33,13 @@ class User(Base):
     can_cancel_sales = Column(Boolean, default=False)
     can_view_all_sales = Column(Boolean, default=False)
     can_manage_inventory = Column(Boolean, default=False)
+
+    # Control de primer login
+    first_login = Column(Boolean, default=True)
+    
+    # Recuperación de contraseña
+    recovery_code = Column(String(6), nullable=True)
+    recovery_code_expires = Column(DateTime(timezone=True), nullable=True)
     
     # Login tracking
     last_login = Column(DateTime(timezone=True), nullable=True)
