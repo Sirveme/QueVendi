@@ -29,7 +29,7 @@ const ProductsApp = (() => {
         editingId: null,
     };
 
-    const API = '/api/products/v2';
+    const API = '/api/v1/products/v2';
     let searchTimer = null;
 
     // ══════════════════════════════════════════
