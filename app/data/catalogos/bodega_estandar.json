@@ -1,0 +1,2646 @@
+[
+  {
+    "name": "Inca Kola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca",
+      "kola",
+      "inka"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Inca Kola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca grande",
+      "inka tres litros"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Inca Kola 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Coca Cola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca",
+      "cola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Coca Cola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Coca Cola 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sprite 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sprite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sprite 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sprite chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Fanta 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "fanta",
+      "naranja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Fanta 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "fanta chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Kola Real 1.5L",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola real"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Kola Real 3L",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola real grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Agua San Luis 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "agua",
+      "san luis"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Agua Cielo 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cielo",
+      "agua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Agua San Mateo 625ml",
+    "sale_price": 1.2,
+    "cost_price": 0.9,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "san mateo",
+      "agua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Agua San Luis 2.5L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "agua grande",
+      "san luis bidon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Frugos Durazno",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "frugos",
+      "jugo durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Frugos Naranja",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "frugos naranja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Frugos Manzana",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "frugos manzana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pulp Naranja",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pulp"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pulp Durazno",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pulp durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chicha Morada Tampico",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "chicha",
+      "tampico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Limonada Tampico",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "limonada",
+      "tampico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Big Cola 1.5L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "big cola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Big Cola 3L",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "big cola grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Guarana 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "guarana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Red Bull 250ml",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "red bull",
+      "energizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Volt 250ml",
+    "sale_price": 4.0,
+    "cost_price": 3.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "volt",
+      "energizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Monster 473ml",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "monster"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sporade Naranja",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sporade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Gatorade Naranja 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "gatorade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Powerade Azul",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "powerade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cifrut Manzana",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cifrut"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Negrita 500ml",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "negrita"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Crush Fresa",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "crush",
+      "fresa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Peru Cola 500ml",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "peru cola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "7up 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "seven up"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Guarana Backus 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "guarana backus"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Limon Soda",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "limon soda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "San Carlos Gasificada 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "san carlos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Pilsen 650ml",
+    "sale_price": 4.5,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "pilsen",
+      "cerveza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Cristal 650ml",
+    "sale_price": 4.5,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cristal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Cusquena 650ml",
+    "sale_price": 5.0,
+    "cost_price": 3.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cusquena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Brahma 650ml",
+    "sale_price": 4.0,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "brahma"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Pilsen Callao 650ml",
+    "sale_price": 4.5,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "callao"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Arequipena 650ml",
+    "sale_price": 4.5,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "arequipena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Tres Cruces 650ml",
+    "sale_price": 4.0,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "tres cruces"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Corona 355ml",
+    "sale_price": 6.0,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "corona"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Heineken 330ml",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "heineken"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cerveza Stella Artois 330ml",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "stella"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cusquena Malta 310ml",
+    "sale_price": 3.0,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cusquena malta",
+      "malta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Maltin Power",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "maltin"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pilsen Trujillo 650ml",
+    "sale_price": 4.0,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "trujillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Barena Roja 650ml",
+    "sale_price": 3.5,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "barena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Poker 650ml",
+    "sale_price": 3.5,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "poker"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Gloria entera 1L",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "gloria",
+      "leche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Gloria light 1L",
+    "sale_price": 5.8,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "gloria light"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Pura Vida 1L",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "pura vida"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Ideal 400g",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "ideal",
+      "leche tarro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Condensada Nestle 397g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche condensada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Leche Evaporada Gloria 410g",
+    "sale_price": 4.2,
+    "cost_price": 3.4,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche evaporada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Yogurt Gloria 1L",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Yogurt Laive 1L",
+    "sale_price": 6.8,
+    "cost_price": 5.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Yogurt Gloria Fresa",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt fresa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Yogurt Gloria Durazno",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Mantequilla Gloria 200g",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mantequilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Mantequilla Laive 200g",
+    "sale_price": 9.0,
+    "cost_price": 7.2,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mantequilla laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Queso Fresco Gloria 200g",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso fresco"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Queso Edam Laive 200g",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso edam"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Queso Bonle 200g",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "bonle",
+      "queso"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Manjar Blanco Gloria 450g",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "manjar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Crema de Leche Gloria",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "crema de leche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chicha Morada Gloria 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "chicha gloria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Milkito 180ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "milkito"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Yoleit 120g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yoleit"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan frances",
+    "sale_price": 0.3,
+    "cost_price": 0.2,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan",
+      "frances"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan integral",
+    "sale_price": 0.4,
+    "cost_price": 0.25,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan integral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan de yema",
+    "sale_price": 0.5,
+    "cost_price": 0.35,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "yema"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan de molde Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan de molde",
+      "bimbo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan de molde Todinno",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "todinno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pan integral Bimbo",
+    "sale_price": 6.0,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "bimbo integral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Panetones Donofrio 900g",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "paneton"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Tostadas Todinno",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "tostadas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Hot Dog Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "hot dog"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Hamburguesa Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "hamburguesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Arroz Paisana 750g",
+    "sale_price": 3.8,
+    "cost_price": 3.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "arroz",
+      "paisana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Arroz Costeño 750g",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "costeno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Arroz Valle Grande 5kg",
+    "sale_price": 18.0,
+    "cost_price": 16.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "valle grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Azucar Rubia 1kg",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Azucar Blanca 1kg",
+    "sale_price": 4.8,
+    "cost_price": 3.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar blanca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Aceite Primor 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aceite",
+      "primor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Aceite Cil 1L",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "cil"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Aceite Cocinero 1L",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "cocinero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sal Emsal 1kg",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sal Marina 1kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal marina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Fideos Don Vittorio 500g",
+    "sale_price": 3.2,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "fideos",
+      "pasta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Fideos Lavaggi 500g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "lavaggi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Fideos Molitalia 500g",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "molitalia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Atun Florida 170g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Atun Gloria 170g",
+    "sale_price": 5.8,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun gloria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Conserva Durazno Florida",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "durazno lata"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Conserva Piña Florida",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "pina lata"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Menestras Primor 500g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "menestras"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Frijol Canario 500g",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "frijol"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Avena Quaker 180g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "avena",
+      "quaker"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Avena 3 Ositos 180g",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "tres ositos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Harina Blanca Flor 1kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "harina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Polvo de hornear",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "polvo hornear"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Mayonesa Alacena 95g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mayonesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Ketchup Libby's 200g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ketchup"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Mostaza Alacena",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mostaza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Vinagre Negrito 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "vinagre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Aji Tari 80g",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aji",
+      "tari"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Aji Sibarita",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sibarita"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sal de Ajo Cocina Facil",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal ajo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Comino Sibarita",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "comino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pimienta Sibarita",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "pimienta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Caldo Maggi Pollo",
+    "sale_price": 1.0,
+    "cost_price": 0.7,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "maggi",
+      "caldo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Ajinomoto 90g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ajinomoto"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sazonador Doña Gusta",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "dona gusta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Papas Lays 180g",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "papas",
+      "lays"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Papas Lays Clasicas 58g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "lays chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Piqueo Karinto",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "karinto"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chizitos 45g",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chizitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Doritos Clasicos 62g",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "doritos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Ruffles 180g",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "ruffles"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Tortees 55g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tortees"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Nik 55g",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "nik"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cuates 70g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "cuates"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Soda Field 150g",
+    "sale_price": 2.8,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "soda",
+      "field"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Oreo",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "oreo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Morochas",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "morochas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Casino",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "casino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Rellenitas",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "rellenitas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Galletas Tentacion",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tentacion"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chocolatada Sublime",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chocolatada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chocolate Sublime 30g",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "sublime"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chocolate Princesa",
+    "sale_price": 1.8,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "princesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chocolate Triángulo",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "triangulo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chocolate Winter's",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "winters"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Caramelos Halls",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "halls"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chicles Trident",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "trident"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chicles Topline",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "topline"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chupete Pico Dulce",
+    "sale_price": 0.5,
+    "cost_price": 0.3,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chupete"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Chupete Tumix",
+    "sale_price": 0.5,
+    "cost_price": 0.3,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tumix"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Wafer Triángulo",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "wafer"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Gomitas Mogul",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "mogul",
+      "gomitas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Manicho",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "manicho"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Sublime Blanco",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "sublime blanco"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Donofrio Donofrio",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "donofrio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Detergente Ariel 500g",
+    "sale_price": 8.5,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "ariel",
+      "detergente"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Detergente Bolivar 500g",
+    "sale_price": 7.5,
+    "cost_price": 5.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "bolivar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Detergente Opal 500g",
+    "sale_price": 7.0,
+    "cost_price": 5.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "opal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Lejia Clorox 1L",
+    "sale_price": 4.5,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "lejia",
+      "clorox"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Lejia Sapolio 1L",
+    "sale_price": 4.0,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "sapolio lejia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Lavavajilla Ayudin",
+    "sale_price": 3.5,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "lavavajilla",
+      "ayudin"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Lavavajilla Sapolio",
+    "sale_price": 3.8,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "sapolio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Suavizante Downy 900ml",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "downy",
+      "suavizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Suavizante Suavitel 900ml",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "suavizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Jabon Bolivar Bolsa",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "jabon bolivar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Jabon Marsella 180g",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "marsella"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Esponja Sapolio",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "esponja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Escoba",
+    "sale_price": 8.0,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "escoba"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Trapeador",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "trapeador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Bolsas de Basura x10",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "bolsas basura"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Papel Higienico Elite x4",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "papel",
+      "elite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Papel Higienico Suave x4",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "papel suave"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Servilletas Elite x50",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "servilletas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Toallas Nova x2",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "toallas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Ambientador Glade",
+    "sale_price": 6.5,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "ambientador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Jabon Dove 90g",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "dove",
+      "jabon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Jabon Palmolive 125g",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "palmolive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Shampoo Sedal 340ml",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "sedal",
+      "shampoo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Shampoo H&S 180ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "head shoulders"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Acondicionador Sedal 340ml",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "acondicionador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Crema Dental Colgate 75ml",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "colgate",
+      "pasta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Crema Dental Dento 150g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "dento"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cepillo Dental Colgate",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "cepillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Desodorante Rexona 50ml",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "rexona"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Desodorante Speed Stick",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "speed stick"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Gillette Prestobarba x3",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "gillette",
+      "maquina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Papel Higienico Scott x4",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "scott"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Panal Babysec G x10",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "panal",
+      "babysec"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Toallas Nosotras x10",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "nosotras",
+      "toallas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Pañitos Humedos Babysec",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "panitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cafe Altomayo Grande Clasico",
+    "sale_price": 5.8,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "cafe",
+      "altomayo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cafe Altomayo Chico",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "altomayo chico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cafe Pasado",
+    "sale_price": 1.3,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "cafe pasado"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Nescafe Clasico 50g",
+    "sale_price": 8.5,
+    "cost_price": 6.8,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "nescafe"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Nescafe Gold 50g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "nescafe gold"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Kirma 50g",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "kirma"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cafe Monterrey 50g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "monterrey"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Te Herbi",
+    "sale_price": 3.0,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "te",
+      "herbi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Te McColins",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "mccolins"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Milo 400g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "milo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Cocoa Winters 180g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "cocoa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Emoliente Herbi",
+    "sale_price": 3.0,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "emoliente"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Manzanilla Herbi",
+    "sale_price": 3.0,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "manzanilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Te Verde Herbi",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "te verde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  },
+  {
+    "name": "Anis Herbi",
+    "sale_price": 3.0,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Cafe",
+    "aliases": [
+      "anis"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_estandar"
+  }
+]

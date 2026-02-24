@@ -1,0 +1,2228 @@
+[
+  {
+    "name": "Platano de Seda kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "platano",
+      "seda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Platano de Isla kg",
+    "sale_price": 2.8,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "platano isla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Platano Manzano kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "manzano"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Manzana Delicia kg",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "manzana",
+      "delicia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Manzana Israel kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "manzana israel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Naranja kg",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "naranja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mandarina kg",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "mandarina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Limon kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "limon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Limon Sutil kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "limon sutil"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papaya kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "papaya"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Piña kg",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "pina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Sandia kg",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "sandia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Melon kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "melon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Uva Rosada kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "uva",
+      "rosada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Uva Verde kg",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "uva verde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pera kg",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "pera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Durazno kg",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Fresa kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "fresa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mango kg",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "mango"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chirimoya kg",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "chirimoya"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Lucuma kg",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "lucuma"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Palta kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "palta",
+      "aguacate"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Granadilla kg",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "granadilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Maracuya kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "maracuya"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Tuna kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "tuna"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cocona kg",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "cocona"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Guanabana kg",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "guanabana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Manzana Verde kg",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "manzana verde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Ciruela kg",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "ciruela"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Kiwi kg",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "kiwi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Membrillo kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "membrillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Coco unidad",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "coco"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Granada kg",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "granada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Higos kg",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "higos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cereza kg",
+    "sale_price": 25.0,
+    "cost_price": 20.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "cereza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aguaymanto kg",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "aguaymanto"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Carambola kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "carambola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pitahaya kg",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "pitahaya"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Platano Verde kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "platano verde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pecana kg",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Frutas",
+    "aliases": [
+      "pecana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papa Blanca kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "papa",
+      "blanca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papa Amarilla kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "papa amarilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papa Huayro kg",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "huayro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Camote kg",
+    "sale_price": 2.8,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "camote"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Yuca kg",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "yuca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Zanahoria kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "zanahoria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cebolla Roja kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "cebolla",
+      "roja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cebolla Blanca kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "cebolla blanca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Tomate kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "tomate"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Tomate Italiano kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "tomate italiano"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Lechuga unidad",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "lechuga"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Col unidad",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "col",
+      "repollo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Brocoli kg",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "brocoli"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Coliflor kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "coliflor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Zapallo kg",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "zapallo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Zapallo Loche kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "loche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aji Amarillo kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "aji",
+      "amarillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Rocoto kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "rocoto"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aji Panca kg",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "aji panca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Ajo kg",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "ajo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Kion kg",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "kion",
+      "jengibre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Apio atado",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "apio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Culantro atado",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "culantro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Perejil atado",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "perejil"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Huacatay atado",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "huacatay"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Albahaca atado",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "albahaca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Espinaca atado",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "espinaca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Acelga atado",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "acelga"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Rabanito atado",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "rabanito"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Nabo kg",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "nabo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Betarraga kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "betarraga"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pimiento kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "pimiento"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Poro kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "poro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pepino kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "pepino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Vainita kg",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "vainita"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Arveja kg",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "arveja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Haba kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "haba"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Choclo unidad",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "choclo",
+      "maiz"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Elote unidad",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "elote"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Esparrago kg",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Verduras",
+    "aliases": [
+      "esparrago"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Inca Kola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca",
+      "kola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Inca Kola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Coca Cola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Coca Cola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Sprite 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sprite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Fanta 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "fanta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Kola Real 1.5L",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola real"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Agua San Luis 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "agua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Agua Cielo 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cielo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Frugos Durazno",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "frugos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pulp Durazno",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pulp"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chicha Morada Selva 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "chicha"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Limonada Selva 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "limonada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cerveza Pilsen 630ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pilsen",
+      "cerveza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cerveza Cristal 630ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cristal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cerveza Cusqueña 630ml",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cusquena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Leche Gloria Entera 1L",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "leche",
+      "gloria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Yogurt Gloria 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "yogurt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pura Vida Naranja 1L",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pura vida"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Tampico Citrus 1L",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "tampico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Malta Polar",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "malta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Red Bull",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "red bull",
+      "energizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Volt",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "volt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Guarana 500ml",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "guarana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aje 2.5L",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "aje"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Triple Kola 3L",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "triple kola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Big Cola 3L",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "big cola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Gatorade 500ml",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "gatorade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Sporade 500ml",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sporade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cifrut Naranja",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "cifrut"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Arroz Paisana 750g",
+    "sale_price": 3.8,
+    "cost_price": 3.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "arroz"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Azucar Rubia 1kg",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aceite Primor 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aceite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Sal Emsal 1kg",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Fideos Don Vittorio 500g",
+    "sale_price": 3.2,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "fideos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Atun Florida 170g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Leche Condensada Nestle",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "leche condensada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Leche Evaporada Gloria",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "leche evaporada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Avena Quaker 180g",
+    "sale_price": 2.8,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "avena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Harina Nicolini 1kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "harina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mantequilla Gloria 200g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mantequilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Margarina Manty 200g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "margarina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mayonesa Alacena 200g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mayonesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Ketchup Libby's 200g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ketchup"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Vinagre Tinto 500ml",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "vinagre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aji Sibarita 90g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aji molido"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Comino Sibarita 15g",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "comino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Pimienta Sibarita 15g",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "pimienta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Ajos Molido Sibarita",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ajos molido"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Oregano Sibarita 15g",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "oregano"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Laurel Sibarita 3g",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "laurel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Caldo Maggi Pollo x6",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "caldo maggi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Doña Gusta x12",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "dona gusta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Aji-no-men x5",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ajinomen",
+      "sopa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Maruchan x5",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "maruchan"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Gelatina Universal",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "gelatina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Maiz Morado x2",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "maiz morado"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Canela Entera 20g",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "canela"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Clavo de Olor 10g",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "clavo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Miel de Abeja 300g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "miel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papas Lays Clasica",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "lays",
+      "papas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Papas Pringles",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "pringles"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Doritos",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "doritos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chizitos",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chizitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Tortees",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tortees"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Cua Cua",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "cua cua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Piqueo Frito Lay",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "piqueo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mani Salado 100g",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "mani"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chocolate Sublime",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "sublime"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chocolate Princesa",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "princesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chocolate Triángulo",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "triangulo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Galletas Soda Field",
+    "sale_price": 1.8,
+    "cost_price": 1.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "soda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Galletas Charada",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "charada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Galletas Tentación",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tentacion"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Galletas Casino",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "casino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Oreo",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "oreo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Morochas",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "morochas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Wafer Mecato",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "wafer"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Chocosoda",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chocosoda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Vizzio",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "vizzio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Huevos Pardos x30",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "huevos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Queso Bonle 250g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Queso Laive Edam 250g",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Mantequilla Gloria 200g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mantequilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Yogurt Gloria Fresa 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Yogurt Gloria Durazno 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Yogurt Griego Gloria",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt griego"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Manjar Blanco Nestle",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "manjar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Crema de Leche Gloria",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "crema de leche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  },
+  {
+    "name": "Leche Gloria UHT 1L",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bodega_frutas_verduras"
+  }
+]

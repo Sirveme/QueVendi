@@ -1,0 +1,108 @@
+{
+    "nicho": "farmacia",
+    "nombre": "Farmacia / Botica",
+    "icono": "💊",
+    "version": "1.0",
+    "actualizado": "2025-02-23",
+    "categorias": [
+        {
+            "nombre": "Analgésicos",
+            "icono": "💊",
+            "productos": [
+                {"nombre": "Paracetamol 500mg x10", "precio": 3.00, "unidad": "BLISTER", "codigo": "FAR-ANA-001", "stock_inicial": 50, "stock_minimo": 10},
+                {"nombre": "Ibuprofeno 400mg x10", "precio": 4.00, "unidad": "BLISTER", "codigo": "FAR-ANA-002", "stock_inicial": 50, "stock_minimo": 10},
+                {"nombre": "Naproxeno 550mg x10", "precio": 5.00, "unidad": "BLISTER", "codigo": "FAR-ANA-003", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Aspirina 500mg x20", "precio": 6.00, "unidad": "CAJA", "codigo": "FAR-ANA-004", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Dolocordralan Extra Fuerte", "precio": 2.50, "unidad": "SOBRE", "codigo": "FAR-ANA-005", "stock_inicial": 100, "stock_minimo": 20},
+                {"nombre": "Antalgina 500mg x10", "precio": 3.50, "unidad": "BLISTER", "codigo": "FAR-ANA-006", "stock_inicial": 40, "stock_minimo": 10}
+            ]
+        },
+        {
+            "nombre": "Antigripales",
+            "icono": "🤧",
+            "productos": [
+                {"nombre": "Panadol Antigripal x10", "precio": 8.00, "unidad": "CAJA", "codigo": "FAR-GRI-001", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Theraflu Día/Noche", "precio": 12.00, "unidad": "CAJA", "codigo": "FAR-GRI-002", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Nastizol Compositum", "precio": 2.00, "unidad": "SOBRE", "codigo": "FAR-GRI-003", "stock_inicial": 80, "stock_minimo": 20},
+                {"nombre": "Desenfriol D", "precio": 1.50, "unidad": "SOBRE", "codigo": "FAR-GRI-004", "stock_inicial": 100, "stock_minimo": 25},
+                {"nombre": "Vick Vaporub 12g", "precio": 8.00, "unidad": "UND", "codigo": "FAR-GRI-005", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Bisolvon Jarabe 120ml", "precio": 18.00, "unidad": "FCO", "codigo": "FAR-GRI-006", "stock_inicial": 15, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Digestivos",
+            "icono": "🫃",
+            "productos": [
+                {"nombre": "Sal de Andrews", "precio": 1.50, "unidad": "SOBRE", "codigo": "FAR-DIG-001", "stock_inicial": 100, "stock_minimo": 25},
+                {"nombre": "Omeprazol 20mg x10", "precio": 5.00, "unidad": "BLISTER", "codigo": "FAR-DIG-002", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Ranitidina 150mg x10", "precio": 4.00, "unidad": "BLISTER", "codigo": "FAR-DIG-003", "stock_inicial": 35, "stock_minimo": 8},
+                {"nombre": "Bismutol 262mg x30", "precio": 12.00, "unidad": "FCO", "codigo": "FAR-DIG-004", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Floratil 250mg x6", "precio": 25.00, "unidad": "CAJA", "codigo": "FAR-DIG-005", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Leche de Magnesia 120ml", "precio": 8.00, "unidad": "FCO", "codigo": "FAR-DIG-006", "stock_inicial": 20, "stock_minimo": 5}
+            ]
+        },
+        {
+            "nombre": "Vitaminas y Suplementos",
+            "icono": "💪",
+            "productos": [
+                {"nombre": "Vitamina C 500mg x100", "precio": 15.00, "unidad": "FCO", "codigo": "FAR-VIT-001", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Complejo B x30", "precio": 12.00, "unidad": "FCO", "codigo": "FAR-VIT-002", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Hierro + Ácido Fólico x30", "precio": 18.00, "unidad": "FCO", "codigo": "FAR-VIT-003", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Omega 3 x60", "precio": 35.00, "unidad": "FCO", "codigo": "FAR-VIT-004", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Calcio + Vitamina D x60", "precio": 28.00, "unidad": "FCO", "codigo": "FAR-VIT-005", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Supradyn x30", "precio": 45.00, "unidad": "CAJA", "codigo": "FAR-VIT-006", "stock_inicial": 10, "stock_minimo": 2}
+            ]
+        },
+        {
+            "nombre": "Primeros Auxilios",
+            "icono": "🩹",
+            "productos": [
+                {"nombre": "Alcohol 70° 250ml", "precio": 6.00, "unidad": "FCO", "codigo": "FAR-PRI-001", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Agua Oxigenada 120ml", "precio": 4.00, "unidad": "FCO", "codigo": "FAR-PRI-002", "stock_inicial": 35, "stock_minimo": 8},
+                {"nombre": "Algodón 50g", "precio": 5.00, "unidad": "BOLSA", "codigo": "FAR-PRI-003", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Curitas x10", "precio": 3.00, "unidad": "CAJA", "codigo": "FAR-PRI-004", "stock_inicial": 50, "stock_minimo": 12},
+                {"nombre": "Gasa Estéril x10", "precio": 4.00, "unidad": "PQTE", "codigo": "FAR-PRI-005", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Vendas Elásticas 4\"", "precio": 6.00, "unidad": "UND", "codigo": "FAR-PRI-006", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Esparadrapo 1\" x 5m", "precio": 5.00, "unidad": "UND", "codigo": "FAR-PRI-007", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Termómetro Digital", "precio": 15.00, "unidad": "UND", "codigo": "FAR-PRI-008", "stock_inicial": 10, "stock_minimo": 2}
+            ]
+        },
+        {
+            "nombre": "Dermatológicos",
+            "icono": "🧴",
+            "productos": [
+                {"nombre": "Crema Cicatricure 30g", "precio": 35.00, "unidad": "TUBO", "codigo": "FAR-DER-001", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Hipoglós 45g", "precio": 18.00, "unidad": "TUBO", "codigo": "FAR-DER-002", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Clotrimazol Crema 20g", "precio": 8.00, "unidad": "TUBO", "codigo": "FAR-DER-003", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Hidrocortisona 1% 15g", "precio": 12.00, "unidad": "TUBO", "codigo": "FAR-DER-004", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Bepanthen 30g", "precio": 25.00, "unidad": "TUBO", "codigo": "FAR-DER-005", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Protector Solar SPF50", "precio": 28.00, "unidad": "FCO", "codigo": "FAR-DER-006", "stock_inicial": 15, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Cuidado Personal",
+            "icono": "🪥",
+            "productos": [
+                {"nombre": "Jabón Antibacterial Protex", "precio": 5.00, "unidad": "UND", "codigo": "FAR-CUI-001", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Gel Antibacterial 250ml", "precio": 8.00, "unidad": "FCO", "codigo": "FAR-CUI-002", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Mascarillas KN95 x10", "precio": 15.00, "unidad": "CAJA", "codigo": "FAR-CUI-003", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Preservativos x3", "precio": 8.00, "unidad": "CAJA", "codigo": "FAR-CUI-004", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Test de Embarazo", "precio": 12.00, "unidad": "UND", "codigo": "FAR-CUI-005", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Toallas Higiénicas x10", "precio": 6.00, "unidad": "PQTE", "codigo": "FAR-CUI-006", "stock_inicial": 30, "stock_minimo": 8}
+            ]
+        },
+        {
+            "nombre": "Bebés",
+            "icono": "👶",
+            "productos": [
+                {"nombre": "Pañales Huggies RN x20", "precio": 28.00, "unidad": "PQTE", "codigo": "FAR-BEB-001", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Pañales Pampers M x24", "precio": 32.00, "unidad": "PQTE", "codigo": "FAR-BEB-002", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Crema Antipañalitis 60g", "precio": 15.00, "unidad": "TUBO", "codigo": "FAR-BEB-003", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Shampoo Johnson's 200ml", "precio": 12.00, "unidad": "FCO", "codigo": "FAR-BEB-004", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Colonia para Bebé 200ml", "precio": 18.00, "unidad": "FCO", "codigo": "FAR-BEB-005", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Biberón 250ml", "precio": 20.00, "unidad": "UND", "codigo": "FAR-BEB-006", "stock_inicial": 10, "stock_minimo": 2}
+            ]
+        }
+    ],
+    "total_productos": 56
+}

@@ -1,0 +1,107 @@
+{
+    "nicho": "ferreteria",
+    "nombre": "Ferretería",
+    "icono": "🔧",
+    "version": "1.0",
+    "actualizado": "2025-02-23",
+    "categorias": [
+        {
+            "nombre": "Herramientas Manuales",
+            "icono": "🔨",
+            "productos": [
+                {"nombre": "Martillo de Uña", "precio": 25.00, "unidad": "UND", "codigo": "FER-HER-001", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Destornillador Plano", "precio": 8.00, "unidad": "UND", "codigo": "FER-HER-002", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Destornillador Estrella", "precio": 8.00, "unidad": "UND", "codigo": "FER-HER-003", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Alicate Universal", "precio": 18.00, "unidad": "UND", "codigo": "FER-HER-004", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Alicate de Corte", "precio": 15.00, "unidad": "UND", "codigo": "FER-HER-005", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Llave Inglesa 8\"", "precio": 22.00, "unidad": "UND", "codigo": "FER-HER-006", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Llave Francesa 10\"", "precio": 28.00, "unidad": "UND", "codigo": "FER-HER-007", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Cinta Métrica 5m", "precio": 12.00, "unidad": "UND", "codigo": "FER-HER-008", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Nivel de Aluminio 40cm", "precio": 25.00, "unidad": "UND", "codigo": "FER-HER-009", "stock_inicial": 8, "stock_minimo": 2},
+                {"nombre": "Serrucho 20\"", "precio": 35.00, "unidad": "UND", "codigo": "FER-HER-010", "stock_inicial": 8, "stock_minimo": 2},
+                {"nombre": "Arco de Sierra", "precio": 18.00, "unidad": "UND", "codigo": "FER-HER-011", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Juego Llaves Allen x9", "precio": 15.00, "unidad": "JUEGO", "codigo": "FER-HER-012", "stock_inicial": 12, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Electricidad",
+            "icono": "⚡",
+            "productos": [
+                {"nombre": "Foco LED 9W", "precio": 8.00, "unidad": "UND", "codigo": "FER-ELE-001", "stock_inicial": 50, "stock_minimo": 10},
+                {"nombre": "Foco LED 12W", "precio": 10.00, "unidad": "UND", "codigo": "FER-ELE-002", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Fluorescente LED 18W", "precio": 18.00, "unidad": "UND", "codigo": "FER-ELE-003", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Cable THW 14 AWG (metro)", "precio": 2.50, "unidad": "METRO", "codigo": "FER-ELE-004", "stock_inicial": 200, "stock_minimo": 50},
+                {"nombre": "Cable THW 12 AWG (metro)", "precio": 3.50, "unidad": "METRO", "codigo": "FER-ELE-005", "stock_inicial": 200, "stock_minimo": 50},
+                {"nombre": "Enchufe Universal", "precio": 5.00, "unidad": "UND", "codigo": "FER-ELE-006", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Interruptor Simple", "precio": 6.00, "unidad": "UND", "codigo": "FER-ELE-007", "stock_inicial": 35, "stock_minimo": 8},
+                {"nombre": "Interruptor Doble", "precio": 10.00, "unidad": "UND", "codigo": "FER-ELE-008", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Tomacorriente Doble", "precio": 8.00, "unidad": "UND", "codigo": "FER-ELE-009", "stock_inicial": 35, "stock_minimo": 8},
+                {"nombre": "Cinta Aislante 18m", "precio": 4.00, "unidad": "UND", "codigo": "FER-ELE-010", "stock_inicial": 60, "stock_minimo": 15},
+                {"nombre": "Extensión 3m", "precio": 15.00, "unidad": "UND", "codigo": "FER-ELE-011", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Multímetro Digital", "precio": 45.00, "unidad": "UND", "codigo": "FER-ELE-012", "stock_inicial": 5, "stock_minimo": 1}
+            ]
+        },
+        {
+            "nombre": "Pinturas",
+            "icono": "🎨",
+            "productos": [
+                {"nombre": "Pintura Látex Blanco 1gal", "precio": 45.00, "unidad": "GALON", "codigo": "FER-PIN-001", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Pintura Látex Marfil 1gal", "precio": 48.00, "unidad": "GALON", "codigo": "FER-PIN-002", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Esmalte Sintético 1/4gal", "precio": 28.00, "unidad": "UND", "codigo": "FER-PIN-003", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Brocha 2\"", "precio": 8.00, "unidad": "UND", "codigo": "FER-PIN-004", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Brocha 3\"", "precio": 12.00, "unidad": "UND", "codigo": "FER-PIN-005", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Brocha 4\"", "precio": 15.00, "unidad": "UND", "codigo": "FER-PIN-006", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Rodillo 9\"", "precio": 18.00, "unidad": "UND", "codigo": "FER-PIN-007", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Thinner Acrílico 1L", "precio": 12.00, "unidad": "UND", "codigo": "FER-PIN-008", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Aguarrás 1L", "precio": 10.00, "unidad": "UND", "codigo": "FER-PIN-009", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Masilla para Pared 1kg", "precio": 8.00, "unidad": "UND", "codigo": "FER-PIN-010", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Lija para Pared #80", "precio": 2.00, "unidad": "PLIEGO", "codigo": "FER-PIN-011", "stock_inicial": 50, "stock_minimo": 10}
+            ]
+        },
+        {
+            "nombre": "Gasfitería",
+            "icono": "🚿",
+            "productos": [
+                {"nombre": "Tubo PVC 1/2\" x 3m", "precio": 8.00, "unidad": "UND", "codigo": "FER-GAS-001", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Tubo PVC 3/4\" x 3m", "precio": 12.00, "unidad": "UND", "codigo": "FER-GAS-002", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Codo PVC 1/2\"", "precio": 1.00, "unidad": "UND", "codigo": "FER-GAS-003", "stock_inicial": 80, "stock_minimo": 20},
+                {"nombre": "Tee PVC 1/2\"", "precio": 1.50, "unidad": "UND", "codigo": "FER-GAS-004", "stock_inicial": 60, "stock_minimo": 15},
+                {"nombre": "Unión PVC 1/2\"", "precio": 0.80, "unidad": "UND", "codigo": "FER-GAS-005", "stock_inicial": 80, "stock_minimo": 20},
+                {"nombre": "Llave de Paso 1/2\"", "precio": 15.00, "unidad": "UND", "codigo": "FER-GAS-006", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Cinta Teflón", "precio": 2.00, "unidad": "UND", "codigo": "FER-GAS-007", "stock_inicial": 80, "stock_minimo": 20},
+                {"nombre": "Pegamento PVC 250ml", "precio": 15.00, "unidad": "UND", "codigo": "FER-GAS-008", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Trampa PVC 2\"", "precio": 8.00, "unidad": "UND", "codigo": "FER-GAS-009", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Flotador para Tanque", "precio": 18.00, "unidad": "UND", "codigo": "FER-GAS-010", "stock_inicial": 12, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Cerrajería",
+            "icono": "🔐",
+            "productos": [
+                {"nombre": "Candado 40mm", "precio": 18.00, "unidad": "UND", "codigo": "FER-CER-001", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Candado 50mm", "precio": 25.00, "unidad": "UND", "codigo": "FER-CER-002", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Chapa de Puerta", "precio": 45.00, "unidad": "UND", "codigo": "FER-CER-003", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Cerrojo de Seguridad", "precio": 28.00, "unidad": "UND", "codigo": "FER-CER-004", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Bisagra 3\" (par)", "precio": 8.00, "unidad": "PAR", "codigo": "FER-CER-005", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Bisagra 4\" (par)", "precio": 12.00, "unidad": "PAR", "codigo": "FER-CER-006", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Picaporte", "precio": 6.00, "unidad": "UND", "codigo": "FER-CER-007", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Tirador de Cajón", "precio": 4.00, "unidad": "UND", "codigo": "FER-CER-008", "stock_inicial": 40, "stock_minimo": 10}
+            ]
+        },
+        {
+            "nombre": "Fijaciones",
+            "icono": "🔩",
+            "productos": [
+                {"nombre": "Tornillos Drywall 1\" x100", "precio": 8.00, "unidad": "CAJA", "codigo": "FER-FIJ-001", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Tornillos Madera 1.5\" x100", "precio": 10.00, "unidad": "CAJA", "codigo": "FER-FIJ-002", "stock_inicial": 25, "stock_minimo": 5},
+                {"nombre": "Clavos 2\" x1kg", "precio": 8.00, "unidad": "KG", "codigo": "FER-FIJ-003", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Clavos 3\" x1kg", "precio": 9.00, "unidad": "KG", "codigo": "FER-FIJ-004", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Tarugos Plásticos 1/4\" x100", "precio": 6.00, "unidad": "BOLSA", "codigo": "FER-FIJ-005", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Silicona Transparente 280ml", "precio": 15.00, "unidad": "UND", "codigo": "FER-FIJ-006", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Pegamento Triz 25g", "precio": 5.00, "unidad": "UND", "codigo": "FER-FIJ-007", "stock_inicial": 40, "stock_minimo": 10},
+                {"nombre": "Cola Sintética 250g", "precio": 8.00, "unidad": "UND", "codigo": "FER-FIJ-008", "stock_inicial": 25, "stock_minimo": 5}
+            ]
+        }
+    ],
+    "total_productos": 61
+}

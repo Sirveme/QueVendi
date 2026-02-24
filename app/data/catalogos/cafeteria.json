@@ -1,0 +1,95 @@
+{
+    "nicho": "cafeteria",
+    "nombre": "Cafetería / Coffee Shop",
+    "icono": "☕",
+    "version": "1.1",
+    "actualizado": "2025-02-23",
+    "nota_stock": "Bebidas preparadas = 0 stock (a pedido). Pastelería = stock real de unidades.",
+    "categorias": [
+        {
+            "nombre": "Bebidas Calientes",
+            "icono": "☕",
+            "productos": [
+                {"nombre": "Café Americano", "precio": 6.00, "unidad": "TAZA", "codigo": "CAF-CAL-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Café Expreso", "precio": 5.00, "unidad": "TAZA", "codigo": "CAF-CAL-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Cappuccino", "precio": 9.00, "unidad": "TAZA", "codigo": "CAF-CAL-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Latte", "precio": 10.00, "unidad": "TAZA", "codigo": "CAF-CAL-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Mocaccino", "precio": 11.00, "unidad": "TAZA", "codigo": "CAF-CAL-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Chocolate Caliente", "precio": 8.00, "unidad": "TAZA", "codigo": "CAF-CAL-006", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Té Verde", "precio": 5.00, "unidad": "TAZA", "codigo": "CAF-CAL-007", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Té de Manzanilla", "precio": 4.00, "unidad": "TAZA", "codigo": "CAF-CAL-008", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Café con Leche", "precio": 7.00, "unidad": "TAZA", "codigo": "CAF-CAL-009", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Infusión Hierba Luisa", "precio": 4.00, "unidad": "TAZA", "codigo": "CAF-CAL-010", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Bebidas Frías",
+            "icono": "🧊",
+            "productos": [
+                {"nombre": "Frappuccino Clásico", "precio": 14.00, "unidad": "VASO", "codigo": "CAF-FRI-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Frappuccino Mocca", "precio": 15.00, "unidad": "VASO", "codigo": "CAF-FRI-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Smoothie de Frutas", "precio": 12.00, "unidad": "VASO", "codigo": "CAF-FRI-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Limonada Frozen", "precio": 8.00, "unidad": "VASO", "codigo": "CAF-FRI-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Café Helado", "precio": 9.00, "unidad": "VASO", "codigo": "CAF-FRI-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Milkshake Chocolate", "precio": 14.00, "unidad": "VASO", "codigo": "CAF-FRI-006", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Milkshake Vainilla", "precio": 14.00, "unidad": "VASO", "codigo": "CAF-FRI-007", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Jugo de Naranja", "precio": 8.00, "unidad": "VASO", "codigo": "CAF-FRI-008", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Pastelería",
+            "icono": "🧁",
+            "productos": [
+                {"nombre": "Croissant", "precio": 6.00, "unidad": "UND", "codigo": "CAF-PAS-001", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Croissant Jamón y Queso", "precio": 9.00, "unidad": "UND", "codigo": "CAF-PAS-002", "stock_inicial": 15, "stock_minimo": 4},
+                {"nombre": "Muffin de Arándanos", "precio": 7.00, "unidad": "UND", "codigo": "CAF-PAS-003", "stock_inicial": 18, "stock_minimo": 4},
+                {"nombre": "Muffin de Chocolate", "precio": 7.00, "unidad": "UND", "codigo": "CAF-PAS-004", "stock_inicial": 18, "stock_minimo": 4},
+                {"nombre": "Cheesecake Porción", "precio": 12.00, "unidad": "PORCION", "codigo": "CAF-PAS-005", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Brownie", "precio": 8.00, "unidad": "UND", "codigo": "CAF-PAS-006", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Pie de Manzana Porción", "precio": 10.00, "unidad": "PORCION", "codigo": "CAF-PAS-007", "stock_inicial": 10, "stock_minimo": 2},
+                {"nombre": "Tres Leches Porción", "precio": 12.00, "unidad": "PORCION", "codigo": "CAF-PAS-008", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Torta Chocolate Porción", "precio": 12.00, "unidad": "PORCION", "codigo": "CAF-PAS-009", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Alfajor", "precio": 5.00, "unidad": "UND", "codigo": "CAF-PAS-010", "stock_inicial": 30, "stock_minimo": 8},
+                {"nombre": "Cachito", "precio": 4.00, "unidad": "UND", "codigo": "CAF-PAS-011", "stock_inicial": 25, "stock_minimo": 6},
+                {"nombre": "Empanada de Carne", "precio": 6.00, "unidad": "UND", "codigo": "CAF-PAS-012", "stock_inicial": 18, "stock_minimo": 4}
+            ]
+        },
+        {
+            "nombre": "Sándwiches",
+            "icono": "🥪",
+            "productos": [
+                {"nombre": "Sándwich Jamón y Queso", "precio": 12.00, "unidad": "UND", "codigo": "CAF-SAN-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Sándwich de Pollo", "precio": 14.00, "unidad": "UND", "codigo": "CAF-SAN-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Wrap de Pollo", "precio": 15.00, "unidad": "UND", "codigo": "CAF-SAN-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Tostada con Palta", "precio": 14.00, "unidad": "UND", "codigo": "CAF-SAN-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Panini Caprese", "precio": 16.00, "unidad": "UND", "codigo": "CAF-SAN-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Club Sándwich", "precio": 18.00, "unidad": "UND", "codigo": "CAF-SAN-006", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Bagel con Queso Crema", "precio": 10.00, "unidad": "UND", "codigo": "CAF-SAN-007", "stock_inicial": 12, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Desayunos",
+            "icono": "🍳",
+            "productos": [
+                {"nombre": "Desayuno Continental", "precio": 18.00, "unidad": "COMBO", "codigo": "CAF-DES-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Desayuno Americano", "precio": 22.00, "unidad": "COMBO", "codigo": "CAF-DES-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Tostadas con Mantequilla", "precio": 6.00, "unidad": "PORCION", "codigo": "CAF-DES-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Bowl de Frutas", "precio": 12.00, "unidad": "BOWL", "codigo": "CAF-DES-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Avena con Frutas", "precio": 10.00, "unidad": "BOWL", "codigo": "CAF-DES-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Pancakes x3", "precio": 14.00, "unidad": "PORCION", "codigo": "CAF-DES-006", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Extras",
+            "icono": "➕",
+            "productos": [
+                {"nombre": "Shot Extra de Café", "precio": 2.00, "unidad": "UND", "codigo": "CAF-EXT-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Leche de Almendras", "precio": 3.00, "unidad": "UND", "codigo": "CAF-EXT-002", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Crema Batida", "precio": 2.00, "unidad": "UND", "codigo": "CAF-EXT-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Sirope de Vainilla", "precio": 2.00, "unidad": "UND", "codigo": "CAF-EXT-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Sirope de Caramelo", "precio": 2.00, "unidad": "UND", "codigo": "CAF-EXT-005", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        }
+    ],
+    "total_productos": 48
+}

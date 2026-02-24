@@ -1,0 +1,2617 @@
+[
+  {
+    "name": "Perfume Cyzone 100ml",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "perfume",
+      "cyzone"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Perfume Esika 50ml",
+    "sale_price": 55.0,
+    "cost_price": 47.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "esika"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Colonia Yardley 100ml",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "yardley",
+      "colonia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Colonia Avon 100ml",
+    "sale_price": 40.0,
+    "cost_price": 34.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "avon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Labial Cyzone",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "labial"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Labial Esika Pro",
+    "sale_price": 22.0,
+    "cost_price": 18.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "labial esika"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Base de Maquillaje Cyzone",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "base",
+      "maquillaje"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Rimel Cyzone",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "rimel",
+      "mascara"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Delineador Cyzone",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "delineador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sombras Cyzone Palette",
+    "sale_price": 40.0,
+    "cost_price": 34.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "sombras",
+      "palette"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Polvo Compacto Cyzone",
+    "sale_price": 30.0,
+    "cost_price": 25.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "polvo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Rubor Cyzone",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "rubor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Crema Facial Pond's 100g",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "crema facial",
+      "ponds"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Crema Nivea Lata Azul 250ml",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "nivea"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Bloqueador Solar Nivea 125ml",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "bloqueador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Crema de Manos Nivea 100ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "crema manos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Jabon Liquido Dove 250ml",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "dove liquido"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Shampoo Sedal 650ml",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "shampoo",
+      "sedal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Shampoo Pantene 400ml",
+    "sale_price": 22.0,
+    "cost_price": 18.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "pantene"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Acondicionador Pantene 400ml",
+    "sale_price": 22.0,
+    "cost_price": 18.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "acondicionador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tratamiento Sedal 300ml",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "tratamiento"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tinte L'Oreal",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "tinte",
+      "loreal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tinte Koleston",
+    "sale_price": 28.0,
+    "cost_price": 24.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "koleston"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Esmalte Cyzone",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "esmalte",
+      "uñas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Quitaesmalte Esika",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "quitaesmalte"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lima de Uñas",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "lima"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Corta Uñas",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "corta uñas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cepillo de Pelo",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "cepillo pelo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Peine",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "peine"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Secador de Pelo",
+    "sale_price": 80.0,
+    "cost_price": 68.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "secador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plancha de Pelo",
+    "sale_price": 120.0,
+    "cost_price": 102.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "plancha"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Gel para Pelo 250ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "gel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Laca para Pelo 300ml",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "laca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cera para Pelo 100g",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "cera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Crema para Peinar 300ml",
+    "sale_price": 16.0,
+    "cost_price": 13.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "crema peinar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Locion Capilar 250ml",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "locion"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Mascarilla Capilar 300ml",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "mascarilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Toallas Desmaquillantes x20",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "desmaquillante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hisopos x100",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "hisopos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuchilla de Afeitar Gillette x3",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Perfumeria",
+    "aliases": [
+      "gillette",
+      "cuchilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hilo de Coser Blanco",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "hilo",
+      "coser"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hilo de Coser Negro",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "hilo negro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hilo de Coser Colores",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "hilo colores"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Aguja de Coser Pack x10",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "aguja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Alfileres x100",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "alfileres"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tijera Grande",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "tijera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tijera Chica",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "tijera chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Boton Blanco x12",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "boton"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Boton Negro x12",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "boton negro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Boton Colores x12",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "boton colores"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cierre 20cm",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cierre",
+      "cremallera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cierre 30cm",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cierre 30"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cierre 50cm",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cierre 50"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Elastico Blanco x5m",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "elastico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Elastico Negro x5m",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "elastico negro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cinta Metrica",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cinta metrica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Dedal",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "dedal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lana Colores 100g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "lana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hilo para Tejer 100g",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "hilo tejer"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Aguja de Tejer Par",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "aguja tejer"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Aguja Crochet",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "crochet"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Velcro Adhesivo x1m",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "velcro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cinta Raso 1cm x10m",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cinta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cinta Raso 2cm x10m",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cinta ancha"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Encaje Blanco x1m",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "encaje"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Puntilla x1m",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "puntilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Broche Metalico x10",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "broche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Gancho para Ropa x12",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "gancho"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Corchetes x12",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "corchete"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Agujas Mariposa x6",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "agujas mariposa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Entretela x1m",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "entretela"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Guata x1m",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "guata"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Algodon Relleno 500g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "algodon relleno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Ojos Moviles x100",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "ojos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pompones x50",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "pompones"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lentejuelas x100",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "lentejuelas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Perlas x100",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "perlas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Mostacillas x100g",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "mostacillas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Alambre para Bijouterie",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "alambre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Argollas para Llavero x10",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "argollas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Ganchos para Aretes x10",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "ganchos aretes"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cadena Dorada x1m",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cadena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cadena Plateada x1m",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "cadena plateada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Ligas para Cabello x100",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "ligas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Hebillas x10",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "hebillas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Horquillas x50",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "horquillas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Broches Mariposa x10",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "broches mariposa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Diadema Simple",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "diadema"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Diadema con Lazo",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "diadema lazo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Vinchas x3",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Pasamaneria",
+    "aliases": [
+      "vinchas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lapicero Azul",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "lapicero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lapicero Negro",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "lapicero negro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lapicero Rojo",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "lapicero rojo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lapiz Faber Castell",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "lapiz"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Borrador Artesco",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "borrador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tajador Artesco",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "tajador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Corrector Liquido",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "corrector"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Resaltador Amarillo",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "resaltador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Resaltador Verde",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "resaltador verde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plumones x12 Faber",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "plumones"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plumones x24 Faber",
+    "sale_price": 28.0,
+    "cost_price": 24.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "plumones grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Colores x12 Faber",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "colores"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Colores x24 Faber",
+    "sale_price": 22.0,
+    "cost_price": 18.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "colores grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Crayolas x12",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "crayolas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Temperas x6 Faber",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "temperas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Acuarelas x12",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "acuarelas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pincel Delgado",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "pincel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pincel Grueso",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "pincel grueso"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuaderno Cuadriculado 100h",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cuaderno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuaderno Rayado 100h",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cuaderno rayado"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuaderno Anillado A4",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cuaderno anillado"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Folder Manila A4",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "folder"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Archivador Palanca",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "archivador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Papel Bond A4 x100",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "papel bond"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Papel Lustre x10",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "papel lustre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cartulina Blanca",
+    "sale_price": 0.8,
+    "cost_price": 0.6,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cartulina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cartulina de Colores",
+    "sale_price": 1.0,
+    "cost_price": 0.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cartulina colores"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Papel Crepe",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "papel crepe"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Papel Seda",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "papel seda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Goma Liquida 250ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "goma"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Goma en Barra",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "goma barra"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Silicona Liquida 250ml",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "silicona"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cinta Adhesiva",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cinta adhesiva"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cinta Masking Tape",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "masking"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tijera Escolar",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "tijera escolar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Regla 30cm",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "regla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Escuadra",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "escuadra"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Compas",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "compas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Transportador",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "transportador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Calculadora Basica",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "calculadora"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Calculadora Cientifica",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "calculadora cientifica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Mochila Escolar",
+    "sale_price": 80.0,
+    "cost_price": 68.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "mochila"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cartuchera",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "cartuchera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Lonchera",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "lonchera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Libro de Cuentos",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "libro"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Album de Figuritas",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "album"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sobres de Figuritas",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "figuritas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plastilina x6 colores",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "plastilina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Masa Flexible x6",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "masa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Stickers Decorativos",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Libreria",
+    "aliases": [
+      "stickers"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Peluche Osito 20cm",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "peluche",
+      "osito"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Peluche Grande 40cm",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "peluche grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Muñeca Barbie",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "barbie",
+      "muñeca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Carrito Hot Wheels",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "carrito",
+      "hot wheels"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pelota de Futbol",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "pelota"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Yoyo",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "yoyo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Trompo",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "trompo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Comba para Saltar",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "comba"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Rompecabezas 100 piezas",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "rompecabezas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Juego de Mesa",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "juego mesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Globos x50",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "globos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Velas de Cumpleaños x10",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "velas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Gorro de Fiesta x10",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "gorro fiesta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Platos Desechables x20",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "platos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Vasos Desechables x50",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "vasos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Serpentinas x10",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "serpentinas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Confeti x10 bolsas",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "confeti"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pañuelitos x10",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "pañuelitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tarjeta de Cumpleaños",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "tarjeta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Papel Regalo x2m",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "papel regalo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Bolsa de Regalo Grande",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "bolsa regalo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Moño Decorativo",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "moño"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Figura de Accion",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "figura"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Set de Te Infantil",
+    "sale_price": 30.0,
+    "cost_price": 25.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "set te"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Burbujas Jabonosas",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "burbujas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pistola de Agua",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "pistola agua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Frisbee",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "frisbee"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Pista de Carreras",
+    "sale_price": 60.0,
+    "cost_price": 51.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "pista"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Bloques de Construcción",
+    "sale_price": 40.0,
+    "cost_price": 34.0,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "bloques"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Set de Cocina Infantil",
+    "sale_price": 50.0,
+    "cost_price": 42.5,
+    "unit": "unidad",
+    "category": "Juguetes",
+    "aliases": [
+      "cocina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Vaso de Vidrio",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "vaso"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Taza Ceramica",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "taza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plato Hondo",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "plato hondo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Plato Tendido",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "plato"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuchara",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "cuchara"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tenedor",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "tenedor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cuchillo",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "cuchillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Olla 5 Litros",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "olla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sarten 26cm",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "sarten"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Jarra de Vidrio 2L",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "jarra"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Balde 10L",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "balde"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Taper 1L",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "taper"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Taper 2L",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "taper grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Botella Termica 1L",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "termica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Taza Termica",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "taza termica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Colador",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "colador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Rallador",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "rallador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Abrelatas",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "abrelatas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sacacorchos",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "sacacorchos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Tabla de Picar",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "tabla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Paño de Cocina x3",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "paño"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Toalla de Mano",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "toalla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Toalla de Baño",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "toalla baño"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cortina de Baño",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "cortina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Alfombra de Baño",
+    "sale_price": 20.0,
+    "cost_price": 17.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "alfombra"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sabana 1 Plaza",
+    "sale_price": 35.0,
+    "cost_price": 30.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "sabana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Sabana 2 Plazas",
+    "sale_price": 50.0,
+    "cost_price": 42.5,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "sabana grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Frazada 1 Plaza",
+    "sale_price": 45.0,
+    "cost_price": 38.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "frazada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Almohada",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "almohada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  },
+  {
+    "name": "Cortina para Ventana 2m",
+    "sale_price": 40.0,
+    "cost_price": 34.0,
+    "unit": "unidad",
+    "category": "Bazar",
+    "aliases": [
+      "cortina ventana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "bazar_perfumeria"
+  }
+]
