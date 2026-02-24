@@ -10,14 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Base V2 -->
-    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/header.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260223c">
+    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224a">
 
     <!-- Module -->
-    <link rel="stylesheet" href="/static/css/products/products.css?v=20260223c">
+    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224a">
 
     <!-- Products page overrides -->
     <style>
@@ -53,6 +53,79 @@
         .fab-option-icon svg {
             display: block;
         }
+
+        /* ══════════════════════════════════════════
+           CRITICAL: Dark/Light mode card theming
+           Inline para garantizar que aplique sin
+           depender de caché de products.css
+           ══════════════════════════════════════════ */
+        .product-card {
+            background: var(--card-bg, #fff) !important;
+            border-color: var(--border-color, #e7e5e4) !important;
+        }
+        .product-card .pc-name { color: var(--text-primary); }
+        .product-card .pc-meta { color: var(--text-secondary); }
+        .product-card .pc-category { background: var(--bg-tertiary); }
+        .product-card .pc-price { color: var(--color-primary); }
+
+        .product-card .pc-action-btn {
+            background: var(--card-bg, #fff);
+            border-color: var(--border-color, #e7e5e4);
+            color: var(--text-secondary);
+        }
+
+        .stat-card {
+            background: var(--card-bg, #fff) !important;
+            border-color: var(--border-color, #e7e5e4) !important;
+        }
+        .stat-card .stat-value { color: var(--text-primary); }
+        .stat-card .stat-label { color: var(--text-secondary); }
+        .stat-card.active {
+            border-color: var(--color-primary) !important;
+            background: var(--color-primary-light) !important;
+        }
+
+        .inventory-summary {
+            background: var(--card-bg, #fff) !important;
+            border-color: var(--border-color, #e7e5e4) !important;
+        }
+        .inventory-summary .inv-value { color: var(--text-primary); }
+        .inventory-summary .inv-label { color: var(--text-secondary); }
+
+        .search-input {
+            background: var(--input-bg, #fff) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        .filter-select {
+            background: var(--input-bg, #fff) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .filters-bar {
+            background: var(--bg-secondary) !important;
+        }
+
+        .pagination {
+            background: color-mix(in srgb, var(--bg-secondary) 82%, transparent) !important;
+            border-top-color: var(--border-color) !important;
+        }
+        .page-btn {
+            background: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        .page-btn.active {
+            background: var(--accent-gradient) !important;
+            color: white !important;
+            border-color: transparent !important;
+        }
+
+        /* Stock badge dark mode */
+        .pc-stock-badge.normal { background: var(--color-success-bg); color: var(--color-success-text); }
+        .pc-stock-badge.low { background: var(--color-warning-bg); color: var(--color-warning-text); }
+        .pc-stock-badge.out { background: var(--color-error-bg); color: var(--color-error-text); }
     </style>
 </head>
 <body>
@@ -742,6 +815,6 @@
     </script>
 
     <!-- Module: Products App -->
-    <script src="/static/js/products/products.js"></script>
+    <script src="/static/js/products/products.js?v=20260224a"></script>
 </body>
 </html>
