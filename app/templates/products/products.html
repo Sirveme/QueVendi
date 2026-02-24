@@ -5,27 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Productos - QueVendi PRO</title>
 
+    <!-- Fonts (mismas que dashboard) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <!-- Base V2 -->
-    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/header.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260223c">
-    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260223c">
+    <link rel="stylesheet" href="/static/css/base/layout.css">
+    <link rel="stylesheet" href="/static/css/base/toast.css">
+    <link rel="stylesheet" href="/static/css/base/modal.css">
+    <link rel="stylesheet" href="/static/css/base/loader.css">
 
     <!-- Module -->
-    <link rel="stylesheet" href="/static/css/products/products.css?v=20260223c">
+    <link rel="stylesheet" href="/static/css/products/products.css">
+
+    <!-- Header inline (no depende de header.js) -->
+    <style>
+        .products-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 56px;
+            background: #1a1a2e;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .products-header .ph-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .products-header .ph-back {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .products-header .ph-back:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .products-header .ph-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+        .products-header .ph-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .products-header .ph-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .products-header .ph-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Fix: filters sticky debajo del header */
+        .filters-bar {
+            top: 56px;
+        }
+
+        /* Font global */
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ═══ HEADER (V2 base) ═══ -->
-    <div id="header-container"></div>
+    <!-- ═══ HEADER (inline, consistente con dashboard) ═══ -->
+    <header class="products-header">
+        <div class="ph-left">
+            <button class="ph-back" onclick="window.location.href='/home'" title="Volver al POS">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <span class="ph-title">📦 Productos</span>
+        </div>
+        <div class="ph-right">
+            <button class="ph-btn" onclick="ProductsApp.openImportModal()" title="Importar catálogo">
+                <i class="fas fa-file-import"></i>
+            </button>
+            <button class="ph-btn" onclick="ProductsApp.openCreateModal()" title="Nuevo producto">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="ph-btn" onclick="window.location.href='/settings'" title="Configuración">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </header>
 
     <!-- ═══ MAIN CONTENT ═══ -->
     <main class="main-content">
 
         <!-- ── Stats Bar ── -->
         <div class="stats-bar" id="statsBar">
-            <div class="stat-card" data-filter="all">
+            <div class="stat-card active" data-filter="all">
                 <span class="stat-value" id="statTotal">-</span>
                 <span class="stat-label">Total</span>
             </div>
@@ -360,14 +461,13 @@
         <div class="loader-spinner"></div>
     </div>
 
-    <!-- Base V2 JS -->
+    <!-- Base V2 JS (sin utils.js ni header.js) -->
     <script src="/static/js/base/layout.js"></script>
-    <script src="/static/js/base/header.js"></script>
     <script src="/static/js/base/toast.js"></script>
     <script src="/static/js/base/modal.js"></script>
     <script src="/static/js/base/loader.js"></script>
 
     <!-- Module -->
-    <script src="/static/js/products/products.js?v=20260223c"></script>
+    <script src="/static/js/products/products.js"></script>
 </body>
 </html>
