@@ -1,0 +1,98 @@
+{
+    "nicho": "restaurante",
+    "nombre": "Restaurante / Menú",
+    "icono": "🍽️",
+    "version": "1.1",
+    "actualizado": "2025-02-23",
+    "nota_stock": "Para restaurantes, stock representa porciones/preparaciones disponibles. 0 = sin límite (preparar a pedido).",
+    "categorias": [
+        {
+            "nombre": "Entradas",
+            "icono": "🥗",
+            "productos": [
+                {"nombre": "Papa a la Huancaína", "precio": 12.00, "unidad": "PLATO", "codigo": "REST-ENT-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Ceviche", "precio": 25.00, "unidad": "PLATO", "codigo": "REST-ENT-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Causa Limeña", "precio": 15.00, "unidad": "PLATO", "codigo": "REST-ENT-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Ensalada Mixta", "precio": 10.00, "unidad": "PLATO", "codigo": "REST-ENT-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Tequeños x6", "precio": 12.00, "unidad": "PORCION", "codigo": "REST-ENT-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Chicharrón de Calamar", "precio": 18.00, "unidad": "PLATO", "codigo": "REST-ENT-006", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Palta Rellena", "precio": 14.00, "unidad": "PLATO", "codigo": "REST-ENT-007", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Platos Principales",
+            "icono": "🍛",
+            "productos": [
+                {"nombre": "Lomo Saltado", "precio": 28.00, "unidad": "PLATO", "codigo": "REST-PRI-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Arroz con Pollo", "precio": 18.00, "unidad": "PLATO", "codigo": "REST-PRI-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Ají de Gallina", "precio": 20.00, "unidad": "PLATO", "codigo": "REST-PRI-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Seco de Res", "precio": 22.00, "unidad": "PLATO", "codigo": "REST-PRI-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Pollo a la Brasa", "precio": 35.00, "unidad": "PLATO", "codigo": "REST-PRI-005", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Tallarines Rojos", "precio": 15.00, "unidad": "PLATO", "codigo": "REST-PRI-006", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Arroz Chaufa", "precio": 18.00, "unidad": "PLATO", "codigo": "REST-PRI-007", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Milanesa de Pollo", "precio": 20.00, "unidad": "PLATO", "codigo": "REST-PRI-008", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Pescado Frito", "precio": 25.00, "unidad": "PLATO", "codigo": "REST-PRI-009", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Tacu Tacu con Lomo", "precio": 30.00, "unidad": "PLATO", "codigo": "REST-PRI-010", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Cau Cau", "precio": 18.00, "unidad": "PLATO", "codigo": "REST-PRI-011", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Estofado de Pollo", "precio": 16.00, "unidad": "PLATO", "codigo": "REST-PRI-012", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Menú del Día",
+            "icono": "📋",
+            "productos": [
+                {"nombre": "Menú Económico", "precio": 10.00, "unidad": "MENU", "codigo": "REST-MEN-001", "stock_inicial": 50, "stock_minimo": 10},
+                {"nombre": "Menú Ejecutivo", "precio": 15.00, "unidad": "MENU", "codigo": "REST-MEN-002", "stock_inicial": 30, "stock_minimo": 5},
+                {"nombre": "Menú Especial", "precio": 20.00, "unidad": "MENU", "codigo": "REST-MEN-003", "stock_inicial": 20, "stock_minimo": 5}
+            ]
+        },
+        {
+            "nombre": "Sopas y Caldos",
+            "icono": "🍲",
+            "productos": [
+                {"nombre": "Sopa Criolla", "precio": 12.00, "unidad": "PLATO", "codigo": "REST-SOP-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Caldo de Gallina", "precio": 15.00, "unidad": "PLATO", "codigo": "REST-SOP-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Shambar", "precio": 14.00, "unidad": "PLATO", "codigo": "REST-SOP-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Chilcano de Pescado", "precio": 18.00, "unidad": "PLATO", "codigo": "REST-SOP-004", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Bebidas",
+            "icono": "🥤",
+            "productos": [
+                {"nombre": "Chicha Morada Vaso", "precio": 5.00, "unidad": "VASO", "codigo": "REST-BEB-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Limonada Vaso", "precio": 5.00, "unidad": "VASO", "codigo": "REST-BEB-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Maracuyá Vaso", "precio": 5.00, "unidad": "VASO", "codigo": "REST-BEB-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Emoliente Vaso", "precio": 3.00, "unidad": "VASO", "codigo": "REST-BEB-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Gaseosa Personal", "precio": 4.00, "unidad": "UND", "codigo": "REST-BEB-005", "stock_inicial": 48, "stock_minimo": 12},
+                {"nombre": "Agua Mineral", "precio": 3.00, "unidad": "UND", "codigo": "REST-BEB-006", "stock_inicial": 48, "stock_minimo": 12},
+                {"nombre": "Cerveza Personal", "precio": 8.00, "unidad": "UND", "codigo": "REST-BEB-007", "stock_inicial": 24, "stock_minimo": 6},
+                {"nombre": "Jarra de Chicha 1L", "precio": 12.00, "unidad": "JARRA", "codigo": "REST-BEB-008", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        },
+        {
+            "nombre": "Postres",
+            "icono": "🍰",
+            "productos": [
+                {"nombre": "Arroz con Leche", "precio": 6.00, "unidad": "PORCION", "codigo": "REST-POS-001", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Mazamorra Morada", "precio": 6.00, "unidad": "PORCION", "codigo": "REST-POS-002", "stock_inicial": 20, "stock_minimo": 5},
+                {"nombre": "Suspiro Limeño", "precio": 8.00, "unidad": "PORCION", "codigo": "REST-POS-003", "stock_inicial": 15, "stock_minimo": 3},
+                {"nombre": "Picarones x6", "precio": 10.00, "unidad": "PORCION", "codigo": "REST-POS-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Torta de Chocolate", "precio": 10.00, "unidad": "PORCION", "codigo": "REST-POS-005", "stock_inicial": 12, "stock_minimo": 3},
+                {"nombre": "Flan", "precio": 7.00, "unidad": "PORCION", "codigo": "REST-POS-006", "stock_inicial": 15, "stock_minimo": 3}
+            ]
+        },
+        {
+            "nombre": "Extras",
+            "icono": "➕",
+            "productos": [
+                {"nombre": "Porción de Arroz", "precio": 3.00, "unidad": "PORCION", "codigo": "REST-EXT-001", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Porción de Papas Fritas", "precio": 5.00, "unidad": "PORCION", "codigo": "REST-EXT-002", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Huevo Frito", "precio": 2.00, "unidad": "UND", "codigo": "REST-EXT-003", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Ensalada Extra", "precio": 4.00, "unidad": "PORCION", "codigo": "REST-EXT-004", "stock_inicial": 0, "stock_minimo": 0},
+                {"nombre": "Ají Extra", "precio": 1.00, "unidad": "PORCION", "codigo": "REST-EXT-005", "stock_inicial": 0, "stock_minimo": 0}
+            ]
+        }
+    ],
+    "total_productos": 47
+}

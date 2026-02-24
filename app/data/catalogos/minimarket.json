@@ -1,0 +1,3211 @@
+[
+  {
+    "name": "Inca Kola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca",
+      "kola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Inca Kola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Inca Kola 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Inca Kola Zero 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "inca zero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Coca Cola 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Coca Cola 3L",
+    "sale_price": 9.5,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Coca Cola 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Coca Cola Zero 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "coca zero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sprite 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sprite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sprite 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "sprite chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fanta 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "fanta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fanta 500ml",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "fanta chica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Kola Real 1.5L",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola real"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Kola Real 3L",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola real grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Guarana 500ml",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "guarana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pepsi 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "pepsi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Schweppes Ginger Ale 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "schweppes"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Schweppes Tonica 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "tonica"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Seven Up 1.5L",
+    "sale_price": 5.5,
+    "cost_price": 4.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "seven up"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Canada Dry 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "canada dry"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Triple Kola 3L",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "triple kola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Big Cola 3L",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "big cola"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aje Kola Inglesa 2.5L",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "kola inglesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "San Luis Limonada 500ml",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "san luis limonada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Crush Naranja 500ml",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Bebidas",
+    "aliases": [
+      "crush"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua San Luis 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "agua",
+      "san luis"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua San Luis 2.5L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "agua grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua Cielo 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "cielo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua San Mateo 625ml",
+    "sale_price": 1.2,
+    "cost_price": 0.9,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "san mateo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua Socosani 625ml",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "socosani"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua San Carlos 625ml",
+    "sale_price": 1.8,
+    "cost_price": 1.4,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "san carlos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Agua Mineral San Mateo 625ml",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "mineral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Frugos Durazno",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "frugos",
+      "durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Frugos Fresa",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "frugos fresa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Frugos Mango",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "frugos mango"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pulp Durazno",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "pulp"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pulp Maracuya",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "pulp maracuya"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chicha Morada Selva 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "chicha"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Limonada Selva 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "limonada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Naranjada Selva 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "naranjada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pura Vida Naranja 1L",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "pura vida"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pura Vida Durazno 1L",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "pura vida durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Tampico Citrus 1L",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "tampico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cifrut Naranja",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "cifrut"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cifrut Manzana",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "cifrut manzana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Watts Naranja 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "watts"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Free Tea Durazno",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "free tea"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aquarius Naranja 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "aquarius"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Powerade 500ml",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "powerade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Gatorade 500ml",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Aguas",
+    "aliases": [
+      "gatorade"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Pilsen 630ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "pilsen",
+      "cerveza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Cristal 630ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cristal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Cusqueña 630ml",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cusquena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Cusqueña Trigo 630ml",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "cusquena trigo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Corona 355ml",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "corona"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Heineken 330ml",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "heineken"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Brahma 355ml",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "brahma"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Poker 650ml",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "poker"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Arequipeña 650ml",
+    "sale_price": 5.5,
+    "cost_price": 4.4,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "arequipena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Barena 650ml",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "barena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Red Bull 250ml",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "red bull"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Red Bull Sugarfree 250ml",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "red bull zero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Monster 473ml",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "monster"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Volt 250ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "volt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Burn 250ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "burn"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Speed 300ml",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "speed"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Vive 100 500ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Energizantes",
+    "aliases": [
+      "vive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Malta Polar",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "malta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Malta Morenita",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "morenita"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cerveza Pilsen Six Pack",
+    "sale_price": 28.0,
+    "cost_price": 23.0,
+    "unit": "unidad",
+    "category": "Cervezas",
+    "aliases": [
+      "pilsen six pack"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Gloria Entera 1L",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche",
+      "gloria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Gloria Light 1L",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche light"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Gloria Niños 1L",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche ninos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Ideal 400g",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "ideal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Condensada Nestle",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche condensada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Leche Evaporada Gloria",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "leche evaporada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Gloria Fresa 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Gloria Durazno 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt durazno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Gloria Vainilla 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt vainilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Gloria Griego Fresa",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt griego"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Laive 1L",
+    "sale_price": 9.0,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "yogurt laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Yogurt Milkito 1L",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "milkito"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queso Bonle 250g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queso Laive Edam 250g",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queso Paria 250g",
+    "sale_price": 14.0,
+    "cost_price": 11.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso paria"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queso Crema Philadelphia",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "queso crema"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mantequilla Gloria 200g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mantequilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mantequilla Laive 200g",
+    "sale_price": 9.0,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mantequilla laive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Margarina Manty 200g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "margarina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Manjar Blanco Nestle",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "manjar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Crema de Leche Gloria",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "crema de leche"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Huevos Pardos x30",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "huevos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Huevos Blancos x30",
+    "sale_price": 16.0,
+    "cost_price": 13.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "huevos blancos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Huevos Codorniz x12",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "huevos codorniz"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queso Mozzarella 250g",
+    "sale_price": 16.0,
+    "cost_price": 13.5,
+    "unit": "unidad",
+    "category": "Lacteos",
+    "aliases": [
+      "mozzarella"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Hot Dog San Fernando x8",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "hot dog"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Hot Dog Braedt x8",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "hot dog braedt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jamonada San Fernando 200g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "jamonada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jamon Ingles San Fernando 200g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "jamon ingles"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jamon del Pais 200g",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "jamon del pais"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Salchicha Huachana San Fernando",
+    "sale_price": 9.0,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "huachana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Salchicha Frankfurt 250g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "frankfurt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Salchicha Ranchera 250g",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "ranchera"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chorizo Parrillero San Fernando",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "chorizo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Tocino Ahumado 200g",
+    "sale_price": 9.0,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "tocino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Salami 200g",
+    "sale_price": 11.0,
+    "cost_price": 9.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "salami"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mortadela 200g",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "mortadela"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chicharron Prensado 200g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "chicharron"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Butifarra 200g",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "butifarra"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Longaniza 250g",
+    "sale_price": 11.0,
+    "cost_price": 9.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "longaniza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Paté Laive Jamon 100g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "pate"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Paté Braedt 100g",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "pate braedt"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Nuggets San Fernando 250g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "nuggets"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Alitas San Fernando 500g",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "alitas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Hamburguesa San Fernando x4",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Embutidos",
+    "aliases": [
+      "hamburguesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Arroz Paisana 750g",
+    "sale_price": 3.8,
+    "cost_price": 3.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "arroz",
+      "paisana"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Arroz Costeño 750g",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "costeno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Arroz Valle Grande 5kg",
+    "sale_price": 18.0,
+    "cost_price": 16.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "valle grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Arroz Superior Costeño 5kg",
+    "sale_price": 22.0,
+    "cost_price": 19.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "arroz superior"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Azucar Rubia 1kg",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Azucar Blanca 1kg",
+    "sale_price": 4.8,
+    "cost_price": 3.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar blanca"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Azucar Rubia 5kg",
+    "sale_price": 21.0,
+    "cost_price": 18.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "azucar grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aceite Primor 1L",
+    "sale_price": 8.5,
+    "cost_price": 7.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aceite",
+      "primor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aceite Cil 1L",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "cil"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aceite Cocinero 1L",
+    "sale_price": 7.5,
+    "cost_price": 6.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "cocinero"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aceite Primor 5L",
+    "sale_price": 40.0,
+    "cost_price": 35.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aceite grande"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Aceite de Oliva Carbonell 500ml",
+    "sale_price": 25.0,
+    "cost_price": 21.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "aceite oliva"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sal Emsal 1kg",
+    "sale_price": 2.0,
+    "cost_price": 1.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sal Marina 1kg",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sal marina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fideos Don Vittorio 500g",
+    "sale_price": 3.2,
+    "cost_price": 2.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "fideos",
+      "pasta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fideos Lavaggi 500g",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "lavaggi"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fideos Molitalia 500g",
+    "sale_price": 3.0,
+    "cost_price": 2.3,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "molitalia"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Fideos Anita 500g",
+    "sale_price": 2.8,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "anita"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Atun Florida 170g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun",
+      "florida"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Atun A1 170g",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun a1"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Atun Frescomar 170g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "frescomar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Atun Primor 170g",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "atun primor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sardina Florida 425g",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sardina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Grated Lata 250g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "grated"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Avena Quaker 180g",
+    "sale_price": 2.8,
+    "cost_price": 2.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "avena"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Avena 3 Ositos 180g",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "3 ositos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Harina Nicolini 1kg",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "harina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Harina Preparada Blanca Flor 1kg",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "blanca flor"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mayonesa Alacena 200g",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mayonesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mayonesa Hellmann's 200g",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "hellmanns"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Ketchup Libby's 200g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "ketchup"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mostaza Alacena 200g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "mostaza"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Vinagre Tinto 500ml",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "vinagre"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Vinagre Blanco 500ml",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "vinagre blanco"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sillao Soy Dragon 500ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "sillao"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Sillao Kikkoman 500ml",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "kikkoman"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Frejol Canario 500g",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "frejol"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Lenteja 500g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "lenteja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Garbanzo 500g",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "garbanzo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pallares 500g",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Abarrotes",
+    "aliases": [
+      "pallares"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papas Lays Clasica",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "lays",
+      "papas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papas Lays Limon",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "lays limon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papas Pringles Original",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "pringles"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papas Pringles Crema y Cebolla",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "pringles crema"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Doritos Nacho",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "doritos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Doritos Flamin Hot",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "doritos flamin"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chizitos",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chizitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Tortees",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tortees"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cua Cua",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "cua cua"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Piqueo Frito Lay",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "piqueo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mani Salado 100g",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "mani"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Mani Japones 80g",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "mani japones"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Sublime",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "sublime"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Princesa",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "princesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Triángulo",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "triangulo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Donofrio Caja",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "donofrio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Milkyway",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "milkyway"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate Snickers",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "snickers"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocolate KitKat",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "kitkat"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Galletas Soda Field",
+    "sale_price": 1.8,
+    "cost_price": 1.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "soda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Galletas Charada",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "charada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Galletas Tentación",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "tentacion"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Galletas Casino",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "casino"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Oreo Paquete",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "oreo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Morochas",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "morochas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Wafer Mecato",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "wafer"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Chocosoda",
+    "sale_price": 2.0,
+    "cost_price": 1.6,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "chocosoda"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Vizzio",
+    "sale_price": 1.5,
+    "cost_price": 1.2,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "vizzio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Ritz",
+    "sale_price": 3.0,
+    "cost_price": 2.4,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "ritz"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Club Social",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Snacks",
+    "aliases": [
+      "club social"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan Frances",
+    "sale_price": 0.3,
+    "cost_price": 0.2,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan Integral",
+    "sale_price": 0.4,
+    "cost_price": 0.3,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan integral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan Yema",
+    "sale_price": 0.5,
+    "cost_price": 0.35,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "yema"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cachito",
+    "sale_price": 0.5,
+    "cost_price": 0.35,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "cachito"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan de molde Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan de molde",
+      "bimbo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan de molde Todinno",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "todinno"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pan integral Bimbo",
+    "sale_price": 6.0,
+    "cost_price": 5.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "bimbo integral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Tostadas Todinno",
+    "sale_price": 4.5,
+    "cost_price": 3.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "tostadas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Hot Dog Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan hot dog"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Hamburguesa Bimbo",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "pan hamburguesa"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Empanada",
+    "sale_price": 2.0,
+    "cost_price": 1.4,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "empanada"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Bizcocho",
+    "sale_price": 1.5,
+    "cost_price": 1.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "bizcocho"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Croissant",
+    "sale_price": 2.5,
+    "cost_price": 1.8,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "croissant"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Queque Ingles",
+    "sale_price": 1.0,
+    "cost_price": 0.7,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "queque"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Panetones Donofrio 900g",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Panaderia",
+    "aliases": [
+      "paneton"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Detergente Ariel 780g",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "ariel",
+      "detergente"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Detergente Bolivar 780g",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "bolivar"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Detergente Ace 780g",
+    "sale_price": 11.0,
+    "cost_price": 9.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "ace"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jabon Bolivar Barra",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "jabon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jabon Liquido Opal 900ml",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "jabon liquido"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Suavizante Downy 800ml",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "downy",
+      "suavizante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Suavizante Suavitel 800ml",
+    "sale_price": 9.0,
+    "cost_price": 7.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "suavitel"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Lejia Clorox 1L",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "lejia",
+      "clorox"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Lavavajilla Ayudin 550ml",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "ayudin",
+      "lavavajilla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Lavavajilla Sapolio 550ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "sapolio"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Esponja Scotch Brite x3",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "esponja"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Limpiador Magistral 900ml",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "magistral"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Limpiador Cif 450ml",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "cif"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Ambientador Glade 360ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "glade",
+      "ambientador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Bolsas de Basura x10",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "bolsas basura"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papel Higienico Elite x4",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "papel",
+      "higienico"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papel Higienico Scott x4",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "scott"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papel Higienico Suave x4",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "suave"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Papel Toalla Elite x2",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "papel toalla"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Servilletas x100",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "servilletas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Insecticida Sapolio 360ml",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "insecticida"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Lustramuebles Sapolio 360ml",
+    "sale_price": 7.0,
+    "cost_price": 5.6,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "lustramuebles"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Limpiavidrios Sapolio 550ml",
+    "sale_price": 6.0,
+    "cost_price": 4.8,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "limpiavidrios"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Escoba",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "escoba"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Trapeador",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Limpieza",
+    "aliases": [
+      "trapeador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Shampoo Head & Shoulders 375ml",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "shampoo",
+      "head"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Shampoo Sedal 340ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "sedal"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Shampoo Pantene 400ml",
+    "sale_price": 18.0,
+    "cost_price": 15.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "pantene"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Acondicionador Sedal 340ml",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "acondicionador"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jabon Dove 90g",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "dove",
+      "jabon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Jabon Palmolive 90g",
+    "sale_price": 2.5,
+    "cost_price": 2.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "palmolive"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pasta Dental Colgate 75ml",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "colgate",
+      "pasta"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pasta Dental Dento 75ml",
+    "sale_price": 3.5,
+    "cost_price": 2.8,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "dento"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Cepillo Dental Colgate",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "cepillo"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Desodorante Rexona 150ml",
+    "sale_price": 10.0,
+    "cost_price": 8.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "rexona",
+      "desodorante"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Desodorante Speed Stick 60g",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "speed stick"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Gillette Prestobarba x3",
+    "sale_price": 5.0,
+    "cost_price": 4.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "gillette",
+      "maquina"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Panal Babysec G x10",
+    "sale_price": 12.0,
+    "cost_price": 10.0,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "panal",
+      "babysec"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Panal Huggies G x10",
+    "sale_price": 15.0,
+    "cost_price": 12.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "huggies"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Toallas Nosotras x10",
+    "sale_price": 6.5,
+    "cost_price": 5.2,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "nosotras",
+      "toallas"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Toallas Always x10",
+    "sale_price": 8.0,
+    "cost_price": 6.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "always"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pañitos Humedos Babysec",
+    "sale_price": 5.5,
+    "cost_price": 4.5,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "panitos"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Pañitos Humedos Elite",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "panitos elite"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Algodon Elite 100g",
+    "sale_price": 4.0,
+    "cost_price": 3.2,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "algodon"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  },
+  {
+    "name": "Alcohol Elite 250ml",
+    "sale_price": 4.5,
+    "cost_price": 3.6,
+    "unit": "unidad",
+    "category": "Personal",
+    "aliases": [
+      "alcohol"
+    ],
+    "brand": null,
+    "barcode": null,
+    "catalog_code": "minimarket"
+  }
+]

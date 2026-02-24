@@ -1,0 +1,7078 @@
+{
+  "nicho": "bodega",
+  "nombre": "Bodega / Tienda de Barrio",
+  "icono": "🏪",
+  "version": "2.0",
+  "actualizado": "2026-02-23",
+  "notas_version": "V2: +aliases, +complementarios, +sustitutos, +mayoreo, +_ia, +combos, +imágenes. ~300 productos.",
+  "categorias": [
+    {
+      "nombre": "Bebidas No Alcohólicas",
+      "icono": "🥤",
+      "productos": [
+        {
+          "nombre": "Coca Cola 500ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-001",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-BEB-001.webp",
+          "aliases": [
+            "coca",
+            "coca cola",
+            "cocacola",
+            "cola",
+            "gaseosa roja",
+            "roja chica"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco",
+            "popular",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-SNK-001",
+            "BOD-SNK-004",
+            "BOD-SNK-006"
+          ],
+          "sustitutos": [
+            "BOD-BEB-002",
+            "BOD-BEB-007",
+            "BOD-BEB-005"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 3.0,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.2,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Inca Kola 500ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-002",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-BEB-002.webp",
+          "aliases": [
+            "inca",
+            "inca kola",
+            "incakola",
+            "kola amarilla",
+            "amarilla",
+            "gaseosa amarilla"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco",
+            "popular",
+            "alta_rotacion",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-SNK-001",
+            "BOD-SNK-002"
+          ],
+          "sustitutos": [
+            "BOD-BEB-001",
+            "BOD-BEB-007"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 3.0,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.2,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Coca Cola 1.5L",
+          "precio": 7.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-003",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-003.webp",
+          "aliases": [
+            "coca grande",
+            "coca litro y medio",
+            "coca familiar"
+          ],
+          "tags": [
+            "gaseosa",
+            "familiar",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-004",
+            "BOD-BEB-013"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 4,
+            "precio_sugerido": 6.8,
+            "nota": "Pack 4"
+          },
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.2,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Inca Kola 1.5L",
+          "precio": 7.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-004",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-004.webp",
+          "aliases": [
+            "inca grande",
+            "inca litro y medio",
+            "inca familiar",
+            "amarilla grande"
+          ],
+          "tags": [
+            "gaseosa",
+            "familiar",
+            "popular",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-003",
+            "BOD-BEB-013"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 4,
+            "precio_sugerido": 6.8,
+            "nota": "Pack 4"
+          },
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.2,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Fanta 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-005",
+          "stock_inicial": 36,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-BEB-005.webp",
+          "aliases": [
+            "fanta",
+            "naranja",
+            "gaseosa naranja"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco"
+          ],
+          "complementarios": [
+            "BOD-SNK-002"
+          ],
+          "sustitutos": [
+            "BOD-BEB-006",
+            "BOD-BEB-007"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 2.6,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 2.4,
+            "margen_tipico": 0.2,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Sprite 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-006",
+          "stock_inicial": 36,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-BEB-006.webp",
+          "aliases": [
+            "sprite",
+            "lima limon",
+            "gaseosa verde"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-005",
+            "BOD-BEB-007"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 2.6,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 2.4,
+            "margen_tipico": 0.2,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Kola Real 500ml",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-007",
+          "stock_inicial": 36,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-BEB-007.webp",
+          "aliases": [
+            "kola real",
+            "kr",
+            "gaseosa barata",
+            "kola economica"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco",
+            "economico",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-SNK-009"
+          ],
+          "sustitutos": [
+            "BOD-BEB-001",
+            "BOD-BEB-002"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 1.7,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.25,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Kola Real 3.3L",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-008",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-BEB-008.webp",
+          "aliases": [
+            "kola real grande",
+            "kr grande",
+            "kola familiar"
+          ],
+          "tags": [
+            "gaseosa",
+            "economico",
+            "familiar"
+          ],
+          "complementarios": [
+            "BOD-ABA-004"
+          ],
+          "sustitutos": [
+            "BOD-BEB-003",
+            "BOD-BEB-013"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.24,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Agua San Luis 625ml",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-009",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-BEB-009.webp",
+          "aliases": [
+            "agua",
+            "san luis",
+            "agua mineral",
+            "agua chica"
+          ],
+          "tags": [
+            "agua",
+            "hidratacion",
+            "saludable",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-010",
+            "BOD-BEB-011"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.6,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Agua Cielo 625ml",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-010",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-BEB-010.webp",
+          "aliases": [
+            "cielo",
+            "agua cielo",
+            "agua barata"
+          ],
+          "tags": [
+            "agua",
+            "hidratacion",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-009",
+            "BOD-BEB-011"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.2,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Agua San Luis 2.5L",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-011",
+          "stock_inicial": 18,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-011.webp",
+          "aliases": [
+            "agua grande",
+            "san luis grande",
+            "bidon chico"
+          ],
+          "tags": [
+            "agua",
+            "hidratacion",
+            "familiar"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-009"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Agua San Mateo con Gas 625ml",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-012",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-012.webp",
+          "aliases": [
+            "san mateo",
+            "agua con gas",
+            "gasificada"
+          ],
+          "tags": [
+            "agua",
+            "con_gas",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-009"
+          ],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.28,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Coca Cola 3L",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-013",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-BEB-013.webp",
+          "aliases": [
+            "coca tres litros",
+            "coca gigante",
+            "coca mega"
+          ],
+          "tags": [
+            "gaseosa",
+            "familiar",
+            "reunion"
+          ],
+          "complementarios": [
+            "BOD-SNK-001",
+            "BOD-MIS-008"
+          ],
+          "sustitutos": [
+            "BOD-BEB-003"
+          ],
+          "_ia": {
+            "costo_ref": 9.5,
+            "margen_tipico": 0.21,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Frugos Durazno 235ml",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-014",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-BEB-014.webp",
+          "aliases": [
+            "frugos",
+            "jugo frugos",
+            "néctar",
+            "jugo durazno",
+            "frugos chico"
+          ],
+          "tags": [
+            "jugo",
+            "nectar",
+            "lonchera",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-SNK-004",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-015",
+            "BOD-BEB-016"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 2.1,
+            "nota": "Pack 6 cajitas"
+          },
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.28,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Frugos Mango 1L",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-015",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-015.webp",
+          "aliases": [
+            "frugos litro",
+            "frugos grande",
+            "jugo mango"
+          ],
+          "tags": [
+            "jugo",
+            "nectar",
+            "familiar"
+          ],
+          "complementarios": [
+            "BOD-PAN-002"
+          ],
+          "sustitutos": [
+            "BOD-BEB-014",
+            "BOD-BEB-016"
+          ],
+          "_ia": {
+            "costo_ref": 4.0,
+            "margen_tipico": 0.27,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pulp Durazno 315ml",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-016",
+          "stock_inicial": 36,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-BEB-016.webp",
+          "aliases": [
+            "pulp",
+            "jugo pulp",
+            "pulp durazno"
+          ],
+          "tags": [
+            "jugo",
+            "nectar",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-SNK-005"
+          ],
+          "sustitutos": [
+            "BOD-BEB-014"
+          ],
+          "_ia": {
+            "costo_ref": 1.4,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Cifrut Naranja 500ml",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-017",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-BEB-017.webp",
+          "aliases": [
+            "cifrut",
+            "cifrut naranja",
+            "refresco naranja barato"
+          ],
+          "tags": [
+            "refresco",
+            "economico",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-SNK-009"
+          ],
+          "sustitutos": [
+            "BOD-BEB-016"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 1.2,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Gatorade 500ml",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-018",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-018.webp",
+          "aliases": [
+            "gatorade",
+            "gatorei",
+            "rehidratante",
+            "isotónica"
+          ],
+          "tags": [
+            "rehidratante",
+            "deportes"
+          ],
+          "complementarios": [
+            "BOD-SNK-012"
+          ],
+          "sustitutos": [
+            "BOD-BEB-019",
+            "BOD-BEB-020"
+          ],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Powerade 500ml",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-019",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-019.webp",
+          "aliases": [
+            "powerade",
+            "pawereid",
+            "rehidratante azul"
+          ],
+          "tags": [
+            "rehidratante",
+            "deportes"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-018",
+            "BOD-BEB-020"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Electrolight 500ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-020",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-020.webp",
+          "aliases": [
+            "electrolight",
+            "electrolai",
+            "suero oral"
+          ],
+          "tags": [
+            "rehidratante",
+            "salud"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-018"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Red Bull 250ml",
+          "precio": 7.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-021",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-BEB-021.webp",
+          "aliases": [
+            "red bull",
+            "redbull",
+            "toro rojo",
+            "energizante"
+          ],
+          "tags": [
+            "energizante",
+            "premium",
+            "noche"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-022",
+            "BOD-BEB-023"
+          ],
+          "_ia": {
+            "costo_ref": 5.5,
+            "margen_tipico": 0.21,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Volt 300ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-022",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-022.webp",
+          "aliases": [
+            "volt",
+            "energizante volt",
+            "energy"
+          ],
+          "tags": [
+            "energizante",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-021",
+            "BOD-BEB-023"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Monster Energy 473ml",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-023",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-BEB-023.webp",
+          "aliases": [
+            "monster",
+            "monster energy",
+            "energizante verde"
+          ],
+          "tags": [
+            "energizante",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-021",
+            "BOD-BEB-022"
+          ],
+          "_ia": {
+            "costo_ref": 6.2,
+            "margen_tipico": 0.23,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Chicha Morada Naturale 1L",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-024",
+          "stock_inicial": 18,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-024.webp",
+          "aliases": [
+            "chicha",
+            "chicha morada",
+            "naturale"
+          ],
+          "tags": [
+            "refresco",
+            "tradicional",
+            "peruano",
+            "familiar"
+          ],
+          "complementarios": [
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-025"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Emoliente San Luis 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-025",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-025.webp",
+          "aliases": [
+            "emoliente",
+            "emoliente san luis",
+            "mate"
+          ],
+          "tags": [
+            "refresco",
+            "tradicional",
+            "peruano",
+            "saludable"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-024"
+          ],
+          "_ia": {
+            "costo_ref": 2.1,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "invierno_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pepsi 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-026",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-026.webp",
+          "aliases": [
+            "pepsi",
+            "pepsi cola"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-BEB-001",
+            "BOD-BEB-007"
+          ],
+          "_ia": {
+            "costo_ref": 2.3,
+            "margen_tipico": 0.23,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Guaraná Backus 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-027",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-027.webp",
+          "aliases": [
+            "guaraná",
+            "guarana",
+            "guarana backus"
+          ],
+          "tags": [
+            "gaseosa",
+            "refresco",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-005",
+            "BOD-BEB-006"
+          ],
+          "_ia": {
+            "costo_ref": 2.3,
+            "margen_tipico": 0.23,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Coca Cola Zero 500ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-028",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-BEB-028.webp",
+          "aliases": [
+            "coca zero",
+            "zero",
+            "coca sin azucar",
+            "coca negra"
+          ],
+          "tags": [
+            "gaseosa",
+            "sin_azucar",
+            "dieta"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.2,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Tampico 500ml",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-029",
+          "stock_inicial": 36,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-BEB-029.webp",
+          "aliases": [
+            "tampico",
+            "refresco tampico",
+            "jugo tampico"
+          ],
+          "tags": [
+            "refresco",
+            "economico",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-SNK-009"
+          ],
+          "sustitutos": [
+            "BOD-BEB-017"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Concordia 3.3L",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-BEB-030",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-BEB-030.webp",
+          "aliases": [
+            "concordia",
+            "concordia grande",
+            "gaseosa economica grande"
+          ],
+          "tags": [
+            "gaseosa",
+            "economico",
+            "familiar"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-BEB-008",
+            "BOD-BEB-013"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Bebidas Alcohólicas",
+      "icono": "🍺",
+      "productos": [
+        {
+          "nombre": "Cerveza Pilsen 620ml",
+          "precio": 6.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-001",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIC-001.webp",
+          "aliases": [
+            "pilsen",
+            "pilsen callao",
+            "cerveza pilsen",
+            "chela pilsen"
+          ],
+          "tags": [
+            "cerveza",
+            "popular",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-SNK-001",
+            "BOD-SNK-017",
+            "BOD-CON-005"
+          ],
+          "sustitutos": [
+            "BOD-LIC-002",
+            "BOD-LIC-003"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 5.8,
+            "nota": "Caja 12"
+          },
+          "_ia": {
+            "costo_ref": 5.0,
+            "margen_tipico": 0.23,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Cerveza Cristal 620ml",
+          "precio": 6.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-002",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIC-002.webp",
+          "aliases": [
+            "cristal",
+            "cerveza cristal",
+            "chela cristal"
+          ],
+          "tags": [
+            "cerveza",
+            "popular",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-SNK-001",
+            "BOD-SNK-017"
+          ],
+          "sustitutos": [
+            "BOD-LIC-001",
+            "BOD-LIC-003"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 5.8,
+            "nota": "Caja 12"
+          },
+          "_ia": {
+            "costo_ref": 5.0,
+            "margen_tipico": 0.23,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Cerveza Cusqueña 620ml",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-003",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LIC-003.webp",
+          "aliases": [
+            "cusqueña",
+            "cusquena",
+            "cerveza premium"
+          ],
+          "tags": [
+            "cerveza",
+            "premium"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-LIC-001",
+            "BOD-LIC-002"
+          ],
+          "_ia": {
+            "costo_ref": 6.2,
+            "margen_tipico": 0.23,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cerveza Tres Cruces 355ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-004",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIC-004.webp",
+          "aliases": [
+            "tres cruces",
+            "cerveza barata",
+            "chela chica"
+          ],
+          "tags": [
+            "cerveza",
+            "economico",
+            "lata"
+          ],
+          "complementarios": [
+            "BOD-SNK-009"
+          ],
+          "sustitutos": [
+            "BOD-LIC-014"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 3.0,
+            "nota": "Six pack"
+          },
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Cerveza Corona 355ml",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-005",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LIC-005.webp",
+          "aliases": [
+            "corona",
+            "cerveza corona",
+            "coronita"
+          ],
+          "tags": [
+            "cerveza",
+            "premium",
+            "importada"
+          ],
+          "complementarios": [
+            "BOD-CON-005"
+          ],
+          "sustitutos": [
+            "BOD-LIC-003"
+          ],
+          "_ia": {
+            "costo_ref": 4.5,
+            "margen_tipico": 0.25,
+            "rotacion": "baja",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pisco Quebranta Tacama 500ml",
+          "precio": 35.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-006",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-006.webp",
+          "aliases": [
+            "pisco",
+            "pisco tacama",
+            "quebranta",
+            "tacama"
+          ],
+          "tags": [
+            "pisco",
+            "licor",
+            "peruano",
+            "premium"
+          ],
+          "complementarios": [
+            "BOD-CON-005",
+            "BOD-ABA-023"
+          ],
+          "sustitutos": [
+            "BOD-LIC-007"
+          ],
+          "_ia": {
+            "costo_ref": 26.0,
+            "margen_tipico": 0.26,
+            "rotacion": "baja",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pisco Vargas 500ml",
+          "precio": 22.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-007",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-007.webp",
+          "aliases": [
+            "pisco vargas",
+            "vargas",
+            "pisco economico"
+          ],
+          "tags": [
+            "pisco",
+            "licor",
+            "peruano",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-CON-005"
+          ],
+          "sustitutos": [
+            "BOD-LIC-006"
+          ],
+          "_ia": {
+            "costo_ref": 15.0,
+            "margen_tipico": 0.32,
+            "rotacion": "media",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Ron Cartavio Black 750ml",
+          "precio": 28.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-008",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-008.webp",
+          "aliases": [
+            "ron",
+            "cartavio",
+            "ron cartavio",
+            "ron negro"
+          ],
+          "tags": [
+            "ron",
+            "licor"
+          ],
+          "complementarios": [
+            "BOD-BEB-001",
+            "BOD-MIS-008"
+          ],
+          "sustitutos": [
+            "BOD-LIC-009"
+          ],
+          "_ia": {
+            "costo_ref": 20.0,
+            "margen_tipico": 0.29,
+            "rotacion": "baja",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Vodka Russkaya 750ml",
+          "precio": 18.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-009",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-009.webp",
+          "aliases": [
+            "vodka",
+            "russkaya",
+            "vodka rusa"
+          ],
+          "tags": [
+            "vodka",
+            "licor",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-BEB-005"
+          ],
+          "sustitutos": [
+            "BOD-LIC-008"
+          ],
+          "_ia": {
+            "costo_ref": 12.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Vino Santiago Queirolo Borgoña 750ml",
+          "precio": 22.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-010",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-010.webp",
+          "aliases": [
+            "vino",
+            "queirolo",
+            "borgoña",
+            "vino tinto"
+          ],
+          "tags": [
+            "vino",
+            "licor",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-LAC-002"
+          ],
+          "sustitutos": [
+            "BOD-LIC-011"
+          ],
+          "_ia": {
+            "costo_ref": 16.0,
+            "margen_tipico": 0.27,
+            "rotacion": "baja",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Vino Tacama Rosé 750ml",
+          "precio": 30.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-011",
+          "stock_inicial": 4,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-011.webp",
+          "aliases": [
+            "vino rosé",
+            "tacama rosé",
+            "vino rosado"
+          ],
+          "tags": [
+            "vino",
+            "premium",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIC-010"
+          ],
+          "_ia": {
+            "costo_ref": 22.0,
+            "margen_tipico": 0.27,
+            "rotacion": "baja",
+            "temporalidad": "fiestas_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Anisado Najar 750ml",
+          "precio": 15.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-012",
+          "stock_inicial": 6,
+          "stock_minimo": 2,
+          "imagen": "products/bodega/BOD-LIC-012.webp",
+          "aliases": [
+            "anisado",
+            "najar",
+            "anís"
+          ],
+          "tags": [
+            "licor",
+            "tradicional",
+            "peruano",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIC-007"
+          ],
+          "_ia": {
+            "costo_ref": 10.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "invierno_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Four Loko 473ml",
+          "precio": 9.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-013",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LIC-013.webp",
+          "aliases": [
+            "four loko",
+            "fourloko",
+            "loko"
+          ],
+          "tags": [
+            "licor",
+            "energizante",
+            "jovenes"
+          ],
+          "complementarios": [
+            "BOD-BEB-021"
+          ],
+          "sustitutos": [
+            "BOD-LIC-004"
+          ],
+          "_ia": {
+            "costo_ref": 6.5,
+            "margen_tipico": 0.28,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cerveza Pilsen Lata 355ml",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIC-014",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIC-014.webp",
+          "aliases": [
+            "pilsen lata",
+            "chela lata",
+            "pilsen chica"
+          ],
+          "tags": [
+            "cerveza",
+            "lata",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-SNK-001"
+          ],
+          "sustitutos": [
+            "BOD-LIC-004",
+            "BOD-LIC-001"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 3.5,
+            "nota": "Six pack"
+          },
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Snacks, Galletas y Golosinas",
+      "icono": "🍿",
+      "productos": [
+        {
+          "nombre": "Papas Lays Clásicas 75g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-001",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-SNK-001.webp",
+          "aliases": [
+            "lays",
+            "papas lays",
+            "papas fritas",
+            "papitas"
+          ],
+          "tags": [
+            "snack",
+            "popular",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-BEB-001"
+          ],
+          "sustitutos": [
+            "BOD-SNK-002",
+            "BOD-SNK-003"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 3.0,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Doritos Nacho 75g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-002",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-SNK-002.webp",
+          "aliases": [
+            "doritos",
+            "nacho",
+            "tortilla doritos"
+          ],
+          "tags": [
+            "snack",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-BEB-001"
+          ],
+          "sustitutos": [
+            "BOD-SNK-001",
+            "BOD-SNK-003"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cheetos 75g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-003",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-SNK-003.webp",
+          "aliases": [
+            "cheetos",
+            "chitos",
+            "palitos de queso"
+          ],
+          "tags": [
+            "snack",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-BEB-017"
+          ],
+          "sustitutos": [
+            "BOD-SNK-009",
+            "BOD-SNK-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.1,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Galletas Oreo 36g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-004",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-004.webp",
+          "aliases": [
+            "oreo",
+            "galleta oreo",
+            "galleta chocolate"
+          ],
+          "tags": [
+            "galleta",
+            "niños",
+            "lonchera",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-005",
+            "BOD-SNK-010"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.2,
+            "nota": "Display 12"
+          },
+          "_ia": {
+            "costo_ref": 1.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Galletas Soda Field 34g",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-005",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-005.webp",
+          "aliases": [
+            "soda",
+            "galleta soda",
+            "soda field"
+          ],
+          "tags": [
+            "galleta",
+            "economico",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-ABA-008"
+          ],
+          "sustitutos": [
+            "BOD-SNK-010",
+            "BOD-SNK-004"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 0.4,
+            "nota": "Paquete 12"
+          },
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Chocolate Sublime 30g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-006",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-006.webp",
+          "aliases": [
+            "sublime",
+            "chocolate",
+            "chocolate sublime",
+            "chocolatito"
+          ],
+          "tags": [
+            "chocolate",
+            "golosina",
+            "popular",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-BEB-001"
+          ],
+          "sustitutos": [
+            "BOD-SNK-013",
+            "BOD-SNK-014"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 2.1,
+            "nota": "Display 12"
+          },
+          "_ia": {
+            "costo_ref": 1.7,
+            "margen_tipico": 0.32,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Chicle Trident 8.5g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-007",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-007.webp",
+          "aliases": [
+            "trident",
+            "chicle",
+            "goma de mascar"
+          ],
+          "tags": [
+            "golosina",
+            "impulso"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-015"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Caramelos Halls 25.2g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-008",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-008.webp",
+          "aliases": [
+            "halls",
+            "caramelo",
+            "pastilla",
+            "mentol"
+          ],
+          "tags": [
+            "caramelo",
+            "mentol",
+            "impulso"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-015"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Chizitos 32g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-009",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-SNK-009.webp",
+          "aliases": [
+            "chizitos",
+            "chisitos",
+            "boliqueso"
+          ],
+          "tags": [
+            "snack",
+            "economico",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-BEB-017"
+          ],
+          "sustitutos": [
+            "BOD-SNK-003",
+            "BOD-SNK-016"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Galleta Margarita 42g",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-010",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-010.webp",
+          "aliases": [
+            "margarita",
+            "galleta margarita",
+            "galleta dulce"
+          ],
+          "tags": [
+            "galleta",
+            "economico",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-ABA-008"
+          ],
+          "sustitutos": [
+            "BOD-SNK-005",
+            "BOD-SNK-004"
+          ],
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Galletas Casino Fresa 43g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-011",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-011.webp",
+          "aliases": [
+            "casino",
+            "galleta casino",
+            "casino fresa"
+          ],
+          "tags": [
+            "galleta",
+            "lonchera",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-004"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Barra de Cereal Nature Valley 42g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-012",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-SNK-012.webp",
+          "aliases": [
+            "barra cereal",
+            "nature valley",
+            "barra energética"
+          ],
+          "tags": [
+            "snack",
+            "saludable",
+            "fitness"
+          ],
+          "complementarios": [
+            "BOD-BEB-009"
+          ],
+          "sustitutos": [
+            "BOD-SNK-017"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Chocolate Princesa 30g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-013",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-SNK-013.webp",
+          "aliases": [
+            "princesa",
+            "chocolate princesa",
+            "bombón"
+          ],
+          "tags": [
+            "chocolate",
+            "golosina",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-006",
+            "BOD-SNK-014"
+          ],
+          "_ia": {
+            "costo_ref": 1.7,
+            "margen_tipico": 0.32,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Chocolate Triángulo 30g",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-014",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-SNK-014.webp",
+          "aliases": [
+            "triángulo",
+            "triangulo",
+            "chocolate triangulo"
+          ],
+          "tags": [
+            "chocolate",
+            "golosina",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-006",
+            "BOD-SNK-013"
+          ],
+          "_ia": {
+            "costo_ref": 1.3,
+            "margen_tipico": 0.35,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Caramelo Bon o Bon 16g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-015",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-015.webp",
+          "aliases": [
+            "bon o bon",
+            "bonobon",
+            "bombón relleno"
+          ],
+          "tags": [
+            "golosina",
+            "impulso",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-008"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Cuates Picante 38g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-016",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-SNK-016.webp",
+          "aliases": [
+            "cuates",
+            "cuates picante",
+            "snack picante"
+          ],
+          "tags": [
+            "snack",
+            "picante",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-009",
+            "BOD-SNK-003"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Maní Salado 50g",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-017",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-SNK-017.webp",
+          "aliases": [
+            "maní",
+            "mani",
+            "maní salado",
+            "cacahuate"
+          ],
+          "tags": [
+            "fruto_seco",
+            "snack",
+            "cervecero"
+          ],
+          "complementarios": [
+            "BOD-LIC-001"
+          ],
+          "sustitutos": [
+            "BOD-SNK-018"
+          ],
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Habas Saladas 50g",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-018",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-SNK-018.webp",
+          "aliases": [
+            "habas",
+            "habas saladas",
+            "habas fritas"
+          ],
+          "tags": [
+            "fruto_seco",
+            "cervecero",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-LIC-001"
+          ],
+          "sustitutos": [
+            "BOD-SNK-017"
+          ],
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Galleta Picaras Chocolate 30g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-019",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-019.webp",
+          "aliases": [
+            "picaras",
+            "galleta picaras"
+          ],
+          "tags": [
+            "galleta",
+            "chocolate",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-004"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Papas Lays Pequeñas 28g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-020",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-SNK-020.webp",
+          "aliases": [
+            "lays chica",
+            "papitas chicas"
+          ],
+          "tags": [
+            "snack",
+            "lonchera",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-009"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Chocman 30g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-021",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-021.webp",
+          "aliases": [
+            "chocman",
+            "bizcocho chocolate"
+          ],
+          "tags": [
+            "bizcocho",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-022"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Glacitas 30g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-022",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-SNK-022.webp",
+          "aliases": [
+            "glacitas",
+            "galleta glacitas"
+          ],
+          "tags": [
+            "galleta",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-021",
+            "BOD-SNK-019"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Cua Cua 20g",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-023",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-023.webp",
+          "aliases": [
+            "cua cua",
+            "cuacua",
+            "wafer chocolate"
+          ],
+          "tags": [
+            "golosina",
+            "niños",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-014"
+          ],
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Galleta Ritz 34g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-024",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-SNK-024.webp",
+          "aliases": [
+            "ritz",
+            "galleta ritz",
+            "galleta salada"
+          ],
+          "tags": [
+            "galleta",
+            "salada"
+          ],
+          "complementarios": [
+            "BOD-LAC-002"
+          ],
+          "sustitutos": [
+            "BOD-SNK-005"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Nick Junior 20g",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-SNK-025",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-SNK-025.webp",
+          "aliases": [
+            "nick",
+            "nick junior",
+            "galleta nick"
+          ],
+          "tags": [
+            "galleta",
+            "economico",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-SNK-023",
+            "BOD-SNK-010"
+          ],
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Abarrotes",
+      "icono": "🛒",
+      "productos": [
+        {
+          "nombre": "Arroz Costeño 1kg",
+          "precio": 5.5,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-001",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-ABA-001.webp",
+          "aliases": [
+            "arroz",
+            "arroz costeño",
+            "arroz kilo",
+            "costeño"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-ABA-003",
+            "BOD-ABA-004"
+          ],
+          "sustitutos": [
+            "BOD-ABA-002"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 10,
+            "precio_sugerido": 4.8,
+            "nota": "Bolsa 10kg"
+          },
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.24,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Arroz Paisana 1kg",
+          "precio": 4.5,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-002",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-002.webp",
+          "aliases": [
+            "paisana",
+            "arroz paisana",
+            "arroz barato"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-ABA-003"
+          ],
+          "sustitutos": [
+            "BOD-ABA-001"
+          ],
+          "_ia": {
+            "costo_ref": 3.4,
+            "margen_tipico": 0.24,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Aceite Primor 1L",
+          "precio": 9.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-003",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-003.webp",
+          "aliases": [
+            "aceite",
+            "primor",
+            "aceite primor",
+            "aceite vegetal"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "cocina"
+          ],
+          "complementarios": [
+            "BOD-ABA-001",
+            "BOD-ABA-004"
+          ],
+          "sustitutos": [
+            "BOD-ABA-015"
+          ],
+          "_ia": {
+            "costo_ref": 7.5,
+            "margen_tipico": 0.21,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Fideos Don Vittorio Spaghetti 500g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-004",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-ABA-004.webp",
+          "aliases": [
+            "fideos",
+            "don vittorio",
+            "spaghetti",
+            "tallarines",
+            "fideo"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-ABA-003",
+            "BOD-CON-003"
+          ],
+          "sustitutos": [
+            "BOD-ABA-005"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 3.0,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Fideos Don Vittorio Tornillo 500g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-005",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-005.webp",
+          "aliases": [
+            "tornillo",
+            "fideos tornillo",
+            "caracol"
+          ],
+          "tags": [
+            "basico",
+            "diario"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-004"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Atún Florida Filete 170g",
+          "precio": 7.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-006",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-ABA-006.webp",
+          "aliases": [
+            "atún",
+            "atun",
+            "florida",
+            "conserva atun"
+          ],
+          "tags": [
+            "conserva",
+            "proteina",
+            "diario"
+          ],
+          "complementarios": [
+            "BOD-ABA-001",
+            "BOD-CON-004"
+          ],
+          "sustitutos": [
+            "BOD-ABA-007"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 6.2,
+            "nota": "Six pack"
+          },
+          "_ia": {
+            "costo_ref": 5.2,
+            "margen_tipico": 0.26,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Atún Campomar Grated 170g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-007",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-007.webp",
+          "aliases": [
+            "campomar",
+            "atun barato",
+            "grated"
+          ],
+          "tags": [
+            "conserva",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-006"
+          ],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Leche Gloria Evaporada 400g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-008",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-ABA-008.webp",
+          "aliases": [
+            "leche",
+            "gloria",
+            "leche gloria",
+            "tarro de leche",
+            "leche evaporada"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "desayuno",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-ABA-009",
+            "BOD-ABA-011",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [
+            "BOD-ABA-010",
+            "BOD-LAC-010"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 3.8,
+            "nota": "Caja 12"
+          },
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.22,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Café Nescafé Tradición 50g",
+          "precio": 8.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-009",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-009.webp",
+          "aliases": [
+            "nescafe",
+            "café",
+            "cafe",
+            "nescafé",
+            "café instantáneo"
+          ],
+          "tags": [
+            "desayuno",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-ABA-008",
+            "BOD-ABA-011"
+          ],
+          "sustitutos": [
+            "BOD-ABA-040"
+          ],
+          "_ia": {
+            "costo_ref": 6.5,
+            "margen_tipico": 0.24,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Leche Pura Vida 400g",
+          "precio": 3.8,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-010",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-ABA-010.webp",
+          "aliases": [
+            "pura vida",
+            "leche pura vida",
+            "leche barata"
+          ],
+          "tags": [
+            "basico",
+            "desayuno",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-ABA-009"
+          ],
+          "sustitutos": [
+            "BOD-ABA-008"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.26,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Azúcar Rubia 1kg",
+          "precio": 4.5,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-011",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-ABA-011.webp",
+          "aliases": [
+            "azúcar",
+            "azucar",
+            "azucar rubia"
+          ],
+          "tags": [
+            "basico",
+            "diario",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-ABA-009",
+            "BOD-ABA-008"
+          ],
+          "sustitutos": [
+            "BOD-ABA-012"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 10,
+            "precio_sugerido": 4.0,
+            "nota": "Bolsa 10kg"
+          },
+          "_ia": {
+            "costo_ref": 3.4,
+            "margen_tipico": 0.24,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Azúcar Blanca 1kg",
+          "precio": 5.0,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-012",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-012.webp",
+          "aliases": [
+            "azucar blanca",
+            "azucar refinada"
+          ],
+          "tags": [
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-011"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.24,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Sal Marina 1kg",
+          "precio": 2.0,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-013",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-013.webp",
+          "aliases": [
+            "sal",
+            "sal marina",
+            "sal de mesa"
+          ],
+          "tags": [
+            "basico",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Lentejas 500g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-014",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-014.webp",
+          "aliases": [
+            "lentejas",
+            "menestra"
+          ],
+          "tags": [
+            "menestra",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-ABA-001",
+            "BOD-ABA-003"
+          ],
+          "sustitutos": [
+            "BOD-ABA-016",
+            "BOD-ABA-017"
+          ],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Aceite Cocinero 1L",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-015",
+          "stock_inicial": 20,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-015.webp",
+          "aliases": [
+            "cocinero",
+            "aceite cocinero",
+            "aceite barato"
+          ],
+          "tags": [
+            "basico",
+            "cocina",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-003"
+          ],
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Frejol Canario 500g",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-016",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-016.webp",
+          "aliases": [
+            "frejol",
+            "frejol canario",
+            "frijol",
+            "canario"
+          ],
+          "tags": [
+            "menestra",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-ABA-014",
+            "BOD-ABA-017"
+          ],
+          "_ia": {
+            "costo_ref": 4.0,
+            "margen_tipico": 0.27,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Arvejas Secas 500g",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-017",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-017.webp",
+          "aliases": [
+            "arvejas",
+            "arvejas secas",
+            "alverjitas"
+          ],
+          "tags": [
+            "menestra",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-014",
+            "BOD-ABA-016"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Avena 3 Ositos 170g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-018",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-ABA-018.webp",
+          "aliases": [
+            "avena",
+            "3 ositos",
+            "tres ositos"
+          ],
+          "tags": [
+            "desayuno",
+            "cereal",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-ABA-008",
+            "BOD-ABA-011"
+          ],
+          "sustitutos": [
+            "BOD-ABA-019"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 2.1,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 1.7,
+            "margen_tipico": 0.32,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Quinua 250g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-019",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-019.webp",
+          "aliases": [
+            "quinua",
+            "quinoa",
+            "quinua perlada"
+          ],
+          "tags": [
+            "cereal",
+            "saludable",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-018"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Harina Blanca Flor 1kg",
+          "precio": 4.5,
+          "unidad": "KG",
+          "codigo": "BOD-ABA-020",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-020.webp",
+          "aliases": [
+            "harina",
+            "blanca flor",
+            "harina de trigo"
+          ],
+          "tags": [
+            "basico",
+            "cocina",
+            "panaderia"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Maicena Duryea 100g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-021",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-021.webp",
+          "aliases": [
+            "maicena",
+            "chuño",
+            "duryea",
+            "fecula"
+          ],
+          "tags": [
+            "cocina",
+            "reposteria"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.6,
+            "margen_tipico": 0.36,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Sardinas Campomar 125g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-022",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-022.webp",
+          "aliases": [
+            "sardinas",
+            "sardina",
+            "conserva sardina"
+          ],
+          "tags": [
+            "conserva",
+            "proteina",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-ABA-006"
+          ],
+          "_ia": {
+            "costo_ref": 2.4,
+            "margen_tipico": 0.31,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Leche Condensada Nestlé 393g",
+          "precio": 7.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-023",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-023.webp",
+          "aliases": [
+            "leche condensada",
+            "condensada"
+          ],
+          "tags": [
+            "reposteria",
+            "desayuno"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 5.5,
+            "margen_tipico": 0.27,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cocoa Winter 160g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-024",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-024.webp",
+          "aliases": [
+            "cocoa",
+            "winter",
+            "chocolate en polvo"
+          ],
+          "tags": [
+            "desayuno",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-ABA-008"
+          ],
+          "sustitutos": [
+            "BOD-ABA-025"
+          ],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "invierno_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Milo 400g",
+          "precio": 15.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-025",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-ABA-025.webp",
+          "aliases": [
+            "milo",
+            "milo nestlé",
+            "chocolate milo"
+          ],
+          "tags": [
+            "desayuno",
+            "niños",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-024"
+          ],
+          "_ia": {
+            "costo_ref": 11.0,
+            "margen_tipico": 0.27,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Fideos Molitalia Cabello de Angel 250g",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-026",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-ABA-026.webp",
+          "aliases": [
+            "cabello de angel",
+            "fideo cabello",
+            "molitalia"
+          ],
+          "tags": [
+            "basico",
+            "sopa"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-004"
+          ],
+          "_ia": {
+            "costo_ref": 1.4,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "invierno_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Sopa Instantánea Ajinomen 80g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-027",
+          "stock_inicial": 48,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-ABA-027.webp",
+          "aliases": [
+            "ajinomen",
+            "sopa instantánea",
+            "ramen",
+            "sopa rapida"
+          ],
+          "tags": [
+            "instantaneo",
+            "rapido",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.2,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Papa Seca 500g",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-028",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-028.webp",
+          "aliases": [
+            "papa seca",
+            "carapulcra"
+          ],
+          "tags": [
+            "basico",
+            "peruano",
+            "tradicional"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 4.5,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Grated de Jurel 170g",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-029",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-029.webp",
+          "aliases": [
+            "jurel",
+            "grated jurel"
+          ],
+          "tags": [
+            "conserva",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-006",
+            "BOD-ABA-022"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Polvo de Hornear Royal 20g",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-030",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-030.webp",
+          "aliases": [
+            "royal",
+            "polvo de hornear",
+            "levadura"
+          ],
+          "tags": [
+            "reposteria",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Gelatina Royal 160g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-031",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-ABA-031.webp",
+          "aliases": [
+            "gelatina",
+            "gelatina royal",
+            "jalea"
+          ],
+          "tags": [
+            "postre",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-ABA-008"
+          ],
+          "sustitutos": [
+            "BOD-ABA-032"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Flan Negrita 100g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-032",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-032.webp",
+          "aliases": [
+            "flan",
+            "flan negrita"
+          ],
+          "tags": [
+            "postre",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-031"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mazamorra Negrita 160g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-033",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-033.webp",
+          "aliases": [
+            "mazamorra",
+            "mazamorra morada",
+            "negrita"
+          ],
+          "tags": [
+            "postre",
+            "peruano",
+            "tradicional"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-031"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Leche en Polvo Anchor 96g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-034",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-034.webp",
+          "aliases": [
+            "leche en polvo",
+            "anchor"
+          ],
+          "tags": [
+            "desayuno",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-008"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mermelada Fanny Fresa 230g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-035",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-035.webp",
+          "aliases": [
+            "mermelada",
+            "fanny",
+            "mermelada fresa"
+          ],
+          "tags": [
+            "desayuno",
+            "complemento"
+          ],
+          "complementarios": [
+            "BOD-PAN-002",
+            "BOD-LAC-003"
+          ],
+          "sustitutos": [
+            "BOD-ABA-036"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Manjar Blanco Nestlé 200g",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-036",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-036.webp",
+          "aliases": [
+            "manjar",
+            "manjar blanco",
+            "dulce de leche"
+          ],
+          "tags": [
+            "desayuno",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-PAN-002"
+          ],
+          "sustitutos": [
+            "BOD-ABA-035"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.31,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mote Pelado 500g",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-037",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-037.webp",
+          "aliases": [
+            "mote",
+            "mote pelado",
+            "maiz mote"
+          ],
+          "tags": [
+            "menestra",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Panela Granulada 500g",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-038",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-038.webp",
+          "aliases": [
+            "panela",
+            "chancaca"
+          ],
+          "tags": [
+            "endulzante",
+            "saludable"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-011"
+          ],
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.3,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Vinagre Venturo 500ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-039",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-ABA-039.webp",
+          "aliases": [
+            "vinagre",
+            "venturo"
+          ],
+          "tags": [
+            "cocina",
+            "condimento"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Café Kirma 50g",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-ABA-040",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-ABA-040.webp",
+          "aliases": [
+            "kirma",
+            "café kirma"
+          ],
+          "tags": [
+            "desayuno",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-009"
+          ],
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Condimentos y Salsas",
+      "icono": "🌶️",
+      "productos": [
+        {
+          "nombre": "Ketchup Hellmanns 200g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-001",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-CON-001.webp",
+          "aliases": [
+            "ketchup",
+            "catchup",
+            "salsa tomate"
+          ],
+          "tags": [
+            "salsa",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-CON-002",
+            "BOD-EMB-003"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mayonesa AlaCena 100g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-002",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-CON-002.webp",
+          "aliases": [
+            "mayonesa",
+            "mayo",
+            "alacena"
+          ],
+          "tags": [
+            "salsa",
+            "popular",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-CON-001",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [
+            "BOD-CON-012"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 3.0,
+            "nota": "Display 12"
+          },
+          "_ia": {
+            "costo_ref": 2.4,
+            "margen_tipico": 0.31,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Ajinomoto 100g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-003",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-CON-003.webp",
+          "aliases": [
+            "ajinomoto",
+            "sazon",
+            "umami",
+            "ajino"
+          ],
+          "tags": [
+            "condimento",
+            "basico",
+            "cocina"
+          ],
+          "complementarios": [
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-CON-013"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 2.1,
+            "nota": "Pack 12"
+          },
+          "_ia": {
+            "costo_ref": 1.6,
+            "margen_tipico": 0.36,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Ají Tari 85g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-004",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-CON-004.webp",
+          "aliases": [
+            "tari",
+            "aji",
+            "ají tari",
+            "crema de aji"
+          ],
+          "tags": [
+            "salsa",
+            "picante",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-CON-002",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [
+            "BOD-CON-015"
+          ],
+          "_ia": {
+            "costo_ref": 1.7,
+            "margen_tipico": 0.32,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Limón Sutil kg",
+          "precio": 5.0,
+          "unidad": "KG",
+          "codigo": "BOD-CON-005",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-CON-005.webp",
+          "aliases": [
+            "limón",
+            "limon",
+            "limon sutil",
+            "limoncito"
+          ],
+          "tags": [
+            "fresco",
+            "cocina",
+            "basico",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-LIC-001",
+            "BOD-ABA-006"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Sillao Kikko 150ml",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-006",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CON-006.webp",
+          "aliases": [
+            "sillao",
+            "soya",
+            "salsa soya",
+            "kikko"
+          ],
+          "tags": [
+            "salsa",
+            "cocina",
+            "oriental"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.4,
+            "margen_tipico": 0.31,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Comino Molido 15g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-007",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-CON-007.webp",
+          "aliases": [
+            "comino",
+            "comino molido"
+          ],
+          "tags": [
+            "especia",
+            "cocina",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-CON-008",
+            "BOD-CON-009"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.5,
+            "margen_tipico": 0.5,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Pimienta Molida 15g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-008",
+          "stock_inicial": 35,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-CON-008.webp",
+          "aliases": [
+            "pimienta",
+            "pimienta molida",
+            "pimienta negra"
+          ],
+          "tags": [
+            "especia",
+            "cocina",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.5,
+            "margen_tipico": 0.5,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Orégano 15g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-009",
+          "stock_inicial": 35,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-CON-009.webp",
+          "aliases": [
+            "oregano",
+            "orégano"
+          ],
+          "tags": [
+            "especia",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.5,
+            "margen_tipico": 0.5,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Ajo Molido 100g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-010",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-CON-010.webp",
+          "aliases": [
+            "ajo",
+            "ajo molido",
+            "pasta de ajo"
+          ],
+          "tags": [
+            "condimento",
+            "cocina",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Palillo Molido 15g",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-011",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-CON-011.webp",
+          "aliases": [
+            "palillo",
+            "palillo molido",
+            "cúrcuma"
+          ],
+          "tags": [
+            "especia",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.5,
+            "margen_tipico": 0.5,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Mayonesa AlaCena 500g",
+          "precio": 10.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-012",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CON-012.webp",
+          "aliases": [
+            "mayonesa grande",
+            "alacena grande"
+          ],
+          "tags": [
+            "salsa",
+            "familiar"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CON-002"
+          ],
+          "_ia": {
+            "costo_ref": 7.0,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Caldo Doña Gusta 10g",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-013",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-CON-013.webp",
+          "aliases": [
+            "doña gusta",
+            "caldo maggi",
+            "cubito"
+          ],
+          "tags": [
+            "condimento",
+            "cocina",
+            "economico"
+          ],
+          "complementarios": [
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-CON-003"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 24,
+            "precio_sugerido": 0.4,
+            "nota": "Display 24"
+          },
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Huacatay en Pasta 80g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-014",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CON-014.webp",
+          "aliases": [
+            "huacatay",
+            "pasta huacatay"
+          ],
+          "tags": [
+            "condimento",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Ají Panca en Pasta 80g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-CON-015",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CON-015.webp",
+          "aliases": [
+            "aji panca",
+            "panca",
+            "pasta panca"
+          ],
+          "tags": [
+            "condimento",
+            "peruano"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CON-004"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mostaza AlaCena 100g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-CON-016",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CON-016.webp",
+          "aliases": [
+            "mostaza",
+            "mostaza alacena"
+          ],
+          "tags": [
+            "salsa"
+          ],
+          "complementarios": [
+            "BOD-CON-001",
+            "BOD-EMB-003"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.7,
+            "margen_tipico": 0.32,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Lácteos y Huevos",
+      "icono": "🥛",
+      "productos": [
+        {
+          "nombre": "Yogurt Gloria Fresa 1L",
+          "precio": 7.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-001",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-LAC-001.webp",
+          "aliases": [
+            "yogurt",
+            "yogurt gloria",
+            "yogurt fresa"
+          ],
+          "tags": [
+            "lacteo",
+            "desayuno"
+          ],
+          "complementarios": [
+            "BOD-ABA-018"
+          ],
+          "sustitutos": [
+            "BOD-LAC-008",
+            "BOD-LAC-009"
+          ],
+          "_ia": {
+            "costo_ref": 5.5,
+            "margen_tipico": 0.27,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Queso Fresco 250g",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-002",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LAC-002.webp",
+          "aliases": [
+            "queso",
+            "queso fresco",
+            "quesito"
+          ],
+          "tags": [
+            "lacteo",
+            "fresco",
+            "peruano"
+          ],
+          "complementarios": [
+            "BOD-PAN-001",
+            "BOD-ABA-001"
+          ],
+          "sustitutos": [
+            "BOD-LAC-007"
+          ],
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.25,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mantequilla Laive 100g",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-003",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-LAC-003.webp",
+          "aliases": [
+            "mantequilla",
+            "laive"
+          ],
+          "tags": [
+            "lacteo",
+            "desayuno"
+          ],
+          "complementarios": [
+            "BOD-PAN-002",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [
+            "BOD-LAC-012"
+          ],
+          "_ia": {
+            "costo_ref": 4.0,
+            "margen_tipico": 0.27,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Huevos x6 unidades",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-004",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LAC-004.webp",
+          "aliases": [
+            "huevos",
+            "media docena",
+            "blanquillos"
+          ],
+          "tags": [
+            "basico",
+            "proteina",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-ABA-003"
+          ],
+          "sustitutos": [
+            "BOD-LAC-005"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Huevos x12 unidades",
+          "precio": 9.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-005",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LAC-005.webp",
+          "aliases": [
+            "docena huevos",
+            "huevos docena"
+          ],
+          "tags": [
+            "basico",
+            "familiar"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LAC-004"
+          ],
+          "_ia": {
+            "costo_ref": 6.5,
+            "margen_tipico": 0.28,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Queso Edam Laive 200g",
+          "precio": 10.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-006",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LAC-006.webp",
+          "aliases": [
+            "queso edam",
+            "edam",
+            "queso amarillo"
+          ],
+          "tags": [
+            "lacteo",
+            "premium"
+          ],
+          "complementarios": [
+            "BOD-PAN-002"
+          ],
+          "sustitutos": [
+            "BOD-LAC-002"
+          ],
+          "_ia": {
+            "costo_ref": 7.5,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Queso Crema Philadelphia 150g",
+          "precio": 8.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-007",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LAC-007.webp",
+          "aliases": [
+            "philadelphia",
+            "queso crema"
+          ],
+          "tags": [
+            "lacteo",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LAC-002"
+          ],
+          "_ia": {
+            "costo_ref": 6.5,
+            "margen_tipico": 0.24,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Yogurt Gloria Personal 160g",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-008",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LAC-008.webp",
+          "aliases": [
+            "yogurt chico",
+            "yogurt personal"
+          ],
+          "tags": [
+            "lacteo",
+            "lonchera",
+            "niños"
+          ],
+          "complementarios": [
+            "BOD-SNK-004"
+          ],
+          "sustitutos": [
+            "BOD-LAC-009"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 1.7,
+            "nota": "Pack 6"
+          },
+          "_ia": {
+            "costo_ref": 1.4,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Yogurt Laive Griego 120g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-009",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LAC-009.webp",
+          "aliases": [
+            "yogurt griego",
+            "griego"
+          ],
+          "tags": [
+            "lacteo",
+            "saludable",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LAC-008"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Leche Gloria UHT 1L",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-010",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LAC-010.webp",
+          "aliases": [
+            "leche caja",
+            "leche fresca",
+            "leche uht"
+          ],
+          "tags": [
+            "lacteo",
+            "desayuno"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-008"
+          ],
+          "_ia": {
+            "costo_ref": 4.5,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Leche Gloria Chocolate UHT 180ml",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-011",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LAC-011.webp",
+          "aliases": [
+            "leche chocolate",
+            "leche chocolatada"
+          ],
+          "tags": [
+            "lacteo",
+            "lonchera",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-ABA-024"
+          ],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.28,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Margarina Sello de Oro 100g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-LAC-012",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LAC-012.webp",
+          "aliases": [
+            "margarina",
+            "sello de oro",
+            "manteca"
+          ],
+          "tags": [
+            "desayuno",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LAC-003"
+          ],
+          "_ia": {
+            "costo_ref": 1.6,
+            "margen_tipico": 0.36,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Pan y Panadería",
+      "icono": "🥖",
+      "productos": [
+        {
+          "nombre": "Pan Francés",
+          "precio": 0.2,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-001",
+          "stock_inicial": 100,
+          "stock_minimo": 30,
+          "imagen": "products/bodega/BOD-PAN-001.webp",
+          "aliases": [
+            "pan",
+            "pan frances",
+            "pancito",
+            "pan del dia"
+          ],
+          "tags": [
+            "pan",
+            "basico",
+            "diario",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-LAC-003",
+            "BOD-CON-002"
+          ],
+          "sustitutos": [
+            "BOD-PAN-003"
+          ],
+          "mayoreo": {
+            "cantidad_minima": 50,
+            "precio_sugerido": 0.15,
+            "nota": "50 panes"
+          },
+          "_ia": {
+            "costo_ref": 0.12,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Pan de Molde Bimbo 500g",
+          "precio": 7.0,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-002",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-PAN-002.webp",
+          "aliases": [
+            "bimbo",
+            "pan de molde",
+            "pan molde",
+            "pan tajado"
+          ],
+          "tags": [
+            "pan",
+            "desayuno",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-LAC-003",
+            "BOD-ABA-035",
+            "BOD-EMB-001"
+          ],
+          "sustitutos": [
+            "BOD-PAN-005"
+          ],
+          "_ia": {
+            "costo_ref": 5.2,
+            "margen_tipico": 0.26,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pan Ciabatta",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-003",
+          "stock_inicial": 50,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-PAN-003.webp",
+          "aliases": [
+            "ciabatta",
+            "pan ciabatta",
+            "pan italiano"
+          ],
+          "tags": [
+            "pan",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-PAN-001"
+          ],
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pan Integral",
+          "precio": 0.3,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-004",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-PAN-004.webp",
+          "aliases": [
+            "pan integral",
+            "pan negro"
+          ],
+          "tags": [
+            "pan",
+            "saludable"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-PAN-001"
+          ],
+          "_ia": {
+            "costo_ref": 0.2,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pan de Molde Integral Bimbo 400g",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-005",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-PAN-005.webp",
+          "aliases": [
+            "bimbo integral",
+            "molde integral"
+          ],
+          "tags": [
+            "pan",
+            "saludable"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-PAN-002"
+          ],
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.25,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Keke Casero Tajada",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-006",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-PAN-006.webp",
+          "aliases": [
+            "keke",
+            "queque",
+            "bizcocho",
+            "torta"
+          ],
+          "tags": [
+            "reposteria",
+            "lonchera"
+          ],
+          "complementarios": [
+            "BOD-BEB-014"
+          ],
+          "sustitutos": [
+            "BOD-SNK-021"
+          ],
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Tostadas Bimbo 210g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-007",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-PAN-007.webp",
+          "aliases": [
+            "tostadas",
+            "tostadas bimbo",
+            "pan tostado"
+          ],
+          "tags": [
+            "pan",
+            "desayuno"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-PAN-002"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pan de Yema",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-PAN-008",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-PAN-008.webp",
+          "aliases": [
+            "pan de yema",
+            "pan dulce"
+          ],
+          "tags": [
+            "pan",
+            "dulce"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-PAN-001"
+          ],
+          "_ia": {
+            "costo_ref": 0.3,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Embutidos y Fiambres",
+      "icono": "🥓",
+      "productos": [
+        {
+          "nombre": "Jamonada Laive 100g",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-001",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-EMB-001.webp",
+          "aliases": [
+            "jamonada",
+            "jamón",
+            "jamon",
+            "fiambre"
+          ],
+          "tags": [
+            "embutido",
+            "desayuno",
+            "popular"
+          ],
+          "complementarios": [
+            "BOD-PAN-002",
+            "BOD-CON-002"
+          ],
+          "sustitutos": [
+            "BOD-EMB-002"
+          ],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Jamonada Otto Kunz 200g",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-002",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-EMB-002.webp",
+          "aliases": [
+            "otto kunz",
+            "jamonada premium"
+          ],
+          "tags": [
+            "embutido",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-EMB-001"
+          ],
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Hot Dog San Fernando 250g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-003",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-EMB-003.webp",
+          "aliases": [
+            "hot dog",
+            "salchicha",
+            "hotdog",
+            "san fernando"
+          ],
+          "tags": [
+            "embutido",
+            "popular",
+            "rapido"
+          ],
+          "complementarios": [
+            "BOD-PAN-001",
+            "BOD-CON-001",
+            "BOD-CON-002"
+          ],
+          "sustitutos": [
+            "BOD-EMB-004"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Hot Dog Braedt 500g",
+          "precio": 8.5,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-004",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-EMB-004.webp",
+          "aliases": [
+            "braedt",
+            "salchicha braedt"
+          ],
+          "tags": [
+            "embutido",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-EMB-003"
+          ],
+          "_ia": {
+            "costo_ref": 6.0,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Chorizo Parrillero 250g",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-005",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-EMB-005.webp",
+          "aliases": [
+            "chorizo",
+            "chorizo parrillero"
+          ],
+          "tags": [
+            "embutido",
+            "parrilla"
+          ],
+          "complementarios": [
+            "BOD-LIC-001",
+            "BOD-PAN-001"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 5.8,
+            "margen_tipico": 0.28,
+            "rotacion": "media",
+            "temporalidad": "fin_semana_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Queso Edam Tajadas Laive 150g",
+          "precio": 7.5,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-006",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-EMB-006.webp",
+          "aliases": [
+            "queso tajadas",
+            "edam tajado"
+          ],
+          "tags": [
+            "lacteo",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LAC-006"
+          ],
+          "_ia": {
+            "costo_ref": 5.5,
+            "margen_tipico": 0.27,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Tocino Ahumado 200g",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-007",
+          "stock_inicial": 8,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-EMB-007.webp",
+          "aliases": [
+            "tocino",
+            "bacon"
+          ],
+          "tags": [
+            "embutido",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 9.0,
+            "margen_tipico": 0.25,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Mortadela Laive 100g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-EMB-008",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-EMB-008.webp",
+          "aliases": [
+            "mortadela"
+          ],
+          "tags": [
+            "embutido",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-EMB-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Limpieza del Hogar",
+      "icono": "🧹",
+      "productos": [
+        {
+          "nombre": "Detergente Ariel 500g",
+          "precio": 8.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-001",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LIM-001.webp",
+          "aliases": [
+            "ariel",
+            "detergente",
+            "detergente ariel"
+          ],
+          "tags": [
+            "limpieza",
+            "ropa",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-LIM-006"
+          ],
+          "sustitutos": [
+            "BOD-LIM-002",
+            "BOD-LIM-003"
+          ],
+          "_ia": {
+            "costo_ref": 6.5,
+            "margen_tipico": 0.24,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Detergente Bolivar 500g",
+          "precio": 7.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-002",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LIM-002.webp",
+          "aliases": [
+            "bolivar",
+            "detergente bolivar"
+          ],
+          "tags": [
+            "limpieza",
+            "ropa"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-001",
+            "BOD-LIM-003"
+          ],
+          "_ia": {
+            "costo_ref": 5.0,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Detergente Sapolio 500g",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-003",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIM-003.webp",
+          "aliases": [
+            "sapolio",
+            "detergente barato"
+          ],
+          "tags": [
+            "limpieza",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-001"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Jabón Bolívar 230g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-004",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-LIM-004.webp",
+          "aliases": [
+            "jabón bolivar",
+            "jabón de ropa",
+            "jabón barra"
+          ],
+          "tags": [
+            "limpieza",
+            "ropa",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Lejía Clorox 1L",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-005",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIM-005.webp",
+          "aliases": [
+            "lejía",
+            "lejia",
+            "clorox",
+            "cloro"
+          ],
+          "tags": [
+            "limpieza",
+            "desinfectante",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-015"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.31,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Suavizante Suavitel 500ml",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-006",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIM-006.webp",
+          "aliases": [
+            "suavitel",
+            "suavizante"
+          ],
+          "tags": [
+            "limpieza",
+            "ropa"
+          ],
+          "complementarios": [
+            "BOD-LIM-001"
+          ],
+          "sustitutos": [
+            "BOD-LIM-016"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.31,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Papel Higiénico Elite x4",
+          "precio": 6.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-007",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-LIM-007.webp",
+          "aliases": [
+            "papel higienico",
+            "papel",
+            "elite",
+            "papel baño"
+          ],
+          "tags": [
+            "higiene",
+            "basico",
+            "alta_rotacion"
+          ],
+          "complementarios": [
+            "BOD-LIM-008"
+          ],
+          "sustitutos": {
+            "cantidad_minima": 6,
+            "precio_sugerido": 5.8,
+            "nota": "6 packs"
+          },
+          "mayoreo": {
+            "costo_ref": 4.5,
+            "margen_tipico": 0.31,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Papel Higiénico Suave x4",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-008",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LIM-008.webp",
+          "aliases": [
+            "suave",
+            "papel suave",
+            "papel barato"
+          ],
+          "tags": [
+            "higiene",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-007"
+          ],
+          "_ia": {
+            "costo_ref": 3.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Lavavajilla Ayudín 500g",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-009",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LIM-009.webp",
+          "aliases": [
+            "ayudin",
+            "lavavajilla",
+            "lavaplatos"
+          ],
+          "tags": [
+            "limpieza",
+            "cocina",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-LIM-014"
+          ],
+          "sustitutos": [
+            "BOD-LIM-010"
+          ],
+          "_ia": {
+            "costo_ref": 3.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Lavavajilla Sapolio 360g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-010",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIM-010.webp",
+          "aliases": [
+            "sapolio lavavajilla",
+            "lavavajilla barato"
+          ],
+          "tags": [
+            "limpieza",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-009"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Desinfectante Poett 900ml",
+          "precio": 7.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-011",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-LIM-011.webp",
+          "aliases": [
+            "poett",
+            "desinfectante",
+            "limpiador piso"
+          ],
+          "tags": [
+            "limpieza",
+            "desinfectante"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 5.0,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Ambientador Glade 360ml",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-012",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LIM-012.webp",
+          "aliases": [
+            "glade",
+            "ambientador"
+          ],
+          "tags": [
+            "limpieza",
+            "aroma"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 5.8,
+            "margen_tipico": 0.28,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Bolsa de Basura 75L x10",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-013",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-LIM-013.webp",
+          "aliases": [
+            "bolsa basura",
+            "bolsa negra"
+          ],
+          "tags": [
+            "limpieza",
+            "basico"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.38,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Esponja Scotch Brite",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-014",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-LIM-014.webp",
+          "aliases": [
+            "esponja",
+            "scotch brite",
+            "estropajo"
+          ],
+          "tags": [
+            "limpieza",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Lejía Sapolio 1L",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-015",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-LIM-015.webp",
+          "aliases": [
+            "lejia sapolio",
+            "lejia barata"
+          ],
+          "tags": [
+            "limpieza",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-005"
+          ],
+          "_ia": {
+            "costo_ref": 2.2,
+            "margen_tipico": 0.37,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Suavizante Downy 500ml",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-016",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-LIM-016.webp",
+          "aliases": [
+            "downy",
+            "suavizante downy"
+          ],
+          "tags": [
+            "limpieza",
+            "ropa",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-006"
+          ],
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Insecticida Raid 360ml",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-017",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LIM-017.webp",
+          "aliases": [
+            "raid",
+            "insecticida",
+            "mata moscas"
+          ],
+          "tags": [
+            "limpieza",
+            "insecticida"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-018"
+          ],
+          "_ia": {
+            "costo_ref": 9.0,
+            "margen_tipico": 0.25,
+            "rotacion": "baja",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pastillas Baygon x6",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-018",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-LIM-018.webp",
+          "aliases": [
+            "baygon",
+            "pastillas mosquito",
+            "mata zancudos"
+          ],
+          "tags": [
+            "insecticida",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-LIM-017"
+          ],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Trapeador Virutex",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-019",
+          "stock_inicial": 8,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LIM-019.webp",
+          "aliases": [
+            "trapeador",
+            "mopa"
+          ],
+          "tags": [
+            "limpieza",
+            "herramienta"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 8.5,
+            "margen_tipico": 0.29,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Escoba Virutex",
+          "precio": 10.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-020",
+          "stock_inicial": 8,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LIM-020.webp",
+          "aliases": [
+            "escoba"
+          ],
+          "tags": [
+            "limpieza",
+            "herramienta"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 7.0,
+            "margen_tipico": 0.3,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Recogedor Plástico",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-LIM-021",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-LIM-021.webp",
+          "aliases": [
+            "recogedor",
+            "pala de basura"
+          ],
+          "tags": [
+            "limpieza",
+            "herramienta"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.0,
+            "margen_tipico": 0.4,
+            "rotacion": "baja",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Cuidado Personal e Higiene",
+      "icono": "🧴",
+      "productos": [
+        {
+          "nombre": "Jabón Camay 85g",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-001",
+          "stock_inicial": 40,
+          "stock_minimo": 10,
+          "imagen": "products/bodega/BOD-CUI-001.webp",
+          "aliases": [
+            "camay",
+            "jabón camay",
+            "jabón tocador"
+          ],
+          "tags": [
+            "higiene",
+            "baño"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-009"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Shampoo Pantene Sachet 18ml",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-002",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-CUI-002.webp",
+          "aliases": [
+            "pantene",
+            "shampoo",
+            "champú"
+          ],
+          "tags": [
+            "higiene",
+            "cabello"
+          ],
+          "complementarios": [
+            "BOD-CUI-010",
+            "BOD-CUI-011"
+          ],
+          "sustitutos": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.2,
+            "nota": "Display 12"
+          },
+          "mayoreo": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Crema Dental Colgate 75ml",
+          "precio": 4.5,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-003",
+          "stock_inicial": 35,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-CUI-003.webp",
+          "aliases": [
+            "colgate",
+            "pasta dental",
+            "crema dental"
+          ],
+          "tags": [
+            "higiene",
+            "dental",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-CUI-012"
+          ],
+          "sustitutos": [
+            "BOD-CUI-013"
+          ],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.29,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Desodorante Rexona Sachet 10ml",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-004",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-CUI-004.webp",
+          "aliases": [
+            "rexona",
+            "desodorante"
+          ],
+          "tags": [
+            "higiene",
+            "personal"
+          ],
+          "complementarios": [
+            "BOD-CUI-014"
+          ],
+          "sustitutos": {
+            "cantidad_minima": 12,
+            "precio_sugerido": 1.7,
+            "nota": "Display 12"
+          },
+          "mayoreo": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Toallas Nosotras x10",
+          "precio": 5.5,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-005",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-CUI-005.webp",
+          "aliases": [
+            "nosotras",
+            "toallas higiénicas",
+            "toallas"
+          ],
+          "tags": [
+            "higiene",
+            "femenino"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-015"
+          ],
+          "_ia": {
+            "costo_ref": 3.8,
+            "margen_tipico": 0.31,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Pañales Huggies Talla M x10",
+          "precio": 18.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-006",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-006.webp",
+          "aliases": [
+            "huggies",
+            "pañales",
+            "pañal"
+          ],
+          "tags": [
+            "bebe",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-CUI-016"
+          ],
+          "sustitutos": [
+            "BOD-CUI-007"
+          ],
+          "_ia": {
+            "costo_ref": 13.5,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "baja"
+          }
+        },
+        {
+          "nombre": "Pañales Babysec Talla M x10",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-007",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-007.webp",
+          "aliases": [
+            "babysec",
+            "pañal barato"
+          ],
+          "tags": [
+            "bebe",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-006"
+          ],
+          "_ia": {
+            "costo_ref": 8.5,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Papel Toalla Elite x1",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-008",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-008.webp",
+          "aliases": [
+            "papel toalla",
+            "toalla de papel"
+          ],
+          "tags": [
+            "higiene",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Jabón Protex 85g",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-009",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-CUI-009.webp",
+          "aliases": [
+            "protex",
+            "jabón protex",
+            "antibacterial"
+          ],
+          "tags": [
+            "higiene",
+            "antibacterial"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Shampoo Head & Shoulders 180ml",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-010",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-010.webp",
+          "aliases": [
+            "head and shoulders",
+            "h&s",
+            "anticaspa"
+          ],
+          "tags": [
+            "higiene",
+            "cabello"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-002"
+          ],
+          "_ia": {
+            "costo_ref": 9.0,
+            "margen_tipico": 0.25,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Shampoo Savital Sachet 18ml",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-011",
+          "stock_inicial": 60,
+          "stock_minimo": 15,
+          "imagen": "products/bodega/BOD-CUI-011.webp",
+          "aliases": [
+            "savital",
+            "shampoo barato"
+          ],
+          "tags": [
+            "higiene",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-002"
+          ],
+          "_ia": {
+            "costo_ref": 0.6,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Cepillo Dental Colgate",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-012",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-012.webp",
+          "aliases": [
+            "cepillo",
+            "cepillo dental"
+          ],
+          "tags": [
+            "higiene",
+            "dental"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.2,
+            "margen_tipico": 0.37,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Crema Dental Dento 75ml",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-013",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-013.webp",
+          "aliases": [
+            "dento",
+            "pasta dento"
+          ],
+          "tags": [
+            "higiene",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-003"
+          ],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Desodorante Rexona Roll On 50ml",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-014",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-014.webp",
+          "aliases": [
+            "rexona roll on",
+            "roll on"
+          ],
+          "tags": [
+            "higiene",
+            "personal"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-004"
+          ],
+          "_ia": {
+            "costo_ref": 5.8,
+            "margen_tipico": 0.28,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Toallas Kotex x10",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-015",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-015.webp",
+          "aliases": [
+            "kotex",
+            "toallas kotex"
+          ],
+          "tags": [
+            "higiene",
+            "femenino"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-CUI-005"
+          ],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pañitos Húmedos Huggies x30",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-016",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-016.webp",
+          "aliases": [
+            "pañitos",
+            "toallitas húmedas",
+            "wipes"
+          ],
+          "tags": [
+            "bebe",
+            "higiene"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 4.2,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Alcohol Gel 250ml",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-017",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-017.webp",
+          "aliases": [
+            "alcohol gel",
+            "gel antibacterial"
+          ],
+          "tags": [
+            "higiene",
+            "salud"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.36,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Bloqueador Solar 120ml",
+          "precio": 15.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-018",
+          "stock_inicial": 8,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-CUI-018.webp",
+          "aliases": [
+            "bloqueador",
+            "protector solar",
+            "sunblock"
+          ],
+          "tags": [
+            "cuidado",
+            "verano"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 10.5,
+            "margen_tipico": 0.3,
+            "rotacion": "baja",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Hoja de Afeitar Gillette x5",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-019",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-CUI-019.webp",
+          "aliases": [
+            "gillette",
+            "hoja de afeitar",
+            "navaja"
+          ],
+          "tags": [
+            "higiene",
+            "afeitado"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Algodón 25g",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-CUI-020",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-CUI-020.webp",
+          "aliases": [
+            "algodón",
+            "algodon"
+          ],
+          "tags": [
+            "higiene",
+            "salud"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Helados y Congelados",
+      "icono": "🍦",
+      "productos": [
+        {
+          "nombre": "Helado Donofrio Sandwich",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-001",
+          "stock_inicial": 24,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-HEL-001.webp",
+          "aliases": [
+            "sandwich",
+            "helado sandwich"
+          ],
+          "tags": [
+            "helado",
+            "popular",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-002",
+            "BOD-HEL-003"
+          ],
+          "_ia": {
+            "costo_ref": 1.6,
+            "margen_tipico": 0.36,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Helado Donofrio Jet",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-002",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-HEL-002.webp",
+          "aliases": [
+            "jet",
+            "helado jet",
+            "paleta jet"
+          ],
+          "tags": [
+            "helado",
+            "economico",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-001"
+          ],
+          "_ia": {
+            "costo_ref": 0.9,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Helado Donofrio Sin Parar",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-003",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-HEL-003.webp",
+          "aliases": [
+            "sin parar",
+            "helado sin parar"
+          ],
+          "tags": [
+            "helado",
+            "popular"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.33,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Helado Peziduri",
+          "precio": 0.5,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-004",
+          "stock_inicial": 50,
+          "stock_minimo": 12,
+          "imagen": "products/bodega/BOD-HEL-004.webp",
+          "aliases": [
+            "peziduri",
+            "helado barato",
+            "paleta barata"
+          ],
+          "tags": [
+            "helado",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-002"
+          ],
+          "_ia": {
+            "costo_ref": 0.25,
+            "margen_tipico": 0.5,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Helado Donofrio Sublime",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-005",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-HEL-005.webp",
+          "aliases": [
+            "helado sublime",
+            "sublime helado"
+          ],
+          "tags": [
+            "helado",
+            "chocolate",
+            "premium"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-003"
+          ],
+          "_ia": {
+            "costo_ref": 2.8,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Bolsa de Hielo 3kg",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-006",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-HEL-006.webp",
+          "aliases": [
+            "hielo",
+            "bolsa hielo"
+          ],
+          "tags": [
+            "hielo",
+            "bebidas",
+            "fiesta"
+          ],
+          "complementarios": [
+            "BOD-LIC-001",
+            "BOD-BEB-001"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.5,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Helado Donofrio Frio Rico 1L",
+          "precio": 12.0,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-007",
+          "stock_inicial": 8,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-HEL-007.webp",
+          "aliases": [
+            "frio rico",
+            "helado litro",
+            "helado familiar"
+          ],
+          "tags": [
+            "helado",
+            "familiar"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 8.5,
+            "margen_tipico": 0.29,
+            "rotacion": "media",
+            "temporalidad": "verano_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Helado Artika Mango",
+          "precio": 1.0,
+          "unidad": "UND",
+          "codigo": "BOD-HEL-008",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-HEL-008.webp",
+          "aliases": [
+            "artika",
+            "helado artika",
+            "paleta artika"
+          ],
+          "tags": [
+            "helado",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-HEL-002",
+            "BOD-HEL-004"
+          ],
+          "_ia": {
+            "costo_ref": 0.5,
+            "margen_tipico": 0.5,
+            "rotacion": "alta",
+            "temporalidad": "verano_alto",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    },
+    {
+      "nombre": "Misceláneos y Bazar",
+      "icono": "🔧",
+      "productos": [
+        {
+          "nombre": "Pilas Duracell AA x2",
+          "precio": 6.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-001",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-MIS-001.webp",
+          "aliases": [
+            "pilas",
+            "duracell",
+            "pilas AA",
+            "baterías"
+          ],
+          "tags": [
+            "bazar",
+            "electronico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-MIS-002"
+          ],
+          "_ia": {
+            "costo_ref": 4.0,
+            "margen_tipico": 0.33,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Pilas Toshiba AA x2",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-002",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-MIS-002.webp",
+          "aliases": [
+            "toshiba",
+            "pilas baratas",
+            "pilas toshiba"
+          ],
+          "tags": [
+            "bazar",
+            "economico"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-MIS-001"
+          ],
+          "_ia": {
+            "costo_ref": 2.0,
+            "margen_tipico": 0.43,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Fósforos x10 cajitas",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-003",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-MIS-003.webp",
+          "aliases": [
+            "fósforos",
+            "fosforos",
+            "cerillas"
+          ],
+          "tags": [
+            "bazar",
+            "basico"
+          ],
+          "complementarios": [
+            "BOD-MIS-004"
+          ],
+          "sustitutos": [
+            "BOD-MIS-004"
+          ],
+          "_ia": {
+            "costo_ref": 1.2,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Encendedor BIC",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-004",
+          "stock_inicial": 25,
+          "stock_minimo": 6,
+          "imagen": "products/bodega/BOD-MIS-004.webp",
+          "aliases": [
+            "encendedor",
+            "bic",
+            "yesquero",
+            "mechero"
+          ],
+          "tags": [
+            "bazar",
+            "popular"
+          ],
+          "complementarios": [],
+          "sustitutos": [
+            "BOD-MIS-003"
+          ],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Vela Blanca x4",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-005",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-MIS-005.webp",
+          "aliases": [
+            "vela",
+            "velas",
+            "velita",
+            "cirio"
+          ],
+          "tags": [
+            "bazar",
+            "emergencia"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Bolsas Plásticas Pequeñas x100",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-006",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-006.webp",
+          "aliases": [
+            "bolsas",
+            "bolsa plastica",
+            "bolsitas"
+          ],
+          "tags": [
+            "bazar",
+            "negocio"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.0,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cinta Adhesiva Scotch",
+          "precio": 3.5,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-007",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-007.webp",
+          "aliases": [
+            "cinta scotch",
+            "cinta adhesiva",
+            "durex"
+          ],
+          "tags": [
+            "bazar",
+            "oficina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.2,
+            "margen_tipico": 0.37,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Vasos Descartables x25",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-008",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-MIS-008.webp",
+          "aliases": [
+            "vasos",
+            "vasos descartables",
+            "vasitos"
+          ],
+          "tags": [
+            "descartable",
+            "fiesta"
+          ],
+          "complementarios": [
+            "BOD-LIC-001",
+            "BOD-BEB-001"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "alta",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Platos Descartables x25",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-009",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-009.webp",
+          "aliases": [
+            "platos",
+            "platos descartables"
+          ],
+          "tags": [
+            "descartable",
+            "fiesta"
+          ],
+          "complementarios": [
+            "BOD-MIS-008",
+            "BOD-MIS-010"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.36,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cucharas Descartables x25",
+          "precio": 2.5,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-010",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-MIS-010.webp",
+          "aliases": [
+            "cucharas",
+            "cucharas descartables",
+            "cucharitas"
+          ],
+          "tags": [
+            "descartable",
+            "fiesta"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Servilletas x100",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-011",
+          "stock_inicial": 20,
+          "stock_minimo": 5,
+          "imagen": "products/bodega/BOD-MIS-011.webp",
+          "aliases": [
+            "servilletas",
+            "servilleta"
+          ],
+          "tags": [
+            "descartable",
+            "cocina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.8,
+            "margen_tipico": 0.4,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Globos x12",
+          "precio": 3.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-012",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-012.webp",
+          "aliases": [
+            "globos",
+            "globitos",
+            "bombas"
+          ],
+          "tags": [
+            "fiesta",
+            "niños"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.5,
+            "margen_tipico": 0.5,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Carbón Vegetal 2kg",
+          "precio": 8.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-013",
+          "stock_inicial": 10,
+          "stock_minimo": 3,
+          "imagen": "products/bodega/BOD-MIS-013.webp",
+          "aliases": [
+            "carbón",
+            "carbon",
+            "brasa"
+          ],
+          "tags": [
+            "parrilla",
+            "fin_semana"
+          ],
+          "complementarios": [
+            "BOD-LIC-001",
+            "BOD-EMB-005"
+          ],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 5.5,
+            "margen_tipico": 0.31,
+            "rotacion": "media",
+            "temporalidad": "fin_semana_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Sorbetes x100",
+          "precio": 2.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-014",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-014.webp",
+          "aliases": [
+            "sorbetes",
+            "cañitas",
+            "pajitas"
+          ],
+          "tags": [
+            "descartable",
+            "bebidas"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 1.0,
+            "margen_tipico": 0.5,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "alta"
+          }
+        },
+        {
+          "nombre": "Papel Aluminio 5m",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-015",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-015.webp",
+          "aliases": [
+            "papel aluminio",
+            "aluminio"
+          ],
+          "tags": [
+            "cocina",
+            "bazar"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.5,
+            "margen_tipico": 0.3,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Film Plástico 30m",
+          "precio": 4.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-016",
+          "stock_inicial": 12,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-016.webp",
+          "aliases": [
+            "film",
+            "plastico film",
+            "envoplast"
+          ],
+          "tags": [
+            "cocina",
+            "bazar"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 2.5,
+            "margen_tipico": 0.38,
+            "rotacion": "media",
+            "temporalidad": "todo_año",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Cuaderno A4 100 hojas",
+          "precio": 5.0,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-017",
+          "stock_inicial": 15,
+          "stock_minimo": 4,
+          "imagen": "products/bodega/BOD-MIS-017.webp",
+          "aliases": [
+            "cuaderno",
+            "libreta",
+            "cuaderno escolar"
+          ],
+          "tags": [
+            "escolar",
+            "oficina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 3.2,
+            "margen_tipico": 0.36,
+            "rotacion": "media",
+            "temporalidad": "escolar_alto",
+            "elasticidad": "media"
+          }
+        },
+        {
+          "nombre": "Lapicero Faber Castell",
+          "precio": 1.5,
+          "unidad": "UND",
+          "codigo": "BOD-MIS-018",
+          "stock_inicial": 30,
+          "stock_minimo": 8,
+          "imagen": "products/bodega/BOD-MIS-018.webp",
+          "aliases": [
+            "lapicero",
+            "birome",
+            "boligrafo",
+            "faber castell"
+          ],
+          "tags": [
+            "escolar",
+            "oficina"
+          ],
+          "complementarios": [],
+          "sustitutos": [],
+          "_ia": {
+            "costo_ref": 0.8,
+            "margen_tipico": 0.47,
+            "rotacion": "alta",
+            "temporalidad": "escolar_alto",
+            "elasticidad": "alta"
+          }
+        }
+      ]
+    }
+  ],
+  "combos_sugeridos": [
+    {
+      "codigo": "BOD-COMBO-001",
+      "nombre": "Combo Snack",
+      "descripcion": "Gaseosa 500ml + Papas Lays",
+      "productos": [
+        "BOD-BEB-001",
+        "BOD-SNK-001"
+      ],
+      "precio_individual": 7.0,
+      "precio_combo": 6.0,
+      "ahorro": 1.0,
+      "tags": [
+        "antojo",
+        "popular"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-002",
+      "nombre": "Desayuno Completo",
+      "descripcion": "Leche + Pan Molde + Mantequilla + Mermelada",
+      "productos": [
+        "BOD-ABA-008",
+        "BOD-PAN-002",
+        "BOD-LAC-003",
+        "BOD-ABA-035"
+      ],
+      "precio_individual": 22.0,
+      "precio_combo": 19.5,
+      "ahorro": 2.5,
+      "tags": [
+        "desayuno",
+        "familia"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-003",
+      "nombre": "Lonchera Escolar",
+      "descripcion": "Frugos + Galleta Oreo + Sublime",
+      "productos": [
+        "BOD-BEB-014",
+        "BOD-SNK-004",
+        "BOD-SNK-006"
+      ],
+      "precio_individual": 6.5,
+      "precio_combo": 5.5,
+      "ahorro": 1.0,
+      "tags": [
+        "lonchera",
+        "niños"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-004",
+      "nombre": "Parrilla Básica",
+      "descripcion": "Carbón + Cerveza Pilsen x6 + Chorizo",
+      "productos": [
+        "BOD-MIS-013",
+        "BOD-LIC-001",
+        "BOD-EMB-005"
+      ],
+      "precio_individual": 53.0,
+      "precio_combo": 48.0,
+      "ahorro": 5.0,
+      "tags": [
+        "parrilla",
+        "fin_semana"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-005",
+      "nombre": "Combo Pisco Sour",
+      "descripcion": "Pisco Tacama + Limones 1kg + Leche Condensada",
+      "productos": [
+        "BOD-LIC-006",
+        "BOD-CON-005",
+        "BOD-ABA-023"
+      ],
+      "precio_individual": 47.5,
+      "precio_combo": 43.0,
+      "ahorro": 4.5,
+      "tags": [
+        "coctel",
+        "peruano"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-006",
+      "nombre": "Combo Salchipapa",
+      "descripcion": "Hot Dog + Pan x5 + Ketchup + Mayonesa",
+      "productos": [
+        "BOD-EMB-003",
+        "BOD-PAN-001",
+        "BOD-CON-001",
+        "BOD-CON-002"
+      ],
+      "precio_individual": 14.0,
+      "precio_combo": 12.0,
+      "ahorro": 2.0,
+      "tags": [
+        "rapido",
+        "popular"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-007",
+      "nombre": "Combo Cocina Básica",
+      "descripcion": "Arroz + Aceite + Fideos + Atún",
+      "productos": [
+        "BOD-ABA-001",
+        "BOD-ABA-003",
+        "BOD-ABA-004",
+        "BOD-ABA-006"
+      ],
+      "precio_individual": 25.5,
+      "precio_combo": 22.5,
+      "ahorro": 3.0,
+      "tags": [
+        "basico",
+        "semanal"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-008",
+      "nombre": "Combo Limpieza",
+      "descripcion": "Detergente + Lejía + Lavavajilla + Papel Higiénico",
+      "productos": [
+        "BOD-LIM-001",
+        "BOD-LIM-005",
+        "BOD-LIM-009",
+        "BOD-LIM-007"
+      ],
+      "precio_individual": 25.0,
+      "precio_combo": 22.0,
+      "ahorro": 3.0,
+      "tags": [
+        "limpieza",
+        "hogar"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-009",
+      "nombre": "Combo Fiesta Infantil",
+      "descripcion": "Gaseosa 3L + Vasos + Platos + Globos + Helado",
+      "productos": [
+        "BOD-BEB-013",
+        "BOD-MIS-008",
+        "BOD-MIS-009",
+        "BOD-MIS-012",
+        "BOD-HEL-007"
+      ],
+      "precio_individual": 25.0,
+      "precio_combo": 22.0,
+      "ahorro": 3.0,
+      "tags": [
+        "fiesta",
+        "niños"
+      ]
+    },
+    {
+      "codigo": "BOD-COMBO-010",
+      "nombre": "Combo Bebé",
+      "descripcion": "Pañales Huggies + Pañitos + Leche Gloria",
+      "productos": [
+        "BOD-CUI-006",
+        "BOD-CUI-016",
+        "BOD-ABA-008"
+      ],
+      "precio_individual": 28.5,
+      "precio_combo": 25.5,
+      "ahorro": 3.0,
+      "tags": [
+        "bebe",
+        "cuidado"
+      ]
+    }
+  ],
+  "total_productos": 220
+}
