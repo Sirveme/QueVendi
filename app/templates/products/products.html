@@ -1,20 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light" data-color="gold">
+<html lang="es" data-theme="light" data-color-scheme="moderno" data-font-size="small">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Productos - QueVendi PRO</title>
 
-    <!-- Fonts (mismas que dashboard) -->
+    <!-- Google Fonts (V2 usa Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Base V2 -->
     <link rel="stylesheet" href="/static/css/base/layout.css">
+    <link rel="stylesheet" href="/static/css/base/header.css">
     <link rel="stylesheet" href="/static/css/base/toast.css">
     <link rel="stylesheet" href="/static/css/base/modal.css">
     <link rel="stylesheet" href="/static/css/base/loader.css">
@@ -22,106 +19,147 @@
     <!-- Module -->
     <link rel="stylesheet" href="/static/css/products/products.css">
 
-    <!-- Header inline (no depende de header.js) -->
+    <!-- Products page overrides -->
     <style>
-        .products-header {
-            position: sticky;
+        /* Override: esta página necesita scroll */
+        html, body {
+            overflow: auto;
+            height: auto;
+        }
+        .main-content {
+            position: relative;
             top: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            height: 56px;
-            background: #1a1a2e;
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            overflow: visible;
+            min-height: calc(100vh - 56px);
+            padding-top: 56px; /* espacio para header fixed */
         }
-        .products-header .ph-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .main-content > .container {
+            padding: 0;
         }
-        .products-header .ph-back {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .products-header .ph-back:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        .products-header .ph-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 600;
-        }
-        .products-header .ph-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .products-header .ph-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .products-header .ph-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        /* Fix: filters sticky debajo del header */
+        /* Filters sticky debajo del header */
         .filters-bar {
             top: 56px;
-        }
-
-        /* Font global */
-        body {
-            font-family: 'Outfit', sans-serif;
         }
     </style>
 </head>
 <body>
 
-    <!-- ═══ HEADER (inline, consistente con dashboard) ═══ -->
-    <header class="products-header">
-        <div class="ph-left">
-            <button class="ph-back" onclick="window.location.href='/home'" title="Volver al POS">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <span class="ph-title">📦 Productos</span>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HEADER V2 (de base_visual_completo)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <header class="header">
+        <div class="header-left">
+            <a href="/home" class="header-logo" title="Volver al POS">
+                <div class="header-logo-icon">🛒</div>
+                <span class="header-logo-text">QueVendi.pro</span>
+            </a>
         </div>
-        <div class="ph-right">
-            <button class="ph-btn" onclick="ProductsApp.openImportModal()" title="Importar catálogo">
-                <i class="fas fa-file-import"></i>
+
+        <div class="header-center">
+            <div class="header-status" id="connection-status">
+                <span class="status-dot status-online"></span>
+                <span class="status-text">Conectado</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Theme Toggle -->
+            <button class="header-btn theme-toggle" id="theme-toggle" title="Modo claro/oscuro">
+                <span class="theme-icon-light">☀️</span>
+                <span class="theme-icon-dark">🌙</span>
             </button>
-            <button class="ph-btn" onclick="ProductsApp.openCreateModal()" title="Nuevo producto">
-                <i class="fas fa-plus"></i>
+
+            <!-- Settings -->
+            <button class="header-btn header-btn-settings" id="settings-btn" title="Configuración visual">
+                ⚙️
             </button>
-            <button class="ph-btn" onclick="window.location.href='/settings'" title="Configuración">
-                <i class="fas fa-cog"></i>
+
+            <!-- Notifications -->
+            <button class="header-btn" id="notifications-btn" title="Notificaciones">
+                🔔
+                <span class="badge">3</span>
             </button>
+
+            <!-- User Menu -->
+            <div class="header-user" id="user-menu">
+                <div class="header-user-avatar" id="header-avatar">DR</div>
+                <div class="header-user-info">
+                    <span class="header-user-name" id="header-username">Usuario</span>
+                    <span class="header-user-role" id="header-role">Administrador</span>
+                </div>
+                <span class="dropdown-arrow">▼</span>
+
+                <div class="header-dropdown">
+                    <a href="/home" class="dropdown-item">🏠 Dashboard</a>
+                    <a href="/productos" class="dropdown-item">📦 Productos</a>
+                    <a href="/reports" class="dropdown-item">📊 Reportes</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item dropdown-item-danger" onclick="logout()">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- ═══ MAIN CONTENT ═══ -->
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SETTINGS PANEL V2 (Lateral)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <span class="settings-title">⚙️ Preferencias</span>
+            <button class="modal-close" id="settings-close">×</button>
+        </div>
+        <div class="settings-body">
+            <!-- Esquema de colores -->
+            <div class="settings-section">
+                <div class="settings-section-title">Esquema de Colores</div>
+                <div class="color-schemes">
+                    <button class="color-scheme-btn color-scheme-moderno active"
+                            onclick="Settings.setColorScheme('moderno')"
+                            title="Moderno (Azul/Verde)"></button>
+                    <button class="color-scheme-btn color-scheme-calido"
+                            onclick="Settings.setColorScheme('calido')"
+                            title="Cálido (Naranja/Rojo)"></button>
+                    <button class="color-scheme-btn color-scheme-elegante"
+                            onclick="Settings.setColorScheme('elegante')"
+                            title="Elegante (Púrpura/Rosa)"></button>
+                </div>
+            </div>
+            <!-- Tamaño de texto -->
+            <div class="settings-section">
+                <div class="settings-section-title">Tamaño de Texto</div>
+                <div class="font-size-btns">
+                    <button class="font-size-btn active" onclick="Settings.setFontSize('small')">Pequeño</button>
+                    <button class="font-size-btn" onclick="Settings.setFontSize('medium')">Mediano</button>
+                    <button class="font-size-btn" onclick="Settings.setFontSize('large')">Grande</button>
+                </div>
+            </div>
+            <!-- Posición de notificaciones -->
+            <div class="settings-section">
+                <div class="settings-section-title">Posición de Notificaciones</div>
+                <div class="toast-position-grid">
+                    <button class="toast-pos-btn active" onclick="Settings.setToastPosition('top-right')">↗️ Arr-Der</button>
+                    <button class="toast-pos-btn" onclick="Settings.setToastPosition('top-center')">⬆️ Arr-Centro</button>
+                    <button class="toast-pos-btn" onclick="Settings.setToastPosition('bottom-right')">↘️ Abj-Der</button>
+                    <button class="toast-pos-btn" onclick="Settings.setToastPosition('bottom-center')">⬇️ Abj-Centro</button>
+                </div>
+            </div>
+            <!-- Tema -->
+            <div class="settings-section">
+                <div class="settings-section-title">Tema</div>
+                <div class="settings-option">
+                    <span class="settings-option-label">Modo oscuro</span>
+                    <label class="form-check" style="margin: 0;">
+                        <input type="checkbox" id="dark-mode-toggle" onchange="Settings.toggleDarkMode()">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MAIN CONTENT - PRODUCTOS
+         ═══════════════════════════════════════════════════════════════════════ -->
     <main class="main-content">
 
         <!-- ── Stats Bar ── -->
@@ -363,9 +401,7 @@
             </div>
             <div class="modal-body">
                 <p class="modal-subtitle">Selecciona catálogos para cargar productos con precios sugeridos, aliases y datos inteligentes.</p>
-                <div class="catalogs-grid" id="catalogsGrid">
-                    <!-- Filled by JS -->
-                </div>
+                <div class="catalogs-grid" id="catalogsGrid"></div>
                 <div class="import-preview" id="importPreview" style="display:none;">
                     <div class="preview-header">
                         <h4 id="previewTitle">-</h4>
@@ -456,18 +492,241 @@
         </div>
     </div>
 
-    <!-- ═══ Loader ═══ -->
-    <div id="loader" class="loader-overlay" style="display:none;">
-        <div class="loader-spinner"></div>
+    <!-- ═══ Toast Container V2 ═══ -->
+    <div id="toast-container" class="toast-container toast-top-right"></div>
+
+    <!-- ═══ Loader V2 (Con icono por nicho) ═══ -->
+    <div class="loader-overlay" id="loader-overlay">
+        <div class="loader-icon" id="loader-icon">🛒</div>
+        <div class="loader-text">Cargando...</div>
     </div>
 
-    <!-- Base V2 JS (sin utils.js ni header.js) -->
-    <script src="/static/js/base/layout.js"></script>
-    <script src="/static/js/base/toast.js"></script>
-    <script src="/static/js/base/modal.js"></script>
-    <script src="/static/js/base/loader.js"></script>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         JAVASCRIPT
+         ═══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Module -->
+    <!-- V2 Base: Settings + UserMenu + Toast + Modal + Loader (inline, del base_visual_completo) -->
+    <script>
+    /* ═══ SETTINGS ═══ */
+    const Settings = {
+        defaults: { theme: 'light', colorScheme: 'moderno', fontSize: 'small', toastPosition: 'top-right' },
+
+        init() {
+            const saved = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            const config = { ...this.defaults, ...saved };
+            this.setTheme(config.theme, false);
+            this.setColorScheme(config.colorScheme, false);
+            this.setFontSize(config.fontSize, false);
+            this.setToastPosition(config.toastPosition, false);
+            document.getElementById('dark-mode-toggle').checked = config.theme === 'dark';
+            document.getElementById('settings-btn').addEventListener('click', () => this.openPanel());
+            document.getElementById('settings-close').addEventListener('click', () => this.closePanel());
+            document.getElementById('settings-overlay').addEventListener('click', () => this.closePanel());
+            document.getElementById('theme-toggle').addEventListener('click', () => this.toggleDarkMode());
+        },
+
+        save() {
+            const config = {
+                theme: document.documentElement.getAttribute('data-theme'),
+                colorScheme: document.documentElement.getAttribute('data-color-scheme'),
+                fontSize: document.documentElement.getAttribute('data-font-size'),
+                toastPosition: Toast.config.position
+            };
+            localStorage.setItem('userSettings', JSON.stringify(config));
+        },
+
+        openPanel() {
+            document.getElementById('settings-panel').classList.add('active');
+            document.getElementById('settings-overlay').classList.add('active');
+        },
+
+        closePanel() {
+            document.getElementById('settings-panel').classList.remove('active');
+            document.getElementById('settings-overlay').classList.remove('active');
+        },
+
+        setTheme(theme, showToast = true) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('dark-mode-toggle').checked = theme === 'dark';
+            this.save();
+            if (showToast) Toast.info(theme === 'dark' ? 'Modo oscuro' : 'Modo claro');
+        },
+
+        toggleDarkMode() {
+            const current = document.documentElement.getAttribute('data-theme');
+            this.setTheme(current === 'dark' ? 'light' : 'dark');
+        },
+
+        setColorScheme(scheme, showToast = true) {
+            document.documentElement.setAttribute('data-color-scheme', scheme);
+            document.querySelectorAll('.color-scheme-btn').forEach(btn => btn.classList.remove('active'));
+            const btn = document.querySelector(`.color-scheme-${scheme}`);
+            if (btn) btn.classList.add('active');
+            this.save();
+            const names = { moderno: 'Moderno', calido: 'Cálido', elegante: 'Elegante' };
+            if (showToast) Toast.info(`Tema ${names[scheme]}`);
+        },
+
+        setFontSize(size, showToast = true) {
+            document.documentElement.setAttribute('data-font-size', size);
+            document.querySelectorAll('.font-size-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.font-size-btn').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(size === 'small' ? 'pequeño' : size === 'medium' ? 'mediano' : 'grande')) {
+                    btn.classList.add('active');
+                }
+            });
+            this.save();
+            const names = { small: 'Pequeño', medium: 'Mediano', large: 'Grande' };
+            if (showToast) Toast.info(`Texto ${names[size]}`);
+        },
+
+        setToastPosition(position, showToast = true) {
+            Toast.setPosition(position);
+            document.querySelectorAll('.toast-pos-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toast-pos-btn').forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(position)) {
+                    btn.classList.add('active');
+                }
+            });
+            this.save();
+            const names = { 'top-right': 'Arriba derecha', 'top-center': 'Arriba centro', 'bottom-right': 'Abajo derecha', 'bottom-center': 'Abajo centro' };
+            if (showToast) Toast.info(`Notificaciones: ${names[position]}`);
+        }
+    };
+
+    /* ═══ USER MENU ═══ */
+    const UserMenu = {
+        init() {
+            const menu = document.getElementById('user-menu');
+            menu.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('active');
+            });
+            document.addEventListener('click', () => menu.classList.remove('active'));
+        }
+    };
+
+    /* ═══ TOAST V2 ═══ */
+    const Toast = {
+        container: null,
+        config: { position: 'top-right', duration: 3500, maxToasts: 4 },
+
+        init() {
+            this.container = document.getElementById('toast-container');
+        },
+
+        show(message, type = 'info', title = '') {
+            const existing = this.container.querySelectorAll('.toast');
+            if (existing.length >= this.config.maxToasts) existing[0].remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type]}</span>
+                <div class="toast-content">
+                    ${title ? `<div class="toast-title">${title}</div>` : ''}
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="Toast.dismiss(this.parentElement)">×</button>
+            `;
+
+            if (this.config.position.includes('bottom')) {
+                this.container.prepend(toast);
+            } else {
+                this.container.appendChild(toast);
+            }
+
+            requestAnimationFrame(() => toast.classList.add('toast-show'));
+            if (this.config.duration > 0) {
+                setTimeout(() => this.dismiss(toast), this.config.duration);
+            }
+            return toast;
+        },
+
+        dismiss(toast) {
+            if (!toast || !toast.parentElement) return;
+            toast.classList.remove('toast-show');
+            toast.classList.add('toast-hide');
+            setTimeout(() => toast.remove(), 300);
+        },
+
+        setPosition(position) {
+            this.config.position = position;
+            this.container.className = `toast-container toast-${position}`;
+        },
+
+        success(msg, title = '') { return this.show(msg, 'success', title); },
+        error(msg, title = '') { return this.show(msg, 'error', title); },
+        warning(msg, title = '') { return this.show(msg, 'warning', title); },
+        info(msg, title = '') { return this.show(msg, 'info', title); }
+    };
+
+    /* ═══ MODAL V2 ═══ */
+    const Modal = {
+        open(id) {
+            const modal = document.getElementById(id);
+            if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        },
+        close(id) {
+            const modal = document.getElementById(id);
+            if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
+        }
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            Settings.closePanel();
+            document.body.style.overflow = '';
+        }
+    });
+
+    /* ═══ LOADER V2 ═══ */
+    const Loader = {
+        icons: { bodega: '🛒', minimarket: '🛒', restaurante: '🍽️', cafeteria: '☕', farmacia: '💊', ferreteria: '🔧', libreria: '📚', default: '⏳' },
+        show(nicho = 'bodega') {
+            const icon = this.icons[nicho] || this.icons.default;
+            document.getElementById('loader-icon').textContent = icon;
+            document.getElementById('loader-overlay').classList.add('active');
+        },
+        hide() {
+            document.getElementById('loader-overlay').classList.remove('active');
+        }
+    };
+
+    /* ═══ HEADER USER DATA ═══ */
+    function loadHeaderUser() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        fetch('/api/v1/users/me', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(user => {
+                if (user && user.name) {
+                    const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    document.getElementById('header-avatar').textContent = initials;
+                    document.getElementById('header-username').textContent = user.name;
+                    document.getElementById('header-role').textContent = user.role === 'owner' ? 'Administrador' : 'Vendedor';
+                }
+            })
+            .catch(() => {});
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/auth/login';
+    }
+
+    /* ═══ INIT V2 BASE ═══ */
+    document.addEventListener('DOMContentLoaded', () => {
+        Toast.init();
+        UserMenu.init();
+        Settings.init();
+        loadHeaderUser();
+    });
+    </script>
+
+    <!-- Module: Products App -->
     <script src="/static/js/products/products.js"></script>
 </body>
 </html>
