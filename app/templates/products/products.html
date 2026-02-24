@@ -10,14 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Base V2 -->
-    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224a">
-    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224a">
-    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224a">
-    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224a">
-    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224b">
 
     <!-- Module -->
-    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224a">
+    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224b">
 
     <!-- Products page overrides -->
     <style>
@@ -126,6 +126,212 @@
         .pc-stock-badge.normal { background: var(--color-success-bg); color: var(--color-success-text); }
         .pc-stock-badge.low { background: var(--color-warning-bg); color: var(--color-warning-text); }
         .pc-stock-badge.out { background: var(--color-error-bg); color: var(--color-error-text); }
+
+        /* ══════════════════════════════════════════
+           MODAL - El base V2 usa .modal pero
+           products usa .modal-content, hay que
+           aplicar los estilos aquí
+           ══════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 1rem;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #e7e5e4);
+            border-radius: 14px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-height: 85vh;
+            overflow: hidden;
+            transform: scale(0.95) translateY(-10px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        .modal-content.modal-large { max-width: 540px; }
+        .modal-content.modal-small { max-width: 380px; }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .modal-body {
+            padding: 1.25rem;
+            overflow-y: auto;
+            max-height: calc(85vh - 130px);
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Form elements inside modals */
+        .modal-content .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .modal-content .form-group input,
+        .modal-content .form-group select,
+        .modal-content .form-group textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus,
+        .modal-content .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .modal-content .form-group input::placeholder,
+        .modal-content .form-group textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Input prefix (S/) inside modals */
+        .modal-content .input-prefix {
+            border-color: var(--border-color);
+            background: var(--input-bg);
+        }
+        .modal-content .input-prefix span {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-right-color: var(--border-color);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary {
+            background: var(--accent-gradient, var(--color-primary));
+            color: #fff;
+        }
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Stock modal controls */
+        .stock-product-name { color: var(--text-primary); }
+        .stock-current { color: var(--text-secondary); }
+        .stock-current strong { color: var(--text-primary); }
+        .stock-btn {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        .stock-qty-input {
+            background: var(--input-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        .preset-btn {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Tabs */
+        .tabs {
+            border-bottom-color: var(--border-color);
+        }
+        .tab {
+            color: var(--text-secondary);
+            font-family: inherit;
+        }
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        /* Mayoreo info */
+        .mayoreo-info {
+            background: var(--bg-tertiary);
+        }
+        .mayoreo-info p { color: var(--text-secondary); }
+
+        /* Modal subtitle */
+        .modal-subtitle { color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -815,6 +1021,6 @@
     </script>
 
     <!-- Module: Products App -->
-    <script src="/static/js/products/products.js?v=20260224a"></script>
+    <script src="/static/js/products/products.js?v=20260224b"></script>
 </body>
 </html>
