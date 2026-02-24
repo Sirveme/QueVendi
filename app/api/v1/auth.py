@@ -305,10 +305,13 @@ async def login(
         }
     )
 
-    # Respuesta JSON + cookie
+    # ════════════════════════════════════════════════════════════════
+    # RESPONSE CON first_login
+    # ════════════════════════════════════════════════════════════════
     response_data = {
         "access_token": access_token,
         "token_type": "bearer",
+        "first_login": getattr(user, 'first_login', False),  # ← AGREGAR ESTO
         "user": {
             "id": user.id,
             "dni": user.dni,
@@ -322,17 +325,211 @@ async def login(
 
     response = JSONResponse(content=response_data)
 
-    # Detectar si estamos en HTTPS (producción) o HTTP (local)
+    # Cookie
     is_secure = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
-
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
         httponly=True,
         secure=is_secure,
         samesite="lax",
-        max_age=86400,  # 24 horas
+        max_age=86400,
         path="/"
     )
 
     return response
+
+"""
+Endpoints adicionales de autenticación
+Agregar a app/api/v1/auth.py
+"""
+
+# ============================================
+# SCHEMAS ADICIONALES
+# ============================================
+
+class ChangePasswordRequest(BaseModel):
+    new_password: str = Field(..., min_length=6, max_length=20)
+
+
+class RecoverPasswordRequest(BaseModel):
+    dni: str = Field(..., min_length=8, max_length=8)
+
+
+class ResetPasswordRequest(BaseModel):
+    dni: str = Field(..., min_length=8, max_length=8)
+    code: str = Field(..., min_length=6, max_length=6)
+    new_password: str = Field(..., min_length=6, max_length=20)
+
+
+# ============================================
+# ENDPOINTS ADICIONALES
+# ============================================
+
+@router.post("/change-password")
+async def change_password(
+    data: ChangePasswordRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Cambiar contraseña del usuario autenticado.
+    Se usa para:
+    - Cambio obligatorio en primer login
+    - Cambio voluntario desde perfil
+    """
+    # Obtener usuario del token
+    from app.core.security import get_current_user
+    
+    user = await get_current_user(request, db)
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No autenticado"
+        )
+    
+    # Verificar que la nueva clave no sea igual al DNI
+    if data.new_password == user.dni:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La clave no puede ser igual a tu DNI"
+        )
+    
+    # Verificar que no sea la misma clave actual
+    if verify_password(data.new_password, user.pin_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva clave debe ser diferente a la actual"
+        )
+    
+    # Actualizar clave
+    user.pin_hash = hash_password(data.new_password)
+    user.first_login = False  # Ya no es primer login
+    user.updated_at = datetime.now(timezone.utc)
+    
+    db.commit()
+    
+    return {"message": "Clave actualizada correctamente"}
+
+
+@router.post("/recover-password")
+async def recover_password(
+    data: RecoverPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Solicitar código de recuperación de contraseña.
+    Envía código de 6 dígitos por WhatsApp.
+    """
+    import random
+    
+    # Buscar usuario
+    user = db.query(User).filter(User.dni == data.dni).first()
+    
+    if not user:
+        # Por seguridad, no revelamos si el DNI existe
+        # Pero igual retornamos éxito
+        return {"message": "Si el DNI existe, recibirás un código por WhatsApp"}
+    
+    # Generar código de 6 dígitos
+    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Guardar código con expiración (10 minutos)
+    user.recovery_code = code
+    user.recovery_code_expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    db.commit()
+    
+    # Enviar por WhatsApp (implementar según tu servicio)
+    # Por ahora solo logueamos
+    print(f"📱 Código de recuperación para {user.dni}: {code}")
+    
+    # TODO: Integrar con WhatsApp API
+    # from app.services.whatsapp_service import send_recovery_code
+    # await send_recovery_code(user.phone, code)
+    
+    return {"message": "Si el DNI existe, recibirás un código por WhatsApp"}
+
+
+@router.post("/reset-password")
+async def reset_password(
+    data: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Restablecer contraseña usando código de recuperación.
+    """
+    # Buscar usuario
+    user = db.query(User).filter(User.dni == data.dni).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código inválido o expirado"
+        )
+    
+    # Verificar código
+    if not user.recovery_code or user.recovery_code != data.code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código inválido o expirado"
+        )
+    
+    # Verificar expiración
+    if user.recovery_code_expires and user.recovery_code_expires < datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El código ha expirado. Solicita uno nuevo."
+        )
+    
+    # Verificar que la nueva clave no sea igual al DNI
+    if data.new_password == user.dni:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La clave no puede ser igual a tu DNI"
+        )
+    
+    # Actualizar clave
+    user.pin_hash = hash_password(data.new_password)
+    user.recovery_code = None
+    user.recovery_code_expires = None
+    user.first_login = False
+    user.updated_at = datetime.now(timezone.utc)
+    
+    db.commit()
+    
+    return {"message": "Clave restablecida correctamente"}
+
+
+# ============================================
+# MODIFICAR EL LOGIN EXISTENTE
+# ============================================
+
+# En el endpoint /login, agregar al response:
+# "first_login": user.first_login if hasattr(user, 'first_login') else False
+
+# Y en la respuesta JSON:
+# response_data = {
+#     ...
+#     "first_login": getattr(user, 'first_login', False)
+# }
+
+
+# ============================================
+# CAMPOS A AGREGAR AL MODELO USER
+# ============================================
+
+"""
+Agregar estos campos al modelo User (app/models/user.py):
+
+    # Control de primer login
+    first_login = Column(Boolean, default=True)
+    
+    # Recuperación de contraseña
+    recovery_code = Column(String(6), nullable=True)
+    recovery_code_expires = Column(DateTime(timezone=True), nullable=True)
+
+Luego crear migración:
+    alembic revision --autogenerate -m "add first_login and recovery fields"
+    alembic upgrade head
+"""
