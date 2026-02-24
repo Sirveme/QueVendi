@@ -276,7 +276,7 @@ async def landing_fundadores(request: Request):
 # GUÍA - ESTRATÉGICA / MAESTRA
 # ========================================
 
-@app.get("/guia", response_class=HTMLResponse)
+@app.get("/lanza/guia", response_class=HTMLResponse)
 async def guia_maestra(request: Request):
     """Landing - Guía estratégica para bodegas"""
     return templates.TemplateResponse("lanza/guia_maestra.html", {"request": request})
