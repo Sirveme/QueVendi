@@ -10,14 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Base V2 -->
-    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224c">
-    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224c">
-    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224c">
-    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224c">
-    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224d">
+    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224d">
+    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224d">
+    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224d">
+    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224d">
 
     <!-- Module -->
-    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224d">
 
     <!-- Products page overrides -->
     <style>
@@ -562,13 +562,13 @@
             <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
         </button>
         <div class="fab-menu" id="fabMenu">
-            <button class="fab-option" onclick="ProductsApp.openCreateModal()">
+            <button class="fab-option" onclick="ProductsApp.openCreateModal()" style="background:var(--card-bg,#1c1917);border:1px solid var(--border-color,#292524);box-shadow:0 4px 12px rgba(0,0,0,0.3);border-radius:12px;">
                 <span class="fab-option-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-                <span class="fab-option-label">Nuevo producto</span>
+                <span class="fab-option-label" style="color:var(--text-primary,#fafaf9);">Nuevo producto</span>
             </button>
-            <button class="fab-option" onclick="ProductsApp.openImportModal()">
+            <button class="fab-option" onclick="ProductsApp.openImportModal()" style="background:var(--card-bg,#1c1917);border:1px solid var(--border-color,#292524);box-shadow:0 4px 12px rgba(0,0,0,0.3);border-radius:12px;">
                 <span class="fab-option-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
-                <span class="fab-option-label">Importar catálogo</span>
+                <span class="fab-option-label" style="color:var(--text-primary,#fafaf9);">Importar catálogo</span>
             </button>
         </div>
     </div>
@@ -1042,6 +1042,6 @@
     </script>
 
     <!-- Module: Products App -->
-    <script src="/static/js/products/products.js?v=20260224c"></script>
+    <script src="/static/js/products/products.js?v=20260224d"></script>
 </body>
 </html>
