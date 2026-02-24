@@ -3422,7 +3422,7 @@ function loadMicSettings() {
 // ============================================
 
 function showNotifications() { showToast('Notificaciones: próximamente', 'info'); }
-function showStock() { window.location.href = '/products'; }
+function showStock() { window.location.href = '/productos'; }
 function showSales() { window.location.href = '/reports'; }
 
 // ============================================
