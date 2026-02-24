@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Estratégica - Ecosistema QueVendi.pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .subtitle {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+        
+        .header .version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        /* Navigation */
+        .nav {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav a {
+            color: var(--gray-600);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav a:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-100);
+        }
+        
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .card-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .card-price span {
+            font-size: 0.875rem;
+            font-weight: 400;
+            color: var(--gray-600);
+        }
+        
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: var(--gray-100);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-600);
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.9375rem;
+        }
+        
+        tr:hover {
+            background: var(--gray-50);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+        
+        /* Decision Box */
+        .decision-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .decision-box h4 {
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .decision-box ul {
+            margin-left: 1.5rem;
+            color: #78350f;
+        }
+        
+        .decision-box li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Recommendation Box */
+        .recommendation {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .recommendation h4 {
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Comparison Matrix */
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--gray-200);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .matrix-cell {
+            background: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .matrix-header {
+            background: var(--gray-100);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        /* Pricing Comparison */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .pricing-card {
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .pricing-card.recommended {
+            border-color: var(--primary);
+            position: relative;
+        }
+        
+        .pricing-card.recommended::before {
+            content: '⭐ RECOMENDADO';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+        }
+        
+        .pricing-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pricing-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .pricing-amount span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--gray-600);
+        }
+        
+        .pricing-features {
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+        
+        .pricing-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.875rem;
+        }
+        
+        .pricing-features li::before {
+            content: '✓ ';
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-200);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        .timeline-date {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin: 0.25rem 0;
+        }
+        
+        .timeline-desc {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        /* Personas */
+        .persona-card {
+            display: flex;
+            gap: 1.5rem;
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .persona-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .persona-info h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .persona-role {
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .persona-details {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        /* SWOT */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .swot-box {
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .swot-box.strengths { background: #d1fae5; border: 1px solid #10b981; }
+        .swot-box.weaknesses { background: #fee2e2; border: 1px solid #ef4444; }
+        .swot-box.opportunities { background: #dbeafe; border: 1px solid #3b82f6; }
+        .swot-box.threats { background: #fef3c7; border: 1px solid #f59e0b; }
+        
+        .swot-box h4 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .swot-box ul {
+            margin-left: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .swot-box li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Checklist */
+        .checklist {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-300);
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .checklist-text {
+            flex: 1;
+        }
+        
+        .checklist-text strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .checklist-text span {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        /* KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .nav { display: none; }
+            .section { break-inside: avoid; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.75rem; }
+            .container { padding: 1rem; }
+            .section { padding: 1.5rem; }
+            .swot-grid { grid-template-columns: 1fr; }
+            .matrix { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <h1>📊 Guía Estratégica</h1>
+    <p class="subtitle">Ecosistema QueVendi.pro | Metraes.com | Facturalo.pro</p>
+    <span class="version">v1.0 - Febrero 2026 | Documento de consulta permanente</span>
+</header>
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="#ecosistema">🏗️ Ecosistema</a>
+        <a href="#competencia">⚔️ Competencia</a>
+        <a href="#precios">💰 Precios</a>
+        <a href="#publico">👥 Público</a>
+        <a href="#aliados">🤝 Aliados</a>
+        <a href="#diferenciadores">🚀 Diferenciadores</a>
+        <a href="#roadmap">🗺️ Roadmap</a>
+        <a href="#metricas">📈 Métricas</a>
+        <a href="#decisiones">✅ Decisiones</a>
+    </div>
+</nav>
+
+<div class="container">
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: ECOSISTEMA
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="ecosistema">
+        <div class="section-header">
+            <div class="section-icon">🏗️</div>
+            <div>
+                <h2 class="section-title">El Ecosistema</h2>
+                <p class="section-subtitle">Tres plataformas, un backend, infinitas posibilidades</p>
+            </div>
+        </div>
+        
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🏪</span>
+                    <span class="card-title">QueVendi.pro</span>
+                </div>
+                <p><strong>POS para Retail</strong></p>
+                <ul style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.875rem; color: var(--gray-600);">
+                    <li>Bodegas y minimarkets</li>
+                    <li>Farmacias y boticas</li>
+                    <li>Ferreterías</li>
+                    <li>Bazares y librerías</li>
+                    <li>Panaderías</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🍽️</span>
+                    <span class="card-title">Metraes.com</span>
+                </div>
+                <p><strong>POS para Gastronomía</strong></p>
+                <ul style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.875rem; color: var(--gray-600);">
+                    <li>Restaurantes</li>
+                    <li>Cafeterías</li>
+                    <li>Pollerías</li>
+                    <li>Cevicherías</li>
+                    <li>Food trucks</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">💈</span>
+                    <span class="card-title">Sirveme1.com</span>
+                </div>
+                <p><strong>POS para Servicios</strong></p>
+                <ul style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.875rem; color: var(--gray-600);">
+                    <li>Peluquerías y spas</li>
+                    <li>Talleres mecánicos</li>
+                    <li>Lavanderías</li>
+                    <li>Consultorios</li>
+                    <li>Gimnasios</li>
+                </ul>
+            </div>
+            
+            <div class="card" style="background: linear-gradient(135deg, #dbeafe, #ede9fe);">
+                <div class="card-header">
+                    <span class="card-icon">🧾</span>
+                    <span class="card-title">Facturalo.pro</span>
+                </div>
+                <p><strong>Backend de Facturación</strong></p>
+                <ul style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.875rem; color: var(--gray-600);">
+                    <li>Facturación electrónica SUNAT</li>
+                    <li>API para terceros</li>
+                    <li>Multi-tenant</li>
+                    <li>Shared entre los 3 POS</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="recommendation">
+            <h4>💡 Ventaja arquitectónica</h4>
+            <p>Un solo desarrollo, tres mercados. Cada peso invertido en mejoras beneficia a las tres plataformas simultáneamente. Esto reduce costos de desarrollo en ~60% vs mantener productos separados.</p>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: COMPETENCIA
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="competencia">
+        <div class="section-header">
+            <div class="section-icon">⚔️</div>
+            <div>
+                <h2 class="section-title">Análisis Competitivo</h2>
+                <p class="section-subtitle">Conoce a tus rivales, identifica oportunidades</p>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">🍽️ Competencia Gastronomía (vs Metraes.com)</h3>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Precio/mes</th>
+                        <th>Fortalezas</th>
+                        <th>Debilidades</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Panca.pe</strong> 🥇</td>
+                        <td>S/ 99 - 119</td>
+                        <td>Mejor relación calidad-precio, Yape/Plin integrado, soporte local 24/7</td>
+                        <td>Relativamente nuevo en el mercado</td>
+                        <td><span class="badge badge-danger">Competidor directo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Restaurant.pe</strong></td>
+                        <td>S/ 350 - 450</td>
+                        <td>Años en el mercado, inventario robusto, recetas complejas</td>
+                        <td>Precio muy alto para PyMEs</td>
+                        <td><span class="badge badge-warning">Premium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fudo</strong></td>
+                        <td>$$ Variable</td>
+                        <td>Interfaz muy intuitiva, app comandante móvil</td>
+                        <td>Argentino, no 100% adaptado a Perú</td>
+                        <td><span class="badge badge-info">Latinoamericano</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wally</strong></td>
+                        <td>S/ 99 - 199</td>
+                        <td>Offline robusto, analytics excelente, multi-vertical</td>
+                        <td>Empezó en retail, gastro es secundario</td>
+                        <td><span class="badge badge-danger">Competidor directo</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inforest</strong></td>
+                        <td>$$$ Miles</td>
+                        <td>Muy profundo, cadenas grandes, hoteles 5 estrellas</td>
+                        <td>Carísimo, requiere hardware, visual "retro"</td>
+                        <td><span class="badge badge-purple">Enterprise</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tandia</strong></td>
+                        <td>S/ 30-50</td>
+                        <td>Muy barato, facturación rápida, ligero</td>
+                        <td>Muy básico, sin analytics</td>
+                        <td><span class="badge badge-success">Entry</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1rem;">🏪 Competencia Retail (vs QueVendi.pro)</h3>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Precio/mes</th>
+                        <th>Fortalezas</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Wally</strong></td>
+                        <td>S/ 49 - 199</td>
+                        <td>Multi-vertical, offline, excelente analytics, años en mercado</td>
+                        <td><span class="badge badge-danger">Competidor principal</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VendeMás</strong></td>
+                        <td>S/ 50 - 100</td>
+                        <td>Popular en bodegas pequeñas, simple</td>
+                        <td><span class="badge badge-warning">Regional</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bsale</strong></td>
+                        <td>$$ Variable</td>
+                        <td>Chileno, expandiendo a Perú, inventario robusto</td>
+                        <td><span class="badge badge-info">Internacional</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alegra</strong></td>
+                        <td>$$ Variable</td>
+                        <td>Colombiano, contabilidad integrada</td>
+                        <td><span class="badge badge-info">Internacional</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1rem;">🧾 Competencia Facturación (vs Facturalo.pro)</h3>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Modelo</th>
+                        <th>Fortalezas</th>
+                        <th>API</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Nubefact</strong></td>
+                        <td>OSE/PSE autorizado</td>
+                        <td>Líder del mercado, API robusta, múltiples lenguajes</td>
+                        <td><span class="badge badge-success">REST</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Efact</strong></td>
+                        <td>OSE autorizado</td>
+                        <td>Buen soporte, precios competitivos</td>
+                        <td><span class="badge badge-success">REST</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SUNAT Portal</strong></td>
+                        <td>Gratuito</td>
+                        <td>Sin costo, directo de SUNAT</td>
+                        <td><span class="badge badge-danger">Complejo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="swot-grid" style="margin-top: 2rem;">
+            <div class="swot-box strengths">
+                <h4>💪 FORTALEZAS</h4>
+                <ul>
+                    <li><strong>Comandos de voz</strong> - Único en el mercado</li>
+                    <li><strong>3 nichos integrados</strong> - Economías de escala</li>
+                    <li><strong>Facturación incluida</strong> - No requiere terceros</li>
+                    <li><strong>Onboarding 5 minutos</strong> - Catálogos pre-cargados</li>
+                    <li><strong>Reportes IA</strong> - Claude Opus personalizado</li>
+                    <li><strong>Diseñado para Perú</strong> - SUNAT, Yape, jerga local</li>
+                </ul>
+            </div>
+            <div class="swot-box weaknesses">
+                <h4>⚠️ DEBILIDADES</h4>
+                <ul>
+                    <li>Nuevo en el mercado (sin track record)</li>
+                    <li>Equipo pequeño (solo Duil + familia)</li>
+                    <li>Sin certificación OSE/PSE propia aún</li>
+                    <li>Dependencia de Railway (infraestructura)</li>
+                    <li>WhatsApp API pendiente (empresa por constituir)</li>
+                </ul>
+            </div>
+            <div class="swot-box opportunities">
+                <h4>🌟 OPORTUNIDADES</h4>
+                <ul>
+                    <li>Mercado fragmentado - sin líder claro en PyMEs</li>
+                    <li>Competencia cara (Restaurant.pe S/ 350+)</li>
+                    <li>Nadie ofrece voz + IA juntos</li>
+                    <li>Contadores como canal de distribución</li>
+                    <li>Regiones sin cobertura (Loreto, selva)</li>
+                    <li>Digitalización post-pandemia acelerada</li>
+                </ul>
+            </div>
+            <div class="swot-box threats">
+                <h4>🔥 AMENAZAS</h4>
+                <ul>
+                    <li>Panca creciendo rápido (S/ 99/mes)</li>
+                    <li>Wally con recursos y experiencia</li>
+                    <li>Players internacionales entrando (Bsale, Alegra)</li>
+                    <li>Cambios regulatorios SUNAT</li>
+                    <li>Recesión económica → menos PyMEs formalizando</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: PRECIOS
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="precios">
+        <div class="section-header">
+            <div class="section-icon">💰</div>
+            <div>
+                <h2 class="section-title">Estrategia de Precios</h2>
+                <p class="section-subtitle">Posicionamiento competitivo con margen de crecimiento</p>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">📊 Benchmark del Mercado</h3>
+        
+        <div class="kpi-grid" style="margin-bottom: 2rem;">
+            <div class="kpi-card">
+                <div class="kpi-value">S/ 99</div>
+                <div class="kpi-label">Panca (Plan Básico)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">S/ 350</div>
+                <div class="kpi-label">Restaurant.pe (Básico)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">S/ 49</div>
+                <div class="kpi-label">Wally (Facturación)</div>
+            </div>
+            <div class="kpi-card" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+                <div class="kpi-value">S/ 29-99</div>
+                <div class="kpi-label">🎯 Nuestro Rango Meta</div>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">💡 Propuesta de Planes</h3>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-name">Emprendedor</div>
+                <div class="pricing-amount">S/ 29<span>/mes</span></div>
+                <ul class="pricing-features">
+                    <li>1 usuario</li>
+                    <li>300 productos</li>
+                    <li>Boletas electrónicas</li>
+                    <li>Reportes básicos</li>
+                    <li>Soporte por chat</li>
+                </ul>
+                <p style="font-size: 0.75rem; color: var(--gray-600);">Para: Bodegas pequeñas, emprendedores</p>
+            </div>
+            
+            <div class="pricing-card recommended">
+                <div class="pricing-name">Profesional</div>
+                <div class="pricing-amount">S/ 59<span>/mes</span></div>
+                <ul class="pricing-features">
+                    <li>3 usuarios</li>
+                    <li>Productos ilimitados</li>
+                    <li>Facturas + Boletas</li>
+                    <li>Comandos de voz 🎤</li>
+                    <li>Reportes avanzados</li>
+                    <li>1 Reporte IA/mes</li>
+                </ul>
+                <p style="font-size: 0.75rem; color: var(--gray-600);">Para: Negocios establecidos</p>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="pricing-name">Empresarial</div>
+                <div class="pricing-amount">S/ 99<span>/mes</span></div>
+                <ul class="pricing-features">
+                    <li>Usuarios ilimitados</li>
+                    <li>Multi-sucursal</li>
+                    <li>API acceso</li>
+                    <li>Alertas al contador</li>
+                    <li>Soporte prioritario</li>
+                    <li>Reporte IA semanal</li>
+                </ul>
+                <p style="font-size: 0.75rem; color: var(--gray-600);">Para: Cadenas, franquicias</p>
+            </div>
+        </div>
+        
+        <div class="decision-box">
+            <h4>🎯 DECISIONES PENDIENTES - PRECIOS</h4>
+            <ul>
+                <li><strong>¿Precio de entrada S/ 29 o S/ 39?</strong> — Evaluar si S/ 29 es sostenible con costos de servidor</li>
+                <li><strong>¿Prueba gratis: 7, 14 o 30 días?</strong> — Competencia ofrece 14 días generalmente</li>
+                <li><strong>¿Descuento anual?</strong> — Sugerencia: 2 meses gratis (17% off)</li>
+                <li><strong>¿Plan gratuito limitado?</strong> — Freemium con 50 boletas/mes para captar leads</li>
+                <li><strong>¿Precio diferenciado por nicho?</strong> — Restaurantes pagan más que bodegas generalmente</li>
+            </ul>
+        </div>
+        
+        <div class="recommendation">
+            <h4>💡 Recomendación estratégica</h4>
+            <p><strong>Precio de entrada: S/ 29/mes</strong> para ser claramente más barato que Panca (S/ 99). Esto permite captar mercado rápido. El valor está en el upsell a Profesional (S/ 59) cuando necesiten voz e IA.</p>
+            <p style="margin-top: 0.5rem;"><strong>Prueba: 14 días</strong> — Suficiente para probar, no tan largo que olviden.</p>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: PÚBLICO OBJETIVO
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="publico">
+        <div class="section-header">
+            <div class="section-icon">👥</div>
+            <div>
+                <h2 class="section-title">Público Objetivo</h2>
+                <p class="section-subtitle">Conoce a quién le vendes y por qué te elegirían</p>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">🎯 Segmentos Prioritarios</h3>
+        
+        <div class="persona-card">
+            <div class="persona-avatar">👨‍👩‍👧</div>
+            <div class="persona-info">
+                <h4>María, la Bodeguera Tecnológica</h4>
+                <span class="persona-role">Bodega familiar, Lima Norte</span>
+                <p class="persona-details">
+                    <strong>Edad:</strong> 35-50 años | <strong>Ingresos:</strong> S/ 15,000-40,000/mes<br>
+                    <strong>Dolor:</strong> Anota todo en cuaderno, pierde ventas, no sabe qué productos rotan más<br>
+                    <strong>Deseo:</strong> "Quiero saber cuánto gano de verdad y no perder tiempo contando"<br>
+                    <strong>Por qué nos elige:</strong> Comandos de voz mientras atiende, precio accesible
+                </p>
+            </div>
+        </div>
+        
+        <div class="persona-card">
+            <div class="persona-avatar">👨‍🍳</div>
+            <div class="persona-info">
+                <h4>Carlos, el Dueño de Menú</h4>
+                <span class="persona-role">Restaurante de menú diario, Breña</span>
+                <p class="persona-details">
+                    <strong>Edad:</strong> 40-55 años | <strong>Ingresos:</strong> S/ 20,000-60,000/mes<br>
+                    <strong>Dolor:</strong> No sabe su costo real por plato, la cocinera roba insumos, fiados sin control<br>
+                    <strong>Deseo:</strong> "Quiero control sin estar todo el día en el local"<br>
+                    <strong>Por qué nos elige:</strong> Control de recetas, alertas al celular, fiados automáticos
+                </p>
+            </div>
+        </div>
+        
+        <div class="persona-card">
+            <div class="persona-avatar">💊</div>
+            <div class="persona-info">
+                <h4>Rosa, la Farmacéutica Emprendedora</h4>
+                <span class="persona-role">Botica independiente, San Juan de Miraflores</span>
+                <p class="persona-details">
+                    <strong>Edad:</strong> 30-45 años | <strong>Ingresos:</strong> S/ 25,000-80,000/mes<br>
+                    <strong>Dolor:</strong> Vencimientos sin control, competencia de cadenas, DIGEMID fiscaliza<br>
+                    <strong>Deseo:</strong> "Necesito estar formalizada y no perder mercadería vencida"<br>
+                    <strong>Por qué nos elige:</strong> Alertas de vencimiento, facturación incluida, reportes para DIGEMID
+                </p>
+            </div>
+        </div>
+        
+        <div class="persona-card">
+            <div class="persona-avatar">👨‍💼</div>
+            <div class="persona-info">
+                <h4>Luis, el Contador con Cartera</h4>
+                <span class="persona-role">Estudio contable, 50+ clientes PyME</span>
+                <p class="persona-details">
+                    <strong>Edad:</strong> 35-55 años | <strong>Ingresos:</strong> S/ 8,000-20,000/mes<br>
+                    <strong>Dolor:</strong> Clientes mandan ventas en cuaderno, errores de digitación, declaraciones tardías<br>
+                    <strong>Deseo:</strong> "Que mis clientes me manden la info automáticamente"<br>
+                    <strong>Por qué nos elige:</strong> <strong>ALIADO ESTRATÉGICO</strong> - recibe alertas, reportes automáticos, puede gestionar múltiples clientes
+                </p>
+            </div>
+        </div>
+        
+        <div class="decision-box">
+            <h4>🎯 DECISIONES PENDIENTES - PÚBLICO</h4>
+            <ul>
+                <li><strong>¿Empezar por retail (QueVendi) o gastro (Metraes)?</strong> — Gastro tiene tickets más altos pero más competencia</li>
+                <li><strong>¿Priorizar Lima o regiones?</strong> — Loreto es base, pero Lima tiene volumen</li>
+                <li><strong>¿Enfocarse en formales o informales?</strong> — Informales son más pero no emiten comprobantes</li>
+                <li><strong>¿Edad objetivo: jóvenes tech-savvy o mayores con negocio establecido?</strong></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: ALIADOS ESTRATÉGICOS
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="aliados">
+        <div class="section-header">
+            <div class="section-icon">🤝</div>
+            <div>
+                <h2 class="section-title">Aliados Estratégicos</h2>
+                <p class="section-subtitle">Canales de distribución y partnerships clave</p>
+            </div>
+        </div>
+        
+        <div class="cards-grid">
+            <div class="card" style="border: 2px solid var(--success);">
+                <div class="card-header">
+                    <span class="card-icon">👨‍💼</span>
+                    <span class="card-title">Contadores</span>
+                </div>
+                <span class="badge badge-success">PRIORIDAD ALTA</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Cada contador tiene 20-100 clientes PyME. Son influenciadores de decisión tecnológica.<br><br>
+                    <strong>Propuesta:</strong> Panel de contador para ver todos sus clientes, comisión del 20% por referido, reportes automáticos que facilitan su trabajo.<br><br>
+                    <strong>Cómo llegar:</strong> Colegios de Contadores (CCPL ya es cliente), grupos de Facebook, webinars tributarios.
+                </p>
+            </div>
+            
+            <div class="card" style="border: 2px solid var(--primary);">
+                <div class="card-header">
+                    <span class="card-icon">🏪</span>
+                    <span class="card-title">Distribuidoras</span>
+                </div>
+                <span class="badge badge-info">POTENCIAL ALTO</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Atienden cientos de bodegas diariamente. Conocen sus problemas.<br><br>
+                    <strong>Propuesta:</strong> POS gratuito para las bodegas que les compran, a cambio de data de inventario (para ofrecer reposición automática).<br><br>
+                    <strong>Cómo llegar:</strong> Distribuidoras regionales (Loreto), eventos de proveedores.
+                </p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🏦</span>
+                    <span class="card-title">Fintech / Bancos</span>
+                </div>
+                <span class="badge badge-warning">MEDIANO PLAZO</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Buscan data de PyMEs para scoring crediticio.<br><br>
+                    <strong>Propuesta:</strong> Data de ventas (anonimizada) a cambio de ofertas de crédito para usuarios, o integración con su pasarela de pagos.<br><br>
+                    <strong>Cómo llegar:</strong> Programas de innovación de BCP, Interbank FinTech.
+                </p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📱</span>
+                    <span class="card-title">Yape / Plin</span>
+                </div>
+                <span class="badge badge-purple">DIFERENCIADOR</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Integración nativa con billeteras más usadas en Perú.<br><br>
+                    <strong>Propuesta:</strong> QR de Yape/Plin en cada ticket, conciliación automática de pagos.<br><br>
+                    <strong>Cómo llegar:</strong> APIs públicas de Yape Business, programa de partners.
+                </p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🎓</span>
+                    <span class="card-title">Institutos / SENATI</span>
+                </div>
+                <span class="badge badge-info">LARGO PLAZO</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Forman a futuros emprendedores y técnicos.<br><br>
+                    <strong>Propuesta:</strong> Licencias educativas gratuitas, casos de estudio, talleres de gestión con el sistema.<br><br>
+                    <strong>Cómo llegar:</strong> Convenios con institutos técnicos de administración.
+                </p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🏛️</span>
+                    <span class="card-title">Municipalidades</span>
+                </div>
+                <span class="badge badge-warning">OPORTUNIDAD</span>
+                <p style="margin-top: 0.75rem; font-size: 0.875rem;">
+                    <strong>Por qué:</strong> Tienen programas de formalización de mercados y bodegas.<br><br>
+                    <strong>Propuesta:</strong> Convenio para digitalizar mercados municipales, licencias a precio social.<br><br>
+                    <strong>Cómo llegar:</strong> Gerencias de desarrollo económico local.
+                </p>
+            </div>
+        </div>
+        
+        <div class="recommendation">
+            <h4>💡 Estrategia de alianzas</h4>
+            <p><strong>Fase 1 (ahora):</strong> Contadores — ya tienes a CCPL, escalar a otros colegios.<br>
+            <strong>Fase 2 (3 meses):</strong> Distribuidoras locales en Loreto/Ucayali.<br>
+            <strong>Fase 3 (6 meses):</strong> Integración Yape Business + acercamiento a fintech.</p>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: DIFERENCIADORES
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="diferenciadores">
+        <div class="section-header">
+            <div class="section-icon">🚀</div>
+            <div>
+                <h2 class="section-title">Diferenciadores Únicos</h2>
+                <p class="section-subtitle">Lo que nadie más ofrece en el mercado peruano</p>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Nosotros</th>
+                        <th>Panca</th>
+                        <th>Restaurant.pe</th>
+                        <th>Wally</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🎤 Comandos de voz</strong></td>
+                        <td><span class="badge badge-success">✅ Único</span></td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🤖 Reportes con IA</strong></td>
+                        <td><span class="badge badge-success">✅ Claude Opus</span></td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚡ Onboarding 5 min</strong></td>
+                        <td><span class="badge badge-success">✅ Catálogos</span></td>
+                        <td>⚠️ 30 min</td>
+                        <td>⚠️ 1+ hora</td>
+                        <td>⚠️ 20 min</td>
+                    </tr>
+                    <tr>
+                        <td><strong>👨‍💼 Alertas al contador</strong></td>
+                        <td><span class="badge badge-success">✅ Automático</span></td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🧾 Facturación incluida</strong></td>
+                        <td><span class="badge badge-success">✅ Sin costo extra</span></td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>💰 Precio entrada</strong></td>
+                        <td><span class="badge badge-success">S/ 29</span></td>
+                        <td>S/ 99</td>
+                        <td>S/ 350</td>
+                        <td>S/ 49</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🌐 Multi-nicho</strong></td>
+                        <td><span class="badge badge-success">✅ 3 plataformas</span></td>
+                        <td>Solo gastro</td>
+                        <td>Solo gastro</td>
+                        <td>✅ Multi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>📴 Modo offline</strong></td>
+                        <td>⚠️ Básico</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td><span class="badge badge-success">✅ Robusto</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="recommendation" style="margin-top: 2rem;">
+            <h4>🎯 Mensaje de posicionamiento</h4>
+            <p style="font-size: 1.25rem; font-weight: 600; text-align: center; padding: 1rem 0;">
+                "El único POS en Perú que entiende tu voz<br>y te dice cómo mejorar tu negocio"
+            </p>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1rem;">🎤 El Poder de la Voz — Tu Ventaja Competitiva</h3>
+        
+        <div class="cards-grid">
+            <div class="card" style="background: linear-gradient(135deg, #dbeafe, #ede9fe);">
+                <h4 style="margin-bottom: 0.5rem;">"Dame 2 soles de camote"</h4>
+                <p style="font-size: 0.875rem; color: var(--gray-600);">El sistema entiende que es una venta por monto y calcula automáticamente la cantidad según el precio por kilo.</p>
+            </div>
+            <div class="card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">
+                <h4 style="margin-bottom: 0.5rem;">"Tres cocas, dos aguas y un sublime"</h4>
+                <p style="font-size: 0.875rem; color: var(--gray-600);">Procesa listas completas en una sola frase. Ideal para atender rápido en hora punta.</p>
+            </div>
+            <div class="card" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+                <h4 style="margin-bottom: 0.5rem;">"Fíalo a don Pedro"</h4>
+                <p style="font-size: 0.875rem; color: var(--gray-600);">Registra fiados por voz. Busca al cliente, asigna la deuda y guarda sin tocar la pantalla.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: ROADMAP
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="roadmap">
+        <div class="section-header">
+            <div class="section-icon">🗺️</div>
+            <div>
+                <h2 class="section-title">Roadmap de Lanzamiento</h2>
+                <p class="section-subtitle">Del desarrollo al mercado — pasos críticos</p>
+            </div>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-date">Semana 1-2 (Actual)</div>
+                <div class="timeline-title">🔧 Completar MVP</div>
+                <div class="timeline-desc">
+                    Módulo de productos, POS refactorizado, dashboard home. 
+                    Integrar aliases para voz en catálogos JSON.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Semana 3-4</div>
+                <div class="timeline-title">🧪 Beta Cerrada</div>
+                <div class="timeline-desc">
+                    5-10 negocios de prueba (bodega familiar, 2-3 restaurantes amigos).
+                    Iterar según feedback. Medir tiempos de onboarding.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Semana 5-6</div>
+                <div class="timeline-title">📣 Lanzamiento Suave</div>
+                <div class="timeline-desc">
+                    Landing pages activas. Campaña "Fundadores" — 30 días gratis + precio congelado.
+                    Target: 50 usuarios en primer mes.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Mes 2-3</div>
+                <div class="timeline-title">📈 Escalar</div>
+                <div class="timeline-desc">
+                    Activar canal de contadores (CCPL + otros colegios).
+                    Contenido en YouTube/TikTok (demos de voz).
+                    Target: 200 usuarios.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Mes 4-6</div>
+                <div class="timeline-title">🤖 Reportes IA</div>
+                <div class="timeline-desc">
+                    Lanzar primer reporte de inteligencia de negocio con Claude.
+                    Base de conocimiento tributaria actualizada.
+                    Diferenciador premium activo.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Mes 6-12</div>
+                <div class="timeline-title">🚀 Consolidación</div>
+                <div class="timeline-desc">
+                    Integración Yape Business. App móvil nativa.
+                    Expandir a otras regiones. Target: 1,000 usuarios pagos.
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: MÉTRICAS
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="metricas">
+        <div class="section-header">
+            <div class="section-icon">📈</div>
+            <div>
+                <h2 class="section-title">Métricas Clave (KPIs)</h2>
+                <p class="section-subtitle">Lo que debes medir para saber si vas bien</p>
+            </div>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">50</div>
+                <div class="kpi-label">Usuarios Mes 1</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">200</div>
+                <div class="kpi-label">Usuarios Mes 3</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">1,000</div>
+                <div class="kpi-label">Usuarios Año 1</div>
+            </div>
+            <div class="kpi-card" style="background: linear-gradient(135deg, var(--success), #059669);">
+                <div class="kpi-value">S/ 59k</div>
+                <div class="kpi-label">MRR Meta Año 1</div>
+            </div>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1rem;">📊 Métricas a Trackear</h3>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Métrica</th>
+                        <th>Fórmula</th>
+                        <th>Meta</th>
+                        <th>Frecuencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MRR</strong> (Monthly Recurring Revenue)</td>
+                        <td>Suma de pagos mensuales activos</td>
+                        <td>S/ 59,000/mes (año 1)</td>
+                        <td>Mensual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CAC</strong> (Costo Adquisición Cliente)</td>
+                        <td>Gasto marketing / Nuevos clientes</td>
+                        <td>< S/ 100</td>
+                        <td>Mensual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LTV</strong> (Lifetime Value)</td>
+                        <td>ARPU × Meses promedio</td>
+                        <td>> S/ 500</td>
+                        <td>Trimestral</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Churn Rate</strong></td>
+                        <td>Bajas / Total clientes</td>
+                        <td>< 5%/mes</td>
+                        <td>Mensual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NPS</strong> (Net Promoter Score)</td>
+                        <td>Promotores - Detractores</td>
+                        <td>> 50</td>
+                        <td>Trimestral</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tiempo Onboarding</strong></td>
+                        <td>Registro → Primera venta</td>
+                        <td>< 10 minutos</td>
+                        <td>Semanal</td>
+                    </tr>
+                    <tr>
+                        <td><strong>% Uso Voz</strong></td>
+                        <td>Ventas por voz / Total ventas</td>
+                        <td>> 30%</td>
+                        <td>Semanal</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECCIÓN: DECISIONES PENDIENTES
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="section" id="decisiones">
+        <div class="section-header">
+            <div class="section-icon">✅</div>
+            <div>
+                <h2 class="section-title">Decisiones Pendientes</h2>
+                <p class="section-subtitle">Checklist de decisiones estratégicas por tomar</p>
+            </div>
+        </div>
+        
+        <div class="checklist">
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>💰 Precio de entrada definitivo</strong>
+                    <span>¿S/ 29, S/ 39, o S/ 49? Evaluar costos de servidor, margen mínimo, percepción de valor.</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>⏱️ Días de prueba gratis</strong>
+                    <span>¿7, 14, o 30 días? Balance entre dar tiempo a probar y no perder urgencia.</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>🎁 Plan freemium</strong>
+                    <span>¿Ofrecer plan gratuito limitado (50 boletas/mes) para captar leads?</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>🏪 Plataforma de inicio</strong>
+                    <span>¿Empezar con QueVendi (retail) o Metraes (gastro)? ¿O ambas simultáneamente?</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>📍 Geografía inicial</strong>
+                    <span>¿Loreto primero (base conocida) o Lima (volumen)?</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>👨‍💼 Comisión contadores</strong>
+                    <span>¿20%, 25%, o 30% por cada referido que pague?</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>🏢 Constitución empresa</strong>
+                    <span>Actualizar documentos de PERU SISTEMAS PRO EIRL para habilitar WhatsApp API y pasarelas.</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>🎨 Branding final</strong>
+                    <span>Logos definitivos, colores, tono de comunicación para cada plataforma.</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>📱 Dominio/hosting</strong>
+                    <span>Confirmar quevendi.pro, metraes.com, sirveme1.com activos y configurados.</span>
+                </div>
+            </div>
+            
+            <div class="checklist-item">
+                <div class="checklist-checkbox"></div>
+                <div class="checklist-text">
+                    <strong>💳 Pasarela de pagos</strong>
+                    <span>¿Mercado Pago, Culqi, Niubiz? Evaluar comisiones y facilidad de integración.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 3rem 0; color: var(--gray-600); font-size: 0.875rem;">
+        <p><strong>Documento de consulta permanente</strong></p>
+        <p>Última actualización: Febrero 2026 | Versión 1.0</p>
+        <p style="margin-top: 0.5rem;">PERU SISTEMAS PRO EIRL | RUC: 20615446565</p>
+    </footer>
+    
+</div>
+
+<script>
+    // Smooth scroll for navigation
+    document.querySelectorAll('.nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+    
+    // Print functionality
+    function printGuide() {
+        window.print();
+    }
+</script>
+
+</body>
+</html>
