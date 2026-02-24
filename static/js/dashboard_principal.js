@@ -1898,14 +1898,18 @@ async function agregarProductoConConversion(product, amount) {
 // MÉTODOS DE PAGO
 // ============================================
 
-function selectPayment(method, event) {  // ← AGREGAR event como parámetro
-    // Prevenir que el click cierre el modal
-    event?.stopPropagation();
-    
+function selectPayment(method, event) {
+    // Detener propagación del click
+    if (event) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+    }
+
     AppState.paymentMethod = method;
     selectPaymentUI(method);
-    
+
     if (method === 'fiado') {
+        // Abrir modal DESPUÉS de que termine la propagación del click
         setTimeout(() => {
             const modal = document.getElementById('modal-fiado-overlay');
             if (modal) {
@@ -1913,9 +1917,13 @@ function selectPayment(method, event) {  // ← AGREGAR event como parámetro
                 modal.style.display = 'flex';
                 modal.style.visibility = 'visible';
                 actualizarResumenFiado();
-                document.getElementById('modal-fiado-nombre')?.focus();
+                setTimeout(() => {
+                    document.getElementById('modal-fiado-nombre')?.focus();
+                }, 100);
+            } else {
+                console.error('[Fiado] Modal no existe en DOM');
             }
-        }, 50);
+        }, 150);
     }
 }
 
@@ -1959,15 +1967,16 @@ function cerrarModalFiado() {
     if (modal) {
         modal.style.display = 'none';
     }
-    
+
     // Limpiar campos
-    document.getElementById('modal-fiado-nombre').value = '';
-    document.getElementById('modal-fiado-telefono').value = '';
-    document.getElementById('modal-fiado-direccion').value = '';
-    
-    // Restaurar método de pago a efectivo
-    selectPayment('efectivo');  // ← FIX: era 'cash', debe ser 'efectivo'
-    
+    ['modal-fiado-nombre', 'modal-fiado-telefono', 'modal-fiado-direccion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // Restaurar a efectivo (FIX: era 'cash')
+    selectPayment('efectivo');
+
     console.log('[Fiado] Modal cerrado');
 }
 
