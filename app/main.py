@@ -45,7 +45,8 @@ from app.api.v1 import (
     comunicaciones,
     customers,
     conversions,
-    billing
+    billing,
+    onboarding
 )
 
 # ========================================
@@ -165,6 +166,7 @@ app.include_router(comunicaciones.router, prefix="/api/v1", tags=["comunicacione
 app.include_router(customers.router, prefix="/api/v1", tags=["customers"])
 app.include_router(conversions.router, prefix="/api/v1", tags=["conversions"])
 app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
+app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
 
 # ========================================
 # RUTAS HTML - PÚBLICAS (sin auth)
@@ -295,3 +297,17 @@ async def cobrar_fiados_page(request: Request):
     """
     return templates.TemplateResponse("cobrar_fiados.html", {"request": request})
 
+
+
+# ========================================
+# RUTAS DE CONFIGURACIÓN - SOLO PROPIETARIOS
+# ========================================
+# En main.py agregar ruta:
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    return templates.TemplateResponse("settings/settings.html", {"request": request})
+
+
+@app.get("/productos", response_class=HTMLResponse)
+async def productos_page(request: Request, current_user=Depends(get_current_user)):
+    return templates.TemplateResponse("products/products.html", {"request": request})
