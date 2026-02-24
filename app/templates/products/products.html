@@ -10,14 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Base V2 -->
-    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224b">
-    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224b">
-    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224b">
-    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224b">
-    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/base/layout.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/base/header.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/base/toast.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/base/modal.css?v=20260224c">
+    <link rel="stylesheet" href="/static/css/base/loader.css?v=20260224c">
 
     <!-- Module -->
-    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224b">
+    <link rel="stylesheet" href="/static/css/products/products.css?v=20260224c">
 
     <!-- Products page overrides -->
     <style>
@@ -332,6 +332,27 @@
 
         /* Modal subtitle */
         .modal-subtitle { color: var(--text-secondary); }
+
+        /* ══════════════════════════════════════════
+           FAB menu options - fondo visible
+           ══════════════════════════════════════════ */
+        .fab-option {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-md);
+        }
+        .fab-option:hover {
+            border-color: var(--color-primary) !important;
+        }
+        .fab-option-label {
+            color: var(--text-primary);
+        }
+        .fab-option-icon svg {
+            stroke: var(--text-secondary);
+        }
+        .fab-option:hover .fab-option-icon svg {
+            stroke: var(--color-primary);
+        }
     </style>
 </head>
 <body>
@@ -1021,6 +1042,6 @@
     </script>
 
     <!-- Module: Products App -->
-    <script src="/static/js/products/products.js?v=20260224b"></script>
+    <script src="/static/js/products/products.js?v=20260224c"></script>
 </body>
 </html>
