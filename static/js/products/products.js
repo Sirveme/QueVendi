@@ -1,13 +1,13 @@
 /**
  * ProductsApp - Módulo de Gestión de Productos
  * QueVendi PRO / Metraes / Sirveme1
- * Consume endpoints /api/products/v2/*
+ * Consume endpoints /api/v1/products/v2/*
  */
 const ProductsApp = (() => {
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // STATE
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     const state = {
         products: [],
         categories: [],
@@ -19,22 +19,30 @@ const ProductsApp = (() => {
             sort_by: 'name',
             sort_dir: 'asc'
         },
-        // Import
         availableCatalogs: [],
         selectedCatalogs: [],
-        // Chips (aliases, tags)
         aliases: [],
         tags: [],
-        // Edit mode
         editingId: null,
     };
 
     const API = '/api/v1/products/v2';
     let searchTimer = null;
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
+    // SVG ICONS (clean, professional, stroke-based)
+    // ══════════════════════════════════════════════
+    const SVG = {
+        price:    '<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+        stock:    '<svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>',
+        edit:     '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        eye:      '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+        eyeOff:   '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+    };
+
+    // ══════════════════════════════════════════════
     // INIT
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     async function init() {
         bindEvents();
         await Promise.all([
@@ -94,10 +102,7 @@ const ProductsApp = (() => {
                 const filter = card.dataset.filter;
                 $$('.stat-card').forEach(c => c.classList.remove('active'));
 
-                if (filter === 'all') {
-                    state.filters.stock_status = '';
-                    $('#filterStock').value = '';
-                } else if (filter === 'active') {
+                if (filter === 'all' || filter === 'active') {
                     state.filters.stock_status = '';
                     $('#filterStock').value = '';
                 } else {
@@ -119,7 +124,6 @@ const ProductsApp = (() => {
             btn.classList.toggle('open');
         });
 
-        // Close FAB on outside click
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.fab-container')) {
                 $('#fabMenu').classList.remove('open');
@@ -137,9 +141,8 @@ const ProductsApp = (() => {
             });
         });
 
-        // Chips: aliases
+        // Chips
         setupChips('aliasInput', 'aliasesList', state.aliases);
-        // Chips: tags
         setupChips('tagInput', 'tagsList', state.tags);
 
         // Modal overlays close on backdrop click
@@ -147,15 +150,15 @@ const ProductsApp = (() => {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
                     overlay.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
             });
         });
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // API CALLS
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     async function apiFetch(url, options = {}) {
         const token = localStorage.getItem('token') || '';
         const defaults = {
@@ -172,10 +175,9 @@ const ProductsApp = (() => {
         return response.json();
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // LOAD DATA
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     async function loadStats() {
         try {
             const data = await apiFetch(`${API}/stats`);
@@ -199,8 +201,6 @@ const ProductsApp = (() => {
             data.categories.forEach(c => {
                 sel.innerHTML += `<option value="${esc(c.name)}">${esc(c.name)} (${c.count})</option>`;
             });
-
-            // Also populate datalist for create form
             const dl = $('#categoryList');
             dl.innerHTML = '';
             data.categories.forEach(c => {
@@ -240,10 +240,9 @@ const ProductsApp = (() => {
         }
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // RENDER
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function renderProducts() {
         const container = $('#productsContainer');
         const empty = $('#emptyState');
@@ -279,17 +278,16 @@ const ProductsApp = (() => {
                         <div class="pc-meta">
                             <span class="pc-category">${esc(p.category || 'General')}</span>
                             ${stockBadge}
-                            ${p.mayoreo ? '<span title="Tiene mayoreo">📦</span>' : ''}
                         </div>
                     </div>
                     <div class="pc-right">
                         <div class="pc-price">S/ ${parseFloat(p.sale_price).toFixed(2)}</div>
                         <div class="pc-actions">
-                            <button class="pc-action-btn" title="Editar precio" onclick="ProductsApp.openPriceModal(${p.id})">💲</button>
-                            <button class="pc-action-btn" title="Ajustar stock" onclick="ProductsApp.openStockModal(${p.id})">📊</button>
-                            <button class="pc-action-btn" title="Editar" onclick="ProductsApp.openEditModal(${p.id})">✏️</button>
+                            <button class="pc-action-btn" title="Cambiar precio" onclick="ProductsApp.openPriceModal(${p.id})">${SVG.price}</button>
+                            <button class="pc-action-btn" title="Ajustar stock" onclick="ProductsApp.openStockModal(${p.id})">${SVG.stock}</button>
+                            <button class="pc-action-btn" title="Editar" onclick="ProductsApp.openEditModal(${p.id})">${SVG.edit}</button>
                             <button class="pc-action-btn danger" title="${p.is_active ? 'Desactivar' : 'Activar'}" onclick="ProductsApp.toggleProduct(${p.id})">
-                                ${p.is_active ? '👁️' : '🚫'}
+                                ${p.is_active ? SVG.eye : SVG.eyeOff}
                             </button>
                         </div>
                     </div>
@@ -319,7 +317,7 @@ const ProductsApp = (() => {
         if (end < p.pages) html += `<span class="page-info">…</span><button class="page-btn" onclick="ProductsApp.goPage(${p.pages})">${p.pages}</button>`;
 
         html += `<button class="page-btn" ${p.page >= p.pages ? 'disabled' : ''} onclick="ProductsApp.goPage(${p.page + 1})">›</button>`;
-        html += `<span class="page-info">${p.total} productos</span>`;
+        html += `<span class="page-info">${p.total} prod.</span>`;
 
         el.innerHTML = html;
     }
@@ -330,17 +328,15 @@ const ProductsApp = (() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // CREATE / EDIT PRODUCT
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function openCreateModal() {
         closeFab();
         state.editingId = null;
         $('#modalProductTitle').textContent = 'Nuevo producto';
         $('#btnSaveProduct').textContent = 'Crear producto';
 
-        // Reset form
         $('#formProduct').reset();
         $('#prodId').value = '';
         state.aliases = [];
@@ -348,9 +344,7 @@ const ProductsApp = (() => {
         renderChips('aliasesList', state.aliases);
         renderChips('tagsList', state.tags);
 
-        // Activate first tab
         $$('.tab')[0].click();
-
         openModal('modalProduct');
     }
 
@@ -366,7 +360,6 @@ const ProductsApp = (() => {
             $('#btnSaveProduct').textContent = 'Guardar cambios';
             $('#prodId').value = productId;
 
-            // Fill form
             $('#prodName').value = p.name || '';
             $('#prodPrice').value = p.sale_price || '';
             $('#prodCost').value = p.cost_price || '';
@@ -378,13 +371,11 @@ const ProductsApp = (() => {
             $('#prodBarcode').value = p.barcode || '';
             $('#prodDescription').value = p.description || '';
 
-            // Aliases & Tags
             state.aliases = [...(p.aliases || [])];
             state.tags = [...(p.tags || [])];
             renderChips('aliasesList', state.aliases);
             renderChips('tagsList', state.tags);
 
-            // Mayoreo
             if (p.mayoreo) {
                 $('#prodMayoreoQty').value = p.mayoreo.cantidad_min || '';
                 $('#prodMayoreoPrice').value = p.mayoreo.precio || '';
@@ -453,10 +444,9 @@ const ProductsApp = (() => {
         }
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // QUICK ACTIONS
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function openStockModal(productId) {
         const p = state.products.find(x => x.id === productId);
         if (!p) return;
@@ -495,7 +485,7 @@ const ProductsApp = (() => {
 
             showToast(data.message, 'success');
             if (data.alert === 'stock_bajo') {
-                showToast(`⚠️ Stock bajo: ${data.name}`, 'warning');
+                showToast(`Stock bajo: ${data.name}`, 'warning');
             }
 
             closeModal('modalStock');
@@ -564,10 +554,9 @@ const ProductsApp = (() => {
         }
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // IMPORT CATALOG
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     async function openImportModal() {
         closeFab();
         try {
@@ -616,7 +605,6 @@ const ProductsApp = (() => {
 
         $('#btnImport').disabled = state.selectedCatalogs.length === 0;
 
-        // Show preview of last selected
         if (state.selectedCatalogs.length > 0) {
             const lastNicho = state.selectedCatalogs[state.selectedCatalogs.length - 1];
             try {
@@ -666,10 +654,9 @@ const ProductsApp = (() => {
         }
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // CHIPS (Aliases / Tags)
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function setupChips(inputId, listId, arr) {
         const input = $(`#${inputId}`);
         input.addEventListener('keydown', (e) => {
@@ -701,10 +688,9 @@ const ProductsApp = (() => {
         renderChips(listId, arr);
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // MODAL HELPERS
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function openModal(id) {
         $(`#${id}`).classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -720,10 +706,9 @@ const ProductsApp = (() => {
         $('#fabMain').classList.remove('open');
     }
 
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     // UTILITIES
-    // ══════════════════════════════════════════
-
+    // ══════════════════════════════════════════════
     function $(sel) { return document.querySelector(sel); }
     function $$(sel) { return document.querySelectorAll(sel); }
 
@@ -745,41 +730,41 @@ const ProductsApp = (() => {
             'Condimentos y Salsas': '🌶️', 'Lácteos y Huevos': '🥛',
             'Pan y Panadería': '🍞', 'Embutidos y Fiambres': '🥓',
             'Limpieza del Hogar': '🧹', 'Cuidado Personal e Higiene': '🧴',
-            'Helados y Congelados': '🍦', 'Misceláneos y Bazar': '📎',
+            'Cuidado Personal': '🧴', 'Helados y Congelados': '🍦',
+            'Misceláneos y Bazar': '📎',
             'Bebidas': '🥤', 'Snacks': '🍿', 'Galletas': '🍪',
             'Panadería': '🍞', 'Lácteos': '🥛', 'Limpieza': '🧹',
+            'Verduras': '🥬', 'Frutas': '🍎', 'Carnes': '🥩',
         };
         return icons[category] || '📦';
     }
 
-    // Loader (uses V2 base if available)
+    // V2 Loader integration
     function showLoader() {
-        const el = $('#loader');
-        if (el) el.style.display = 'flex';
+        if (window.Loader && typeof Loader.show === 'function') {
+            Loader.show('bodega');
+        }
     }
     function hideLoader() {
-        const el = $('#loader');
-        if (el) el.style.display = 'none';
-    }
-
-    // Toast (uses V2 base if available)
-    function showToast(message, type = 'info') {
-        if (window.Toast && typeof Toast.show === 'function') {
-            Toast.show(message, type);
-        } else {
-            console.log(`[Toast ${type}] ${message}`);
-            // Fallback simple toast
-            const toast = document.createElement('div');
-            toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;z-index:9999;font-size:0.9rem;`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        if (window.Loader && typeof Loader.hide === 'function') {
+            Loader.hide();
         }
     }
 
-    // ══════════════════════════════════════════
+    // V2 Toast integration
+    function showToast(message, type = 'info') {
+        if (window.Toast && typeof Toast[type] === 'function') {
+            Toast[type](message);
+        } else if (window.Toast && typeof Toast.show === 'function') {
+            Toast.show(message, type);
+        } else {
+            console.log(`[${type}] ${message}`);
+        }
+    }
+
+    // ══════════════════════════════════════════════
     // PUBLIC API
-    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════════
     return {
         init,
         goPage,
