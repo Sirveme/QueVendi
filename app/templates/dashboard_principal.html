@@ -363,19 +363,19 @@
             </div>
             
             <div class="payment-methods" id="payment-methods">
-                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo, event')">
+                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo', event)">
                     <i class="fas fa-money-bill-wave"></i> Efectivo
                 </button>
-                <button class="payment-btn" data-method="yape" onclick="selectPayment('yape')">
+                <button class="payment-btn" data-method="yape" onclick="selectPayment('yape', event)">
                     <img src="/static/img/yape-icon.png" alt="Yape" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Yape
                 </button>
-                <button class="payment-btn" data-method="plin" onclick="selectPayment('plin')">
+                <button class="payment-btn" data-method="plin" onclick="selectPayment('plin', event)">
                     <img src="/static/img/plin-icon.png" alt="Plin" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Plin
                 </button>
-                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta, event')">
+                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta', event)">
                     <i class="fas fa-credit-card"></i> Tarjeta
                 </button>
-                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado, event')">
+                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado', event)">
                     <i class="fas fa-handshake"></i> Fiado
                 </button>
             </div>
