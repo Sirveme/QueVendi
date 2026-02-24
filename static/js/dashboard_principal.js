@@ -1906,19 +1906,16 @@ function selectPayment(method, event) {  // ← AGREGAR event como parámetro
     selectPaymentUI(method);
     
     if (method === 'fiado') {
-        const modal = document.getElementById('modal-fiado-overlay');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-            modal.style.visibility = 'visible';  // ← AGREGAR
-            
-            setTimeout(() => {
+        setTimeout(() => {
+            const modal = document.getElementById('modal-fiado-overlay');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                modal.style.visibility = 'visible';
                 actualizarResumenFiado();
                 document.getElementById('modal-fiado-nombre')?.focus();
-            }, 100);
-        } else {
-            console.error('[Fiado] ❌ Modal no existe en DOM');
-        }
+            }
+        }, 50);
     }
 }
 
