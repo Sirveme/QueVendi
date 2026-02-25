@@ -19,6 +19,43 @@
     
     <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
+
+    <style>
+        .fiado-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10005;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+            /* SIN opacity:0 ni visibility:hidden — se controla solo con display */
+        }
+
+    .payment-methods {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;          /* Firefox */
+    }
+    .payment-methods::-webkit-scrollbar {
+        display: none;                  /* Chrome/Safari */
+    }
+    .payment-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+    </style>
 </head>
 <body>
     <!-- ========================================
@@ -382,7 +419,7 @@
             
             <!-- Campo cliente para Fiado - VERSIÓN COMPLETA -->
             <!-- Overlay oscuro flotante -->
-            <div id="modal-fiado-overlay" class="modal-overlay" style="display: none;">
+            <div id="modal-fiado-overlay" class="fiado-overlay" style="display: none;">
                 <div class="modal-fiado-container">
                     <div class="modal-fiado-header">
                         <h2>
@@ -688,7 +725,7 @@
 
 <script>
 // ============================================
-// VARIABLES GLOBALES
+// FIADO - VARIABLES GLOBALES
 // ============================================
 let datosClienteFiado = null;
 let diasCreditoSeleccionado = null;
@@ -698,19 +735,18 @@ let diasCreditoSeleccionado = null;
 // ============================================
 function abrirModalFiado() {
     const modal = document.getElementById('modal-fiado-overlay');
-    modal.style.display = 'flex';
-    
-    // Focus en nombre
+    if (modal) modal.style.display = 'flex';
+
     setTimeout(() => {
         document.getElementById('modal-fiado-nombre')?.focus();
     }, 100);
-    
-    // Resetear selección
+
     diasCreditoSeleccionado = null;
     document.querySelectorAll('.btn-plazo-rapido').forEach(btn => {
         btn.classList.remove('selected');
     });
-    document.getElementById('modal-fiado-dias').value = '';
+    const diasEl = document.getElementById('modal-fiado-dias');
+    if (diasEl) diasEl.value = '';
 }
 
 // ============================================
@@ -718,15 +754,14 @@ function abrirModalFiado() {
 // ============================================
 function cerrarModalFiado() {
     const modal = document.getElementById('modal-fiado-overlay');
-    modal.style.display = 'none';
-    
-    // Limpiar campos
-    document.getElementById('modal-fiado-nombre').value = '';
-    document.getElementById('modal-fiado-telefono').value = '';
-    document.getElementById('modal-fiado-direccion').value = '';
-    document.getElementById('modal-fiado-referencia').value = '';
-    document.getElementById('modal-fiado-dias').value = '';
-    
+    if (modal) modal.style.display = 'none';
+
+    ['modal-fiado-nombre', 'modal-fiado-telefono', 'modal-fiado-direccion',
+     'modal-fiado-referencia', 'modal-fiado-dias'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
     datosClienteFiado = null;
     diasCreditoSeleccionado = null;
 }
@@ -736,16 +771,11 @@ function cerrarModalFiado() {
 // ============================================
 document.querySelectorAll('.btn-plazo-rapido').forEach(btn => {
     btn.onclick = function() {
-        // Deseleccionar otros
         document.querySelectorAll('.btn-plazo-rapido').forEach(b => {
             b.classList.remove('selected');
         });
-        
-        // Seleccionar este
         this.classList.add('selected');
         diasCreditoSeleccionado = parseInt(this.dataset.dias);
-        
-        // Limpiar input personalizado
         document.getElementById('modal-fiado-dias').value = '';
     };
 });
@@ -754,11 +784,9 @@ document.querySelectorAll('.btn-plazo-rapido').forEach(btn => {
 // INPUT PERSONALIZADO
 // ============================================
 document.getElementById('modal-fiado-dias')?.addEventListener('input', function() {
-    // Deseleccionar botones rápidos
     document.querySelectorAll('.btn-plazo-rapido').forEach(b => {
         b.classList.remove('selected');
     });
-    
     diasCreditoSeleccionado = parseInt(this.value) || null;
 });
 
@@ -766,65 +794,33 @@ document.getElementById('modal-fiado-dias')?.addEventListener('input', function(
 // CONFIRMAR FIADO
 // ============================================
 function confirmarFiado() {
-    // Validar nombre
     const nombre = document.getElementById('modal-fiado-nombre').value.trim();
-    if (!nombre) {
-        alert('Ingresa el nombre del cliente');
-        document.getElementById('modal-fiado-nombre').focus();
-        return;
-    }
-    
-    // Validar teléfono
     const telefono = document.getElementById('modal-fiado-telefono').value.trim();
-    if (!telefono) {
-        alert('Ingresa el teléfono del cliente');
-        document.getElementById('modal-fiado-telefono').focus();
-        return;
-    }
-    
-    // Validar dirección
     const direccion = document.getElementById('modal-fiado-direccion').value.trim();
-    if (!direccion) {
-        alert('Ingresa la dirección del cliente');
-        document.getElementById('modal-fiado-direccion').focus();
-        return;
-    }
-    
-    // Validar días
+
+    if (!nombre) { alert('Ingresa el nombre del cliente'); document.getElementById('modal-fiado-nombre').focus(); return; }
+    if (!telefono) { alert('Ingresa el teléfono del cliente'); document.getElementById('modal-fiado-telefono').focus(); return; }
+    if (!direccion) { alert('Ingresa la dirección del cliente'); document.getElementById('modal-fiado-direccion').focus(); return; }
+
     const diasInput = document.getElementById('modal-fiado-dias').value;
-    if (diasInput) {
-        diasCreditoSeleccionado = parseInt(diasInput);
-    }
-    
-    if (!diasCreditoSeleccionado || diasCreditoSeleccionado < 1) {
-        alert('Selecciona el plazo de crédito');
-        return;
-    }
-    
-    // Guardar datos
+    if (diasInput) diasCreditoSeleccionado = parseInt(diasInput);
+    if (!diasCreditoSeleccionado || diasCreditoSeleccionado < 1) { alert('Selecciona el plazo de crédito'); return; }
+
     datosClienteFiado = {
-        nombre: nombre,
-        telefono: telefono,
-        direccion: direccion,
+        nombre, telefono, direccion,
         referencia: document.getElementById('modal-fiado-referencia').value.trim(),
         dias: diasCreditoSeleccionado
     };
-    
-    // Cerrar modal
+
     cerrarModalFiado();
-    
-    // Procesar venta
     processSale();
 }
 
 // ============================================
 // CLICK FUERA DEL MODAL PARA CERRAR
 // ============================================
-// Timestamp para evitar que el click de apertura cierre el modal
-window._fiadoOpenedAt = 0;
-
 document.getElementById('modal-fiado-overlay')?.addEventListener('click', function(e) {
-    if (e.target.id === 'modal-fiado-overlay' && (Date.now() - window._fiadoOpenedAt) > 300) {
+    if (e.target === this) {
         cerrarModalFiado();
     }
 });
