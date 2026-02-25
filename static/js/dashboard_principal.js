@@ -111,16 +111,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Cerrar modal solo al hacer click en el overlay (fondo oscuro)
-    const modalFiadoOverlay = document.getElementById('modal-fiado-overlay');
-    if (modalFiadoOverlay) {
-        modalFiadoOverlay.addEventListener('click', (e) => {
-            // Solo cerrar si el click es en el overlay, no en el contenido
-            if (e.target === modalFiadoOverlay) {
-                cerrarModalFiado();
-            }
-        });
-    }
 
 });
 
@@ -1899,7 +1889,6 @@ async function agregarProductoConConversion(product, amount) {
 // ============================================
 
 function selectPayment(method, event) {
-    // Detener propagación del click
     if (event) {
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -1909,21 +1898,19 @@ function selectPayment(method, event) {
     selectPaymentUI(method);
 
     if (method === 'fiado') {
-        // Abrir modal DESPUÉS de que termine la propagación del click
-        setTimeout(() => {
-            const modal = document.getElementById('modal-fiado-overlay');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.style.display = 'flex';
-                modal.style.visibility = 'visible';
-                actualizarResumenFiado();
-                setTimeout(() => {
-                    document.getElementById('modal-fiado-nombre')?.focus();
-                }, 100);
-            } else {
-                console.error('[Fiado] Modal no existe en DOM');
-            }
-        }, 150);
+        // Marcar timestamp de apertura (lo lee el listener del overlay)
+        window._fiadoOpenedAt = Date.now();
+        
+        const modal = document.getElementById('modal-fiado-overlay');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.visibility = 'visible';
+            actualizarResumenFiado();
+            setTimeout(() => {
+                document.getElementById('modal-fiado-nombre')?.focus();
+            }, 100);
+        }
     }
 }
 
