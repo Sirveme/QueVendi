@@ -820,8 +820,12 @@ function confirmarFiado() {
 // ============================================
 // CLICK FUERA DEL MODAL PARA CERRAR
 // ============================================
+// Timestamp para evitar que el click de apertura cierre el modal
+let _fiadoOpenedAt = 0;
+
 document.getElementById('modal-fiado-overlay')?.addEventListener('click', function(e) {
-    if (e.target.id === 'modal-fiado-overlay') {
+    // Solo cerrar si: click en overlay (no contenido) Y pasaron >300ms desde apertura
+    if (e.target.id === 'modal-fiado-overlay' && (Date.now() - _fiadoOpenedAt) > 300) {
         cerrarModalFiado();
     }
 });
