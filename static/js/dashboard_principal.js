@@ -1898,18 +1898,23 @@ function selectPayment(method, event) {
     selectPaymentUI(method);
 
     if (method === 'fiado') {
-        // Marcar timestamp de apertura (lo lee el listener del overlay)
         window._fiadoOpenedAt = Date.now();
         
         const modal = document.getElementById('modal-fiado-overlay');
         if (modal) {
+            // Abrir con pointer-events deshabilitados para bloquear
+            // el click sintético que genera el touch en móvil
+            modal.style.pointerEvents = 'none';
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
             modal.style.visibility = 'visible';
             actualizarResumenFiado();
+            
+            // Re-habilitar después de que terminen los touch events
             setTimeout(() => {
+                modal.style.pointerEvents = '';
                 document.getElementById('modal-fiado-nombre')?.focus();
-            }, 100);
+            }, 400);
         }
     }
 }
