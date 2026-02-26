@@ -155,7 +155,8 @@ class BillingService:
             sunat_hash=resultado.get("hash"),
             pdf_url=resultado.get("pdf_url"),
             xml_url=resultado.get("xml_url"),
-            cdr_url=resultado.get("cdr_url")
+            cdr_url=resultado.get("cdr_url"),
+            verification_code=sale.verification_code  # ← PUENTE OFFLINE
         )
         self.db.add(comprobante)
 
@@ -292,114 +293,6 @@ class BillingService:
 # REEMPLAZAR el método _enviar_a_facturalo:
 # ============================================
 
-    async def _enviar_a_facturalo(self, comprobante: Comprobante) -> Dict:
-        """Envía el comprobante a facturalo.pro"""
-
-        # Fecha y hora de emisión en timezone Perú
-        ahora_peru = datetime.now(TZ_PERU)
-
-        payload = {
-            "tipo_comprobante": comprobante.tipo,
-            "serie": comprobante.serie,
-            # ✅ FIX: NO enviamos número, facturalo.pro lo asigna
-            "fecha_emision": ahora_peru.strftime("%Y-%m-%d"),
-            "hora_emision": ahora_peru.strftime("%H:%M:%S"),
-            "moneda": "PEN",
-            "forma_pago": "Contado",
-            "cliente": {
-                "tipo_documento": comprobante.cliente_tipo_doc,
-                "numero_documento": comprobante.cliente_num_doc,
-                "razon_social": comprobante.cliente_nombre,
-                "direccion": comprobante.cliente_direccion,
-                "email": comprobante.cliente_email
-            },
-            "items": [{
-                "descripcion": item.get("descripcion"),
-                "cantidad": item.get("cantidad", 1),
-                "unidad_medida": item.get("unidad", "NIU"),
-                "precio_unitario": item.get("precio_unitario"),
-                "tipo_afectacion_igv": self.config.tipo_afectacion_igv
-            } for item in (comprobante.items or [])],
-            "enviar_email": bool(comprobante.cliente_email),
-            "referencia_externa": f"QUEVENDI-VENTA-{comprobante.sale_id}"
-        }
-
-        api_url = f"{self.config.facturalo_url}/comprobantes"
-        logger.info(f"[Billing] Enviando a {api_url}: serie={comprobante.serie}, tipo={comprobante.tipo}")
-
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    api_url,
-                    json=payload,
-                    headers={
-                        "Content-Type": "application/json",
-                        "X-API-Key": self.config.facturalo_token,
-                        "X-API-Secret": self.config.facturalo_secret
-                    }
-                )
-
-                logger.info(f"[Billing] Respuesta: status={response.status_code}")
-
-                try:
-                    data = response.json()
-                except Exception:
-                    body_preview = response.text[:500] if response.text else "(vacío)"
-                    logger.error(f"[Billing] Respuesta no-JSON: {body_preview}")
-                    return {
-                        "success": False,
-                        "error": f"facturalo.pro respondió con formato inválido (HTTP {response.status_code})",
-                        "response": {"raw": body_preview}
-                    }
-
-                if response.status_code in [200, 201] and data.get("exito"):
-                    comp_data = data.get("comprobante", {})
-                    archivos = data.get("archivos", {})
-                    
-                    # ✅ FIX: Extraer número y numero_formato de la respuesta
-                    numero = comp_data.get("numero")
-                    numero_formato = comp_data.get("numero_formato")
-                    
-                    logger.info(f"[Billing] ✅ facturalo.pro asignó: {numero_formato}")
-                    
-                    return {
-                        "success": True,
-                        "facturalo_id": comp_data.get("id"),
-                        "numero": numero,  # ✅ Número real asignado por facturalo
-                        "numero_formato": numero_formato,  # ✅ Formato completo
-                        "response": data,
-                        "sunat_code": comp_data.get("codigo_sunat", "0"),
-                        "sunat_description": comp_data.get("mensaje_sunat"),
-                        "hash": comp_data.get("hash_cpe"),
-                        "pdf_url": archivos.get("pdf_url"),
-                        "xml_url": archivos.get("xml_url"),
-                        "cdr_url": archivos.get("cdr_url"),
-                    }
-                else:
-                    error_msg = data.get("mensaje", data.get("error", "Error desconocido"))
-                    if isinstance(data.get("detail"), dict):
-                        error_msg = data["detail"].get("error", error_msg)
-                    elif isinstance(data.get("detail"), str):
-                        error_msg = data["detail"]
-                    
-                    logger.error(f"[Billing] ❌ Rechazado: {error_msg}")
-                    return {
-                        "success": False,
-                        "error": error_msg,
-                        "response": data
-                    }
-
-        except httpx.TimeoutException:
-            logger.error("[Billing] Timeout conectando a facturalo.pro")
-            return {"success": False, "error": "Timeout conectando a facturalo.pro"}
-        except httpx.RequestError as e:
-            logger.error(f"[Billing] Error de conexión: {str(e)}")
-            return {"success": False, "error": f"Error de conexión: {str(e)}"}
-        except Exception as e:
-            logger.error(f"[Billing] Error inesperado: {str(e)}")
-            return {"success": False, "error": f"Error inesperado: {str(e)}"}
-
-
     def _construir_items(self, sale: Sale) -> List[Dict]:
         """Construye la lista de items para el comprobante"""
         items = []
@@ -415,99 +308,6 @@ class BillingService:
             })
         return items
 
-    async def _enviar_a_facturalo(self, comprobante: Comprobante) -> Dict:
-        """Envía el comprobante a facturalo.pro"""
-
-        # Fecha y hora de emisión en timezone Perú
-        ahora_peru = datetime.now(TZ_PERU)
-
-        payload = {
-            "tipo_comprobante": comprobante.tipo,
-            "serie": comprobante.serie,
-            "fecha_emision": ahora_peru.strftime("%Y-%m-%d"),
-            "hora_emision": ahora_peru.strftime("%H:%M:%S"),
-            "moneda": "PEN",
-            "forma_pago": "Contado",
-            "cliente": {
-                "tipo_documento": comprobante.cliente_tipo_doc,
-                "numero_documento": comprobante.cliente_num_doc,
-                "razon_social": comprobante.cliente_nombre,
-                "direccion": comprobante.cliente_direccion,
-                "email": comprobante.cliente_email
-            },
-            "items": [{
-                "descripcion": item.get("descripcion"),
-                "cantidad": item.get("cantidad", 1),
-                "unidad_medida": item.get("unidad", "NIU"),
-                "precio_unitario": item.get("precio_unitario"),
-                "tipo_afectacion_igv": self.config.tipo_afectacion_igv
-            } for item in (comprobante.items or [])],
-            "enviar_email": bool(comprobante.cliente_email),
-            "referencia_externa": f"QUEVENDI-VENTA-{comprobante.sale_id}"
-        }
-
-        api_url = f"{self.config.facturalo_url}/comprobantes"
-        logger.info(f"[Billing] Enviando comprobante a {api_url}: {comprobante.serie}-{comprobante.numero}")
-        logger.info(f"[Billing] Payload items: {len(payload.get('items', []))} items, tipo={payload['tipo_comprobante']}")
-
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    api_url,
-                    json=payload,
-                    headers={
-                        "Content-Type": "application/json",
-                        "X-API-Key": self.config.facturalo_token,
-                        "X-API-Secret": self.config.facturalo_secret
-                    }
-                )
-
-                logger.info(f"[Billing] Respuesta facturalo.pro: status={response.status_code}")
-
-                # Parsear respuesta JSON de forma segura
-                try:
-                    data = response.json()
-                except Exception as json_err:
-                    body_preview = response.text[:500] if response.text else "(vacío)"
-                    logger.error(f"[Billing] Respuesta no-JSON de facturalo.pro: {body_preview}")
-                    return {
-                        "success": False,
-                        "error": f"facturalo.pro respondió con formato inválido (HTTP {response.status_code})",
-                        "response": {"raw": body_preview}
-                    }
-
-                if response.status_code in [200, 201] and data.get("exito"):
-                    comp_data = data.get("comprobante", {})
-                    archivos = data.get("archivos", {})
-                    return {
-                        "success": True,
-                        "facturalo_id": comp_data.get("id"),
-                        "response": data,
-                        "sunat_code": comp_data.get("codigo_sunat", "0"),
-                        "sunat_description": comp_data.get("mensaje_sunat"),
-                        "hash": comp_data.get("hash_cpe"),
-                        "pdf_url": archivos.get("pdf_url"),
-                        "xml_url": archivos.get("xml_url"),
-                        "cdr_url": archivos.get("cdr_url"),
-                    }
-                else:
-                    error_msg = data.get("mensaje", data.get("error", "Error desconocido"))
-                    logger.error(f"[Billing] facturalo.pro rechazó: {error_msg}")
-                    return {
-                        "success": False,
-                        "error": error_msg,
-                        "response": data
-                    }
-
-        except httpx.TimeoutException:
-            logger.error("[Billing] Timeout conectando a facturalo.pro")
-            return {"success": False, "error": "Timeout conectando a facturalo.pro"}
-        except httpx.RequestError as e:
-            logger.error(f"[Billing] Error de conexión: {str(e)}")
-            return {"success": False, "error": f"Error de conexión: {str(e)}"}
-        except Exception as e:
-            logger.error(f"[Billing] Error inesperado: {str(e)}")
-            return {"success": False, "error": f"Error inesperado: {str(e)}"}
 
     async def verificar_conexion(self) -> Dict[str, Any]:
         """Verifica la conexión con facturalo.pro"""
