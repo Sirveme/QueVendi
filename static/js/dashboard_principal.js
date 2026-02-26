@@ -65,7 +65,23 @@ const AppState = {
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[Dashboard] 🚀 Inicializando...');
-    
+
+    // Inicializar (en DOMContentLoaded)
+    await OfflineDB.init();
+
+    // Sync productos cuando hay internet
+    await OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase);
+
+    // Buscar offline (misma interfaz que tu API)
+    const results = await OfflineDB.products.search('coca cola');
+
+    // Encolar venta sin internet
+    const localId = await OfflineDB.sales.queue(saleData, getAuthToken());
+
+    // Ver estado completo
+    const status = await OfflineDB.getStatus();
+
+
     // Verificar autenticación
     if (!checkAuth()) return;
     
@@ -175,6 +191,23 @@ async function loadUserData() {
         console.error('[Auth] Error cargando usuario:', error);
     }
 }
+
+await loadUserData();
+
+// ── OFFLINE ──
+const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
+const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
+if (emisorId) {
+    await OfflineDB.init(emisorId, storeName);
+    await OfflineSync.init();
+    // Sync catálogo en background (no bloquea)
+    if (navigator.onLine) {
+        OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase)
+            .then(r => console.log('[Offline] Catálogo:', r))
+            .catch(e => console.warn('[Offline] Sin sync:', e));
+    }
+}
+
 
 function setUserData(user) {
     AppState.user = user;
