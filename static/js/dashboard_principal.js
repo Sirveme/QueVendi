@@ -198,10 +198,9 @@ async function loadUserData() {
 // ── OFFLINE ──
 const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
 const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
-if (emisorId) {
-    await OfflineDB.init(emisorId, storeName);
+if (storeId) {
+    await OfflineDB.init(storeId, storeName);
     await OfflineSync.init();
-    // Sync catálogo en background (no bloquea)
     if (navigator.onLine) {
         OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase)
             .then(r => console.log('[Offline] Catálogo:', r))
