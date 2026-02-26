@@ -194,7 +194,6 @@ async function loadUserData() {
     }
 }
 
-await loadUserData();
 
 // ── OFFLINE ──
 const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
