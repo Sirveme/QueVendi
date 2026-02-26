@@ -66,27 +66,29 @@ const AppState = {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[Dashboard] 🚀 Inicializando...');
 
-    // Inicializar (en DOMContentLoaded)
-    await OfflineDB.init();
-
-    // Sync productos cuando hay internet
-    await OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase);
-
-    // Buscar offline (misma interfaz que tu API)
-    const results = await OfflineDB.products.search('coca cola');
-
-    // Encolar venta sin internet
-    const localId = await OfflineDB.sales.queue(saleData, getAuthToken());
-
-    // Ver estado completo
-    const status = await OfflineDB.getStatus();
-
-
     // Verificar autenticación
     if (!checkAuth()) return;
     
     // Cargar datos del usuario
     await loadUserData();
+
+    // ── OFFLINE PWA ──
+    const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
+    const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
+    if (storeId) {
+        try {
+            await OfflineDB.init(storeId, storeName);
+            await OfflineSync.init();
+            console.log('[Offline] ✅ Sistema offline listo');
+            if (navigator.onLine) {
+                OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase)
+                    .then(r => console.log('[Offline] Catálogo:', r))
+                    .catch(e => console.warn('[Offline] Sin sync:', e));
+            }
+        } catch (offlineError) {
+            console.warn('[Offline] No se pudo inicializar:', offlineError);
+        }
+    }
     
     // Cargar configuraciones
     loadMicSettings();
