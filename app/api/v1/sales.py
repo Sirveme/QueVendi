@@ -18,6 +18,11 @@ from pydantic import BaseModel
 from app.models.sale import Sale
 from fastapi.responses import HTMLResponse
 
+from fastapi import Header
+from typing import Optional as Opt
+from datetime import datetime as dt
+
+
 router = APIRouter(prefix="/sales")
 
 class VoiceCommandRequest(BaseModel):
@@ -387,11 +392,52 @@ async def parse_voice_command(
 async def create_sale(
     sale_data: SaleCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    # Headers opcionales para ventas offline
+    x_offline_sale: Opt[str] = Header(None),
+    x_verification_code: Opt[str] = Header(None),
+    x_created_at: Opt[str] = Header(None),
+    x_local_id: Opt[str] = Header(None),
 ):
-    """Crear venta"""
+    """Crear venta (normal u offline sincronizada)"""
+    
+    # ── Detectar duplicados offline ──
+    if x_verification_code:
+        existing = db.query(Sale).filter(
+            Sale.verification_code == x_verification_code
+        ).first()
+        if existing:
+            # Ya se sincronizó antes → retornar la existente (idempotente)
+            sale_service = SaleService(db)
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "detail": "Venta ya sincronizada",
+                    "sale_id": existing.id,
+                    "verification_code": x_verification_code
+                }
+            )
+    
+    # ── Crear venta normal ──
     sale_service = SaleService(db)
     sale = sale_service.create_sale(sale_data, current_user.id, current_user.store_id)
+    
+    # ── Si es venta offline, guardar campos extra ──
+    if x_offline_sale == "true" and x_verification_code:
+        sale.is_offline = True
+        sale.verification_code = x_verification_code
+        
+        if x_created_at:
+            try:
+                sale.offline_created_at = dt.fromisoformat(x_created_at.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                sale.offline_created_at = None
+        
+        db.commit()
+        db.refresh(sale)
+        print(f"[Sales] ✅ Venta offline sincronizada: ID {sale.id}, code={x_verification_code}")
+    
     return sale_service.to_response(sale)
 
 @router.get("/today", response_model=List[SaleResponse])
