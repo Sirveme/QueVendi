@@ -55,7 +55,10 @@ class SaleService:
                 user_id=user_id,
                 total=total,
                 payment_method=payment_method,
-                sale_date=datetime.now(PERU_TZ)  # Hora de Perú
+                payment_reference=data.get('payment_reference'),
+                customer_name=data.get('customer_name'),
+                is_credit=data.get('is_credit', False),
+                sale_date=datetime.now(PERU_TZ)
             )
             
             self.db.add(sale)
