@@ -22,6 +22,9 @@ from app.models.user import User
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 
+from app.api.offline import router as offline_router
+from app.api.offline import verification_router
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -167,6 +170,14 @@ app.include_router(customers.router, prefix="/api/v1", tags=["customers"])
 app.include_router(conversions.router, prefix="/api/v1", tags=["conversions"])
 app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
 app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
+app.include_router(offline_router)          # /api/v1/health + /api/v1/products/catalog
+app.include_router(verification_router)     # /v/{code}
+
+# ── Health check para PWA offline ──
+@app.get("/api/v1/health")
+async def health_check():
+    return {"status": "ok", "online": True}
+
 
 # ========================================
 # RUTAS HTML - PÚBLICAS (sin auth)
