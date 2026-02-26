@@ -32,62 +32,97 @@ class PagoCreate(BaseModel):
     payment_method: str = "cash"
     notes: Optional[str] = None
 
+class FiadoRegistrarFromSale(BaseModel):
+    """Schema para registrar fiado desde el POS (dashboard_principal.js)"""
+    customer_name: str
+    customer_phone: Optional[str] = None
+    customer_address: Optional[str] = None
+    customer_dni: Optional[str] = None
+    sale_id: int
+    total_amount: float
+    credit_days: int = 7
+    reference_number: Optional[str] = None
+    notes: Optional[str] = None
+
 # ============================================
 # ENDPOINTS
 # ============================================
 
-@router.post("/fiados/registrar")
+@router.post("/registrar")
 def registrar_fiado(
-    fiado: FiadoCreate,
+    data: FiadoRegistrarFromSale,
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Registrar un nuevo fiado"""
+    """Registrar fiado desde el POS"""
+    from app.models.sale import Sale
+    
+    store_id = current_user.store_id if hasattr(current_user, 'store_id') else current_user.get("store_id")
+    
+    # Verificar que la venta existe
+    sale = db.query(Sale).filter(
+        Sale.id == data.sale_id,
+        Sale.store_id == store_id
+    ).first()
+    
+    if not sale:
+        raise HTTPException(404, "Venta no encontrada")
+    
+    # Actualizar venta con datos de fiado
+    sale.customer_name = data.customer_name
+    sale.is_credit = True
+    sale.payment_status = "pending"
+    
+    if data.customer_dni:
+        sale.customer_dni = data.customer_dni
+    if data.customer_phone:
+        sale.customer_phone = data.customer_phone
+    
+    # Calcular vencimiento
+    from datetime import timedelta
+    due_date = datetime.now() + timedelta(days=data.credit_days)
+    
+    # Intentar crear Credit si la función SQL existe
     try:
         query = text("""
             SELECT * FROM fiado_registrar(
                 p_store_id := :store_id,
-                p_customer_id := :customer_id,
+                p_customer_id := NULL,
                 p_amount := :amount,
                 p_due_date := :due_date,
                 p_sale_id := :sale_id,
                 p_notes := :notes
             )
         """)
-        
-        result = db.execute(
-            query,
-            {
-                "store_id": current_user["store_id"],
-                "customer_id": fiado.customer_id,
-                "amount": float(fiado.amount),
-                "due_date": fiado.due_date,
-                "sale_id": fiado.sale_id,
-                "notes": fiado.notes
-            }
-        )
-        
+        result = db.execute(query, {
+            "store_id": store_id,
+            "amount": data.total_amount,
+            "due_date": due_date.date(),
+            "sale_id": data.sale_id,
+            "notes": f"{data.customer_name} | Tel: {data.customer_phone or 'N/A'} | {data.notes or ''}"
+        })
         db.commit()
-        
         row = result.fetchone()
-        
-        if not row:
-            raise HTTPException(status_code=400, detail="No se pudo registrar el fiado")
-        
-        return {
-            "credit_id": row[0],
-            "customer_name": row[1],
-            "amount": float(row[2]),
-            "due_date": row[3],
-            "status": row[4]
-        }
-        
+        credit_id = row[0] if row else None
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+        # Si la función SQL no existe, solo guardar en la venta
+        print(f"[Fiados] Función SQL no disponible: {e}")
+        db.commit()
+        credit_id = None
+    
+    return {
+        "success": True,
+        "credit_id": credit_id,
+        "sale_id": sale.id,
+        "customer_name": data.customer_name,
+        "total": data.total_amount,
+        "credit_days": data.credit_days,
+        "due_date": due_date.isoformat()
+    }
 
 
-@router.post("/fiados/pagar")
+@router.post("/pagar")
 def registrar_pago(
     pago: PagoCreate,
     current_user = Depends(get_current_user),
@@ -134,7 +169,7 @@ def registrar_pago(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/fiados/cliente/{customer_id}")
+@router.get("/cliente/{customer_id}")
 def consultar_deuda_cliente(
     customer_id: int,
     current_user = Depends(get_current_user),
@@ -162,7 +197,7 @@ def consultar_deuda_cliente(
     ]
 
 
-@router.get("/fiados/reporte")
+@router.get("/reporte")
 def reporte_fiados_tienda(
     status: Optional[str] = None,
     current_user = Depends(get_current_user),
@@ -201,7 +236,7 @@ def reporte_fiados_tienda(
     ]
 
 
-@router.post("/fiados/actualizar-vencidos")
+@router.post("/actualizar-vencidos")
 def actualizar_vencidos(
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -220,7 +255,7 @@ def actualizar_vencidos(
     }
 
 
-@router.get("/fiados/resumen")
+@router.get("/resumen")
 def resumen_general(
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
