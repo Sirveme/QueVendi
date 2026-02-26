@@ -231,6 +231,11 @@ async def dashboard_page(request: Request):
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
 
+@app.get("/whitelabel", response_class=HTMLResponse)
+async def whitelabel(request: Request):
+    return templates.TemplateResponse("white_label.html", {"request": request})
+
+
 @app.get("/mapa", response_class=HTMLResponse)
 async def mapa_delitos_page(request: Request):
     """Mapa de seguridad ciudadana"""
