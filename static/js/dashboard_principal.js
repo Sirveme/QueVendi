@@ -195,20 +195,6 @@ async function loadUserData() {
 }
 
 
-// ── OFFLINE ──
-const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
-const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
-if (storeId) {
-    await OfflineDB.init(storeId, storeName);
-    await OfflineSync.init();
-    if (navigator.onLine) {
-        OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase)
-            .then(r => console.log('[Offline] Catálogo:', r))
-            .catch(e => console.warn('[Offline] Sin sync:', e));
-    }
-}
-
-
 function setUserData(user) {
     AppState.user = user;
     AppState.isOwner = user.role === 'owner';
