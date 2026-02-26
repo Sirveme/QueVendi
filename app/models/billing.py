@@ -77,6 +77,8 @@ class Comprobante(Base):
     serie = Column(String(4), nullable=False)  # B001, F001
     numero = Column(Integer, nullable=False)
 
+    verification_code = Column(String(30), nullable=True, index=True)
+
     # Fecha de emisión
     fecha_emision = Column(DateTime(timezone=True), server_default=func.now())
     moneda = Column(String(3), default="PEN")  # PEN, USD

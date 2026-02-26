@@ -16,12 +16,16 @@ class Sale(Base):
     
     # Identificador
     sale_number = Column(String(50), unique=True, nullable=True)  # 'V-000001'
-    
+
     # Montos
     subtotal = Column(Numeric(10, 2), nullable=True)
     discount = Column(Numeric(10, 2), default=0)
     total = Column(Float, nullable=False)
     
+    verification_code = Column(String(30), nullable=True, index=True)
+    is_offline = Column(Boolean, default=False)
+    offline_created_at = Column(DateTime(timezone=True), nullable=True)
+
     # Pago
     payment_details = Column(JSON, nullable=True)
     payment_method = Column(String(20), nullable=False)  # 'efectivo', 'yape', 'plin', 'tarjeta'
