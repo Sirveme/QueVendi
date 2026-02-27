@@ -2,6 +2,10 @@
 """
 Router de Facturación Electrónica - QueVendí
 Endpoints para emisión de comprobantes vía facturalo.pro
+
+FIX 3 (2026-02-27):
+- EmitirComprobanteRequest: nuevos campos payment_method, is_credit, credit_days
+- Endpoint /emitir: pasa datos de pago al BillingService
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse, Response
@@ -63,6 +67,12 @@ class EmitirComprobanteRequest(BaseModel):
     cliente_nombre: str = "CLIENTE VARIOS"
     cliente_direccion: Optional[str] = None
     cliente_email: Optional[str] = None
+    # ============================================
+    # FIX 3: Nuevos campos para método de pago y crédito
+    # ============================================
+    payment_method: str = "efectivo"
+    is_credit: bool = False
+    credit_days: int = 0
 
 
 class ComprobanteResponse(BaseModel):
@@ -125,7 +135,6 @@ async def create_or_update_billing_config(
     current_user: User = Depends(get_current_user)
 ):
     """Crear o actualizar configuración de facturación"""
-    # Solo owners pueden configurar
     if current_user.role not in ["owner", "admin"]:
         raise HTTPException(403, "Solo el dueño puede configurar facturación")
 
@@ -134,7 +143,6 @@ async def create_or_update_billing_config(
     ).first()
 
     if config:
-        # Actualizar existente
         config.ruc = config_data.ruc
         config.razon_social = config_data.razon_social
         config.nombre_comercial = config_data.nombre_comercial
@@ -148,7 +156,6 @@ async def create_or_update_billing_config(
         config.is_active = True
         config.is_verified = False
     else:
-        # Crear nuevo
         config = StoreBillingConfig(
             store_id=current_user.store_id,
             ruc=config_data.ruc,
@@ -218,7 +225,13 @@ async def emitir_comprobante(
         cliente_num_doc=request.cliente_num_doc,
         cliente_nombre=request.cliente_nombre,
         cliente_direccion=request.cliente_direccion,
-        cliente_email=request.cliente_email
+        cliente_email=request.cliente_email,
+        # ============================================
+        # FIX 3: Pasar datos de pago al service
+        # ============================================
+        payment_method=request.payment_method,
+        is_credit=request.is_credit,
+        credit_days=request.credit_days,
     )
 
     if result["success"]:
@@ -360,7 +373,6 @@ async def proxy_comprobante_pdf(
     if not config:
         raise HTTPException(400, "Configuración de facturación no encontrada")
 
-    # Agregar formato a la URL de facturalo
     pdf_url = comprobante.pdf_url
     separator = "&" if "?" in pdf_url else "?"
     pdf_url_with_format = f"{pdf_url}{separator}formato={formato.upper()}"
@@ -378,7 +390,6 @@ async def proxy_comprobante_pdf(
         if response.status_code != 200:
             raise HTTPException(502, "Error al obtener PDF de facturalo.pro")
 
-        # Nombre: {RUC}_{SERIE}-{CORRELATIVO}_{FECHA}.pdf
         ruc = config.ruc or "00000000000"
         fecha_str = ""
         if comprobante.fecha_emision:
