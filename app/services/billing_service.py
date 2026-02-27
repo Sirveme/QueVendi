@@ -4,6 +4,11 @@ Servicio de Facturación Electrónica - QueVendí
 Integración con facturalo.pro para emisión de comprobantes
 
 Basado en el patrón de ccploreto.org.pe
+
+FIX 3 (2026-02-27):
+- Método de pago (Yape, Plin, Tarjeta, etc.) en observaciones del comprobante
+- forma_pago = "Credito" para ventas fiadas con cuotas SUNAT
+- Dirección del cliente como parámetro
 """
 import httpx
 import logging
@@ -19,6 +24,17 @@ logger = logging.getLogger(__name__)
 
 # Timezone Perú (UTC-5)
 TZ_PERU = timezone(timedelta(hours=-5))
+
+# ============================================
+# FIX 3: Mapeo de métodos de pago para observaciones
+# ============================================
+METODO_PAGO_LABELS = {
+    'efectivo': 'Efectivo',
+    'yape': 'Yape',
+    'plin': 'Plin',
+    'tarjeta': 'Tarjeta',
+    'fiado': 'Crédito',
+}
 
 
 class BillingService:
@@ -44,14 +60,6 @@ class BillingService:
             and self.config.is_active
         )
 
-    # ============================================
-# FIX: billing_service.py
-# Problema: QueVendi y facturalo.pro calculaban correlativos independientemente
-# Solución: facturalo.pro es la fuente de verdad del correlativo
-# ============================================
-
-# REEMPLAZAR el método emitir_comprobante completo:
-
     async def emitir_comprobante(
         self,
         sale_id: int,
@@ -61,11 +69,18 @@ class BillingService:
         cliente_nombre: str = "CLIENTE VARIOS",
         cliente_direccion: str = None,
         cliente_email: str = None,
+        # ============================================
+        # FIX 3: Nuevos parámetros
+        # ============================================
+        payment_method: str = "efectivo",
+        is_credit: bool = False,
+        credit_days: int = 0,
     ) -> Dict[str, Any]:
         """
         Emite un comprobante electrónico para una venta.
         
         FIX v2: Llamar a facturalo PRIMERO, guardar DESPUÉS con número real.
+        FIX v3: Incluir método de pago en observaciones + crédito SUNAT.
         """
         if not self.esta_configurado():
             return {"success": False, "error": "Facturación no configurada para esta tienda"}
@@ -106,6 +121,15 @@ class BillingService:
             igv = Decimal("0")
             subtotal_sin_igv = subtotal
 
+        # ============================================
+        # FIX 3: Construir observaciones con método de pago
+        # ============================================
+        observaciones = self._construir_observaciones(
+            payment_method=payment_method,
+            is_credit=is_credit,
+            credit_days=credit_days
+        )
+
         # ✅ FIX v2: Llamar a facturalo PRIMERO (sin guardar en BD)
         resultado = await self._enviar_a_facturalo_v2(
             sale_id=sale_id,
@@ -116,7 +140,12 @@ class BillingService:
             cliente_num_doc=cliente_num_doc,
             cliente_nombre=cliente_nombre,
             cliente_direccion=cliente_direccion,
-            cliente_email=cliente_email
+            cliente_email=cliente_email,
+            # FIX 3: Pasar datos de pago
+            payment_method=payment_method,
+            is_credit=is_credit,
+            credit_days=credit_days,
+            observaciones=observaciones,
         )
 
         if not resultado["success"]:
@@ -138,7 +167,7 @@ class BillingService:
             sale_id=sale_id,
             tipo=tipo,
             serie=serie,
-            numero=numero_real,  # ✅ Número REAL de facturalo
+            numero=numero_real,
             subtotal=subtotal_sin_igv,
             igv=igv,
             total=subtotal,
@@ -156,7 +185,7 @@ class BillingService:
             pdf_url=resultado.get("pdf_url"),
             xml_url=resultado.get("xml_url"),
             cdr_url=resultado.get("cdr_url"),
-            verification_code=sale.verification_code  # ← PUENTE OFFLINE
+            verification_code=sale.verification_code
         )
         self.db.add(comprobante)
 
@@ -180,6 +209,33 @@ class BillingService:
             "error": None
         }
 
+    # ============================================
+    # FIX 3: Nuevo método - Construir observaciones
+    # ============================================
+    def _construir_observaciones(
+        self,
+        payment_method: str = "efectivo",
+        is_credit: bool = False,
+        credit_days: int = 0
+    ) -> str:
+        """
+        Construye el texto de observaciones para el comprobante.
+        Incluye método de pago y datos de crédito si aplica.
+        """
+        partes = []
+
+        # Método de pago
+        label = METODO_PAGO_LABELS.get(payment_method, payment_method.capitalize())
+        partes.append(f"Forma de pago: {label}")
+
+        # Si es crédito, agregar info de plazo
+        if is_credit and credit_days > 0:
+            ahora = datetime.now(TZ_PERU)
+            vencimiento = ahora + timedelta(days=credit_days)
+            partes.append(f"Plazo: {credit_days} días")
+            partes.append(f"Vence: {vencimiento.strftime('%d/%m/%Y')}")
+
+        return " | ".join(partes)
 
     async def _enviar_a_facturalo_v2(
         self,
@@ -191,11 +247,41 @@ class BillingService:
         cliente_num_doc: str,
         cliente_nombre: str,
         cliente_direccion: str,
-        cliente_email: str
+        cliente_email: str,
+        # ============================================
+        # FIX 3: Nuevos parámetros
+        # ============================================
+        payment_method: str = "efectivo",
+        is_credit: bool = False,
+        credit_days: int = 0,
+        observaciones: str = "",
     ) -> Dict:
         """Envía el comprobante a facturalo.pro (sin objeto Comprobante)"""
 
         ahora_peru = datetime.now(TZ_PERU)
+
+        # ============================================
+        # FIX 3: Determinar forma de pago SUNAT
+        # ============================================
+        if is_credit and credit_days > 0:
+            # CRÉDITO: SUNAT exige forma_pago, cuotas con fecha y monto
+            forma_pago = "Credito"
+            fecha_vencimiento = ahora_peru + timedelta(days=credit_days)
+
+            # Calcular monto total para la cuota (puede ser 1 sola cuota)
+            monto_total = sum(
+                float(item.get("precio_unitario", 0)) * float(item.get("cantidad", 1))
+                for item in items
+            )
+
+            cuotas = [{
+                "moneda": "PEN",
+                "monto": round(monto_total, 2),
+                "fecha_pago": fecha_vencimiento.strftime("%Y-%m-%d")
+            }]
+        else:
+            forma_pago = "Contado"
+            cuotas = None
 
         payload = {
             "tipo_comprobante": tipo,
@@ -203,7 +289,10 @@ class BillingService:
             "fecha_emision": ahora_peru.strftime("%Y-%m-%d"),
             "hora_emision": ahora_peru.strftime("%H:%M:%S"),
             "moneda": "PEN",
-            "forma_pago": "Contado",
+            # ============================================
+            # FIX 3: forma_pago dinámica + cuotas
+            # ============================================
+            "forma_pago": forma_pago,
             "cliente": {
                 "tipo_documento": cliente_tipo_doc,
                 "numero_documento": cliente_num_doc,
@@ -219,11 +308,19 @@ class BillingService:
                 "tipo_afectacion_igv": self.config.tipo_afectacion_igv
             } for item in items],
             "enviar_email": bool(cliente_email),
-            "referencia_externa": f"QUEVENDI-VENTA-{sale_id}"
+            "referencia_externa": f"QUEVENDI-VENTA-{sale_id}",
+            # ============================================
+            # FIX 3: Observaciones con método de pago
+            # ============================================
+            "observaciones": observaciones,
         }
 
+        # FIX 3: Agregar cuotas solo si es crédito
+        if cuotas:
+            payload["cuotas"] = cuotas
+
         api_url = f"{self.config.facturalo_url}/comprobantes"
-        logger.info(f"[Billing] Enviando a {api_url}: serie={serie}, tipo={tipo}")
+        logger.info(f"[Billing] Enviando a {api_url}: serie={serie}, tipo={tipo}, forma_pago={forma_pago}")
 
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
@@ -288,11 +385,6 @@ class BillingService:
         except Exception as e:
             return {"success": False, "error": f"Error inesperado: {str(e)}"}
 
-
-# ============================================
-# REEMPLAZAR el método _enviar_a_facturalo:
-# ============================================
-
     def _construir_items(self, sale: Sale) -> List[Dict]:
         """Construye la lista de items para el comprobante"""
         items = []
@@ -307,7 +399,6 @@ class BillingService:
                 "tipo_afectacion_igv": self.config.tipo_afectacion_igv
             })
         return items
-
 
     async def verificar_conexion(self) -> Dict[str, Any]:
         """Verifica la conexión con facturalo.pro"""
@@ -371,11 +462,27 @@ class BillingService:
         return query.order_by(Comprobante.created_at.desc()).offset(offset).limit(limit).all()
 
 
-# Helper para uso simple
-async def emitir_boleta(db: Session, sale_id: int, store_id: int) -> Dict:
+# ============================================
+# Helpers para uso simple
+# ============================================
+
+async def emitir_boleta(
+    db: Session,
+    sale_id: int,
+    store_id: int,
+    payment_method: str = "efectivo",
+    is_credit: bool = False,
+    credit_days: int = 0,
+) -> Dict:
     """Emite una boleta simple (cliente genérico)"""
     service = BillingService(db, store_id)
-    return await service.emitir_comprobante(sale_id, tipo="03")
+    return await service.emitir_comprobante(
+        sale_id,
+        tipo="03",
+        payment_method=payment_method,
+        is_credit=is_credit,
+        credit_days=credit_days,
+    )
 
 
 async def emitir_factura(
@@ -384,7 +491,10 @@ async def emitir_factura(
     store_id: int,
     ruc: str,
     razon_social: str,
-    direccion: str = None
+    direccion: str = None,
+    payment_method: str = "efectivo",
+    is_credit: bool = False,
+    credit_days: int = 0,
 ) -> Dict:
     """Emite una factura con datos del cliente"""
     service = BillingService(db, store_id)
@@ -394,5 +504,8 @@ async def emitir_factura(
         cliente_tipo_doc="6",
         cliente_num_doc=ruc,
         cliente_nombre=razon_social,
-        cliente_direccion=direccion
+        cliente_direccion=direccion,
+        payment_method=payment_method,
+        is_credit=is_credit,
+        credit_days=credit_days,
     )
