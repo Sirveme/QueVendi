@@ -316,8 +316,10 @@ class BillingService:
         }
 
         # FIX 3: Agregar cuotas solo si es crédito
-        if cuotas:
-            payload["cuotas"] = cuotas
+        # Por ahora NO enviar cuotas hasta que facturalo soporte XML UBL crédito
+        # La forma_pago="Credito" ya se envía y facturalo la acepta
+        # if cuotas:
+        #     payload["cuotas"] = cuotas
 
         api_url = f"{self.config.facturalo_url}/comprobantes"
         logger.info(f"[Billing] Enviando a {api_url}: serie={serie}, tipo={tipo}, forma_pago={forma_pago}")
@@ -369,13 +371,47 @@ class BillingService:
                         "cdr_url": archivos.get("cdr_url"),
                     }
                 else:
-                    error_msg = data.get("mensaje", data.get("error", "Error desconocido"))
-                    if isinstance(data.get("detail"), dict):
-                        error_msg = data["detail"].get("error", error_msg)
+                    # === LOGGING MEJORADO PARA DIAGNÓSTICO ===
+                    logger.error(f"[Billing] ❌ HTTP {response.status_code}")
+                    logger.error(f"[Billing] ❌ Response body: {data}")
+                    
+                    # Intentar extraer error de múltiples formatos
+                    error_msg = "Error desconocido"
+                    
+                    # Formato 1: {"mensaje": "..."}
+                    if data.get("mensaje"):
+                        error_msg = data["mensaje"]
+                    # Formato 2: {"error": "..."}
+                    elif data.get("error"):
+                        error_msg = data["error"]
+                    # Formato 3: {"detail": {"error": "..."}}
+                    elif isinstance(data.get("detail"), dict):
+                        error_msg = data["detail"].get("error", str(data["detail"]))
+                    # Formato 4: {"detail": "string"}
                     elif isinstance(data.get("detail"), str):
                         error_msg = data["detail"]
+                    # Formato 5: {"errors": [...]}
+                    elif isinstance(data.get("errors"), list):
+                        error_msg = "; ".join(str(e) for e in data["errors"])
+                    # Formato 6: {"errors": {"campo": [...]}}
+                    elif isinstance(data.get("errors"), dict):
+                        parts = []
+                        for k, v in data["errors"].items():
+                            if isinstance(v, list):
+                                parts.append(f"{k}: {', '.join(str(i) for i in v)}")
+                            else:
+                                parts.append(f"{k}: {v}")
+                        error_msg = "; ".join(parts)
+                    # Formato 7: Pydantic validation error (FastAPI 422)
+                    elif response.status_code == 422:
+                        detail = data.get("detail", [])
+                        if isinstance(detail, list):
+                            parts = [f"{e.get('loc', ['?'])[-1]}: {e.get('msg', '?')}" for e in detail]
+                            error_msg = "Validación: " + "; ".join(parts)
+                        else:
+                            error_msg = f"Error de validación: {detail}"
                     
-                    logger.error(f"[Billing] ❌ Rechazado: {error_msg}")
+                    logger.error(f"[Billing] ❌ Error extraído: {error_msg}")
                     return {"success": False, "error": error_msg}
 
         except httpx.TimeoutException:
