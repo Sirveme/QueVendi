@@ -160,7 +160,7 @@ function detectCommandType(text) {
 // 3. MODAL DE AYUDA
 // ============================================
 
-function showHelpModal() {
+function showHelpModalXXXX() {
     const modal = document.createElement('div');
     modal.className = 'voice-help-modal';
     modal.innerHTML = `
@@ -488,7 +488,7 @@ window.VoiceHelp = {
 // ============================================
 
 // Agregar botón de ayuda en dashboard:
-function addHelpButton() {
+function addHelpButtonXXXXXX() {
     const helpBtn = document.createElement('button');
     helpBtn.className = 'voice-help-btn';
     helpBtn.innerHTML = '💡 Comandos de voz';
