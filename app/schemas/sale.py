@@ -23,7 +23,7 @@ class VoiceCommand(BaseModel):
 class SaleItemResponse(BaseModel):
     id: int
     product_id: int
-    quantity: int
+    quantity: float
     unit_price: float
     subtotal: float
     product_name: str  # Lo agregamos en el service
