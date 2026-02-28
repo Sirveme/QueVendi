@@ -132,6 +132,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
+
+// ================================================================
+// _isGranel — Determina si un producto es de venta a granel
+// ================================================================
+function _isGranel(item) {
+    const unit = (item.unit || 'unidad').toLowerCase();
+    return ['kg', 'g', 'litro', 'lt', 'l', 'ml', 'gramo', 'kilo'].includes(unit);
+}
+
+
 // ============================================
 // AUTENTICACIÓN
 // ============================================
@@ -379,6 +389,9 @@ function loadCart() {
 //   - Soporta decimales (0.4, 1.5, etc.) para granel/peso
 //   - Muestra la unidad correcta (kg, unidad, litro, etc.)
 
+// ================================================================
+// renderCart — Compacto, smart edit, sin tacho visible
+// ================================================================
 function renderCart() {
     const container = document.getElementById('cart-items');
     const emptyState = document.getElementById('cart-empty');
@@ -402,30 +415,39 @@ function renderCart() {
     const itemsCount = getCartItemsCount();
 
     container.innerHTML = AppState.cart.map((item) => {
-        const itemPrice = parseFloat(item.price) || 0;
-        const itemQuantity = parseFloat(item.quantity) || 1;
-        const itemTotal = parseFloat((itemPrice * itemQuantity).toFixed(2));
+        const price = parseFloat(item.price) || 0;
+        const qty = parseFloat(item.quantity) || 1;
+        const sub = parseFloat((price * qty).toFixed(2));
         const unitDisplay = item.unit || 'unidad';
+        const granel = _isGranel(item);
 
-        // Máximo 2 decimales en display
-        const qtyStr = itemQuantity % 1 === 0
-            ? String(itemQuantity)
-            : itemQuantity.toFixed(2);
+        // Display: enteros sin decimal, granel máx 2 decimales
+        const qtyStr = qty % 1 === 0 ? String(qty) : qty.toFixed(2);
+
+        // Clases condicionales
+        const qtyClass = granel ? 'qty-display editable' : 'qty-display';
+        const subClass = granel ? 'cart-item-subtotal editable' : 'cart-item-subtotal';
+
+        // Eventos condicionales
+        const qtyClick = granel
+            ? `onclick="editCartQuantity(${item.id}, this)"`
+            : '';
+        const subClick = granel
+            ? `onclick="editCartSubtotal(${item.id}, this)"`
+            : '';
 
         return `
         <div class="cart-item" id="cart-item-${item.id}">
             <div class="cart-item-info">
                 <div class="cart-item-name" onclick="editCartName(${item.id}, this)">${item.name}</div>
-                <div class="cart-item-price">S/. ${itemPrice.toFixed(2)} / ${unitDisplay}</div>
+                <div class="cart-item-price">S/${price.toFixed(2)} · ${unitDisplay}</div>
             </div>
             <div class="cart-item-qty">
                 <button onclick="decreaseQty(${item.id})">−</button>
-                <span class="qty-display" onclick="editCartQuantity(${item.id}, this)">${qtyStr}</span>
+                <span class="${qtyClass}" ${qtyClick}>${qtyStr}</span>
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
-            <div class="cart-item-subtotal" onclick="editCartSubtotal(${item.id}, this)">
-                S/. ${itemTotal.toFixed(2)}
-            </div>
+            <div class="${subClass}" ${subClick}>S/${sub.toFixed(2)}</div>
             <div class="delete-zone" onclick="removeFromCart(${item.id})">
                 <i class="fas fa-trash"></i>
             </div>
@@ -435,107 +457,100 @@ function renderCart() {
     if (totalEl) totalEl.textContent = `S/. ${total.toFixed(2)}`;
     if (countEl) countEl.textContent = `${itemsCount} producto${itemsCount !== 1 ? 's' : ''}`;
 
-    // Swipe para eliminar en móvil
     _setupCartSwipe();
 }
 
 
 // ================================================================
-// editCartQuantity — REEMPLAZAR función completa
+// editCartQuantity — Solo granel, input violeta sin distorsión
 // ================================================================
-function editCartQuantity(productId, spanElement) {
+function editCartQuantity(productId, el) {
     const item = AppState.cart.find(i => i.id === productId);
-    if (!item) return;
-    if (spanElement.querySelector('.qty-edit-input')) return;
+    if (!item || !_isGranel(item)) return;
+    if (el.querySelector('.qty-edit-input')) return;
 
     const currentQty = parseFloat(item.quantity) || 1;
-    const displayVal = currentQty % 1 === 0 ? String(currentQty) : currentQty.toFixed(2);
-    const originalText = spanElement.textContent;
+    const val = currentQty % 1 === 0 ? String(currentQty) : currentQty.toFixed(2);
+    const orig = el.textContent;
 
-    spanElement.innerHTML = `<input type="number" class="qty-edit-input" value="${displayVal}" step="0.01" min="0.01">`;
-    spanElement.style.border = 'none';
-    spanElement.style.padding = '0';
-    const input = spanElement.querySelector('input');
-    input.focus();
-    input.select();
+    el.innerHTML = `<input type="number" class="qty-edit-input" value="${val}" step="0.01" min="0.01">`;
+    el.style.border = 'none';
+    el.style.padding = '0';
+    const inp = el.querySelector('input');
+    inp.focus();
+    inp.select();
 
     const restore = () => {
-        spanElement.textContent = originalText;
-        spanElement.style.border = '';
-        spanElement.style.padding = '';
+        el.textContent = orig;
+        el.style.border = '';
+        el.style.padding = '';
     };
 
-    const confirm = () => {
-        const newQty = parseFloat(input.value);
-        if (newQty && newQty > 0) {
-            updateQuantity(productId, parseFloat(newQty.toFixed(3)));
+    const save = () => {
+        const n = parseFloat(inp.value);
+        if (n > 0) {
+            updateQuantity(productId, parseFloat(n.toFixed(3)));
         } else {
             restore();
         }
     };
 
-    input.addEventListener('blur', confirm);
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-        if (e.key === 'Escape') {
-            input.removeEventListener('blur', confirm);
-            restore();
-        }
+    inp.addEventListener('blur', save);
+    inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        if (e.key === 'Escape') { inp.removeEventListener('blur', save); restore(); }
     });
 }
 
 
 // ================================================================
-// editCartSubtotal — REEMPLAZAR función completa
+// editCartSubtotal — Solo granel, input dorado sin distorsión
 // ================================================================
-function editCartSubtotal(productId, subtotalElement) {
+function editCartSubtotal(productId, el) {
     const item = AppState.cart.find(i => i.id === productId);
-    if (!item) return;
-    if (subtotalElement.querySelector('.subtotal-edit-input')) return;
+    if (!item || !_isGranel(item)) return;
+    if (el.querySelector('.subtotal-edit-input')) return;
 
-    const itemPrice = parseFloat(item.price) || 0;
-    if (itemPrice <= 0) return;
+    const price = parseFloat(item.price) || 0;
+    if (price <= 0) return;
 
-    const currentSubtotal = parseFloat((itemPrice * parseFloat(item.quantity)).toFixed(2));
-    const originalText = subtotalElement.textContent;
+    const currentSub = parseFloat((price * parseFloat(item.quantity)).toFixed(2));
+    const orig = el.textContent;
 
-    subtotalElement.innerHTML = `<input type="number" class="subtotal-edit-input" value="${currentSubtotal.toFixed(2)}" step="0.10" min="0.10">`;
-    subtotalElement.style.border = 'none';
-    subtotalElement.style.padding = '0';
-    const input = subtotalElement.querySelector('input');
-    input.focus();
-    input.select();
+    el.innerHTML = `<input type="number" class="subtotal-edit-input" value="${currentSub.toFixed(2)}" step="0.10" min="0.10">`;
+    el.style.border = 'none';
+    el.style.padding = '0';
+    const inp = el.querySelector('input');
+    inp.focus();
+    inp.select();
 
     const restore = () => {
-        subtotalElement.textContent = originalText;
-        subtotalElement.style.border = '';
-        subtotalElement.style.padding = '';
+        el.textContent = orig;
+        el.style.border = '';
+        el.style.padding = '';
     };
 
-    const confirm = () => {
-        const newSubtotal = parseFloat(input.value);
-        if (newSubtotal && newSubtotal > 0) {
-            const newQty = parseFloat((newSubtotal / itemPrice).toFixed(3));
-            console.log(`[editSubtotal] ${item.name}: S/${newSubtotal} ÷ S/${itemPrice} = ${newQty}`);
+    const save = () => {
+        const n = parseFloat(inp.value);
+        if (n > 0) {
+            const newQty = parseFloat((n / price).toFixed(3));
+            console.log(`[editSubtotal] ${item.name}: S/${n} ÷ S/${price} = ${newQty}`);
             updateQuantity(productId, newQty);
         } else {
             restore();
         }
     };
 
-    input.addEventListener('blur', confirm);
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-        if (e.key === 'Escape') {
-            input.removeEventListener('blur', confirm);
-            restore();
-        }
+    inp.addEventListener('blur', save);
+    inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        if (e.key === 'Escape') { inp.removeEventListener('blur', save); restore(); }
     });
 }
 
 
 // ================================================================
-// editCartName — NUEVA función: cambiar producto por variante/marca
+// editCartName — Cambiar producto por variante/marca
 // ================================================================
 function editCartName(productId, nameElement) {
     const item = AppState.cart.find(i => i.id === productId);
@@ -546,7 +561,7 @@ function editCartName(productId, nameElement) {
 
     nameElement.classList.add('editing');
     nameElement.innerHTML = `
-        <input type="text" class="name-edit-input" value="${originalName}" placeholder="Buscar producto...">
+        <input type="text" class="name-edit-input" value="${originalName}" placeholder="Buscar...">
         <div class="name-suggestions" style="display:none"></div>
     `;
     nameElement.style.border = 'none';
@@ -564,42 +579,30 @@ function editCartName(productId, nameElement) {
         nameElement.classList.remove('editing');
     };
 
-    // Buscar productos al escribir (debounce 300ms)
     input.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         const query = input.value.trim();
-        if (query.length < 2) {
-            sugBox.style.display = 'none';
-            return;
-        }
+        if (query.length < 2) { sugBox.style.display = 'none'; return; }
         searchTimeout = setTimeout(() => {
             _searchProductsForSwap(query, item, sugBox, nameElement);
         }, 300);
     });
 
     input.addEventListener('blur', () => {
-        // Delay para permitir click en sugerencia
         setTimeout(() => {
-            if (nameElement.querySelector('.name-edit-input')) {
-                restore();
-            }
+            if (nameElement.querySelector('.name-edit-input')) restore();
         }, 200);
     });
 
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            input.removeEventListener('blur', () => {});
-            restore();
-        }
-        if (e.key === 'Enter') {
-            input.blur();
-        }
+        if (e.key === 'Escape') { input.removeEventListener('blur', () => {}); restore(); }
+        if (e.key === 'Enter') input.blur();
     });
 }
 
 
 // ================================================================
-// _searchProductsForSwap — Busca productos en API para reemplazo
+// _searchProductsForSwap — API search para cambio de variante
 // ================================================================
 async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
     try {
@@ -608,41 +611,30 @@ async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
             body: JSON.stringify({ query: query, limit: 10 })
         });
 
-        if (!response.ok) {
-            sugBox.style.display = 'none';
-            return;
-        }
+        if (!response.ok) { sugBox.style.display = 'none'; return; }
 
         const products = await response.json();
-
-        // Filtrar: excluir el producto actual
         const filtered = products
             .filter(p => p.id !== currentItem.id)
             .slice(0, 5);
 
-        if (filtered.length === 0) {
-            sugBox.style.display = 'none';
-            return;
-        }
+        if (filtered.length === 0) { sugBox.style.display = 'none'; return; }
 
         sugBox.innerHTML = filtered.map(p => {
             const price = parseFloat(p.sale_price || 0).toFixed(2);
             const unit = p.unit || 'unidad';
-            return `
-                <div class="name-suggestion"
-                     data-id="${p.id}"
-                     data-name="${p.name}"
-                     data-price="${price}"
-                     data-unit="${unit}"
-                     data-stock="${p.stock || 0}">
-                    ${p.name}
-                    <span class="sug-price">S/. ${price}</span>
-                </div>`;
+            return `<div class="name-suggestion"
+                         data-id="${p.id}"
+                         data-name="${p.name}"
+                         data-price="${price}"
+                         data-unit="${unit}"
+                         data-stock="${p.stock || 0}">
+                ${p.name} <span class="sug-price">S/${price}</span>
+            </div>`;
         }).join('');
 
         sugBox.style.display = 'block';
 
-        // Click en sugerencia → reemplazar producto en carrito
         sugBox.querySelectorAll('.name-suggestion').forEach(el => {
             el.addEventListener('mousedown', (e) => {
                 e.preventDefault();
@@ -652,15 +644,12 @@ async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
                 const newUnit = el.dataset.unit;
                 const newStock = parseInt(el.dataset.stock) || 0;
 
-                // Verificar si el nuevo producto ya está en el carrito
                 const existing = AppState.cart.find(i => i.id === newId);
                 if (existing) {
-                    // Sumar cantidad al existente y eliminar el actual
                     existing.quantity += currentItem.quantity;
                     AppState.cart = AppState.cart.filter(i => i.id !== currentItem.id);
-                    showToast(`${newName} actualizado (sumada cantidad)`, 'info');
+                    showToast(`${newName} actualizado`, 'info');
                 } else {
-                    // Reemplazar datos del item actual
                     currentItem.id = newId;
                     currentItem.name = newName;
                     currentItem.price = newPrice;
@@ -673,9 +662,8 @@ async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
                 renderCart();
             });
         });
-
     } catch (err) {
-        console.error('[editName] Error buscando productos:', err);
+        console.error('[editName] Error:', err);
         sugBox.style.display = 'none';
     }
 }
@@ -686,8 +674,7 @@ async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
 // ================================================================
 function _setupCartSwipe() {
     document.querySelectorAll('.cart-item').forEach(el => {
-        let startX = 0;
-        let swiped = false;
+        let startX = 0, swiped = false;
 
         el.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
@@ -696,17 +683,12 @@ function _setupCartSwipe() {
 
         el.addEventListener('touchmove', (e) => {
             const diff = startX - e.touches[0].clientX;
-            if (diff > 50) {
-                el.classList.add('swiped');
-                swiped = true;
-            } else {
-                el.classList.remove('swiped');
-            }
+            if (diff > 50) { el.classList.add('swiped'); swiped = true; }
+            else { el.classList.remove('swiped'); }
         }, { passive: true });
 
         el.addEventListener('touchend', () => {
             if (swiped) {
-                // Auto-ocultar después de 3 segundos
                 setTimeout(() => {
                     if (el && el.classList.contains('swiped')) {
                         el.classList.remove('swiped');
@@ -4939,135 +4921,6 @@ document.getElementById('modal-dias-credito-overlay')?.addEventListener('click',
 // Agregar a dashboard_principal.js
 // ============================================
 
-// ============================================
-// FUNCIÓN: Renderizar item del carrito con cantidad editable
-// REEMPLAZAR tu función renderCartItem() o similar
-// ============================================
-
-function renderCartItem(item, index) {
-    // ✅ DEFINIR quantityDisplay ANTES de usar
-    const quantityDisplay = item.quantity % 1 === 0 
-        ? item.quantity 
-        : item.quantity.toFixed(3);
-    
-    const unitDisplay = item.unit || 'unidad';
-    
-    return `
-        <div class="cart-item" data-index="${index}">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">S/. ${item.price.toFixed(2)} / ${unitDisplay}</div>
-            </div>
-            
-            <div class="cart-item-controls">
-                <button onclick="decreaseQuantity(${index})" class="btn-qty">-</button>
-                
-                <div class="qty-display" onclick="activarEdicionCantidad(${index})">
-                    <span id="qty-text-${index}">${quantityDisplay} ${unitDisplay}</span>
-                    <input 
-                        type="number" 
-                        id="qty-input-${index}" 
-                        value="${item.quantity}"
-                        min="0.001"
-                        step="0.001"
-                        max="9999"
-                        style="display: none;"
-                        onblur="guardarCantidad(${index})"
-                        onkeypress="if(event.key==='Enter') guardarCantidad(${index})"
-                    >
-                </div>
-                
-                <button onclick="increaseQuantity(${index})" class="btn-qty">+</button>
-            </div>
-            
-            <div class="cart-item-subtotal">
-                S/. ${(item.price * item.quantity).toFixed(2)}
-            </div>
-            
-            <button onclick="removeFromCart(${index})" class="btn-remove">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `;
-}
-
-// ============================================
-// FUNCIÓN: Activar edición de cantidad
-// ============================================
-
-function activarEdicionCantidad(index) {
-    // Ocultar texto
-    document.getElementById(`qty-text-${index}`).style.display = 'none';
-    
-    // Mostrar input
-    const input = document.getElementById(`qty-input-${index}`);
-    input.style.display = 'inline-block';
-    input.focus();
-    input.select();
-}
-
-// ============================================
-// FUNCIÓN: Guardar cantidad editada
-// ============================================
-
-function guardarCantidad(index) {
-    const input = document.getElementById(`qty-input-${index}`);
-    const newQuantity = parseInt(input.value);
-    
-    // Validar
-    if (isNaN(newQuantity) || newQuantity < 1) {
-        showToast('Cantidad inválida', 'warning');
-        input.value = AppState.cart[index].quantity;
-        return;
-    }
-    
-    if (newQuantity > 9999) {
-        showToast('Cantidad máxima: 9999', 'warning');
-        input.value = 9999;
-        AppState.cart[index].quantity = 9999;
-    } else {
-        AppState.cart[index].quantity = newQuantity;
-    }
-    
-    // Guardar y actualizar
-    saveCart();
-    renderCart();
-    
-    console.log('[Cart] Cantidad actualizada a:', newQuantity);
-}
-
-// ============================================
-// ALTERNATIVA: Input con botones +/- integrados
-// ============================================
-
-function renderCartItemAlternativo(item, index) {
-    return `
-        <div class="cart-item">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">S/. ${item.price.toFixed(2)}</div>
-            </div>
-            
-            <div class="cart-quantity-group">
-                <button onclick="decreaseQuantity(${index})" class="btn-qty-mini">-</button>
-                <input 
-                    type="number" 
-                    value="${item.quantity}"
-                    min="1"
-                    max="9999"
-                    class="qty-input-inline"
-                    onchange="actualizarCantidadDirecta(${index}, this.value)"
-                    onwheel="this.blur()"
-                >
-                <button onclick="increaseQuantity(${index})" class="btn-qty-mini">+</button>
-            </div>
-            
-            <div class="cart-item-subtotal">
-                S/. ${(item.price * item.quantity).toFixed(2)}
-            </div>
-        </div>
-    `;
-}
 
 function actualizarCantidadDirecta(index, value) {
     const newQuantity = parseInt(value);
