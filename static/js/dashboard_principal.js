@@ -273,44 +273,6 @@ function addToCart(product, quantity = 1, silent = false) {
 
 }
 
-
-// ================================================================
-// FIX 2: NUEVA FUNCIÓN — sellByAmount ("3 soles de papa")
-// ================================================================
-// Calcula la cantidad basada en un monto en soles.
-// Ejemplo: producto a S/. 4.80/kg, cliente pide S/. 3 → 0.625 kg
-// AGREGAR esta función donde convenga (después de addToCart).
-// Se puede invocar desde la voz o desde un botón en el futuro.
-
-function sellByAmount(productId, amountInSoles) {
-    const product = AppState.products?.find(p => p.id === productId);
-    if (!product) {
-        showToast('Producto no encontrado', 'error');
-        return;
-    }
-
-    const price = parseFloat(product.sale_price) || parseFloat(product.price) || 0;
-    if (price <= 0) {
-        showToast('Producto sin precio válido', 'error');
-        return;
-    }
-
-    // Calcular cantidad: monto / precio_unitario
-    const quantity = parseFloat((amountInSoles / price).toFixed(3));
-
-    if (quantity <= 0) {
-        showToast('Cantidad calculada inválida', 'error');
-        return;
-    }
-
-    console.log(`[sellByAmount] ${product.name}: S/ ${amountInSoles} ÷ S/ ${price} = ${quantity} ${product.unit || 'unidad'}`);
-
-    addToCart(product, quantity);
-    showToast(`✅ ${quantity} ${product.unit || 'unid'} de ${product.name} (S/ ${amountInSoles})`, 'success');
-}
-
-
-
 function updateQuantity(productId, quantity) {
     const item = AppState.cart.find(i => i.id === productId);
     if (item) {
@@ -444,10 +406,10 @@ function renderCart() {
         const itemQuantity = parseFloat(item.quantity) || 1;
         const itemTotal = itemPrice * itemQuantity;
 
-        // FIX 2: Formatear cantidad inteligentemente
+        // Máximo 2 decimales
         const quantityDisplay = itemQuantity % 1 === 0
             ? itemQuantity
-            : itemQuantity.toFixed(3);
+            : itemQuantity.toFixed(2);
 
         const unitDisplay = item.unit || 'unidad';
 
@@ -459,13 +421,20 @@ function renderCart() {
             </div>
             <div class="cart-item-qty">
                 <button onclick="decreaseQty(${item.id})">−</button>
-                <!-- ✅ FIX 2: Cantidad editable con tap -->
-                <span class="qty-display" onclick="editCartQuantity(${item.id}, this)" title="Toca para editar cantidad">
-                    ${quantityDisplay} ${unitDisplay}
+                <span class="qty-display"
+                      onclick="editCartQuantity(${item.id}, this)"
+                      title="Toca para editar cantidad"
+                      style="cursor:pointer; min-width:40px; text-align:center;">
+                    ${quantityDisplay}
                 </span>
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
-            <div class="cart-item-subtotal">S/. ${itemTotal.toFixed(2)}</div>
+            <div class="cart-item-subtotal"
+                 onclick="editCartSubtotal(${item.id}, this)"
+                 title="Toca para editar monto"
+                 style="cursor:pointer;">
+                S/. ${itemTotal.toFixed(2)}
+            </div>
         </div>
         `;
     }).join('');
@@ -486,28 +455,28 @@ function editCartQuantity(productId, spanElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
 
-    const unitDisplay = item.unit || 'unidad';
     const currentQty = parseFloat(item.quantity) || 1;
 
-    // Crear input inline
     const input = document.createElement('input');
     input.type = 'number';
-    input.step = '0.001';
-    input.min = '0.001';
-    input.value = currentQty % 1 === 0 ? currentQty : currentQty.toFixed(3);
+    input.step = '0.01';
+    input.min = '0.01';
+    input.value = currentQty % 1 === 0 ? currentQty : currentQty.toFixed(2);
     input.style.cssText = `
-        width: 60px;
-        padding: 4px 6px;
+        width: 55px;
+        padding: 4px 4px;
         text-align: center;
-        background: rgba(255,255,255,0.15);
+        background: rgba(139, 92, 246, 0.25);
         border: 2px solid #8b5cf6;
         border-radius: 6px;
-        color: white;
-        font-size: 14px;
+        color: #e2e8f0;
+        font-size: 13px;
         font-weight: 600;
+        outline: none;
+        -moz-appearance: textfield;
+        -webkit-appearance: none;
     `;
 
-    // Reemplazar span por input
     spanElement.style.display = 'none';
     spanElement.parentNode.insertBefore(input, spanElement.nextSibling);
     input.focus();
@@ -518,22 +487,95 @@ function editCartQuantity(productId, spanElement) {
         if (newQty && newQty > 0) {
             updateQuantity(productId, newQty);
         }
-        // renderCart() ya es llamado por updateQuantity, lo cual reconstruye el DOM
         if (input.parentNode) input.remove();
     };
 
     input.addEventListener('blur', confirm);
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            confirm();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); confirm(); }
         if (e.key === 'Escape') {
             if (input.parentNode) input.remove();
             spanElement.style.display = '';
         }
     });
 }
+
+
+function editCartSubtotal(productId, subtotalElement) {
+    const item = AppState.cart.find(i => i.id === productId);
+    if (!item) return;
+
+    const itemPrice = parseFloat(item.price) || 0;
+    const currentSubtotal = itemPrice * parseFloat(item.quantity);
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = '0.10';
+    input.min = '0.10';
+    input.value = currentSubtotal.toFixed(2);
+    input.style.cssText = `
+        width: 70px;
+        padding: 4px 4px;
+        text-align: right;
+        background: rgba(234, 179, 8, 0.2);
+        border: 2px solid #eab308;
+        border-radius: 6px;
+        color: #fbbf24;
+        font-size: 13px;
+        font-weight: 700;
+        outline: none;
+        -moz-appearance: textfield;
+        -webkit-appearance: none;
+    `;
+
+    subtotalElement.style.display = 'none';
+    subtotalElement.parentNode.insertBefore(input, subtotalElement.nextSibling);
+    input.focus();
+    input.select();
+
+    const confirm = () => {
+        const newSubtotal = parseFloat(input.value);
+        if (newSubtotal && newSubtotal > 0 && itemPrice > 0) {
+            const newQty = parseFloat((newSubtotal / itemPrice).toFixed(3));
+            console.log(`[editSubtotal] ${item.name}: S/${newSubtotal} ÷ S/${itemPrice} = ${newQty}`);
+            updateQuantity(productId, newQty);
+        }
+        if (input.parentNode) input.remove();
+    };
+
+    input.addEventListener('blur', confirm);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); confirm(); }
+        if (e.key === 'Escape') {
+            if (input.parentNode) input.remove();
+            subtotalElement.style.display = '';
+        }
+    });
+}
+
+
+function sellByAmount(productId, amountInSoles) {
+    const product = AppState.products?.find(p => p.id === productId);
+    if (!product) {
+        showToast('Producto no encontrado', 'error');
+        return;
+    }
+
+    const price = parseFloat(product.sale_price) || parseFloat(product.price) || 0;
+    if (price <= 0) {
+        showToast('Producto sin precio válido', 'error');
+        return;
+    }
+
+    const quantity = parseFloat((amountInSoles / price).toFixed(3));
+    if (quantity <= 0) return;
+
+    console.log(`[sellByAmount] ${product.name}: S/${amountInSoles} ÷ S/${price} = ${quantity} ${product.unit || 'unidad'}`);
+
+    addToCart(product, quantity);
+    showToast(`✅ ${quantity} ${product.unit || 'unid'} de ${product.name} (S/ ${amountInSoles})`, 'success');
+}
+
 
 
 // ============================================
@@ -2229,12 +2271,24 @@ async function processSale() {
 // REEMPLAZAR: async function executeSale
 // ============================================
 
+// ================================================================
+// 1. executeSale — Guardar método de pago ANTES del reset
+// ================================================================
+// Ctrl+F: "async function executeSale"
+// Reemplazar TODA la función
+
 async function executeSale(total, printType = 'none') {
-    // 🔥 MOSTRAR LOADER
+    // ✅ CAPTURAR método de pago ANTES de que se resetee
+    window._lastSalePayment = {
+        method: AppState.paymentMethod,
+        isCredit: AppState.paymentMethod === 'fiado',
+        creditDays: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7
+    };
+    console.log('[executeSale] Pago guardado:', window._lastSalePayment);
+
     const loader = showLoader('Procesando venta...');
-    
+
     try {
-        // ✅ OBTENER DATOS DEL MODAL (si es fiado)
         let customerData = null;
         if (AppState.paymentMethod === 'fiado') {
             customerData = {
@@ -2245,7 +2299,7 @@ async function executeSale(total, printType = 'none') {
                 dias: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7
             };
         }
-        
+
         const saleData = {
             items: AppState.cart.map(item => ({
                 product_id: item.id,
@@ -2258,17 +2312,17 @@ async function executeSale(total, printType = 'none') {
             customer_name: customerData?.nombre || null,
             is_credit: AppState.paymentMethod === 'fiado'
         };
-        
+
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
-        
+
         const response = await fetchWithAuth(`${CONFIG.apiBase}/sales`, {
             method: 'POST',
             body: JSON.stringify(saleData)
         });
-        
+
         const responseText = await response.text();
         console.log('[Sale] Response:', response.status, responseText);
-        
+
         if (response.ok) {
             let result;
             try {
@@ -2277,53 +2331,43 @@ async function executeSale(total, printType = 'none') {
                 result = {};
             }
 
-            // 🔥 Registrar fiado si es necesario
             if (AppState.paymentMethod === 'fiado' && result.id && customerData) {
                 await registrarFiadoDespuesDeVentaMejorado(result.id, total, customerData);
             }
-            
-            // Actualizar ventas del día
+
             AppState.dailySales += total;
             updateGoalProgress();
-            
-            // Manejar impresión
+
+            // ✅ handlePrint ANTES de resetear (y lee de window._lastSalePayment)
             handlePrint(printType, result, total);
-            
-            // Limpiar carrito
+
             AppState.cart = [];
             saveCart();
             renderCart();
-            
-            // ✅ Cerrar modal de fiado
+
             const modalFiado = document.getElementById('modal-fiado-overlay');
             if (modalFiado) {
                 modalFiado.style.display = 'none';
-                // Limpiar campos
                 document.getElementById('modal-fiado-nombre').value = '';
                 document.getElementById('modal-fiado-telefono').value = '';
                 document.getElementById('modal-fiado-direccion').value = '';
                 document.getElementById('modal-fiado-referencia').value = '';
                 document.getElementById('modal-fiado-dias').value = '';
-
-                // Resetear a efectivo
                 selectPayment('efectivo');
             }
-            
-            // Mostrar botón cobrar de nuevo
+
             const btnCobrar = document.getElementById('btn-checkout');
             if (btnCobrar) btnCobrar.style.display = 'flex';
-            
-            // Reset método de pago
+
             selectPaymentUI('efectivo');
             AppState.paymentMethod = 'efectivo';
-            
+
             playSound('success');
-            
-            // Usar AudioAssistant
+
             if (typeof AudioAssistant !== 'undefined') {
                 AudioAssistant.speak(`Venta completada por ${total.toFixed(2)} soles. ¡Gracias por su compra!`);
             }
-            
+
         } else {
             let errorMsg = 'Error al registrar venta';
             try {
@@ -2335,7 +2379,7 @@ async function executeSale(total, printType = 'none') {
             console.error('[Sale] Error:', errorMsg);
             showToast(errorMsg, 'error');
         }
-        
+
     } catch (error) {
         console.error('[Sale] Error:', error);
         showToast('Error de conexión', 'error');
@@ -2388,33 +2432,28 @@ function hideLoader() {
 // REEMPLAZAR la función handlePrint completa
 
 function handlePrint(printType, saleResult, total) {
-    console.log('[handlePrint] tipo:', printType, 'saleResult:', saleResult?.id, 'total:', total);
+    console.log('[handlePrint] tipo:', printType, 'saleId:', saleResult?.id, 'pago:', window._lastSalePayment);
 
     switch (printType) {
         case 'none':
             showToast('✅ Venta registrada', 'success');
             break;
-
         case 'simple':
             showToast('🖨️ Imprimiendo ticket simple...', 'info');
             printSimpleTicket(saleResult, total);
             break;
-
         case 'ticket_electronico':
             showToast('🧾 Generando Ticket Electrónico...', 'info');
             printTicketElectronico(saleResult, total);
             break;
-
         case 'boleta':
             showToast('📄 Generando Boleta SUNAT...', 'info');
             printBoletaSunat(saleResult, total);
             break;
-
         case 'factura':
             showToast('📋 Abriendo datos para Factura...', 'info');
             requestFacturaData(saleResult, total);
             break;
-
         default:
             console.warn('[handlePrint] Tipo desconocido:', printType);
             showToast('✅ Venta registrada', 'success');
@@ -2757,7 +2796,7 @@ function _showBoletaClienteModal(saleResult, total, formato) {
                         <option value="6">RUC</option>
                     </select>
                     <div style="flex: 1; display: flex; gap: 6px;">
-                        <input type="text" id="boleta-num-doc" placeholder="Nº documento" maxlength="11"
+                        <input type="text" id="boleta-num-doc" placeholder="N° documento" maxlength="11"
                             style="${inputStyle}flex:1;">
                         <button id="btn-buscar-doc-boleta"
                             style="padding:10px 12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;border-radius:8px;color:white;cursor:pointer;font-size:13px;">
@@ -2768,8 +2807,6 @@ function _showBoletaClienteModal(saleResult, total, formato) {
                 <div id="boleta-doc-status" style="font-size: 11px; min-height: 14px; margin-bottom: 6px;"></div>
                 <input type="text" id="boleta-nombre" placeholder="Nombre / Razón Social"
                     style="${inputStyle} margin-bottom: 8px;">
-
-                <!-- ✅ FIX 1b: NUEVO CAMPO DIRECCIÓN -->
                 <input type="text" id="boleta-direccion" placeholder="Dirección (opcional)"
                     style="${inputStyle}">
             </div>
@@ -2798,12 +2835,10 @@ function _showBoletaClienteModal(saleResult, total, formato) {
         justify-content: center !important;
     `;
 
-    // Bind events
     modal.querySelector('#btn-boleta-cancel').onclick = () => { modal.style.display = 'none'; };
     modal.querySelector('#btn-boleta-emitir').onclick = () => _emitirBoletaConCliente(saleId, formato);
     modal.querySelector('#btn-buscar-doc-boleta').onclick = () => _buscarDocBoleta();
 
-    // Auto-buscar al completar 8 (DNI) o 11 (RUC) dígitos
     const docInput = modal.querySelector('#boleta-num-doc');
     docInput.addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\D/g, '');
@@ -2813,7 +2848,6 @@ function _showBoletaClienteModal(saleResult, total, formato) {
         }
     });
 
-    // Cambiar maxlength según tipo doc
     modal.querySelector('#boleta-tipo-doc').addEventListener('change', (e) => {
         const maxLen = e.target.value === '6' ? 11 : 8;
         docInput.maxLength = maxLen;
@@ -2864,7 +2898,6 @@ async function _buscarDocBoleta() {
 
         if (data.success) {
             nombreInput.value = data.razon_social || data.nombre || '';
-            // ✅ FIX 1b: Autocompletar dirección
             if (direccionInput && data.direccion) {
                 direccionInput.value = data.direccion;
             }
@@ -2887,15 +2920,17 @@ async function _emitirBoletaConCliente(saleId, formato) {
     const tipoDoc = document.getElementById('boleta-tipo-doc')?.value || '0';
     const numDoc = document.getElementById('boleta-num-doc')?.value.trim() || '00000000';
     const nombre = document.getElementById('boleta-nombre')?.value.trim() || 'CLIENTE VARIOS';
-    // ✅ FIX 1b: Obtener dirección
     const direccion = document.getElementById('boleta-direccion')?.value.trim() || null;
 
-    // Cerrar modal
     const modal = document.getElementById('boleta-cliente-modal');
     if (modal) modal.style.display = 'none';
 
     const tipoLabel = formato === 'TICKET' ? 'Ticket' : 'Boleta';
     showToast(`Emitiendo ${tipoLabel}...`, 'info');
+
+    // ✅ Leer datos de pago guardados ANTES del reset
+    const pago = window._lastSalePayment || { method: 'efectivo', isCredit: false, creditDays: 0 };
+    console.log('[emitirBoleta] Datos de pago:', pago);
 
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
@@ -2907,14 +2942,10 @@ async function _emitirBoletaConCliente(saleId, formato) {
                 cliente_tipo_doc: tipoDoc,
                 cliente_num_doc: numDoc,
                 cliente_nombre: nombre,
-                // ✅ FIX 1b: Incluir dirección
                 cliente_direccion: direccion,
-                // ✅ FIX 3: Incluir método de pago y crédito
-                payment_method: AppState.paymentMethod || 'efectivo',
-                is_credit: AppState.paymentMethod === 'fiado',
-                credit_days: AppState.paymentMethod === 'fiado'
-                    ? (parseInt(document.getElementById('modal-fiado-dias')?.value) || 7)
-                    : 0
+                payment_method: pago.method,
+                is_credit: pago.isCredit,
+                credit_days: pago.creditDays
             })
         });
 
@@ -2922,7 +2953,6 @@ async function _emitirBoletaConCliente(saleId, formato) {
 
         if (response.ok && data.success) {
             showToast(`${tipoLabel} emitida: ${data.numero_formato}`, 'success');
-
             if (data.comprobante_id) {
                 showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '03', formato);
             }
@@ -2931,7 +2961,6 @@ async function _emitirBoletaConCliente(saleId, formato) {
         }
     } catch (error) {
         console.error('[Billing] Error:', error);
-
         if (error.message && (error.message.includes('no configurada') || error.message.includes('not configured'))) {
             showToast('Facturación no configurada. Ve a Configuración.', 'warning');
         } else {
@@ -2951,7 +2980,7 @@ async function _emitirBoletaConCliente(saleId, formato) {
 
 function requestFacturaData(saleResult, total) {
     const saleId = saleResult.id || saleResult.sale_id;
-    console.log('[Factura] Abriendo modal para saleId:', saleId, 'total:', total);
+    console.log('[Factura] Abriendo modal saleId:', saleId);
 
     if (!saleId) {
         showToast('Error: No se encontró ID de venta', 'error');
@@ -3017,49 +3046,33 @@ function requestFacturaData(saleResult, total) {
         </div>
     `;
 
-    // ✅ FIX 1: z-index 10006 para estar SIEMPRE encima de todo
     modal.style.cssText = `
         display: flex !important;
         position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important; height: 100% !important;
         background: rgba(0, 0, 0, 0.85) !important;
         z-index: 10006 !important;
         align-items: center !important;
         justify-content: center !important;
     `;
 
-    console.log('[Factura] Modal creado y mostrado');
-
-    // Bind events
     modal.querySelector('#btn-buscar-ruc').onclick = () => _buscarRucFactura();
     modal.querySelector('#btn-factura-cancel').onclick = () => closeFacturaDataModal();
     modal.querySelector('#btn-factura-emitir').onclick = () => emitFacturaFromModal(saleId, total);
 
-    // Auto-buscar al escribir 11 dígitos
     const rucInput = modal.querySelector('#modal-factura-ruc');
     rucInput.addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\D/g, '');
         if (e.target.value.length === 11) {
             _buscarRucFactura();
-        }
-        // ✅ FIX 1: Habilitar botón emitir si tiene 11 dígitos (para ingreso manual)
-        const emitBtn = document.getElementById('btn-factura-emitir');
-        if (e.target.value.length === 11) {
-            // Habilitar edición manual de campos
             document.getElementById('modal-factura-razon')?.removeAttribute('readonly');
             document.getElementById('modal-factura-direccion')?.removeAttribute('readonly');
         }
     });
 
-    // Enter en RUC → buscar
     rucInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            _buscarRucFactura();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); _buscarRucFactura(); }
     });
 
     setTimeout(() => rucInput?.focus(), 100);
@@ -3124,22 +3137,21 @@ async function emitFacturaFromModal(saleId, total) {
 
     if (!ruc || ruc.length !== 11) {
         showToast('RUC debe tener 11 dígitos', 'warning');
-        document.getElementById('modal-factura-ruc')?.focus();
         return;
     }
     if (!razon) {
-        showToast('Razón Social es obligatoria para Factura', 'warning');
-        document.getElementById('modal-factura-razon')?.focus();
+        showToast('Razón Social es obligatoria', 'warning');
         return;
     }
     if (!direccion) {
         showToast('Dirección es obligatoria para Factura', 'warning');
-        document.getElementById('modal-factura-direccion')?.focus();
         return;
     }
 
     closeFacturaDataModal();
     showToast('Emitiendo Factura SUNAT...', 'info');
+
+    const pago = window._lastSalePayment || { method: 'efectivo', isCredit: false, creditDays: 0 };
 
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
@@ -3152,12 +3164,9 @@ async function emitFacturaFromModal(saleId, total) {
                 cliente_num_doc: ruc,
                 cliente_nombre: razon,
                 cliente_direccion: direccion,
-                // ✅ FIX 3: Incluir método de pago y crédito
-                payment_method: AppState.paymentMethod || 'efectivo',
-                is_credit: AppState.paymentMethod === 'fiado',
-                credit_days: AppState.paymentMethod === 'fiado'
-                    ? (parseInt(document.getElementById('modal-fiado-dias')?.value) || 7)
-                    : 0
+                payment_method: pago.method,
+                is_credit: pago.isCredit,
+                credit_days: pago.creditDays
             })
         });
 
@@ -3173,11 +3182,7 @@ async function emitFacturaFromModal(saleId, total) {
         }
     } catch (error) {
         console.error('[Billing] Error factura:', error);
-        if (error.message && error.message.includes('no configurada')) {
-            showToast('⚠️ Facturación no configurada. Ve a Configuración.', 'warning');
-        } else {
-            showToast(`Error: ${error.message}`, 'error');
-        }
+        showToast(`Error: ${error.message}`, 'error');
     }
 }
 
