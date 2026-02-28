@@ -395,33 +395,55 @@
             </div>
         </section>
 
-        <!-- TOTAL Y PAGO -->
+        <!-- TOTAL Y PAGO — v2 compacto -->
         <section class="checkout-section">
-            <div class="total-row">
-                <span class="total-label">TOTAL</span>
-                <span class="total-amount" id="total-amount">S/. 0.00</span>
+            
+            <!-- Fila única: COBRAR | método | TOTAL -->
+            <div class="checkout-row">
+                <button class="btn-checkout" id="btn-checkout" onclick="processSale()">
+                    <i class="fas fa-cash-register"></i> COBRAR
+                </button>
+                
+                <button class="btn-payment-select" id="btn-payment-select" onclick="togglePaymentPopup()">
+                    <i class="fas fa-money-bill-wave" id="payment-select-icon"></i>
+                    <span class="payment-select-label" id="payment-select-label">Efectivo</span>
+                </button>
+                
+                <div class="checkout-total">
+                    <div class="checkout-total-label">TOTAL</div>
+                    <div class="checkout-total-amount" id="total-amount">S/. 0.00</div>
+                </div>
             </div>
             
-            <div class="payment-methods" id="payment-methods">
-                <button class="payment-btn active" data-method="efectivo" onclick="selectPayment('efectivo', event)">
-                    <i class="fas fa-money-bill-wave"></i> Efectivo
-                </button>
-                <button class="payment-btn" data-method="yape" onclick="selectPayment('yape', event)">
-                    <img src="/static/img/yape-icon.png" alt="Yape" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Yape
-                </button>
-                <button class="payment-btn" data-method="plin" onclick="selectPayment('plin', event)">
-                    <img src="/static/img/plin-icon.png" alt="Plin" onerror="this.outerHTML='<i class=\'fas fa-mobile-alt\'></i>'"> Plin
-                </button>
-                <button class="payment-btn" data-method="tarjeta" onclick="selectPayment('tarjeta', event)">
-                    <i class="fas fa-credit-card"></i> Tarjeta
-                </button>
-                <button class="payment-btn" data-method="fiado" onclick="selectPayment('fiado', event)">
-                    <i class="fas fa-handshake"></i> Fiado
-                </button>
+            <!-- Popup métodos de pago — estilo ALERTA -->
+            <div class="payment-popup-overlay" id="payment-popup-overlay" onclick="closePaymentPopup()" style="display:none"></div>
+            <div class="payment-popup" id="payment-popup" style="display:none">
+                <div class="payment-popup-title">Método de pago</div>
+                <div class="payment-popup-options">
+                    <button class="payment-popup-btn active" data-method="efectivo" onclick="selectPaymentV2('efectivo', 'fa-money-bill-wave', 'Efectivo', this)">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Efectivo
+                    </button>
+                    <button class="payment-popup-btn" data-method="yape" onclick="selectPaymentV2('yape', 'fa-mobile-screen', 'Yape', this)">
+                        <i class="fas fa-mobile-screen"></i>
+                        Yape
+                    </button>
+                    <button class="payment-popup-btn" data-method="plin" onclick="selectPaymentV2('plin', 'fa-mobile-screen-button', 'Plin', this)">
+                        <i class="fas fa-mobile-screen-button"></i>
+                        Plin
+                    </button>
+                    <button class="payment-popup-btn" data-method="tarjeta" onclick="selectPaymentV2('tarjeta', 'fa-credit-card', 'Tarjeta', this)">
+                        <i class="fas fa-credit-card"></i>
+                        Tarjeta
+                    </button>
+                    <button class="payment-popup-btn fiado-btn" data-method="fiado" onclick="selectPaymentV2('fiado', 'fa-handshake', 'Fiado', this)">
+                        <i class="fas fa-handshake"></i>
+                        Fiado
+                    </button>
+                </div>
             </div>
             
-            <!-- Campo cliente para Fiado - VERSIÓN COMPLETA -->
-            <!-- Overlay oscuro flotante -->
+            <!-- Modal Fiado — SIN CAMBIOS, se mantiene igual -->
             <div id="modal-fiado-overlay" class="fiado-overlay" style="display: none;">
                 <div class="modal-fiado-container">
                     <div class="modal-fiado-header">
@@ -435,7 +457,6 @@
                     </div>
                     
                     <div class="modal-fiado-body">
-                        <!-- Información del cliente -->
                         <div class="form-section">
                             <h3><i class="fas fa-user"></i> Información Personal</h3>
                             
@@ -443,101 +464,57 @@
                                 <label for="modal-fiado-nombre">
                                     <i class="fas fa-user"></i> Nombre Completo *
                                 </label>
-                                <input 
-                                    type="text" 
-                                    id="modal-fiado-nombre" 
-                                    placeholder="Ej: Juan Pérez García"
-                                    required
-                                    autocomplete="off">
+                                <input type="text" id="modal-fiado-nombre" placeholder="Ej: Juan Pérez García" required autocomplete="off">
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="modal-fiado-telefono">
-                                        <i class="fas fa-phone"></i> Teléfono *
-                                    </label>
-                                    <input 
-                                        type="tel" 
-                                        id="modal-fiado-telefono" 
-                                        placeholder="987654321"
-                                        required
-                                        maxlength="9">
+                                    <label for="modal-fiado-telefono"><i class="fas fa-phone"></i> Teléfono *</label>
+                                    <input type="tel" id="modal-fiado-telefono" placeholder="987654321" required maxlength="9">
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label for="modal-fiado-dni">
-                                        <i class="fas fa-id-card"></i> DNI
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        id="modal-fiado-dni" 
-                                        placeholder="12345678"
-                                        maxlength="8">
+                                    <label for="modal-fiado-dni"><i class="fas fa-id-card"></i> DNI</label>
+                                    <input type="text" id="modal-fiado-dni" placeholder="12345678" maxlength="8">
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="modal-fiado-direccion">
-                                    <i class="fas fa-map-marker-alt"></i> Dirección *
-                                </label>
-                                <input 
-                                    type="text" 
-                                    id="modal-fiado-direccion" 
-                                    placeholder="Ej: Jr. Lima 123, Breña"
-                                    required>
+                                <label for="modal-fiado-direccion"><i class="fas fa-map-marker-alt"></i> Dirección *</label>
+                                <input type="text" id="modal-fiado-direccion" placeholder="Ej: Jr. Lima 123, Breña" required>
                             </div>
                         </div>
                         
-                        <!-- Términos del crédito -->
                         <div class="form-section">
                             <h3><i class="fas fa-calendar-alt"></i> Términos del Crédito</h3>
-                            
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="modal-fiado-dias">
-                                        <i class="fas fa-clock"></i> Días de Crédito *
-                                    </label>
+                                    <label for="modal-fiado-dias"><i class="fas fa-clock"></i> Días de Crédito *</label>
                                     <select id="modal-fiado-dias" required>
-                                        <option value="7">7 días (1 semana)</option>
-                                        <option value="15">15 días (2 semanas)</option>
-                                        <option value="30" selected>30 días (1 mes)</option>
-                                        <option value="60">60 días (2 meses)</option>
-                                        <option value="90">90 días (3 meses)</option>
+                                        <option value="7">7 días</option>
+                                        <option value="15">15 días</option>
+                                        <option value="30" selected>30 días</option>
+                                        <option value="60">60 días</option>
+                                        <option value="90">90 días</option>
                                     </select>
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label for="modal-fiado-referencia">
-                                        <i class="fas fa-hashtag"></i> N° Referencia
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        id="modal-fiado-referencia" 
-                                        placeholder="Ej: FI-001"
-                                        maxlength="20">
+                                    <label for="modal-fiado-referencia"><i class="fas fa-hashtag"></i> Referencia</label>
+                                    <input type="text" id="modal-fiado-referencia" placeholder="FI-001" maxlength="20">
                                 </div>
                             </div>
-                            
                             <div class="form-group">
-                                <label for="modal-fiado-notas">
-                                    <i class="fas fa-sticky-note"></i> Notas Adicionales
-                                </label>
-                                <textarea 
-                                    id="modal-fiado-notas" 
-                                    placeholder="Información adicional sobre el crédito..."
-                                    rows="3"
-                                    maxlength="500"></textarea>
+                                <label for="modal-fiado-notas"><i class="fas fa-sticky-note"></i> Notas</label>
+                                <textarea id="modal-fiado-notas" placeholder="Información adicional..." rows="2" maxlength="500"></textarea>
                             </div>
                         </div>
                         
-                        <!-- Resumen -->
                         <div class="fiado-summary">
                             <div class="summary-row">
                                 <span>Monto Total:</span>
                                 <strong id="fiado-total-display">S/. 0.00</strong>
                             </div>
                             <div class="summary-row">
-                                <span>Fecha de Vencimiento:</span>
+                                <span>Vencimiento:</span>
                                 <strong id="fiado-due-date">--/--/----</strong>
                             </div>
                         </div>
@@ -545,22 +522,14 @@
                     
                     <div class="modal-fiado-footer">
                         <button onclick="cerrarModalFiado()" class="btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Cancelar
+                            <i class="fas fa-times"></i> Cancelar
                         </button>
                         <button onclick="confirmarDatosFiado()" class="btn-primary">
-                            <i class="fas fa-check-circle"></i>
-                            Confirmar Datos
+                            <i class="fas fa-check-circle"></i> Confirmar
                         </button>
                     </div>
                 </div>
             </div>
-            
-            <!-- Botón COBRAR (visible cuando NO es fiado) -->
-            <button class="btn-checkout" id="btn-checkout" onclick="processSale()">
-                <i class="fas fa-cash-register"></i>
-                <span>COBRAR</span>
-            </button>
         </section>
 
         <!-- FOOTER -->
