@@ -65,7 +65,7 @@ class SaleItem(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     
     # Cantidades y precios
-    quantity = Column(Integer, nullable=False)
+    quantity = Column(Numeric(10, 3), nullable=False)
     unit_price = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
     
