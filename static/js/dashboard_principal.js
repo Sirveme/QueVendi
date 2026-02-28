@@ -552,9 +552,6 @@ function editCartSubtotal(productId, el) {
 // ================================================================
 // editCartName — Abre modal de variantes (sin teclado)
 // ================================================================
-// ================================================================
-// editCartName — Abre modal de variantes (sin teclado)
-// ================================================================
 function editCartName(productId, nameElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
