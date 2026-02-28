@@ -13,12 +13,14 @@ FIX 3 (2026-02-27):
 import httpx
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List 
 from decimal import Decimal
 from sqlalchemy.orm import Session
 
 from app.models.billing import StoreBillingConfig, Comprobante
 from app.models.sale import Sale, SaleItem
+
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,10 @@ METODO_PAGO_LABELS = {
     'fiado': 'Crédito',
 }
 
+def _decimal_default(obj):
+            if isinstance(obj, Decimal):
+                return float(obj)
+            raise TypeError(f"Type {type(obj)} not serializable")
 
 class BillingService:
     """Servicio para emitir comprobantes electrónicos vía facturalo.pro"""
@@ -176,7 +182,7 @@ class BillingService:
             cliente_nombre=cliente_nombre,
             cliente_direccion=cliente_direccion,
             cliente_email=cliente_email,
-            items=items,
+            items=json.loads(json.dumps(items, default=_decimal_default)),
             status="accepted",
             facturalo_id=resultado.get("facturalo_id"),
             sunat_response_code=resultado.get("sunat_code", "0"),
@@ -326,10 +332,7 @@ class BillingService:
 
         # FIX: Convertir cualquier Decimal en el payload a float
         import json
-        def _decimal_default(obj):
-            if isinstance(obj, Decimal):
-                return float(obj)
-            raise TypeError(f"Type {type(obj)} not serializable")
+        
         payload = json.loads(json.dumps(payload, default=_decimal_default))
         logger.info(f"[Billing] PAYLOAD limpio: {payload}")
 
