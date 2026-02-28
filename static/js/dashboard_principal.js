@@ -550,137 +550,138 @@ function editCartSubtotal(productId, el) {
 
 
 // ================================================================
-// editCartName — Cambiar producto por variante/marca
+// editCartName — Abre modal de variantes (sin teclado)
 // ================================================================
 function editCartName(productId, nameElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
-    if (nameElement.querySelector('.name-edit-input')) return;
 
-    const originalName = nameElement.textContent.trim();
-    
-    // Elevar el cart-item para que el dropdown no quede atrás
-    const cartItem = nameElement.closest('.cart-item');
-    if (cartItem) {
-        cartItem.style.overflow = 'visible';
-        cartItem.style.zIndex = '30';
-    }
+    // Evitar doble apertura
+    if (document.querySelector('.variant-selector-overlay')) return;
 
-    nameElement.classList.add('editing');
-    nameElement.innerHTML = `
-        <input type="text" class="name-edit-input" value="${originalName}" placeholder="Buscar...">
-        <div class="name-suggestions" style="display:none"></div>
+    // Primera palabra del nombre como término de búsqueda
+    const baseQuery = item.name.split(' ')[0];
+
+    // Crear overlay + modal
+    const overlay = document.createElement('div');
+    overlay.className = 'variant-selector-overlay';
+    overlay.onclick = () => _closeVariantSelector();
+
+    const modal = document.createElement('div');
+    modal.className = 'variant-selector';
+    modal.onclick = (e) => e.stopPropagation(); // No cerrar al tocar modal
+
+    modal.innerHTML = `
+        <div class="variant-selector-header">
+            <h3><i class="fas fa-exchange-alt"></i> Cambiar producto</h3>
+            <button class="variant-close-btn" onclick="_closeVariantSelector()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="variant-current">
+            Actual: <strong>${item.name}</strong> — S/${parseFloat(item.price).toFixed(2)}
+        </div>
+        <div class="variant-list" id="variant-list">
+            <div class="variant-loading">
+                <i class="fas fa-spinner"></i> Buscando variantes...
+            </div>
+        </div>
     `;
-    nameElement.style.border = 'none';
 
-    const input = nameElement.querySelector('.name-edit-input');
-    const sugBox = nameElement.querySelector('.name-suggestions');
-    input.focus();
-    input.select();
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
 
-    let searchTimeout = null;
-
-    const restore = () => {
-        nameElement.textContent = originalName;
-        nameElement.style.border = '';
-        nameElement.classList.remove('editing');
-        if (cartItem) {
-            cartItem.style.overflow = '';
-            cartItem.style.zIndex = '';
-        }
-    };
-
-    // Buscar variantes automáticamente al abrir
-    const baseQuery = originalName.split(' ')[0]; // Primera palabra: "Arroz", "Aceite"
-    _searchProductsForSwap(baseQuery, item, sugBox, nameElement);
-
-    input.addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        const query = input.value.trim();
-        if (query.length < 2) { sugBox.style.display = 'none'; return; }
-        searchTimeout = setTimeout(() => {
-            _searchProductsForSwap(query, item, sugBox, nameElement);
-        }, 300);
-    });
-
-    input.addEventListener('blur', () => {
-        setTimeout(() => {
-            if (nameElement.querySelector('.name-edit-input')) restore();
-        }, 250);
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { input.removeEventListener('blur', () => {}); restore(); }
-        if (e.key === 'Enter') input.blur();
-    });
+    // Buscar variantes
+    _loadVariants(baseQuery, item);
 }
 
 
 // ================================================================
-// _searchProductsForSwap — API search para cambio de variante
+// _loadVariants — Busca productos similares via API
 // ================================================================
-async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
+async function _loadVariants(query, currentItem) {
+    const listEl = document.getElementById('variant-list');
+    if (!listEl) return;
+
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
             method: 'POST',
-            body: JSON.stringify({ query: query, limit: 10 })
+            body: JSON.stringify({ query: query, limit: 15 })
         });
 
-        if (!response.ok) { sugBox.style.display = 'none'; return; }
+        if (!response.ok) {
+            listEl.innerHTML = '<div class="variant-empty">Error al buscar productos</div>';
+            return;
+        }
 
         const products = await response.json();
-        const filtered = products
-            .filter(p => p.id !== currentItem.id)
-            .slice(0, 5);
 
-        if (filtered.length === 0) { sugBox.style.display = 'none'; return; }
+        // Filtrar: excluir producto actual
+        const filtered = products.filter(p => p.id !== currentItem.id);
 
-        sugBox.innerHTML = filtered.map(p => {
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="variant-empty">No se encontraron variantes</div>';
+            return;
+        }
+
+        listEl.innerHTML = filtered.map(p => {
             const price = parseFloat(p.sale_price || 0).toFixed(2);
             const unit = p.unit || 'unidad';
-            return `<div class="name-suggestion"
-                         data-id="${p.id}"
-                         data-name="${p.name}"
-                         data-price="${price}"
-                         data-unit="${unit}"
-                         data-stock="${p.stock || 0}">
-                ${p.name} <span class="sug-price">S/${price}</span>
-            </div>`;
+            const stock = p.stock || 0;
+            return `
+                <div class="variant-item" onclick="_selectVariant(${currentItem.id}, ${p.id}, '${p.name.replace(/'/g, "\\'")}', ${price}, '${unit}', ${stock})">
+                    <div class="variant-item-info">
+                        <div class="variant-item-name">${p.name}</div>
+                        <div class="variant-item-meta">${unit} · stock: ${stock}</div>
+                    </div>
+                    <div class="variant-item-price">S/${price}</div>
+                </div>
+            `;
         }).join('');
 
-        sugBox.style.display = 'block';
-
-        sugBox.querySelectorAll('.name-suggestion').forEach(el => {
-            el.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                const newId = parseInt(el.dataset.id);
-                const newName = el.dataset.name;
-                const newPrice = parseFloat(el.dataset.price);
-                const newUnit = el.dataset.unit;
-                const newStock = parseInt(el.dataset.stock) || 0;
-
-                const existing = AppState.cart.find(i => i.id === newId);
-                if (existing) {
-                    existing.quantity += currentItem.quantity;
-                    AppState.cart = AppState.cart.filter(i => i.id !== currentItem.id);
-                    showToast(`${newName} actualizado`, 'info');
-                } else {
-                    currentItem.id = newId;
-                    currentItem.name = newName;
-                    currentItem.price = newPrice;
-                    currentItem.unit = newUnit;
-                    currentItem.stock = newStock;
-                    showToast(`Cambiado a ${newName}`, 'success');
-                }
-
-                saveCart();
-                renderCart();
-            });
-        });
     } catch (err) {
-        console.error('[editName] Error:', err);
-        sugBox.style.display = 'none';
+        console.error('[Variants] Error:', err);
+        listEl.innerHTML = '<div class="variant-empty">Error de conexión</div>';
     }
+}
+
+
+// ================================================================
+// _selectVariant — Reemplaza el producto en el carrito
+// ================================================================
+function _selectVariant(currentId, newId, newName, newPrice, newUnit, newStock) {
+    const item = AppState.cart.find(i => i.id === currentId);
+    if (!item) return;
+
+    // Verificar si el nuevo producto ya está en el carrito
+    const existing = AppState.cart.find(i => i.id === newId);
+    if (existing) {
+        existing.quantity += item.quantity;
+        AppState.cart = AppState.cart.filter(i => i.id !== currentId);
+        showToast(`${newName} actualizado (sumada cantidad)`, 'info');
+    } else {
+        item.id = newId;
+        item.name = newName;
+        item.price = newPrice;
+        item.unit = newUnit;
+        item.stock = newStock;
+        showToast(`Cambiado a ${newName}`, 'success');
+    }
+
+    saveCart();
+    renderCart();
+    _closeVariantSelector();
+}
+
+
+// ================================================================
+// _closeVariantSelector — Cierra el modal
+// ================================================================
+function _closeVariantSelector() {
+    const overlay = document.querySelector('.variant-selector-overlay');
+    const modal = document.querySelector('.variant-selector');
+    if (overlay) overlay.remove();
+    if (modal) modal.remove();
 }
 
 
