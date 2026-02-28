@@ -391,8 +391,8 @@ function renderCart() {
             emptyState.style.display = 'flex';
             container.appendChild(emptyState);
         }
-        countEl.textContent = '0 productos';
-        totalEl.textContent = 'S/. 0.00';
+        if (countEl) countEl.textContent = '0 productos';
+        if (totalEl) totalEl.textContent = 'S/. 0.00';
         return;
     }
 
@@ -401,88 +401,76 @@ function renderCart() {
     const total = getCartTotal();
     const itemsCount = getCartItemsCount();
 
-    container.innerHTML = AppState.cart.map((item, index) => {
+    container.innerHTML = AppState.cart.map((item) => {
         const itemPrice = parseFloat(item.price) || 0;
         const itemQuantity = parseFloat(item.quantity) || 1;
         const itemTotal = parseFloat((itemPrice * itemQuantity).toFixed(2));
+        const unitDisplay = item.unit || 'unidad';
 
-        // Máximo 2 decimales, sin trailing zeros innecesarios
+        // Máximo 2 decimales en display
         const qtyStr = itemQuantity % 1 === 0
             ? String(itemQuantity)
             : itemQuantity.toFixed(2);
 
-        const unitDisplay = item.unit || 'unidad';
-
         return `
-        <div class="cart-item">
+        <div class="cart-item" id="cart-item-${item.id}">
             <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-name" onclick="editCartName(${item.id}, this)">${item.name}</div>
                 <div class="cart-item-price">S/. ${itemPrice.toFixed(2)} / ${unitDisplay}</div>
             </div>
             <div class="cart-item-qty">
                 <button onclick="decreaseQty(${item.id})">−</button>
-                <span class="qty-display"
-                      onclick="editCartQuantity(${item.id}, this)"
-                      title="Editar cantidad">
-                    ${qtyStr}
-                </span>
+                <span class="qty-display" onclick="editCartQuantity(${item.id}, this)">${qtyStr}</span>
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
-            <div class="cart-item-subtotal"
-                 onclick="editCartSubtotal(${item.id}, this)"
-                 title="Editar monto">
+            <div class="cart-item-subtotal" onclick="editCartSubtotal(${item.id}, this)">
                 S/. ${itemTotal.toFixed(2)}
             </div>
-            <button onclick="removeFromCart(${item.id})" class="btn-remove">
+            <div class="delete-zone" onclick="removeFromCart(${item.id})">
                 <i class="fas fa-trash"></i>
-            </button>
-        </div>
-        `;
+            </div>
+        </div>`;
     }).join('');
 
-    totalEl.textContent = `S/. ${total.toFixed(2)}`;
-    countEl.textContent = `${itemsCount} producto${itemsCount !== 1 ? 's' : ''}`;
+    if (totalEl) totalEl.textContent = `S/. ${total.toFixed(2)}`;
+    if (countEl) countEl.textContent = `${itemsCount} producto${itemsCount !== 1 ? 's' : ''}`;
+
+    // Swipe para eliminar en móvil
+    _setupCartSwipe();
 }
 
 
 // ================================================================
-// FIX 2: NUEVA FUNCIÓN — editCartQuantity
+// editCartQuantity — REEMPLAZAR función completa
 // ================================================================
-// Permite editar la cantidad directamente haciendo tap en el número.
-// Soporta decimales (0.4 kg, 1.5 litros).
-// AGREGAR esta función DESPUÉS de renderCart.
-
 function editCartQuantity(productId, spanElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
-
-    // Evitar doble edición
     if (spanElement.querySelector('.qty-edit-input')) return;
 
     const currentQty = parseFloat(item.quantity) || 1;
     const displayVal = currentQty % 1 === 0 ? String(currentQty) : currentQty.toFixed(2);
-
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.step = '0.01';
-    input.min = '0.01';
-    input.value = displayVal;
-    input.className = 'qty-edit-input';
-
-    // Ocultar el texto, mostrar input
     const originalText = spanElement.textContent;
-    spanElement.textContent = '';
-    spanElement.appendChild(input);
+
+    spanElement.innerHTML = `<input type="number" class="qty-edit-input" value="${displayVal}" step="0.01" min="0.01">`;
+    spanElement.style.border = 'none';
+    spanElement.style.padding = '0';
+    const input = spanElement.querySelector('input');
     input.focus();
     input.select();
+
+    const restore = () => {
+        spanElement.textContent = originalText;
+        spanElement.style.border = '';
+        spanElement.style.padding = '';
+    };
 
     const confirm = () => {
         const newQty = parseFloat(input.value);
         if (newQty && newQty > 0) {
             updateQuantity(productId, parseFloat(newQty.toFixed(3)));
         } else {
-            // Restaurar sin cambios
-            spanElement.textContent = originalText;
+            restore();
         }
     };
 
@@ -491,37 +479,38 @@ function editCartQuantity(productId, spanElement) {
         if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         if (e.key === 'Escape') {
             input.removeEventListener('blur', confirm);
-            spanElement.textContent = originalText;
+            restore();
         }
     });
 }
 
 
+// ================================================================
+// editCartSubtotal — REEMPLAZAR función completa
+// ================================================================
 function editCartSubtotal(productId, subtotalElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
-
-    // Evitar doble edición
     if (subtotalElement.querySelector('.subtotal-edit-input')) return;
 
     const itemPrice = parseFloat(item.price) || 0;
     if (itemPrice <= 0) return;
 
     const currentSubtotal = parseFloat((itemPrice * parseFloat(item.quantity)).toFixed(2));
-
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.step = '0.10';
-    input.min = '0.10';
-    input.value = currentSubtotal.toFixed(2);
-    input.className = 'subtotal-edit-input';
-
-    // Ocultar el texto, mostrar input
     const originalText = subtotalElement.textContent;
-    subtotalElement.textContent = '';
-    subtotalElement.appendChild(input);
+
+    subtotalElement.innerHTML = `<input type="number" class="subtotal-edit-input" value="${currentSubtotal.toFixed(2)}" step="0.10" min="0.10">`;
+    subtotalElement.style.border = 'none';
+    subtotalElement.style.padding = '0';
+    const input = subtotalElement.querySelector('input');
     input.focus();
     input.select();
+
+    const restore = () => {
+        subtotalElement.textContent = originalText;
+        subtotalElement.style.border = '';
+        subtotalElement.style.padding = '';
+    };
 
     const confirm = () => {
         const newSubtotal = parseFloat(input.value);
@@ -530,7 +519,7 @@ function editCartSubtotal(productId, subtotalElement) {
             console.log(`[editSubtotal] ${item.name}: S/${newSubtotal} ÷ S/${itemPrice} = ${newQty}`);
             updateQuantity(productId, newQty);
         } else {
-            subtotalElement.textContent = originalText;
+            restore();
         }
     };
 
@@ -539,10 +528,200 @@ function editCartSubtotal(productId, subtotalElement) {
         if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         if (e.key === 'Escape') {
             input.removeEventListener('blur', confirm);
-            subtotalElement.textContent = originalText;
+            restore();
         }
     });
 }
+
+
+// ================================================================
+// editCartName — NUEVA función: cambiar producto por variante/marca
+// ================================================================
+function editCartName(productId, nameElement) {
+    const item = AppState.cart.find(i => i.id === productId);
+    if (!item) return;
+    if (nameElement.querySelector('.name-edit-input')) return;
+
+    const originalName = nameElement.textContent.trim();
+
+    nameElement.classList.add('editing');
+    nameElement.innerHTML = `
+        <input type="text" class="name-edit-input" value="${originalName}" placeholder="Buscar producto...">
+        <div class="name-suggestions" style="display:none"></div>
+    `;
+    nameElement.style.border = 'none';
+
+    const input = nameElement.querySelector('.name-edit-input');
+    const sugBox = nameElement.querySelector('.name-suggestions');
+    input.focus();
+    input.select();
+
+    let searchTimeout = null;
+
+    const restore = () => {
+        nameElement.textContent = originalName;
+        nameElement.style.border = '';
+        nameElement.classList.remove('editing');
+    };
+
+    // Buscar productos al escribir (debounce 300ms)
+    input.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        const query = input.value.trim();
+        if (query.length < 2) {
+            sugBox.style.display = 'none';
+            return;
+        }
+        searchTimeout = setTimeout(() => {
+            _searchProductsForSwap(query, item, sugBox, nameElement);
+        }, 300);
+    });
+
+    input.addEventListener('blur', () => {
+        // Delay para permitir click en sugerencia
+        setTimeout(() => {
+            if (nameElement.querySelector('.name-edit-input')) {
+                restore();
+            }
+        }, 200);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            input.removeEventListener('blur', () => {});
+            restore();
+        }
+        if (e.key === 'Enter') {
+            input.blur();
+        }
+    });
+}
+
+
+// ================================================================
+// _searchProductsForSwap — Busca productos en API para reemplazo
+// ================================================================
+async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/v1/products/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ query: query })
+        });
+
+        if (!response.ok) {
+            sugBox.style.display = 'none';
+            return;
+        }
+
+        const products = await response.json();
+
+        // Filtrar: excluir el producto actual
+        const filtered = products
+            .filter(p => p.id !== currentItem.id)
+            .slice(0, 5);
+
+        if (filtered.length === 0) {
+            sugBox.style.display = 'none';
+            return;
+        }
+
+        sugBox.innerHTML = filtered.map(p => {
+            const price = parseFloat(p.sale_price || 0).toFixed(2);
+            const unit = p.unit || 'unidad';
+            return `
+                <div class="name-suggestion"
+                     data-id="${p.id}"
+                     data-name="${p.name}"
+                     data-price="${price}"
+                     data-unit="${unit}"
+                     data-stock="${p.stock || 0}">
+                    ${p.name}
+                    <span class="sug-price">S/. ${price}</span>
+                </div>`;
+        }).join('');
+
+        sugBox.style.display = 'block';
+
+        // Click en sugerencia → reemplazar producto en carrito
+        sugBox.querySelectorAll('.name-suggestion').forEach(el => {
+            el.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const newId = parseInt(el.dataset.id);
+                const newName = el.dataset.name;
+                const newPrice = parseFloat(el.dataset.price);
+                const newUnit = el.dataset.unit;
+                const newStock = parseInt(el.dataset.stock) || 0;
+
+                // Verificar si el nuevo producto ya está en el carrito
+                const existing = AppState.cart.find(i => i.id === newId);
+                if (existing) {
+                    // Sumar cantidad al existente y eliminar el actual
+                    existing.quantity += currentItem.quantity;
+                    AppState.cart = AppState.cart.filter(i => i.id !== currentItem.id);
+                    showToast(`${newName} actualizado (sumada cantidad)`, 'info');
+                } else {
+                    // Reemplazar datos del item actual
+                    currentItem.id = newId;
+                    currentItem.name = newName;
+                    currentItem.price = newPrice;
+                    currentItem.unit = newUnit;
+                    currentItem.stock = newStock;
+                    showToast(`Cambiado a ${newName}`, 'success');
+                }
+
+                saveCart();
+                renderCart();
+            });
+        });
+
+    } catch (err) {
+        console.error('[editName] Error buscando productos:', err);
+        sugBox.style.display = 'none';
+    }
+}
+
+
+// ================================================================
+// _setupCartSwipe — Swipe izquierda para eliminar (mobile)
+// ================================================================
+function _setupCartSwipe() {
+    document.querySelectorAll('.cart-item').forEach(el => {
+        let startX = 0;
+        let swiped = false;
+
+        el.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            swiped = false;
+        }, { passive: true });
+
+        el.addEventListener('touchmove', (e) => {
+            const diff = startX - e.touches[0].clientX;
+            if (diff > 50) {
+                el.classList.add('swiped');
+                swiped = true;
+            } else {
+                el.classList.remove('swiped');
+            }
+        }, { passive: true });
+
+        el.addEventListener('touchend', () => {
+            if (swiped) {
+                // Auto-ocultar después de 3 segundos
+                setTimeout(() => {
+                    if (el && el.classList.contains('swiped')) {
+                        el.classList.remove('swiped');
+                    }
+                }, 3000);
+            }
+        });
+    });
+}
+
 
 
 function sellByAmount(productId, amountInSoles) {
