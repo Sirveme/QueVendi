@@ -5137,3 +5137,76 @@ window.FractionalSales = {
     detectProductType,
     addToCartWithFractionalValidation
 };
+
+
+
+// ================================================================
+// QUEVENDI — Payment Popup v2 (estilo ALERTA)
+// Fecha: 2026-02-28
+//
+// AGREGAR al final de dashboard_principal.js
+//
+// Funciones:
+//   - togglePaymentPopup()
+//   - closePaymentPopup()
+//   - selectPaymentV2() — llama a selectPayment() existente
+// ================================================================
+
+
+function togglePaymentPopup() {
+    const overlay = document.getElementById('payment-popup-overlay');
+    const popup = document.getElementById('payment-popup');
+    
+    if (popup.style.display === 'block') {
+        closePaymentPopup();
+    } else {
+        overlay.style.display = 'block';
+        popup.style.display = 'block';
+    }
+}
+
+function closePaymentPopup() {
+    const overlay = document.getElementById('payment-popup-overlay');
+    const popup = document.getElementById('payment-popup');
+    overlay.style.display = 'none';
+    popup.style.display = 'none';
+}
+
+function selectPaymentV2(method, iconClass, label, btnElement) {
+    // 1. Actualizar botón selector
+    const icon = document.getElementById('payment-select-icon');
+    const labelEl = document.getElementById('payment-select-label');
+    const selectBtn = document.getElementById('btn-payment-select');
+    
+    if (icon) icon.className = `fas ${iconClass}`;
+    if (labelEl) labelEl.textContent = label;
+    
+    // Color especial para Fiado
+    if (selectBtn) {
+        if (method === 'fiado') {
+            selectBtn.classList.add('fiado-active');
+        } else {
+            selectBtn.classList.remove('fiado-active');
+        }
+    }
+    
+    // 2. Actualizar selección visual en popup
+    document.querySelectorAll('.payment-popup-btn').forEach(b => b.classList.remove('active'));
+    if (btnElement) btnElement.classList.add('active');
+    
+    // 3. Llamar a la función existente de pago
+    // selectPayment ya maneja AppState.paymentMethod, UI, y modal fiado
+    if (typeof selectPayment === 'function') {
+        selectPayment(method);
+    } else if (typeof selectPaymentUI === 'function') {
+        selectPaymentUI(method);
+        AppState.paymentMethod = method;
+    } else {
+        // Fallback directo
+        AppState.paymentMethod = method;
+        console.log('[PaymentV2] Método:', method);
+    }
+    
+    // 4. Cerrar popup (excepto si es fiado, que abre su propio modal)
+    closePaymentPopup();
+}
