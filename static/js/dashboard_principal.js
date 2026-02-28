@@ -404,11 +404,11 @@ function renderCart() {
     container.innerHTML = AppState.cart.map((item, index) => {
         const itemPrice = parseFloat(item.price) || 0;
         const itemQuantity = parseFloat(item.quantity) || 1;
-        const itemTotal = itemPrice * itemQuantity;
+        const itemTotal = parseFloat((itemPrice * itemQuantity).toFixed(2));
 
-        // Máximo 2 decimales
-        const quantityDisplay = itemQuantity % 1 === 0
-            ? itemQuantity
+        // Máximo 2 decimales, sin trailing zeros innecesarios
+        const qtyStr = itemQuantity % 1 === 0
+            ? String(itemQuantity)
             : itemQuantity.toFixed(2);
 
         const unitDisplay = item.unit || 'unidad';
@@ -423,18 +423,19 @@ function renderCart() {
                 <button onclick="decreaseQty(${item.id})">−</button>
                 <span class="qty-display"
                       onclick="editCartQuantity(${item.id}, this)"
-                      title="Toca para editar cantidad"
-                      style="cursor:pointer; min-width:40px; text-align:center;">
-                    ${quantityDisplay}
+                      title="Editar cantidad">
+                    ${qtyStr}
                 </span>
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
             <div class="cart-item-subtotal"
                  onclick="editCartSubtotal(${item.id}, this)"
-                 title="Toca para editar monto"
-                 style="cursor:pointer;">
+                 title="Editar monto">
                 S/. ${itemTotal.toFixed(2)}
             </div>
+            <button onclick="removeFromCart(${item.id})" class="btn-remove">
+                <i class="fas fa-trash"></i>
+            </button>
         </div>
         `;
     }).join('');
@@ -455,47 +456,42 @@ function editCartQuantity(productId, spanElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
 
+    // Evitar doble edición
+    if (spanElement.querySelector('.qty-edit-input')) return;
+
     const currentQty = parseFloat(item.quantity) || 1;
+    const displayVal = currentQty % 1 === 0 ? String(currentQty) : currentQty.toFixed(2);
 
     const input = document.createElement('input');
     input.type = 'number';
     input.step = '0.01';
     input.min = '0.01';
-    input.value = currentQty % 1 === 0 ? currentQty : currentQty.toFixed(2);
-    input.style.cssText = `
-        width: 55px;
-        padding: 4px 4px;
-        text-align: center;
-        background: rgba(139, 92, 246, 0.25);
-        border: 2px solid #8b5cf6;
-        border-radius: 6px;
-        color: #e2e8f0;
-        font-size: 13px;
-        font-weight: 600;
-        outline: none;
-        -moz-appearance: textfield;
-        -webkit-appearance: none;
-    `;
+    input.value = displayVal;
+    input.className = 'qty-edit-input';
 
-    spanElement.style.display = 'none';
-    spanElement.parentNode.insertBefore(input, spanElement.nextSibling);
+    // Ocultar el texto, mostrar input
+    const originalText = spanElement.textContent;
+    spanElement.textContent = '';
+    spanElement.appendChild(input);
     input.focus();
     input.select();
 
     const confirm = () => {
         const newQty = parseFloat(input.value);
         if (newQty && newQty > 0) {
-            updateQuantity(productId, newQty);
+            updateQuantity(productId, parseFloat(newQty.toFixed(3)));
+        } else {
+            // Restaurar sin cambios
+            spanElement.textContent = originalText;
         }
-        if (input.parentNode) input.remove();
     };
 
     input.addEventListener('blur', confirm);
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); confirm(); }
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         if (e.key === 'Escape') {
-            if (input.parentNode) input.remove();
-            spanElement.style.display = '';
+            input.removeEventListener('blur', confirm);
+            spanElement.textContent = originalText;
         }
     });
 }
@@ -505,50 +501,45 @@ function editCartSubtotal(productId, subtotalElement) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
 
+    // Evitar doble edición
+    if (subtotalElement.querySelector('.subtotal-edit-input')) return;
+
     const itemPrice = parseFloat(item.price) || 0;
-    const currentSubtotal = itemPrice * parseFloat(item.quantity);
+    if (itemPrice <= 0) return;
+
+    const currentSubtotal = parseFloat((itemPrice * parseFloat(item.quantity)).toFixed(2));
 
     const input = document.createElement('input');
     input.type = 'number';
     input.step = '0.10';
     input.min = '0.10';
     input.value = currentSubtotal.toFixed(2);
-    input.style.cssText = `
-        width: 70px;
-        padding: 4px 4px;
-        text-align: right;
-        background: rgba(234, 179, 8, 0.2);
-        border: 2px solid #eab308;
-        border-radius: 6px;
-        color: #fbbf24;
-        font-size: 13px;
-        font-weight: 700;
-        outline: none;
-        -moz-appearance: textfield;
-        -webkit-appearance: none;
-    `;
+    input.className = 'subtotal-edit-input';
 
-    subtotalElement.style.display = 'none';
-    subtotalElement.parentNode.insertBefore(input, subtotalElement.nextSibling);
+    // Ocultar el texto, mostrar input
+    const originalText = subtotalElement.textContent;
+    subtotalElement.textContent = '';
+    subtotalElement.appendChild(input);
     input.focus();
     input.select();
 
     const confirm = () => {
         const newSubtotal = parseFloat(input.value);
-        if (newSubtotal && newSubtotal > 0 && itemPrice > 0) {
+        if (newSubtotal && newSubtotal > 0) {
             const newQty = parseFloat((newSubtotal / itemPrice).toFixed(3));
             console.log(`[editSubtotal] ${item.name}: S/${newSubtotal} ÷ S/${itemPrice} = ${newQty}`);
             updateQuantity(productId, newQty);
+        } else {
+            subtotalElement.textContent = originalText;
         }
-        if (input.parentNode) input.remove();
     };
 
     input.addEventListener('blur', confirm);
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); confirm(); }
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         if (e.key === 'Escape') {
-            if (input.parentNode) input.remove();
-            subtotalElement.style.display = '';
+            input.removeEventListener('blur', confirm);
+            subtotalElement.textContent = originalText;
         }
     });
 }
