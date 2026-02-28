@@ -3884,9 +3884,10 @@ body.is-owner .owner-only {
     transition: border-color 0.2s, background 0.2s;
     user-select: none;
     -webkit-user-select: none;
+    background: transparent;
 }
 .qty-display:active {
-    background: rgba(139, 92, 246, 0.15);
+    background: rgba(183, 180, 189, 0.15);
     border-color: var(--accent-primary, #8b5cf6);
 }
 
@@ -4058,10 +4059,12 @@ body.is-owner .owner-only {
 }
 .cart-item.swiped .delete-zone {
     width: 56px;
+       visibility: visible;
 }
 .delete-zone i {
     color: white;
     font-size: 1rem;
+       visibility: hidden;
 }
 
 /* Mobile touch targets */
@@ -4077,6 +4080,7 @@ body.is-owner .owner-only {
     .qty-display {
         width: 40px;
         height: 30px;
+        background: transparent;
     }
     .cart-item-subtotal {
         min-width: 90px;
