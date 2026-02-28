@@ -3995,3 +3995,197 @@ body.is-owner .owner-only {
     background: transparent !important;
     color: var(--text-primary, #e2e8f0) !important;
 }
+
+
+/* ============================================
+   QUEVENDI — FIXES URGENTES
+   Agregar al FINAL ABSOLUTO de dashboard_principal.css
+   (debe ser lo último para ganar especificidad)
+   Fecha: 2026-02-28 noche
+   ============================================ */
+
+/* ============================================
+   FIX 1: Checkout row — forzar layout horizontal
+   ============================================ */
+.checkout-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
+/* COBRAR — NO full width, compacto */
+.checkout-row .btn-checkout,
+#btn-checkout {
+    width: auto !important;
+    flex: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 11px 18px !important;
+    border-radius: 10px !important;
+    font-size: 0.88rem !important;
+    white-space: nowrap !important;
+}
+
+/* Método de pago — visible y clickeable */
+.btn-payment-select {
+    flex: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 9px 14px !important;
+    border: 2px solid var(--accent-primary, #8b5cf6) !important;
+    border-radius: 4px !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+    color: var(--accent-primary, #8b5cf6) !important;
+    cursor: pointer !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 40px !important;
+}
+.btn-payment-select:hover {
+    background: rgba(139, 92, 246, 0.2) !important;
+}
+.btn-payment-select:active {
+    background: rgba(139, 92, 246, 0.25) !important;
+    transform: scale(0.95);
+}
+.btn-payment-select.fiado-active {
+    border-color: var(--accent-gold, #eab308) !important;
+    background: rgba(234, 179, 8, 0.1) !important;
+    color: var(--accent-gold, #eab308) !important;
+}
+
+/* Total — empuja a la derecha */
+.checkout-total {
+    flex: 1 !important;
+    text-align: right !important;
+    min-width: 0 !important;
+}
+
+/* ============================================
+   FIX 2: Subtotal edit — tamaño fijo
+   ============================================ */
+.subtotal-edit-input {
+    width: 70px !important;
+    max-width: 70px !important;
+    height: 28px !important;
+    padding: 0 4px !important;
+    text-align: right !important;
+    background: transparent !important;
+    border: 1.5px solid var(--accent-gold, #eab308) !important;
+    border-radius: 5px !important;
+    color: var(--accent-gold, #fbbf24) !important;
+    font-family: var(--font-display) !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    outline: none !important;
+    caret-color: #fbbf24 !important;
+    -moz-appearance: textfield !important;
+    -webkit-appearance: none !important;
+    box-sizing: border-box !important;
+}
+.subtotal-edit-input:focus {
+    box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15) !important;
+    background: rgba(234, 179, 8, 0.06) !important;
+}
+.subtotal-edit-input::-webkit-inner-spin-button,
+.subtotal-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+/* Qty edit — tamaño fijo */
+.qty-edit-input {
+    width: 36px !important;
+    max-width: 36px !important;
+    height: 26px !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================
+   FIX 3: Input cantidad — fondo transparente
+   ============================================ */
+.cart-item input[type="number"],
+.cart-item-qty input,
+.qty-display input,
+.qty-input,
+input.qty-edit-input,
+input.subtotal-edit-input {
+    background: transparent !important;
+    color: var(--text-primary, #e2e8f0) !important;
+}
+
+/* ============================================
+   FIX 4: Sugerencias de producto — hover visible
+   ============================================ */
+.name-suggestion {
+    cursor: pointer !important;
+    transition: background 0.12s, padding-left 0.12s !important;
+}
+.name-suggestion:hover {
+    background: rgba(139, 92, 246, 0.18) !important;
+    padding-left: 14px !important;
+}
+.name-suggestion:active {
+    background: rgba(139, 92, 246, 0.3) !important;
+}
+
+/* ============================================
+   FIX 5: Tacho — oculto hasta swipe
+   ============================================ */
+.delete-zone {
+    visibility: hidden !important;
+}
+.cart-item.swiped .delete-zone {
+    visibility: visible !important;
+}
+
+/* ============================================
+   FIX 6: Dropdown sobre otros items
+   ============================================ */
+.cart-item:has(.editing) {
+    overflow: visible !important;
+    z-index: 30 !important;
+}
+
+/* ============================================
+   MOBILE SPECIFIC
+   ============================================ */
+@media (max-width: 768px) {
+    .checkout-row {
+        gap: 6px !important;
+    }
+    
+    .checkout-row .btn-checkout,
+    #btn-checkout {
+        padding: 10px 12px !important;
+        font-size: 0.78rem !important;
+    }
+    
+    .btn-payment-select {
+        padding: 8px 8px !important;
+        font-size: 0.68rem !important;
+        min-height: 36px !important;
+    }
+    
+    .checkout-total-amount {
+        font-size: 1.15rem !important;
+    }
+    
+    .checkout-total-label {
+        font-size: 0.5rem !important;
+    }
+    
+    /* Subtotal edit más compacto en móvil */
+    .subtotal-edit-input {
+        width: 60px !important;
+        max-width: 60px !important;
+        height: 26px !important;
+        font-size: 0.82rem !important;
+    }
+}
