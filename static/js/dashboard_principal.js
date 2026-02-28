@@ -558,6 +558,13 @@ function editCartName(productId, nameElement) {
     if (nameElement.querySelector('.name-edit-input')) return;
 
     const originalName = nameElement.textContent.trim();
+    
+    // Elevar el cart-item para que el dropdown no quede atrás
+    const cartItem = nameElement.closest('.cart-item');
+    if (cartItem) {
+        cartItem.style.overflow = 'visible';
+        cartItem.style.zIndex = '30';
+    }
 
     nameElement.classList.add('editing');
     nameElement.innerHTML = `
@@ -577,7 +584,15 @@ function editCartName(productId, nameElement) {
         nameElement.textContent = originalName;
         nameElement.style.border = '';
         nameElement.classList.remove('editing');
+        if (cartItem) {
+            cartItem.style.overflow = '';
+            cartItem.style.zIndex = '';
+        }
     };
+
+    // Buscar variantes automáticamente al abrir
+    const baseQuery = originalName.split(' ')[0]; // Primera palabra: "Arroz", "Aceite"
+    _searchProductsForSwap(baseQuery, item, sugBox, nameElement);
 
     input.addEventListener('input', () => {
         clearTimeout(searchTimeout);
@@ -591,7 +606,7 @@ function editCartName(productId, nameElement) {
     input.addEventListener('blur', () => {
         setTimeout(() => {
             if (nameElement.querySelector('.name-edit-input')) restore();
-        }, 200);
+        }, 250);
     });
 
     input.addEventListener('keydown', (e) => {
