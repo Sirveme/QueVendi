@@ -1071,10 +1071,7 @@ body {
 }
 
 .total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
+    display: none; /* Ya no se usa — reemplazado por checkout-row */
 }
 
 .total-label {
@@ -1178,32 +1175,32 @@ body {
 }
 
 /* Botón COBRAR */
+/* Botón COBRAR — ahora vive dentro de checkout-row */
 .btn-checkout {
-    width: 100%;
-    margin-top: 1rem;
-    padding: 1rem;
+    flex: none;
+    padding: 11px 18px;
     background: linear-gradient(135deg, var(--accent-green), #059669);
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 10px;
     color: white;
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     font-weight: 700;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    transition: all 0.2s;
+    gap: 6px;
+    white-space: nowrap;
+    transition: transform 0.15s;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .btn-checkout:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .btn-checkout:active {
-    transform: translateY(0);
+    transform: scale(0.96);
 }
 
 .btn-checkout i {
@@ -3734,28 +3731,6 @@ body.is-owner .owner-only {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-/* Botón COBRAR — compacto, verde */
-.btn-checkout {
-    flex: none;
-    padding: 11px 18px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: white;
-    font-size: 0.88rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: transform 0.15s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.btn-checkout:active {
-    transform: scale(0.96);
 }
 
 /* Botón método de pago — rectángulo sólido */
