@@ -2335,6 +2335,7 @@ async function executeSale(total, printType = 'none') {
                 await registrarFiadoDespuesDeVentaMejorado(result.id, total, customerData);
             }
 
+            total = parseFloat(total.toFixed(2));
             AppState.dailySales += total;
             updateGoalProgress();
 
