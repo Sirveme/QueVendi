@@ -324,6 +324,15 @@ class BillingService:
         api_url = f"{self.config.facturalo_url}/comprobantes"
         logger.info(f"[Billing] Enviando a {api_url}: serie={serie}, tipo={tipo}, forma_pago={forma_pago}")
 
+        # FIX: Convertir cualquier Decimal en el payload a float
+        import json
+        def _decimal_default(obj):
+            if isinstance(obj, Decimal):
+                return float(obj)
+            raise TypeError(f"Type {type(obj)} not serializable")
+        payload = json.loads(json.dumps(payload, default=_decimal_default))
+        logger.info(f"[Billing] PAYLOAD limpio: {payload}")
+
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
