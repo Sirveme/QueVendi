@@ -1071,7 +1071,10 @@ body {
 }
 
 .total-row {
-    display: none; /* Ya no se usa — reemplazado por checkout-row */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
 }
 
 .total-label {
@@ -1175,32 +1178,32 @@ body {
 }
 
 /* Botón COBRAR */
-/* Botón COBRAR — ahora vive dentro de checkout-row */
 .btn-checkout {
-    flex: none;
-    padding: 11px 18px;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem;
     background: linear-gradient(135deg, var(--accent-green), #059669);
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     color: white;
-    font-size: 0.88rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: transform 0.15s;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .btn-checkout:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .btn-checkout:active {
-    transform: scale(0.96);
+    transform: translateY(0);
 }
 
 .btn-checkout i {
@@ -3708,741 +3711,151 @@ body.is-owner .owner-only {
 }
 
 
-
 /* ============================================
-   QUEVENDI — CHECKOUT FOOTER v2
-   Agregar al FINAL de dashboard_principal.css
-   (reemplaza los estilos anteriores de MOBILE_cart_styles
-    para la sección checkout)
-   Fecha: 2026-02-28
+   CSS PARA INPUTS CANTIDAD Y SUB TOTAL INLINE
+   ============================================ */
+/* ============================================
+   CART EDITABLE INPUTS — Agregar al final de dashboard_principal.css
    ============================================ */
 
-/* ============================================
-   CHECKOUT ROW — COBRAR | Método | TOTAL
-   ============================================ */
-.checkout-section {
-    padding: 10px 12px;
-    padding-bottom: 6px;
-    border-top: 1px solid var(--bg-tertiary, #1a1a3e);
-    position: relative;
-}
-
-.checkout-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Botón método de pago — rectángulo sólido */
-.btn-payment-select {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 14px;
-    border: 2px solid var(--accent-primary, #8b5cf6);
-    border-radius: 4px;
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--accent-primary, #8b5cf6);
+/* Cantidad clickeable */
+.qty-display {
     cursor: pointer;
-    font-size: 0.75rem;
+    min-width: 40px;
+    text-align: center;
+    font-family: var(--font-display);
     font-weight: 600;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
 }
-.btn-payment-select:active {
-    background: rgba(139, 92, 246, 0.2);
+
+.qty-display:active {
+    background: rgba(139, 92, 246, 0.15);
     transform: scale(0.95);
 }
-.btn-payment-select i {
-    font-size: 0.9rem;
-}
 
-/* Estado Fiado — color dorado */
-.btn-payment-select.fiado-active {
-    border-color: var(--accent-gold, #eab308);
-    background: rgba(234, 179, 8, 0.1);
-    color: var(--accent-gold, #eab308);
-}
-
-/* Total a la derecha */
-.checkout-total {
-    flex: 1;
-    text-align: right;
-}
-.checkout-total-label {
-    font-size: 0.55rem;
-    color: var(--text-muted, #555570);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 600;
-}
-.checkout-total-amount {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--accent-gold, #eab308);
-    font-variant-numeric: tabular-nums;
-    font-family: var(--font-display);
-}
-
-/* ============================================
-   POPUP MÉTODOS DE PAGO — Estilo sólido
-   ============================================ */
-.payment-popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100;
-    animation: ppFadeIn 0.12s ease;
-}
-
-@keyframes ppFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.payment-popup {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 24px);
-    max-width: 400px;
-    background: var(--bg-secondary, #111128);
-    border: 1px solid var(--bg-tertiary, #1a1a3e);
-    border-radius: 14px;
-    padding: 14px;
-    z-index: 101;
-    animation: ppSlideUp 0.18s ease;
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4);
-}
-
-@keyframes ppSlideUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(16px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-.payment-popup-title {
-    font-size: 0.7rem;
-    color: var(--text-muted, #555570);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.payment-popup-options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.payment-popup-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 14px 8px;
-    border: 2px solid var(--bg-tertiary, #1a1a3e);
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text-secondary, #8888a8);
-    cursor: pointer;
-    font-size: 0.7rem;
-    font-weight: 600;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-}
-.payment-popup-btn i {
-    font-size: 1.2rem;
-}
-.payment-popup-btn:active,
-.payment-popup-btn.active {
-    border-color: var(--accent-primary, #8b5cf6);
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--text-primary, #e8e8f0);
-}
-.payment-popup-btn.active i {
-    color: var(--accent-primary, #8b5cf6);
-}
-
-/* Fiado — color especial */
-.payment-popup-btn.fiado-btn:active,
-.payment-popup-btn.fiado-btn.active {
-    border-color: var(--accent-gold, #eab308);
-    background: rgba(234, 179, 8, 0.1);
-}
-.payment-popup-btn.fiado-btn.active i {
-    color: var(--accent-gold, #eab308);
-}
-
-/* Fiado ocupa 2 columnas si hay 5 opciones (3+2) */
-@media (max-width: 768px) {
-    .payment-popup-options {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-/* ============================================
-   FIX: Input cantidad transparente
-   (sobreescribe cart.css)
-   ============================================ */
-.cart-item-qty input,
-.cart-item-qty .qty-display,
-.qty-display input,
-.qty-input {
-    background: transparent !important;
-    color: var(--text-primary, #e2e8f0) !important;
-}
-
-/* ============================================
-   FIX: Dropdown variantes sobre otros items
-   ============================================ */
-.cart-item:has(.editing) {
-    overflow: visible !important;
-    z-index: 30 !important;
-}
-
-/* ============================================
-   MOBILE: Ocultar botón voz flotante
-   ============================================ */
-@media (max-width: 768px) {
-    .voice-fab,
-    .voice-button-float,
-    .btn-voice-commands,
-    #btn-voice-commands,
-    .comandos-voz-btn {
-        display: none !important;
-    }
-    
-    .checkout-section {
-        padding: 8px 10px 4px;
-    }
-    
-    .btn-checkout {
-        padding: 10px 14px;
-        font-size: 0.82rem;
-    }
-    
-    .btn-payment-select {
-        padding: 8px 10px;
-        font-size: 0.7rem;
-    }
-    
-    .checkout-total-amount {
-        font-size: 1.2rem;
-    }
-}
-
-/* ============================================
-   8. MENÚ LATERAL — Botón voz aquí
-   ============================================ */
-.sidebar-voice-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 12px 16px;
-    border: none;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
-    color: var(--text-primary, #e2e8f0);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background 0.2s;
-}
-.sidebar-voice-btn:active {
-    background: rgba(139, 92, 246, 0.25);
-}
-.sidebar-voice-btn i {
-    color: var(--accent-primary, #8b5cf6);
-    font-size: 1.1rem;
-}
-
-/* ============================================
-   9. AJUSTES FINALES para evitar background blanco en input de cantidad
-   ============================================ */
-.cart-item-qty input,
-.cart-item-qty .qty-display,
-.qty-display input {
-    background: transparent !important;
-    color: var(--text-primary, #e2e8f0) !important;
-}
-
-
-/* ============================================
-   QUEVENDI — FIXES FINALES
-   PEGAR al FINAL ABSOLUTO de dashboard_principal.css
-   Reemplaza FIXES_urgent.css si ya lo pegaste
-   Fecha: 2026-02-28 noche v2
-   ============================================ */
-
-/* ============================================
-   1. CART ITEMS — Compactos, 1 línea
-   ============================================ */
-.cart-item {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto auto !important;
-    align-items: center !important;
-    padding: 8px 10px !important;
-    gap: 8px !important;
-    min-height: 0 !important;
-    max-height: none !important;
-}
-
-.cart-item-info {
-    min-width: 0 !important;
-    overflow: hidden !important;
-}
-
-.cart-item-name {
-    font-size: 0.82rem !important;
-    font-weight: 500 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.2 !important;
-    cursor: pointer;
-}
-
-.cart-item-price {
-    font-size: 0.65rem !important;
-    color: var(--text-secondary, #8888a8) !important;
-    white-space: nowrap !important;
-    line-height: 1.2 !important;
-    margin-top: 1px !important;
-}
-
-/* Qty controles en línea */
-.cart-item-qty {
-    display: flex !important;
-    align-items: center !important;
-    gap: 3px !important;
-    flex-shrink: 0 !important;
-}
-
-.cart-item-qty button {
-    width: 26px !important;
-    height: 26px !important;
-    min-width: 26px !important;
-    border-radius: 50% !important;
-    padding: 0 !important;
-    font-size: 0.85rem !important;
-}
-
-.qty-display {
-    width: 34px !important;
-    height: 26px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 0.82rem !important;
-    background: transparent !important;
-}
-
-/* Subtotal compacto */
+/* Subtotal clickeable */
 .cart-item-subtotal {
-    font-size: 0.88rem !important;
-    white-space: nowrap !important;
-    min-width: 58px !important;
-    text-align: right !important;
-    flex-shrink: 0 !important;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-/* Tacho oculto */
-/* Tacho — oculto, aparece con swipe + gradiente rojo */
-.delete-zone {
-    position: absolute !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 0 !important;
-    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.85)) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: width 0.25s ease !important;
-    z-index: 5 !important;
-    overflow: hidden !important;
-    border-radius: 0 6px 6px 0 !important;
-}
-.delete-zone i {
-    color: white !important;
-    font-size: 0.95rem !important;
-    opacity: 0;
-    transition: opacity 0.2s ease 0.1s !important;
-}
-.cart-item.swiped .delete-zone {
-    width: 52px !important;
-}
-.cart-item.swiped .delete-zone i {
-    opacity: 1 !important;
+.cart-item-subtotal:active {
+    background: rgba(234, 179, 8, 0.15);
+    transform: scale(0.95);
 }
 
-/* Input edición */
-.qty-edit-input,
-.subtotal-edit-input,
-.cart-item input[type="number"],
-.qty-input {
-    background: transparent !important;
-    color: var(--text-primary, #e2e8f0) !important;
-}
-
-.subtotal-edit-input {
-    width: 58px !important;
-    max-width: 58px !important;
-    height: 26px !important;
-    padding: 0 4px !important;
-    font-size: 0.85rem !important;
-    box-sizing: border-box !important;
-    border: 1.5px solid var(--accent-gold, #eab308) !important;
-    border-radius: 5px !important;
-    -moz-appearance: textfield !important;
-    -webkit-appearance: none !important;
-}
-.subtotal-edit-input::-webkit-inner-spin-button,
-.subtotal-edit-input::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-}
-
+/* Input edición de CANTIDAD (violeta) */
 .qty-edit-input {
-    width: 34px !important;
-    max-width: 34px !important;
-    height: 26px !important;
-    padding: 0 !important;
-    font-size: 0.82rem !important;
-    border: 1.5px solid var(--accent-primary, #8b5cf6) !important;
-    border-radius: 5px !important;
-    -moz-appearance: textfield !important;
-    -webkit-appearance: none !important;
+    width: 52px;
+    padding: 5px 4px;
+    text-align: center;
+    background: rgba(139, 92, 246, 0.15);
+    border: 2px solid var(--accent-primary, #8b5cf6);
+    border-radius: 8px;
+    color: var(--text-primary, #e2e8f0);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    caret-color: #a78bfa;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.qty-edit-input:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
 .qty-edit-input::-webkit-inner-spin-button,
 .qty-edit-input::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-/* ============================================
-   2. CHECKOUT ROW — Alineados verticalmente
-   ============================================ */
-.checkout-section {
-    padding: 10px 12px 6px !important;
-    border-top: 1px solid var(--bg-tertiary, #1a1a3e) !important;
-}
-
-.checkout-row {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-}
-
-/* COBRAR — compacto, misma altura que Efectivo */
-.checkout-row .btn-checkout,
-.btn-checkout,
-#btn-checkout {
-    width: auto !important;
-    flex: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    padding: 0 16px !important;
-    height: 40px !important;
-    border-radius: 8px !important;
-    font-size: 0.82rem !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-}
-
-/* Método de pago — misma altura */
-.btn-payment-select {
-    flex: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    height: 40px !important;
-    padding: 0 12px !important;
-    border: 2px solid var(--accent-primary, #8b5cf6) !important;
-    border-radius: 4px !important;
-    background: rgba(139, 92, 246, 0.1) !important;
-    color: var(--accent-primary, #8b5cf6) !important;
-    cursor: pointer !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    white-space: nowrap !important;
-}
-.btn-payment-select:active {
-    background: rgba(139, 92, 246, 0.25) !important;
-}
-.btn-payment-select.fiado-active {
-    border-color: var(--accent-gold, #eab308) !important;
-    background: rgba(234, 179, 8, 0.1) !important;
-    color: var(--accent-gold, #eab308) !important;
-}
-
-/* Total — a la derecha, centrado vertical */
-.checkout-total {
-    flex: 1 !important;
-    text-align: right !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-    height: 40px !important;
-}
-.checkout-total-label {
-    font-size: 0.5rem !important;
-    letter-spacing: 1.5px !important;
-    color: var(--text-muted, #555570) !important;
-    text-transform: uppercase !important;
-    font-weight: 600 !important;
-    line-height: 1 !important;
-}
-.checkout-total-amount {
-    font-size: 1.2rem !important;
-    font-weight: 800 !important;
-    color: var(--accent-gold, #eab308) !important;
-    line-height: 1.1 !important;
-}
-
-/* Popup overlay */
-.payment-popup {
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4) !important;
-}
-.payment-popup-btn {
-    cursor: pointer !important;
-}
-.payment-popup-btn:hover {
-    background: rgba(139, 92, 246, 0.12) !important;
-}
-
-/* ============================================
-   3. SELECTOR DE VARIANTES — Modal sin teclado
-   ============================================ */
-.variant-selector-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 200;
-    animation: vsFadeIn 0.15s ease;
-}
-@keyframes vsFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.variant-selector {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 60vh;
-    background: var(--bg-secondary, #111128);
-    border-radius: 16px 16px 0 0;
-    z-index: 201;
-    display: flex;
-    flex-direction: column;
-    animation: vsSlideUp 0.2s ease;
-    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
-}
-@keyframes vsSlideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
-
-.variant-selector-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--bg-tertiary, #1a1a3e);
-}
-.variant-selector-header h3 {
+/* Input edición de SUBTOTAL (dorado) */
+.subtotal-edit-input {
+    width: 64px;
+    padding: 5px 6px;
+    text-align: right;
+    background: rgba(234, 179, 8, 0.12);
+    border: 2px solid var(--accent-gold, #eab308);
+    border-radius: 8px;
+    color: var(--accent-gold, #fbbf24);
+    font-family: var(--font-display);
     font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-primary, #e8e8f0);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.variant-selector-header h3 i {
-    color: var(--accent-primary, #8b5cf6);
-}
-.variant-close-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg-tertiary, #1a1a3e);
-    color: var(--text-secondary, #8888a8);
-    cursor: pointer;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.variant-close-btn:active {
-    background: rgba(239, 68, 68, 0.3);
-    color: white;
-}
-
-/* Pill indicador del producto actual */
-.variant-current {
-    padding: 6px 16px;
-    font-size: 0.7rem;
-    color: var(--text-muted, #555570);
-    background: rgba(139, 92, 246, 0.06);
-    border-bottom: 1px solid var(--bg-tertiary, #1a1a3e);
-}
-.variant-current strong {
-    color: var(--accent-primary, #8b5cf6);
-}
-
-/* Lista de variantes */
-.variant-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0;
-}
-
-.variant-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    transition: background 0.12s;
-    -webkit-tap-highlight-color: transparent;
-}
-.variant-item:hover {
-    background: rgba(139, 92, 246, 0.08);
-}
-.variant-item:active {
-    background: rgba(139, 92, 246, 0.18);
-}
-
-.variant-item-info {
-    flex: 1;
-    min-width: 0;
-}
-.variant-item-name {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-primary, #e8e8f0);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.variant-item-meta {
-    font-size: 0.65rem;
-    color: var(--text-muted, #555570);
-    margin-top: 2px;
-}
-
-.variant-item-price {
-    font-size: 0.95rem;
     font-weight: 700;
-    color: var(--accent-gold, #eab308);
+    outline: none;
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    caret-color: #fbbf24;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.subtotal-edit-input:focus {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
+}
+
+.subtotal-edit-input::-webkit-inner-spin-button,
+.subtotal-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hint de edición (aparece brevemente al editar) */
+.edit-hint {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: var(--text-muted, #64748b);
     white-space: nowrap;
-    margin-left: 12px;
+    opacity: 0;
+    animation: fadeHint 2s ease forwards;
 }
 
-/* Estado vacío / cargando */
-.variant-loading,
-.variant-empty {
-    padding: 24px 16px;
-    text-align: center;
-    color: var(--text-muted, #555570);
-    font-size: 0.8rem;
-}
-.variant-loading i {
-    animation: spin 1s linear infinite;
-    margin-right: 6px;
-}
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Safe area bottom */
-.variant-selector::after {
-    content: '';
-    display: block;
-    height: env(safe-area-inset-bottom, 0px);
+@keyframes fadeHint {
+    0% { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* ============================================
-   MOBILE OVERRIDES
+   MOBILE: Inputs un poco más grandes en touch
    ============================================ */
 @media (max-width: 768px) {
-    .cart-item {
-        padding: 6px 8px !important;
-        gap: 6px !important;
+    .qty-edit-input {
+        width: 56px;
+        padding: 7px 4px;
+        font-size: 0.9rem;
     }
     
-    .cart-item-name {
-        font-size: 0.78rem !important;
+    .subtotal-edit-input {
+        width: 68px;
+        padding: 7px 6px;
+        font-size: 0.9rem;
     }
-    
-    .cart-item-price {
-        font-size: 0.6rem !important;
-    }
-    
+
     .cart-item-qty button {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
     }
     
     .qty-display {
-        width: 30px !important;
-        height: 24px !important;
-        font-size: 0.78rem !important;
-    }
-    
-    .cart-item-subtotal {
-        font-size: 0.82rem !important;
-        min-width: 50px !important;
-    }
-    
-    .checkout-row {
-        gap: 6px !important;
-    }
-    
-    .checkout-row .btn-checkout,
-    .btn-checkout,
-    #btn-checkout {
-        padding: 0 12px !important;
-        height: 38px !important;
-        font-size: 0.78rem !important;
-    }
-    
-    .btn-payment-select {
-        height: 38px !important;
-        padding: 0 8px !important;
-        font-size: 0.65rem !important;
-    }
-    
-    .checkout-total {
-        height: 38px !important;
-    }
-    
-    .checkout-total-amount {
-        font-size: 1.05rem !important;
-    }
-    
-    /* Voz flotante oculto */
-    .voice-fab,
-    .voice-button-float,
-    .btn-voice-commands,
-    #btn-voice-commands,
-    .comandos-voz-btn {
-        display: none !important;
+        min-width: 44px;
+        padding: 6px 8px;
     }
 }

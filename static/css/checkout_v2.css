@@ -1,0 +1,259 @@
+/* ============================================
+   QUEVENDI — checkout_v2.css
+   Hoja independiente para footer de checkout.
+   Cargar DESPUÉS de dashboard_principal.css
+   ============================================ */
+
+/* ============================================
+   CHECKOUT SECTION
+   ============================================ */
+.checkout-section {
+    padding: 10px 12px 6px;
+    border-top: 1px solid var(--bg-tertiary, #1a1a3e);
+}
+
+/* Fila principal — COBRAR | Método | TOTAL */
+.checkout-section .checkout-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+/* COBRAR — compacto, NO full width */
+.checkout-section .checkout-row .btn-checkout,
+.checkout-section .checkout-row #btn-checkout {
+    width: auto;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 42px;
+    padding: 0 20px;
+    margin: 0;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent-green, #22c55e), #059669);
+    color: white;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.checkout-section .checkout-row .btn-checkout:hover {
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    transform: translateY(-1px);
+}
+.checkout-section .checkout-row .btn-checkout:active {
+    transform: scale(0.97);
+    box-shadow: none;
+}
+
+/* Botón método de pago — rectángulo sólido */
+.checkout-section .btn-payment-select {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+    padding: 0 14px;
+    border: 2px solid var(--accent-primary, #8b5cf6);
+    border-radius: 4px;
+    background: rgba(139, 92, 246, 0.08);
+    color: var(--accent-primary, #8b5cf6);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.checkout-section .btn-payment-select i {
+    font-size: 0.9rem;
+}
+.checkout-section .btn-payment-select:hover {
+    background: rgba(139, 92, 246, 0.15);
+}
+.checkout-section .btn-payment-select:active {
+    background: rgba(139, 92, 246, 0.22);
+    transform: scale(0.96);
+}
+
+/* Estado Fiado — dorado */
+.checkout-section .btn-payment-select.fiado-active {
+    border-color: var(--accent-gold, #eab308);
+    background: rgba(234, 179, 8, 0.08);
+    color: var(--accent-gold, #eab308);
+}
+
+/* Total — a la derecha */
+.checkout-section .checkout-total {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    height: 42px;
+    text-align: right;
+}
+.checkout-section .checkout-total-label {
+    font-size: 0.52rem;
+    color: var(--text-muted, #555570);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    line-height: 1;
+}
+.checkout-section .checkout-total-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent-gold, #eab308);
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+/* Ocultar total-row viejo si queda en el DOM */
+.checkout-section .total-row {
+    display: none;
+}
+/* Ocultar payment-methods viejo si queda */
+.checkout-section .payment-methods {
+    display: none;
+}
+
+/* ============================================
+   POPUP MÉTODOS DE PAGO
+   ============================================ */
+.payment-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    animation: ppFade 0.12s ease;
+}
+@keyframes ppFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.payment-popup {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 400px;
+    background: var(--bg-secondary, #111128);
+    border: 1px solid var(--bg-tertiary, #1a1a3e);
+    border-radius: 14px;
+    padding: 14px;
+    z-index: 101;
+    animation: ppSlide 0.18s ease;
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4);
+}
+@keyframes ppSlide {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.payment-popup-title {
+    font-size: 0.7rem;
+    color: var(--text-muted, #555570);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.payment-popup-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.payment-popup-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 8px;
+    border: 2px solid var(--bg-tertiary, #1a1a3e);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-secondary, #8888a8);
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.payment-popup-btn i {
+    font-size: 1.2rem;
+}
+.payment-popup-btn:hover {
+    background: rgba(139, 92, 246, 0.08);
+}
+.payment-popup-btn:active,
+.payment-popup-btn.active {
+    border-color: var(--accent-primary, #8b5cf6);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--text-primary, #e8e8f0);
+}
+.payment-popup-btn.active i {
+    color: var(--accent-primary, #8b5cf6);
+}
+
+/* Fiado — color especial */
+.payment-popup-btn.fiado-btn:active,
+.payment-popup-btn.fiado-btn.active {
+    border-color: var(--accent-gold, #eab308);
+    background: rgba(234, 179, 8, 0.1);
+}
+.payment-popup-btn.fiado-btn.active i {
+    color: var(--accent-gold, #eab308);
+}
+
+/* ============================================
+   MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+    .checkout-section {
+        padding: 8px 10px 4px;
+    }
+    .checkout-section .checkout-row {
+        gap: 6px;
+    }
+    .checkout-section .checkout-row .btn-checkout,
+    .checkout-section .checkout-row #btn-checkout {
+        height: 38px;
+        padding: 0 12px;
+        font-size: 0.78rem;
+    }
+    .checkout-section .btn-payment-select {
+        height: 38px;
+        padding: 0 8px;
+        font-size: 0.65rem;
+    }
+    .checkout-section .checkout-total {
+        height: 38px;
+    }
+    .checkout-section .checkout-total-amount {
+        font-size: 1.05rem;
+    }
+    
+    /* Ocultar botón voz flotante */
+    .voice-fab,
+    .voice-button-float,
+    .btn-voice-commands,
+    #btn-voice-commands,
+    .comandos-voz-btn {
+        display: none !important;
+    }
+}
