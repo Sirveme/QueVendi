@@ -3859,3 +3859,231 @@ body.is-owner .owner-only {
         padding: 6px 8px;
     }
 }
+
+
+
+/* ============================================
+   CART EDITABLE — Agregar al FINAL de dashboard_principal.css
+   Fecha: 2026-02-28
+   ============================================ */
+
+/* Cantidad clickeable — tamaño fijo */
+.qty-display {
+    width: 36px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.qty-display:active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--accent-primary, #8b5cf6);
+}
+
+/* Subtotal clickeable — tamaño fijo */
+.cart-item-subtotal {
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+    min-width: 86px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 6px;
+    white-space: nowrap;
+}
+.cart-item-subtotal:active {
+    background: rgba(234, 179, 8, 0.12);
+    border-color: var(--accent-gold, #eab308);
+}
+
+/* Nombre producto clickeable */
+.cart-item-name {
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    padding: 1px 3px;
+    margin: -1px -3px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+}
+.cart-item-name:active {
+    border-color: var(--accent-primary, #8b5cf6);
+    background: rgba(139, 92, 246, 0.15);
+}
+.cart-item-name.editing {
+    overflow: visible;
+    z-index: 20;
+}
+
+/* Input edición CANTIDAD (violeta) */
+.qty-edit-input {
+    width: 36px;
+    height: 28px;
+    padding: 0;
+    text-align: center;
+    background: transparent;
+    border: 1.5px solid var(--accent-primary, #8b5cf6);
+    border-radius: 6px;
+    color: var(--text-primary, #e2e8f0);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    caret-color: #a78bfa;
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+}
+.qty-edit-input:focus {
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+    background: rgba(139, 92, 246, 0.1);
+}
+.qty-edit-input::-webkit-inner-spin-button,
+.qty-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Input edición SUBTOTAL (dorado) */
+.subtotal-edit-input {
+    width: 74px;
+    height: 32px;
+    padding: 0 4px;
+    text-align: right;
+    background: transparent;
+    border: 1.5px solid var(--accent-gold, #eab308);
+    border-radius: 6px;
+    color: var(--accent-gold, #fbbf24);
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    outline: none;
+    caret-color: #fbbf24;
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+}
+.subtotal-edit-input:focus {
+    box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+    background: rgba(234, 179, 8, 0.08);
+}
+.subtotal-edit-input::-webkit-inner-spin-button,
+.subtotal-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Input edición NOMBRE (violeta) */
+.name-edit-input {
+    width: 100%;
+    height: 24px;
+    padding: 2px 3px;
+    background: transparent;
+    border: 1.5px solid var(--accent-primary, #8b5cf6);
+    border-radius: 4px;
+    color: var(--text-primary, #e2e8f0);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    caret-color: #a78bfa;
+}
+.name-edit-input:focus {
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Dropdown sugerencias de producto */
+.name-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary, #111128);
+    border: 1px solid var(--accent-primary, #8b5cf6);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    z-index: 30;
+}
+.name-suggestion {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bg-tertiary, #1a1a3e);
+    transition: background 0.1s;
+    color: var(--text-primary, #e2e8f0);
+}
+.name-suggestion:active,
+.name-suggestion:hover {
+    background: rgba(139, 92, 246, 0.15);
+}
+.name-suggestion .sug-price {
+    float: right;
+    color: var(--accent-gold, #eab308);
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* Swipe to delete */
+.cart-item {
+    overflow: hidden;
+}
+.delete-zone {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.85));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.2s;
+    overflow: hidden;
+    z-index: 5;
+}
+.cart-item.swiped .delete-zone {
+    width: 56px;
+}
+.delete-zone i {
+    color: white;
+    font-size: 1rem;
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+    .qty-edit-input {
+        width: 40px;
+        height: 30px;
+    }
+    .subtotal-edit-input {
+        width: 78px;
+        height: 34px;
+    }
+    .qty-display {
+        width: 40px;
+        height: 30px;
+    }
+    .cart-item-subtotal {
+        min-width: 90px;
+        height: 34px;
+    }
+    .name-suggestion {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+}
