@@ -603,14 +603,9 @@ function editCartName(productId, nameElement) {
 // ================================================================
 async function _searchProductsForSwap(query, currentItem, sugBox, nameElement) {
     try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/v1/products/search', {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ query: query })
+            body: JSON.stringify({ query: query, limit: 10 })
         });
 
         if (!response.ok) {
