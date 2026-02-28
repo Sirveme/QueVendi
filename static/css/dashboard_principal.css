@@ -3973,60 +3973,211 @@ body.is-owner .owner-only {
 
 
 /* ============================================
-   QUEVENDI — FIXES URGENTES
-   Agregar al FINAL ABSOLUTO de dashboard_principal.css
-   (debe ser lo último para ganar especificidad)
-   Fecha: 2026-02-28 noche
+   QUEVENDI — FIXES FINALES
+   PEGAR al FINAL ABSOLUTO de dashboard_principal.css
+   Reemplaza FIXES_urgent.css si ya lo pegaste
+   Fecha: 2026-02-28 noche v2
    ============================================ */
 
 /* ============================================
-   FIX 1: Checkout row — forzar layout horizontal
+   1. CART ITEMS — Compactos, 1 línea
    ============================================ */
+.cart-item {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+.cart-item-info {
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.cart-item-name {
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+    cursor: pointer;
+}
+
+.cart-item-price {
+    font-size: 0.65rem !important;
+    color: var(--text-secondary, #8888a8) !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    margin-top: 1px !important;
+}
+
+/* Qty controles en línea */
+.cart-item-qty {
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    flex-shrink: 0 !important;
+}
+
+.cart-item-qty button {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    font-size: 0.85rem !important;
+}
+
+.qty-display {
+    width: 34px !important;
+    height: 26px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.82rem !important;
+    background: transparent !important;
+}
+
+/* Subtotal compacto */
+.cart-item-subtotal {
+    font-size: 0.88rem !important;
+    white-space: nowrap !important;
+    min-width: 58px !important;
+    text-align: right !important;
+    flex-shrink: 0 !important;
+}
+
+/* Tacho oculto */
+/* Tacho — oculto, aparece con swipe + gradiente rojo */
+.delete-zone {
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 0 !important;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.85)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: width 0.25s ease !important;
+    z-index: 5 !important;
+    overflow: hidden !important;
+    border-radius: 0 6px 6px 0 !important;
+}
+.delete-zone i {
+    color: white !important;
+    font-size: 0.95rem !important;
+    opacity: 0;
+    transition: opacity 0.2s ease 0.1s !important;
+}
+.cart-item.swiped .delete-zone {
+    width: 52px !important;
+}
+.cart-item.swiped .delete-zone i {
+    opacity: 1 !important;
+}
+
+/* Input edición */
+.qty-edit-input,
+.subtotal-edit-input,
+.cart-item input[type="number"],
+.qty-input {
+    background: transparent !important;
+    color: var(--text-primary, #e2e8f0) !important;
+}
+
+.subtotal-edit-input {
+    width: 58px !important;
+    max-width: 58px !important;
+    height: 26px !important;
+    padding: 0 4px !important;
+    font-size: 0.85rem !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid var(--accent-gold, #eab308) !important;
+    border-radius: 5px !important;
+    -moz-appearance: textfield !important;
+    -webkit-appearance: none !important;
+}
+.subtotal-edit-input::-webkit-inner-spin-button,
+.subtotal-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+}
+
+.qty-edit-input {
+    width: 34px !important;
+    max-width: 34px !important;
+    height: 26px !important;
+    padding: 0 !important;
+    font-size: 0.82rem !important;
+    border: 1.5px solid var(--accent-primary, #8b5cf6) !important;
+    border-radius: 5px !important;
+    -moz-appearance: textfield !important;
+    -webkit-appearance: none !important;
+}
+.qty-edit-input::-webkit-inner-spin-button,
+.qty-edit-input::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+}
+
+/* ============================================
+   2. CHECKOUT ROW — Alineados verticalmente
+   ============================================ */
+.checkout-section {
+    padding: 10px 12px 6px !important;
+    border-top: 1px solid var(--bg-tertiary, #1a1a3e) !important;
+}
+
 .checkout-row {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
     width: 100% !important;
 }
 
-/* COBRAR — NO full width, compacto */
+/* COBRAR — compacto, misma altura que Efectivo */
 .checkout-row .btn-checkout,
+.btn-checkout,
 #btn-checkout {
     width: auto !important;
     flex: none !important;
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 6px !important;
-    padding: 11px 18px !important;
-    border-radius: 10px !important;
-    font-size: 0.88rem !important;
+    padding: 0 16px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
     white-space: nowrap !important;
+    margin: 0 !important;
+    box-shadow: none !important;
 }
 
-/* Método de pago — visible y clickeable */
+/* Método de pago — misma altura */
 .btn-payment-select {
     flex: none !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
-    padding: 9px 14px !important;
+    height: 40px !important;
+    padding: 0 12px !important;
     border: 2px solid var(--accent-primary, #8b5cf6) !important;
     border-radius: 4px !important;
     background: rgba(139, 92, 246, 0.1) !important;
     color: var(--accent-primary, #8b5cf6) !important;
     cursor: pointer !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
     font-weight: 600 !important;
-    -webkit-tap-highlight-color: transparent;
-    min-height: 40px !important;
-}
-.btn-payment-select:hover {
-    background: rgba(139, 92, 246, 0.2) !important;
+    white-space: nowrap !important;
 }
 .btn-payment-select:active {
     background: rgba(139, 92, 246, 0.25) !important;
-    transform: scale(0.95);
 }
 .btn-payment-select.fiado-active {
     border-color: var(--accent-gold, #eab308) !important;
@@ -4034,133 +4185,264 @@ body.is-owner .owner-only {
     color: var(--accent-gold, #eab308) !important;
 }
 
-/* Total — empuja a la derecha */
+/* Total — a la derecha, centrado vertical */
 .checkout-total {
     flex: 1 !important;
     text-align: right !important;
-    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    height: 40px !important;
+}
+.checkout-total-label {
+    font-size: 0.5rem !important;
+    letter-spacing: 1.5px !important;
+    color: var(--text-muted, #555570) !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+}
+.checkout-total-amount {
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    color: var(--accent-gold, #eab308) !important;
+    line-height: 1.1 !important;
 }
 
-/* ============================================
-   FIX 2: Subtotal edit — tamaño fijo
-   ============================================ */
-.subtotal-edit-input {
-    width: 70px !important;
-    max-width: 70px !important;
-    height: 28px !important;
-    padding: 0 4px !important;
-    text-align: right !important;
-    background: transparent !important;
-    border: 1.5px solid var(--accent-gold, #eab308) !important;
-    border-radius: 5px !important;
-    color: var(--accent-gold, #fbbf24) !important;
-    font-family: var(--font-display) !important;
-    font-size: 0.88rem !important;
-    font-weight: 700 !important;
-    outline: none !important;
-    caret-color: #fbbf24 !important;
-    -moz-appearance: textfield !important;
-    -webkit-appearance: none !important;
-    box-sizing: border-box !important;
+/* Popup overlay */
+.payment-popup {
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4) !important;
 }
-.subtotal-edit-input:focus {
-    box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15) !important;
-    background: rgba(234, 179, 8, 0.06) !important;
-}
-.subtotal-edit-input::-webkit-inner-spin-button,
-.subtotal-edit-input::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-}
-
-/* Qty edit — tamaño fijo */
-.qty-edit-input {
-    width: 36px !important;
-    max-width: 36px !important;
-    height: 26px !important;
-    background: transparent !important;
-    box-sizing: border-box !important;
-}
-
-/* ============================================
-   FIX 3: Input cantidad — fondo transparente
-   ============================================ */
-.cart-item input[type="number"],
-.cart-item-qty input,
-.qty-display input,
-.qty-input,
-input.qty-edit-input,
-input.subtotal-edit-input {
-    background: transparent !important;
-    color: var(--text-primary, #e2e8f0) !important;
-}
-
-/* ============================================
-   FIX 4: Sugerencias de producto — hover visible
-   ============================================ */
-.name-suggestion {
+.payment-popup-btn {
     cursor: pointer !important;
-    transition: background 0.12s, padding-left 0.12s !important;
 }
-.name-suggestion:hover {
-    background: rgba(139, 92, 246, 0.18) !important;
-    padding-left: 14px !important;
-}
-.name-suggestion:active {
-    background: rgba(139, 92, 246, 0.3) !important;
+.payment-popup-btn:hover {
+    background: rgba(139, 92, 246, 0.12) !important;
 }
 
 /* ============================================
-   FIX 5: Tacho — oculto hasta swipe
+   3. SELECTOR DE VARIANTES — Modal sin teclado
    ============================================ */
-.delete-zone {
-    visibility: hidden !important;
+.variant-selector-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    animation: vsFadeIn 0.15s ease;
 }
-.cart-item.swiped .delete-zone {
-    visibility: visible !important;
+@keyframes vsFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.variant-selector {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 60vh;
+    background: var(--bg-secondary, #111128);
+    border-radius: 16px 16px 0 0;
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    animation: vsSlideUp 0.2s ease;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+}
+@keyframes vsSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.variant-selector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--bg-tertiary, #1a1a3e);
+}
+.variant-selector-header h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary, #e8e8f0);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.variant-selector-header h3 i {
+    color: var(--accent-primary, #8b5cf6);
+}
+.variant-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-tertiary, #1a1a3e);
+    color: var(--text-secondary, #8888a8);
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.variant-close-btn:active {
+    background: rgba(239, 68, 68, 0.3);
+    color: white;
+}
+
+/* Pill indicador del producto actual */
+.variant-current {
+    padding: 6px 16px;
+    font-size: 0.7rem;
+    color: var(--text-muted, #555570);
+    background: rgba(139, 92, 246, 0.06);
+    border-bottom: 1px solid var(--bg-tertiary, #1a1a3e);
+}
+.variant-current strong {
+    color: var(--accent-primary, #8b5cf6);
+}
+
+/* Lista de variantes */
+.variant-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.variant-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.12s;
+    -webkit-tap-highlight-color: transparent;
+}
+.variant-item:hover {
+    background: rgba(139, 92, 246, 0.08);
+}
+.variant-item:active {
+    background: rgba(139, 92, 246, 0.18);
+}
+
+.variant-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.variant-item-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary, #e8e8f0);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.variant-item-meta {
+    font-size: 0.65rem;
+    color: var(--text-muted, #555570);
+    margin-top: 2px;
+}
+
+.variant-item-price {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent-gold, #eab308);
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+/* Estado vacío / cargando */
+.variant-loading,
+.variant-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-muted, #555570);
+    font-size: 0.8rem;
+}
+.variant-loading i {
+    animation: spin 1s linear infinite;
+    margin-right: 6px;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Safe area bottom */
+.variant-selector::after {
+    content: '';
+    display: block;
+    height: env(safe-area-inset-bottom, 0px);
 }
 
 /* ============================================
-   FIX 6: Dropdown sobre otros items
-   ============================================ */
-.cart-item:has(.editing) {
-    overflow: visible !important;
-    z-index: 30 !important;
-}
-
-/* ============================================
-   MOBILE SPECIFIC
+   MOBILE OVERRIDES
    ============================================ */
 @media (max-width: 768px) {
+    .cart-item {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+    }
+    
+    .cart-item-name {
+        font-size: 0.78rem !important;
+    }
+    
+    .cart-item-price {
+        font-size: 0.6rem !important;
+    }
+    
+    .cart-item-qty button {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+    }
+    
+    .qty-display {
+        width: 30px !important;
+        height: 24px !important;
+        font-size: 0.78rem !important;
+    }
+    
+    .cart-item-subtotal {
+        font-size: 0.82rem !important;
+        min-width: 50px !important;
+    }
+    
     .checkout-row {
         gap: 6px !important;
     }
     
     .checkout-row .btn-checkout,
+    .btn-checkout,
     #btn-checkout {
-        padding: 10px 12px !important;
+        padding: 0 12px !important;
+        height: 38px !important;
         font-size: 0.78rem !important;
     }
     
     .btn-payment-select {
-        padding: 8px 8px !important;
-        font-size: 0.68rem !important;
-        min-height: 36px !important;
+        height: 38px !important;
+        padding: 0 8px !important;
+        font-size: 0.65rem !important;
+    }
+    
+    .checkout-total {
+        height: 38px !important;
     }
     
     .checkout-total-amount {
-        font-size: 1.15rem !important;
+        font-size: 1.05rem !important;
     }
     
-    .checkout-total-label {
-        font-size: 0.5rem !important;
-    }
-    
-    /* Subtotal edit más compacto en móvil */
-    .subtotal-edit-input {
-        width: 60px !important;
-        max-width: 60px !important;
-        height: 26px !important;
-        font-size: 0.82rem !important;
+    /* Voz flotante oculto */
+    .voice-fab,
+    .voice-button-float,
+    .btn-voice-commands,
+    #btn-voice-commands,
+    .comandos-voz-btn {
+        display: none !important;
     }
 }
