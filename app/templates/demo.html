@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>QueVendi.pro — Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #07071a;
+            --bg-card: #0e0e28;
+            --bg-card-hover: #141438;
+            --border-subtle: rgba(139, 92, 246, 0.12);
+            --border-accent: rgba(139, 92, 246, 0.3);
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a8;
+            --text-muted: #555570;
+            --accent-violet: #8b5cf6;
+            --accent-violet-glow: rgba(139, 92, 246, 0.15);
+            --accent-green: #22c55e;
+            --accent-gold: #eab308;
+            --accent-blue: #3b82f6;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .demo-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .back-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.15s;
+        }
+        .back-btn:active {
+            background: var(--accent-violet-glow);
+            border-color: var(--accent-violet);
+        }
+        .demo-header h1 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .demo-header h1 span {
+            color: var(--accent-violet);
+        }
+
+        /* Main */
+        .demo-main {
+            padding: 24px 20px;
+        }
+
+        .demo-intro {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .demo-intro h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        .demo-intro p {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Niche cards */
+        .niche-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .niche-grid .niche-option:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+            max-width: 50%;
+            justify-self: center;
+        }
+
+        .niche-option {
+            position: relative;
+            padding: 20px 14px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .niche-option:active {
+            transform: scale(0.97);
+        }
+        .niche-option.selected {
+            border-color: var(--accent-violet);
+            background: rgba(139, 92, 246, 0.06);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+        .niche-option.selected::after {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--accent-violet);
+            font-size: 0.85rem;
+        }
+
+        .niche-option .emoji {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .niche-option h3 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .niche-option .desc {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .niche-option .count {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--accent-violet);
+            padding: 3px 8px;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Sample products preview */
+        .preview-section {
+            margin-bottom: 28px;
+            display: none;
+        }
+        .preview-section.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .preview-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+        .preview-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-card);
+        }
+        .preview-item-name {
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+        .preview-item-cat {
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+        .preview-item-price {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .preview-more {
+            text-align: center;
+            padding: 8px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* CTA */
+        .demo-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--accent-violet), #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .demo-cta:disabled {
+            opacity: 0.4;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .demo-cta:not(:disabled):active {
+            transform: scale(0.97);
+        }
+
+        .demo-note {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .demo-note i {
+            color: var(--accent-green);
+            margin-right: 4px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 7, 26, 0.92);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-violet);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+        .loading-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        @media (min-width: 768px) {
+            .demo-main { max-width: 500px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="demo-header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h1>Que<span>Vendi</span> Demo</h1>
+    </header>
+
+    <!-- Main -->
+    <main class="demo-main">
+        <div class="demo-intro">
+            <h2>¿Qué tipo de negocio?</h2>
+            <p>Selecciona y cargamos productos de ejemplo para que veas cómo funciona.</p>
+        </div>
+
+        <!-- Niche selection -->
+        <div class="niche-grid" id="niche-grid">
+            <div class="niche-option" data-niche="abarrotes" onclick="selectNiche(this)">
+                <span class="emoji">🏪</span>
+                <h3>Abarrotes</h3>
+                <div class="desc">Primera necesidad</div>
+                <span class="count">40 productos</span>
+            </div>
+            <div class="niche-option" data-niche="ferreteria" onclick="selectNiche(this)">
+                <span class="emoji">🔧</span>
+                <h3>Ferretería</h3>
+                <div class="desc">Herramientas y construcción</div>
+                <span class="count">30 productos</span>
+            </div>
+            <div class="niche-option" data-niche="lubricentro" onclick="selectNiche(this)">
+                <span class="emoji">🛢️</span>
+                <h3>Lubricentro</h3>
+                <div class="desc">Aceites, filtros y servicios</div>
+                <span class="count">30 productos</span>
+            </div>
+            <div class="niche-option" data-niche="repuestera" onclick="selectNiche(this)">
+                <span class="emoji">⚙️</span>
+                <h3>Repuestera</h3>
+                <div class="desc">Autopartes y repuestos</div>
+                <span class="count">30 productos</span>
+            </div>
+            <div class="niche-option" data-niche="ropas" onclick="selectNiche(this)">
+                <span class="emoji">👕</span>
+                <h3>Ropas</h3>
+                <div class="desc">Hombre, mujer y niños</div>
+                <span class="count">30 productos</span>
+            </div>
+            <div class="niche-option" data-niche="zapateria" onclick="selectNiche(this)">
+                <span class="emoji">👟</span>
+                <h3>Zapatería</h3>
+                <div class="desc">Todo tipo de calzado</div>
+                <span class="count">25 productos</span>
+            </div>
+            <div class="niche-option" data-niche="grifo" onclick="selectNiche(this)">
+                <span class="emoji">⛽</span>
+                <h3>Grifo</h3>
+                <div class="desc">Combustible y tienda</div>
+                <span class="count">25 productos</span>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-section" id="preview-section">
+            <div class="preview-label">Vista previa del catálogo</div>
+            <div class="preview-list" id="preview-list"></div>
+            <div class="preview-more" id="preview-more"></div>
+        </div>
+
+        <!-- CTA -->
+        <button class="demo-cta" id="btn-enter-demo" disabled onclick="enterDemo()">
+            <i class="fas fa-play"></i> Iniciar Demo
+        </button>
+        <div class="demo-note">
+            <i class="fas fa-lock-open"></i> Sin registro · Sin tarjeta · 100% gratis
+        </div>
+    </main>
+
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Preparando tu demo...</div>
+        <div class="loading-sub" id="loading-sub">Cargando catálogo de bodega</div>
+    </div>
+
+    <script>
+    // ====================================================
+    // DEMO PAGE LOGIC
+    // ====================================================
+
+    // Sample products for preview (first 5 of each)
+    const PREVIEWS = {
+        abarrotes: [
+            {name: "Arroz Costeño 1kg", cat: "Abarrotes", price: "5.00"},
+            {name: "Aceite Primor 1L", cat: "Abarrotes", price: "9.50"},
+            {name: "Leche Gloria 1L", cat: "Lácteos", price: "5.50"},
+            {name: "Inca Kola 500ml", cat: "Bebidas", price: "2.50"},
+            {name: "Jabón Bolívar 230g", cat: "Limpieza", price: "2.80"},
+        ],
+        ferreteria: [
+            {name: "Cemento Sol 42.5kg", cat: "Construcción", price: "32.00"},
+            {name: "Cable TW 14 AWG x100m", cat: "Eléctrico", price: "85.00"},
+            {name: "Foco LED 12W", cat: "Eléctrico", price: "8.00"},
+            {name: "Martillo 16oz", cat: "Herramientas", price: "18.00"},
+            {name: "Pintura Latex 4L", cat: "Pintura", price: "35.00"},
+        ],
+        lubricentro: [
+            {name: "Aceite Motor 20W-50 1L", cat: "Aceites Motor", price: "25.00"},
+            {name: "Aceite Sintético 10W-40 1L", cat: "Aceites Motor", price: "45.00"},
+            {name: "Filtro Aceite Universal", cat: "Filtros", price: "15.00"},
+            {name: "WD-40 311g", cat: "Lubricantes", price: "28.00"},
+            {name: "Cambio Aceite Auto", cat: "Servicios", price: "30.00"},
+        ],
+        repuestera: [
+            {name: "Pastillas Freno Toyota", cat: "Frenos", price: "55.00"},
+            {name: "Amortiguador Delantero", cat: "Suspensión", price: "120.00"},
+            {name: "Batería 13 Placas", cat: "Eléctrico", price: "280.00"},
+            {name: "Kit Distribución", cat: "Distribución", price: "180.00"},
+            {name: "Bujía NGK Iridium", cat: "Encendido", price: "25.00"},
+        ],
+        ropas: [
+            {name: "Polo algodón hombre M", cat: "Hombre", price: "25.00"},
+            {name: "Jean hombre clásico", cat: "Hombre", price: "55.00"},
+            {name: "Blusa mujer casual", cat: "Mujer", price: "35.00"},
+            {name: "Polo niño estampado", cat: "Niños", price: "18.00"},
+            {name: "Casaca jean hombre", cat: "Hombre", price: "65.00"},
+        ],
+        zapateria: [
+            {name: "Zapatilla deportiva hombre", cat: "Hombre", price: "65.00"},
+            {name: "Bota trabajo punta acero", cat: "Hombre", price: "95.00"},
+            {name: "Sandalia mujer casual", cat: "Mujer", price: "35.00"},
+            {name: "Zapato escolar niño", cat: "Niños", price: "50.00"},
+            {name: "Zapatilla running", cat: "Hombre", price: "90.00"},
+        ],
+        grifo: [
+            {name: "Gasolina 90 octanos", cat: "Combustible", price: "14.50"},
+            {name: "Diesel B5 S-50", cat: "Combustible", price: "14.20"},
+            {name: "Aceite Motor 20W-50 1L", cat: "Lubricantes", price: "28.00"},
+            {name: "Coca-Cola 500ml", cat: "Tienda", price: "3.00"},
+            {name: "Café pasado vaso", cat: "Tienda", price: "3.00"},
+        ]
+    };
+
+    const NICHE_NAMES = {
+        abarrotes: "Abarrotes",
+        ferreteria: "Ferretería",
+        lubricentro: "Lubricentro",
+        repuestera: "Repuestera",
+        ropas: "Ropas",
+        zapateria: "Zapatería",
+        grifo: "Grifo"
+    };
+
+    const NICHE_COUNTS = {
+        abarrotes: 40,
+        ferreteria: 30,
+        lubricentro: 30,
+        repuestera: 30,
+        ropas: 30,
+        zapateria: 25,
+        grifo: 25
+    };
+
+    let selectedNiche = null;
+
+    // Check URL param
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const niche = params.get('niche');
+        if (niche && PREVIEWS[niche]) {
+            const el = document.querySelector(`[data-niche="${niche}"]`);
+            if (el) selectNiche(el);
+        }
+    })();
+
+    function selectNiche(el) {
+        // Deselect all
+        document.querySelectorAll('.niche-option').forEach(n => n.classList.remove('selected'));
+        
+        // Select this one
+        el.classList.add('selected');
+        selectedNiche = el.dataset.niche;
+
+        // Enable button
+        document.getElementById('btn-enter-demo').disabled = false;
+
+        // Show preview
+        const previewSection = document.getElementById('preview-section');
+        const previewList = document.getElementById('preview-list');
+        const previewMore = document.getElementById('preview-more');
+        
+        const items = PREVIEWS[selectedNiche];
+        previewList.innerHTML = items.map(p => `
+            <div class="preview-item">
+                <div>
+                    <div class="preview-item-name">${p.name}</div>
+                    <div class="preview-item-cat">${p.cat}</div>
+                </div>
+                <div class="preview-item-price">S/${p.price}</div>
+            </div>
+        `).join('');
+
+        const remaining = NICHE_COUNTS[selectedNiche] - items.length;
+        previewMore.textContent = `y ${remaining} productos más...`;
+
+        previewSection.classList.add('visible');
+    }
+
+    async function enterDemo() {
+        if (!selectedNiche) return;
+
+        const overlay = document.getElementById('loading-overlay');
+        const loadingSub = document.getElementById('loading-sub');
+        
+        overlay.classList.add('active');
+        loadingSub.textContent = `Cargando catálogo de ${NICHE_NAMES[selectedNiche]}`;
+
+        try {
+            // Step 1: Create demo session / login
+            loadingSub.textContent = 'Creando sesión demo...';
+            
+            const loginResp = await fetch('/api/v1/auth/demo-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ niche: selectedNiche })
+            });
+
+            if (!loginResp.ok) {
+                throw new Error('Error al crear sesión demo');
+            }
+
+            const loginData = await loginResp.json();
+            
+            // Save token
+            localStorage.setItem('access_token', loginData.access_token);
+            localStorage.setItem('demo_mode', 'true');
+            localStorage.setItem('demo_niche', selectedNiche);
+
+            // Step 2: Import catalog
+            loadingSub.textContent = `Importando ${NICHE_COUNTS[selectedNiche]} productos...`;
+
+            const importResp = await fetch('/api/v1/products/import-catalog', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${loginData.access_token}`
+                },
+                body: JSON.stringify({ catalog: selectedNiche })
+            });
+
+            if (!importResp.ok) {
+                console.warn('Catalog import failed, continuing anyway...');
+            }
+
+            // Step 3: Redirect to dashboard
+            loadingSub.textContent = '¡Listo! Entrando al sistema...';
+            await new Promise(r => setTimeout(r, 600));
+
+            window.location.href = '/dashboard';
+
+        } catch (err) {
+            console.error('[Demo]', err);
+            overlay.classList.remove('active');
+            alert('Error al iniciar demo. Intenta de nuevo.');
+        }
+    }
+    </script>
+</body>
+</html>

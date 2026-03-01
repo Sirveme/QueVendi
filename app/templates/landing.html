@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>QueVendi.pro — Vende, factura y crece</title>
+    <meta name="description" content="Sistema de ventas con facturación electrónica SUNAT. Boletas, facturas, control de stock. Funciona en celular y sin internet.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #070b1e;
+            --bg-card: #0c1230;
+            --bg-card-hover: #111842;
+            --border-subtle: rgba(99,140,255,0.1);
+            --border-accent: rgba(99,140,255,0.25);
+            --text-primary: #e8ecf4;
+            --text-secondary: #8a94b0;
+            --text-muted: #505a74;
+            --accent-blue: #638cff;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --accent-gold: #fbbf24;
+            --accent-orange: #fb923c;
+            --accent-pink: #f472b6;
+            --accent-violet: #a78bfa;
+            --glow-blue: rgba(99,140,255,0.15);
+            --font: 'DM Sans', system-ui, sans-serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:var(--font);background:var(--bg-deep);color:var(--text-primary);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+        body::after{content:'';position:fixed;top:-40%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(99,140,255,0.06) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+
+        /* ====== HEADER ====== */
+        .header{position:fixed;top:0;left:0;right:0;z-index:50;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,11,30,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle)}
+        .logo{display:flex;align-items:center;gap:7px;text-decoration:none}
+        .logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#fff}
+        .logo-text{font-weight:700;font-size:1rem;color:var(--text-primary)}
+        .logo-text span{color:var(--accent-cyan)}
+        .header-btn{padding:7px 16px;border-radius:6px;font-size:0.72rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border-accent);color:var(--accent-blue);transition:all 0.15s}
+        .header-btn:active{background:var(--glow-blue)}
+
+        /* ====== HERO ====== */
+        .hero{padding:80px 20px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1}
+        .hero-badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+        .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:0.56rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+        .badge-green{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);color:var(--accent-green)}
+        .badge-green::before{content:'';width:5px;height:5px;background:var(--accent-green);border-radius:50%;animation:pulse 2s infinite}
+        .badge-gold{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:var(--accent-gold)}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+        .hero h1{font-size:1.85rem;font-weight:800;line-height:1.12;letter-spacing:-0.03em;margin-bottom:12px}
+        .hero h1 .grad{background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero-sub{font-size:0.86rem;color:var(--text-secondary);line-height:1.55;max-width:340px;margin-bottom:20px}
+        .hero-sub strong{color:var(--accent-gold)}
+        .hero-ctas{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;margin-bottom:24px}
+        .cta-primary{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;background:linear-gradient(135deg,var(--accent-blue),#4f6fef);color:#fff;border:none;border-radius:10px;font-size:0.92rem;font-weight:700;text-decoration:none;cursor:pointer;box-shadow:0 4px 24px rgba(99,140,255,0.3);transition:all 0.15s}
+        .cta-primary:active{transform:scale(0.97)}
+        .cta-secondary{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;background:transparent;border:2px solid var(--border-accent);color:var(--text-primary);border-radius:10px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.15s}
+        .cta-secondary:active{background:var(--glow-blue)}
+
+        /* ====== PHONE MOCKUP ====== */
+        .phone-wrap{display:flex;justify-content:center;margin-bottom:6px}
+        .phone{width:195px;height:390px;background:#0a0f26;border-radius:26px;border:3px solid #1e2548;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(99,140,255,0.08),0 20px 60px rgba(0,0,0,0.5),0 0 80px rgba(99,140,255,0.06)}
+        .phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:76px;height:16px;background:#0a0f26;border-radius:0 0 12px 12px;z-index:10}
+        .phone-screen{position:absolute;inset:0;overflow:hidden}
+
+        .screen-slide{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;transition:opacity 0.6s ease}
+        .screen-slide.active{opacity:1}
+
+        /* Screen 1: POS */
+        .s-header{padding:22px 10px 5px;display:flex;align-items:center;justify-content:space-between}
+        .s-brand{font-size:0.5rem;font-weight:700;color:var(--accent-cyan)}
+        .s-store{font-size:0.38rem;color:var(--text-muted)}
+        .s-online{font-size:0.34rem;color:var(--accent-green)}
+        .s-online i{font-size:0.22rem}
+        .s-search{margin:5px 10px;padding:5px 7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:5px;display:flex;align-items:center;gap:4px}
+        .s-search i{font-size:0.36rem;color:var(--accent-violet)}
+        .s-search span{font-size:0.36rem;color:var(--text-muted);font-style:italic}
+        .s-items{flex:1;padding:3px 10px;display:flex;flex-direction:column;gap:2px}
+        .s-item{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:rgba(255,255,255,0.02);border-radius:4px;opacity:0;animation:slideIn 0.3s ease forwards}
+        .s-item:nth-child(1){animation-delay:0.3s}.s-item:nth-child(2){animation-delay:0.5s}.s-item:nth-child(3){animation-delay:0.7s}.s-item:nth-child(4){animation-delay:0.9s}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+        .s-iname{font-size:0.38rem;font-weight:500;color:#ccc}
+        .s-iprice{font-size:0.38rem;font-weight:700;color:var(--accent-gold)}
+        .s-footer{padding:7px 10px;background:rgba(99,140,255,0.06);border-top:1px solid rgba(99,140,255,0.1);display:flex;align-items:center;justify-content:space-between}
+        .s-tlabel{font-size:0.34rem;color:var(--text-muted)}
+        .s-tamount{font-size:0.55rem;font-weight:800;color:#fff}
+        .s-cobrar{padding:4px 9px;background:linear-gradient(135deg,var(--accent-green),#059669);border-radius:4px;font-size:0.36rem;font-weight:700;color:#fff}
+
+        /* Screen 2: Boleta */
+        .s-boleta{padding:24px 12px 8px;display:flex;flex-direction:column;align-items:center}
+        .s-bok-icon{width:32px;height:32px;background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(34,211,238,0.15));border:2px solid rgba(52,211,153,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:5px;animation:scaleIn 0.4s ease 0.2s both}
+        @keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}
+        .s-bok-icon i{font-size:0.55rem;color:var(--accent-green)}
+        .s-bok-title{font-size:0.46rem;font-weight:700;color:var(--accent-green);margin-bottom:2px}
+        .s-bok-sub{font-size:0.32rem;color:var(--text-muted);margin-bottom:8px}
+        .s-ticket{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:7px;animation:fadeUp 0.5s ease 0.3s both}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .s-t-center{text-align:center;padding-bottom:4px;border-bottom:1px dashed rgba(255,255,255,0.08);margin-bottom:4px}
+        .s-t-ruc{font-size:0.3rem;color:var(--text-muted)}
+        .s-t-tipo{font-size:0.4rem;font-weight:700;color:var(--accent-cyan)}
+        .s-t-serie{font-size:0.28rem;color:var(--text-muted)}
+        .s-t-row{display:flex;justify-content:space-between;padding:1.5px 0}
+        .s-t-item{font-size:0.3rem;color:#aaa}
+        .s-t-val{font-size:0.3rem;color:#ddd;font-weight:600}
+        .s-t-total{border-top:1px dashed rgba(255,255,255,0.08);margin-top:3px;padding-top:3px;display:flex;justify-content:space-between}
+        .s-t-total span:first-child{font-size:0.36rem;font-weight:700;color:#fff}
+        .s-t-total span:last-child{font-size:0.36rem;font-weight:800;color:var(--accent-gold)}
+        .s-sunat{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:3px;padding:3px 7px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.15);border-radius:4px;font-size:0.3rem;color:var(--accent-gold);font-weight:600;animation:fadeUp 0.5s ease 0.6s both}
+
+        /* Screen 3: Factura Estado */
+        .s-factura{padding:24px 12px 8px}
+        .s-f-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:4px;font-size:0.34rem;color:var(--accent-gold);font-weight:700;margin-bottom:7px}
+        .s-f-title{font-size:0.44rem;font-weight:700;color:#fff;margin-bottom:2px}
+        .s-f-sub{font-size:0.32rem;color:var(--text-secondary);line-height:1.4;margin-bottom:8px}
+        .s-f-clients{display:flex;flex-direction:column;gap:3px}
+        .s-f-client{display:flex;align-items:center;gap:5px;padding:4px 6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:4px;opacity:0;animation:slideIn 0.3s ease forwards}
+        .s-f-client:nth-child(1){animation-delay:0.2s}.s-f-client:nth-child(2){animation-delay:0.4s}.s-f-client:nth-child(3){animation-delay:0.6s}.s-f-client:nth-child(4){animation-delay:0.8s}
+        .s-f-ico{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.34rem;flex-shrink:0}
+        .s-f-ico-b{background:rgba(99,140,255,0.12);color:var(--accent-blue)}
+        .s-f-ico-o{background:rgba(251,146,60,0.12);color:var(--accent-orange)}
+        .s-f-ico-p{background:rgba(244,114,182,0.12);color:var(--accent-pink)}
+        .s-f-ico-g{background:rgba(52,211,153,0.12);color:var(--accent-green)}
+        .s-f-name{font-size:0.34rem;font-weight:500;color:#bbb}
+        .s-f-type{font-size:0.26rem;color:var(--text-muted)}
+
+        /* Phone dots */
+        .phone-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}
+        .phone-dot{width:6px;height:6px;background:var(--text-muted);border-radius:50%;opacity:0.3;transition:all 0.3s;cursor:pointer}
+        .phone-dot.active{opacity:1;background:var(--accent-cyan);box-shadow:0 0 8px rgba(34,211,238,0.4)}
+
+        /* ====== TRUST STRIP ====== */
+        .trust{display:flex;justify-content:center;gap:14px;padding:14px 20px;flex-wrap:wrap}
+        .trust-item{display:flex;align-items:center;gap:4px;font-size:0.6rem;color:var(--text-secondary);font-weight:500}
+        .trust-item i{font-size:0.62rem}
+        .ti-green i{color:var(--accent-green)}.ti-gold i{color:var(--accent-gold)}.ti-cyan i{color:var(--accent-cyan)}
+
+        /* ====== FEATURES ====== */
+        .features{padding:28px 20px 10px;position:relative;z-index:1}
+        .section-label{font-size:0.52rem;color:var(--accent-cyan);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:5px}
+        .section-title{font-size:1.2rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:18px}
+        .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+        .feature-card{padding:13px 11px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:11px}
+        .feature-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.78rem;margin-bottom:7px}
+        .fi-blue{background:rgba(99,140,255,0.1);color:var(--accent-blue)}
+        .fi-gold{background:rgba(251,191,36,0.1);color:var(--accent-gold)}
+        .fi-green{background:rgba(52,211,153,0.1);color:var(--accent-green)}
+        .fi-cyan{background:rgba(34,211,238,0.1);color:var(--accent-cyan)}
+        .fi-orange{background:rgba(251,146,60,0.1);color:var(--accent-orange)}
+        .fi-pink{background:rgba(244,114,182,0.1);color:var(--accent-pink)}
+        .feature-card h3{font-size:0.7rem;font-weight:600;margin-bottom:2px}
+        .feature-card p{font-size:0.58rem;color:var(--text-secondary);line-height:1.4}
+
+        /* ====== GOBIERNO ====== */
+        .govt-section{padding:24px 20px;position:relative;z-index:1}
+        .govt-card{background:linear-gradient(135deg,rgba(251,191,36,0.06),rgba(251,146,60,0.04));border:1.5px solid rgba(251,191,36,0.15);border-radius:14px;padding:20px 16px;position:relative;overflow:hidden}
+        .govt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent-gold),var(--accent-orange))}
+        .govt-card h3{font-size:0.95rem;font-weight:700;margin-bottom:5px}
+        .govt-card h3 i{color:var(--accent-gold);margin-right:5px}
+        .govt-card>p{font-size:0.75rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+        .govt-clients{display:flex;flex-wrap:wrap;gap:5px}
+        .govt-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;font-size:0.6rem;color:var(--text-secondary);font-weight:500}
+        .govt-tag i{font-size:0.52rem;color:var(--accent-gold)}
+
+        /* ====== NICHOS ====== */
+        .niches{padding:24px 20px;position:relative;z-index:1}
+        .niche-scroll{display:flex;gap:9px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+        .niche-scroll::-webkit-scrollbar{display:none}
+        .niche-card{flex:0 0 125px;scroll-snap-align:start;padding:12px 10px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:11px;text-align:center;text-decoration:none;color:var(--text-primary);transition:all 0.15s}
+        .niche-card:active{border-color:var(--accent-blue);transform:scale(0.97)}
+        .niche-emoji{font-size:1.5rem;display:block;margin-bottom:5px}
+        .niche-card h3{font-size:0.68rem;font-weight:600;margin-bottom:1px}
+        .niche-card p{font-size:0.48rem;color:var(--text-muted)}
+        .niche-count{margin-top:5px;font-size:0.48rem;color:var(--accent-cyan);font-weight:600}
+        .niche-coming{text-align:center;margin-top:10px;font-size:0.58rem;color:var(--text-muted)}
+        .niche-coming i{color:var(--accent-orange);margin-right:3px}
+        .niche-coming strong{color:var(--accent-cyan)}
+
+        /* ====== PRICING ====== */
+        .pricing{padding:24px 20px;position:relative;z-index:1}
+        .pricing-sub{font-size:0.75rem;color:var(--text-secondary);margin-bottom:18px}
+        .plans-grid{display:flex;flex-direction:column;gap:11px}
+        .plan-card{background:var(--bg-card);border:1.5px solid var(--border-subtle);border-radius:13px;padding:18px 15px;position:relative}
+        .plan-featured{border-color:var(--accent-blue);box-shadow:0 0 30px rgba(99,140,255,0.08)}
+        .plan-featured::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan))}
+        .plan-popular{position:absolute;top:11px;right:11px;padding:2px 7px;background:var(--accent-blue);color:#fff;font-size:0.46rem;font-weight:700;border-radius:3px;text-transform:uppercase}
+        .plan-name{font-size:0.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:3px}
+        .plan-price{display:flex;align-items:baseline;gap:3px;margin-bottom:3px}
+        .plan-currency{font-size:0.82rem;font-weight:600;color:var(--text-secondary)}
+        .plan-amount{font-size:2.1rem;font-weight:800;letter-spacing:-0.03em}
+        .plan-period{font-size:0.62rem;color:var(--text-muted)}
+        .plan-desc{font-size:0.62rem;color:var(--text-secondary);margin-bottom:10px}
+        .plan-features{list-style:none;margin-bottom:12px}
+        .plan-features li{display:flex;align-items:flex-start;gap:5px;padding:3px 0;font-size:0.66rem;color:var(--text-secondary)}
+        .plan-features li i{color:var(--accent-green);font-size:0.56rem;margin-top:2px;flex-shrink:0}
+        .plan-cta{display:block;width:100%;padding:10px;text-align:center;border-radius:7px;font-size:0.8rem;font-weight:700;text-decoration:none;cursor:pointer;transition:all 0.15s}
+        .plan-cta-solid{background:linear-gradient(135deg,var(--accent-blue),#4f6fef);color:#fff;border:none;box-shadow:0 3px 12px rgba(99,140,255,0.25)}
+        .plan-cta-outline{background:transparent;border:2px solid var(--border-accent);color:var(--accent-blue)}
+        .pricing-note{text-align:center;margin-top:12px;font-size:0.58rem;color:var(--text-muted)}
+        .pricing-note i{color:var(--accent-blue);margin-right:3px}
+
+        /* ====== FOOTER ====== */
+        .footer{padding:22px 20px;text-align:center;border-top:1px solid var(--border-subtle);position:relative;z-index:1}
+        .footer-brand{font-size:0.62rem;color:var(--text-muted);margin-bottom:3px}
+        .footer-company{font-size:0.52rem;color:var(--text-muted)}
+        .footer-company a{color:var(--accent-cyan);text-decoration:none}
+
+        /* ====== DESKTOP ====== */
+        @media(min-width:768px){
+            .hero{padding:120px 40px 40px;flex-direction:row;text-align:left;gap:40px}
+            .hero-content{flex:1}
+            .hero h1{font-size:2.5rem}
+            .hero-sub{max-width:420px}
+            .hero-ctas{flex-direction:row;max-width:none}
+            .phone{width:230px;height:460px}
+            .feature-grid{grid-template-columns:repeat(3,1fr);gap:12px}
+            .plans-grid{flex-direction:row;max-width:800px;margin:0 auto}
+            .plans-grid .plan-card{flex:1}
+            .niche-scroll{justify-content:center;flex-wrap:wrap}
+            .govt-card{max-width:580px;margin:0 auto}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+            <div class="logo-text">Que<span>Vendi</span>.pro</div>
+        </a>
+        <a href="/auth/login" class="header-btn"><i class="fas fa-sign-in-alt"></i> Ingresar</a>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badges">
+                <span class="badge badge-green">En línea</span>
+                <span class="badge badge-gold"><i class="fas fa-wifi-slash" style="font-size:0.48rem"></i> Funciona sin internet</span>
+            </div>
+            <h1>Vende y factura<br>desde tu <span class="grad">celular</span></h1>
+            <p class="hero-sub">
+                Boletas, facturas electrónicas SUNAT, control de stock y reportes.
+                <strong>Véndele al Estado, a empresas y al público.</strong>
+            </p>
+            <div class="hero-ctas">
+                <a href="/demo" class="cta-primary">
+                    <i class="fas fa-play"></i> Probar Demo Gratis
+                </a>
+                <a href="/auth/login" class="cta-secondary">
+                    <i class="fas fa-user"></i> Ya tengo cuenta
+                </a>
+            </div>
+        </div>
+
+        <!-- PHONE MOCKUP -->
+        <div class="phone-wrap">
+            <div>
+                <div class="phone">
+                    <div class="phone-screen">
+
+                        <!-- Screen 1: POS -->
+                        <div class="screen-slide active" id="scr1">
+                            <div class="s-header">
+                                <div>
+                                    <div class="s-brand"><i class="fas fa-bolt"></i> QueVendi</div>
+                                    <div class="s-store">Mi Bodega - Iquitos</div>
+                                </div>
+                                <div class="s-online"><i class="fas fa-circle"></i> Online</div>
+                            </div>
+                            <div class="s-search">
+                                <i class="fas fa-microphone"></i>
+                                <span>"dos arroz y una inca kola"</span>
+                            </div>
+                            <div class="s-items">
+                                <div class="s-item"><div class="s-iname">Arroz Costeño 1kg</div><div class="s-iprice">x2 S/10.00</div></div>
+                                <div class="s-item"><div class="s-iname">Inca Kola 500ml</div><div class="s-iprice">x1 S/2.50</div></div>
+                                <div class="s-item"><div class="s-iname">Azúcar Rubia 1kg</div><div class="s-iprice">x1 S/4.50</div></div>
+                                <div class="s-item"><div class="s-iname">Leche Gloria 1L</div><div class="s-iprice">x2 S/11.00</div></div>
+                            </div>
+                            <div class="s-footer">
+                                <div>
+                                    <div class="s-tlabel">TOTAL</div>
+                                    <div class="s-tamount">S/ 28.00</div>
+                                </div>
+                                <div class="s-cobrar">COBRAR <i class="fas fa-arrow-right" style="font-size:0.28rem"></i></div>
+                            </div>
+                        </div>
+
+                        <!-- Screen 2: Boleta generada -->
+                        <div class="screen-slide" id="scr2">
+                            <div class="s-boleta">
+                                <div class="s-bok-icon"><i class="fas fa-check"></i></div>
+                                <div class="s-bok-title">¡Venta completada!</div>
+                                <div class="s-bok-sub">Boleta electrónica emitida</div>
+                                <div class="s-ticket">
+                                    <div class="s-t-center">
+                                        <div class="s-t-ruc">RUC: 20615446565</div>
+                                        <div class="s-t-tipo">BOLETA ELECTRÓNICA</div>
+                                        <div class="s-t-serie">B001-00000147</div>
+                                    </div>
+                                    <div class="s-t-row"><span class="s-t-item">2x Arroz Costeño 1kg</span><span class="s-t-val">10.00</span></div>
+                                    <div class="s-t-row"><span class="s-t-item">1x Inca Kola 500ml</span><span class="s-t-val">2.50</span></div>
+                                    <div class="s-t-row"><span class="s-t-item">1x Azúcar Rubia 1kg</span><span class="s-t-val">4.50</span></div>
+                                    <div class="s-t-row"><span class="s-t-item">2x Leche Gloria 1L</span><span class="s-t-val">11.00</span></div>
+                                    <div class="s-t-total"><span>TOTAL</span><span>S/ 28.00</span></div>
+                                </div>
+                                <div class="s-sunat"><i class="fas fa-shield-halved"></i> Enviado a SUNAT ✓</div>
+                            </div>
+                        </div>
+
+                        <!-- Screen 3: Factura para Estado -->
+                        <div class="screen-slide" id="scr3">
+                            <div class="s-factura">
+                                <div class="s-f-tag"><i class="fas fa-file-invoice"></i> FACTURA ELECTRÓNICA</div>
+                                <div class="s-f-title">Véndele al Estado</div>
+                                <div class="s-f-sub">Emite facturas para licitaciones y ventas a instituciones públicas</div>
+                                <div class="s-f-clients">
+                                    <div class="s-f-client"><div class="s-f-ico s-f-ico-b"><i class="fas fa-landmark"></i></div><div><div class="s-f-name">Municipalidad Provincial</div><div class="s-f-type">Gobierno Local</div></div></div>
+                                    <div class="s-f-client"><div class="s-f-ico s-f-ico-o"><i class="fas fa-hospital"></i></div><div><div class="s-f-name">Hospital Regional</div><div class="s-f-type">Sector Salud</div></div></div>
+                                    <div class="s-f-client"><div class="s-f-ico s-f-ico-p"><i class="fas fa-school"></i></div><div><div class="s-f-name">UGEL / Colegios</div><div class="s-f-type">Sector Educación</div></div></div>
+                                    <div class="s-f-client"><div class="s-f-ico s-f-ico-g"><i class="fas fa-building-columns"></i></div><div><div class="s-f-name">Gobierno Regional</div><div class="s-f-type">GORE Loreto</div></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="phone-dots">
+                    <div class="phone-dot active" data-s="1"></div>
+                    <div class="phone-dot" data-s="2"></div>
+                    <div class="phone-dot" data-s="3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST -->
+    <div class="trust">
+        <div class="trust-item ti-green"><i class="fas fa-mobile-screen"></i> Desde tu celular</div>
+        <div class="trust-item ti-gold"><i class="fas fa-file-invoice"></i> SUNAT incluido</div>
+        <div class="trust-item ti-cyan"><i class="fas fa-wifi-slash"></i> Sin internet</div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features">
+        <div class="section-label">Todo incluido</div>
+        <h2 class="section-title">¿Qué puedes hacer?</h2>
+        <div class="feature-grid">
+            <div class="feature-card"><div class="feature-icon fi-blue"><i class="fas fa-cash-register"></i></div><h3>Punto de Venta</h3><p>Vende rápido. Busca por voz o texto.</p></div>
+            <div class="feature-card"><div class="feature-icon fi-gold"><i class="fas fa-file-invoice-dollar"></i></div><h3>Boletas y Facturas</h3><p>SUNAT automático. Al instante.</p></div>
+            <div class="feature-card"><div class="feature-icon fi-green"><i class="fas fa-boxes-stacked"></i></div><h3>Stock Inteligente</h3><p>Alertas de stock bajo.</p></div>
+            <div class="feature-card"><div class="feature-icon fi-cyan"><i class="fas fa-microphone"></i></div><h3>Voz en Español</h3><p>"Dos arroz y una inca kola"</p></div>
+            <div class="feature-card"><div class="feature-icon fi-orange"><i class="fas fa-chart-pie"></i></div><h3>Reportes</h3><p>Ventas por día, semana y mes.</p></div>
+            <div class="feature-card"><div class="feature-icon fi-pink"><i class="fas fa-qrcode"></i></div><h3>Yape y Plin</h3><p>Cobra digital. Sin vuelto.</p></div>
+        </div>
+    </section>
+
+    <!-- GOBIERNO -->
+    <section class="govt-section">
+        <div class="govt-card">
+            <h3><i class="fas fa-landmark"></i> Véndele al Estado</h3>
+            <p>Con factura electrónica puedes participar en licitaciones y vender a instituciones públicas. Muchos negocios ya lo hacen.</p>
+            <div class="govt-clients">
+                <div class="govt-tag"><i class="fas fa-landmark"></i> Municipalidades</div>
+                <div class="govt-tag"><i class="fas fa-building-columns"></i> Gobierno Regional</div>
+                <div class="govt-tag"><i class="fas fa-hospital"></i> Hospitales</div>
+                <div class="govt-tag"><i class="fas fa-school"></i> Colegios / UGEL</div>
+                <div class="govt-tag"><i class="fas fa-building"></i> Ministerios</div>
+                <div class="govt-tag"><i class="fas fa-shield-halved"></i> Policía / FF.AA.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NICHOS -->
+    <section class="niches">
+        <div class="section-label">Para tu negocio</div>
+        <h2 class="section-title">Catálogos listos</h2>
+        <div class="niche-scroll">
+            <a href="/demo?niche=abarrotes" class="niche-card"><span class="niche-emoji">🏪</span><h3>Abarrotes</h3><p>Primera necesidad</p><div class="niche-count">40 productos</div></a>
+            <a href="/demo?niche=ferreteria" class="niche-card"><span class="niche-emoji">🔧</span><h3>Ferretería</h3><p>Construcción</p><div class="niche-count">30 productos</div></a>
+            <a href="/demo?niche=lubricentro" class="niche-card"><span class="niche-emoji">🛢️</span><h3>Lubricentro</h3><p>Aceites y filtros</p><div class="niche-count">30 productos</div></a>
+            <a href="/demo?niche=repuestera" class="niche-card"><span class="niche-emoji">⚙️</span><h3>Repuestera</h3><p>Autopartes</p><div class="niche-count">30 productos</div></a>
+            <a href="/demo?niche=ropas" class="niche-card"><span class="niche-emoji">👕</span><h3>Ropas</h3><p>Toda la familia</p><div class="niche-count">30 productos</div></a>
+            <a href="/demo?niche=zapateria" class="niche-card"><span class="niche-emoji">👟</span><h3>Zapatería</h3><p>Calzado</p><div class="niche-count">25 productos</div></a>
+            <a href="/demo?niche=grifo" class="niche-card"><span class="niche-emoji">⛽</span><h3>Grifo</h3><p>Combustible</p><div class="niche-count">25 productos</div></a>
+        </div>
+        <div class="niche-coming"><i class="fas fa-utensils"></i> Restaurantes y Pollerías — próximamente con <strong>Metraes.com</strong></div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="precio">
+        <div class="section-label">Inversión</div>
+        <h2 class="section-title">Elige tu plan</h2>
+        <p class="pricing-sub">Prueba gratis, sin compromiso. Activa cuando quieras.</p>
+        <div class="plans-grid">
+            <div class="plan-card">
+                <div class="plan-name">Básico</div>
+                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">50</span><span class="plan-period">/mes</span></div>
+                <div class="plan-desc">Para negocios que empiezan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Boletas electrónicas SUNAT</li>
+                    <li><i class="fas fa-check"></i> 1 admin + 1 vendedor</li>
+                    <li><i class="fas fa-check"></i> Control de stock</li>
+                    <li><i class="fas fa-check"></i> Yape, Plin y Efectivo</li>
+                    <li><i class="fas fa-check"></i> Funciona sin internet</li>
+                </ul>
+                <a href="/demo" class="plan-cta plan-cta-outline">Probar gratis</a>
+            </div>
+            <div class="plan-card plan-featured">
+                <div class="plan-popular">Popular</div>
+                <div class="plan-name">Crece</div>
+                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">70</span><span class="plan-period">/mes</span></div>
+                <div class="plan-desc">Para negocios en crecimiento</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Boletas + Facturas</li>
+                    <li><i class="fas fa-check"></i> 1 admin + 2 vendedores</li>
+                    <li><i class="fas fa-check"></i> Comandos de voz</li>
+                    <li><i class="fas fa-check"></i> Reportes automáticos</li>
+                    <li><i class="fas fa-check"></i> Alertas stock bajo</li>
+                    <li><i class="fas fa-check"></i> Soporte WhatsApp</li>
+                </ul>
+                <a href="/demo" class="plan-cta plan-cta-solid">Probar gratis</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-name">Pro</div>
+                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">90</span><span class="plan-period">/mes</span></div>
+                <div class="plan-desc">Para negocios que dominan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Todo lo del Crece</li>
+                    <li><i class="fas fa-check"></i> Usuarios ilimitados</li>
+                    <li><i class="fas fa-check"></i> Gerente IA</li>
+                    <li><i class="fas fa-check"></i> Catálogo virtual online</li>
+                    <li><i class="fas fa-check"></i> Multi-sucursal</li>
+                    <li><i class="fas fa-check"></i> Soporte prioritario</li>
+                </ul>
+                <a href="/demo" class="plan-cta plan-cta-outline">Probar gratis</a>
+            </div>
+        </div>
+        <div class="pricing-note"><i class="fas fa-shield-halved"></i> Activación S/ 99 una vez · Incluye configuración completa</div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-brand">QueVendi.pro — Vende, factura y crece</div>
+        <div class="footer-company"><a href="https://perusistemas.pro">Peru Sistemas Pro E.I.R.L.</a> · Iquitos, Loreto</div>
+    </footer>
+
+    <!-- PHONE ANIMATION -->
+    <script>
+    (function(){
+        const screens=document.querySelectorAll('.screen-slide');
+        const dots=document.querySelectorAll('.phone-dot');
+        let cur=0, total=screens.length;
+        function show(i){
+            screens.forEach(s=>s.classList.remove('active'));
+            dots.forEach(d=>d.classList.remove('active'));
+            screens[i].classList.add('active');
+            dots[i].classList.add('active');
+        }
+        setInterval(()=>{cur=(cur+1)%total;show(cur)},3500);
+        dots.forEach(d=>d.addEventListener('click',()=>{cur=parseInt(d.dataset.s)-1;show(cur)}));
+    })();
+    </script>
+</body>
+</html>
