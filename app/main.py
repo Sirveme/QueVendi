@@ -25,6 +25,8 @@ from app.api.dependencies import get_current_user
 from app.api.offline import router as offline_router
 from app.api.offline import verification_router
 
+from app.routers import demo
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -172,6 +174,8 @@ app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
 app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
 app.include_router(offline_router)          # /api/v1/health + /api/v1/products/catalog
 app.include_router(verification_router)     # /v/{code}
+app.include_router(demo.router, prefix="/api/v1", tags=["demo"])
+
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -186,7 +190,13 @@ async def health_check():
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Página de inicio / landing"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    #return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+
+app.get("/demo", response_class=HTMLResponse)
+async def demo_page(request: Request):
+    return templates.TemplateResponse("demo.html", {"request": request})
 
 
 @app.get("/auth/login", response_class=HTMLResponse)
@@ -211,6 +221,7 @@ async def offline_page(request: Request):
 async def health():
     """Health check para Railway"""
     return {"status": "healthy", "app": "quevendi"}
+
 
 
 # ========================================
