@@ -194,7 +194,7 @@ async def index(request: Request):
     return templates.TemplateResponse("landing.html", {"request": request})
 
 
-app.get("/demo", response_class=HTMLResponse)
+@app.get("/demo", response_class=HTMLResponse)
 async def demo_page(request: Request):
     return templates.TemplateResponse("demo.html", {"request": request})
 
