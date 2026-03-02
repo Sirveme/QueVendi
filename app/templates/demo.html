@@ -3,567 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>QueVendi.pro — Demo</title>
+    <title>QueVendi.pro — Elige tu negocio</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon-32.png" sizes="32x32">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --bg-deep: #07071a;
-            --bg-card: #0e0e28;
-            --bg-card-hover: #141438;
-            --border-subtle: rgba(139, 92, 246, 0.12);
-            --border-accent: rgba(139, 92, 246, 0.3);
-            --text-primary: #e8e8f0;
-            --text-secondary: #8888a8;
-            --text-muted: #555570;
-            --accent-violet: #8b5cf6;
-            --accent-violet-glow: rgba(139, 92, 246, 0.15);
-            --accent-green: #22c55e;
-            --accent-gold: #eab308;
-            --accent-blue: #3b82f6;
-            --font-body: 'DM Sans', sans-serif;
-            --font-mono: 'Space Mono', monospace;
+            --bg-deep: #070b1e;
+            --bg-card: #0c1230;
+            --border-subtle: rgba(99,140,255,0.1);
+            --border-accent: rgba(99,140,255,0.25);
+            --border-active: #638cff;
+            --text-primary: #e8ecf4;
+            --text-secondary: #8a94b0;
+            --text-muted: #505a74;
+            --accent-blue: #638cff;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --accent-gold: #fbbf24;
+            --font: 'DM Sans', system-ui, sans-serif;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:var(--font);background:var(--bg-deep);color:var(--text-primary);min-height:100vh;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;align-items:center}
 
         /* Header */
-        .demo-header {
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .back-btn {
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1.5px solid var(--border-subtle);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: all 0.15s;
-        }
-        .back-btn:active {
-            background: var(--accent-violet-glow);
-            border-color: var(--accent-violet);
-        }
-        .demo-header h1 {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-        .demo-header h1 span {
-            color: var(--accent-violet);
-        }
+        .header{width:100%;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-subtle)}
+        .header-inner{max-width:800px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+        .logo{display:flex;align-items:center;text-decoration:none}
+        .logo-img{height:40px}
+        .back-link{font-size:0.75rem;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:4px}
+        .back-link:hover{color:var(--text-secondary)}
 
         /* Main */
-        .demo-main {
-            padding: 24px 20px;
-        }
+        .main{width:100%;max-width:800px;padding:24px 16px 40px;flex:1}
+        .main h1{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+        .main .sub{font-size:0.82rem;color:var(--text-secondary);margin-bottom:20px}
 
-        .demo-intro {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .demo-intro h2 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-        .demo-intro p {
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
+        /* Niche Grid */
+        .niche-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .niche-btn{display:flex;flex-direction:column;align-items:center;padding:18px 12px;background:var(--bg-card);border:2px solid var(--border-subtle);border-radius:14px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative}
+        .niche-btn:active{transform:scale(0.97)}
+        .niche-btn.selected{border-color:var(--border-active);box-shadow:0 0 20px rgba(99,140,255,0.12)}
+        .niche-emoji{font-size:2rem;margin-bottom:6px}
+        .niche-name{font-size:0.82rem;font-weight:600;margin-bottom:2px}
+        .niche-desc{font-size:0.58rem;color:var(--text-muted)}
+        .niche-products{margin-top:6px;font-size:0.56rem;color:var(--accent-cyan);font-weight:600}
 
-        /* Niche cards */
-        .niche-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-        .niche-grid .niche-option:last-child:nth-child(odd) {
-            grid-column: 1 / -1;
-            max-width: 50%;
-            justify-self: center;
-        }
-
-        .niche-option {
-            position: relative;
-            padding: 20px 14px;
-            background: var(--bg-card);
-            border: 2px solid var(--border-subtle);
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .niche-option:active {
-            transform: scale(0.97);
-        }
-        .niche-option.selected {
-            border-color: var(--accent-violet);
-            background: rgba(139, 92, 246, 0.06);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
-        }
-        .niche-option.selected::after {
-            content: '\f058';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: var(--accent-violet);
-            font-size: 0.85rem;
-        }
-
-        .niche-option .emoji {
-            font-size: 2.2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-        .niche-option h3 {
-            font-size: 0.88rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        .niche-option .desc {
-            font-size: 0.62rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-        .niche-option .count {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--accent-violet);
-            padding: 3px 8px;
-            background: rgba(139, 92, 246, 0.08);
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        /* Sample products preview */
-        .preview-section {
-            margin-bottom: 28px;
-            display: none;
-        }
-        .preview-section.visible {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .preview-label {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .preview-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border-subtle);
-        }
-        .preview-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: var(--bg-card);
-        }
-        .preview-item-name {
-            font-size: 0.78rem;
-            font-weight: 500;
-        }
-        .preview-item-cat {
-            font-size: 0.58rem;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-        .preview-item-price {
-            font-family: var(--font-mono);
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--accent-gold);
-        }
-
-        .preview-more {
-            text-align: center;
-            padding: 8px;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
+        /* Preview */
+        .preview{margin-top:16px;padding:14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;display:none}
+        .preview.show{display:block}
+        .preview-title{font-size:0.7rem;color:var(--text-muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+        .preview-list{display:flex;flex-wrap:wrap;gap:4px}
+        .preview-item{padding:4px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:4px;font-size:0.62rem;color:var(--text-secondary)}
 
         /* CTA */
-        .demo-cta {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--accent-violet), #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-family: var(--font-body);
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .demo-cta:disabled {
-            opacity: 0.4;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-        .demo-cta:not(:disabled):active {
-            transform: scale(0.97);
-        }
-
-        .demo-note {
-            text-align: center;
-            margin-top: 12px;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-        .demo-note i {
-            color: var(--accent-green);
-            margin-right: 4px;
-        }
+        .cta-area{margin-top:20px;text-align:center}
+        .cta-btn{width:100%;max-width:400px;padding:14px 24px;background:linear-gradient(135deg,var(--accent-blue),#4f6fef);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(99,140,255,0.3);transition:all 0.15s;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto}
+        .cta-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+        .cta-btn:not(:disabled):active{transform:scale(0.97)}
+        .cta-note{font-size:0.62rem;color:var(--text-muted);margin-top:8px}
 
         /* Loading overlay */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(7, 7, 26, 0.92);
-            z-index: 100;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-        }
-        .loading-overlay.active {
-            display: flex;
-        }
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid var(--border-subtle);
-            border-top-color: var(--accent-violet);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .loading-text {
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-        }
-        .loading-sub {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
+        .loading{display:none;position:fixed;inset:0;background:rgba(7,11,30,0.92);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+        .loading.show{display:flex}
+        .spinner{width:40px;height:40px;border:3px solid var(--border-subtle);border-top-color:var(--accent-cyan);border-radius:50%;animation:spin 0.8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .loading-text{font-size:0.85rem;color:var(--text-secondary)}
+        .loading-sub{font-size:0.65rem;color:var(--text-muted)}
+        .loading-steps{margin-top:16px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-width:300px;width:100%;padding:0 20px}
+        .step-item{display:flex;align-items:center;gap:6px;font-size:0.68rem;color:var(--accent-green);opacity:0;animation:stepIn 0.3s ease forwards}
+        .step-item i{font-size:0.56rem}
+        .step-done{font-weight:700;font-size:0.75rem;color:var(--accent-cyan)}
+        .step-counter{font-size:0.72rem;font-weight:700;color:var(--accent-gold);text-align:center;width:100%;padding:4px 0}
+        @keyframes stepIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-        @media (min-width: 768px) {
-            .demo-main { max-width: 500px; margin: 0 auto; }
+        /* Error */
+        .error{display:none;margin-top:12px;padding:10px 14px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:8px;font-size:0.72rem;color:#f87171;text-align:center}
+        .error.show{display:block}
+
+        /* Desktop */
+        @media(min-width:600px){
+            .niche-grid{grid-template-columns:repeat(3,1fr);gap:12px}
+            .main h1{font-size:1.5rem}
+        }
+        @media(min-width:800px){
+            .niche-grid{grid-template-columns:repeat(4,1fr)}
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="demo-header">
-        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h1>Que<span>Vendi</span> Demo</h1>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo"><img src="/static/img/Logo-quevendi-1.webp" alt="QueVendi" class="logo-img"></a>
+            <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Volver</a>
+        </div>
     </header>
 
-    <!-- Main -->
-    <main class="demo-main">
-        <div class="demo-intro">
-            <h2>¿Qué tipo de negocio?</h2>
-            <p>Selecciona y cargamos productos de ejemplo para que veas cómo funciona.</p>
-        </div>
+    <main class="main">
+        <h1>¿Qué tipo de negocio tienes?</h1>
+        <p class="sub">Elige tu rubro y prueba el sistema con productos reales de tu sector.</p>
 
-        <!-- Niche selection -->
-        <div class="niche-grid" id="niche-grid">
-            <div class="niche-option" data-niche="abarrotes" onclick="selectNiche(this)">
-                <span class="emoji">🏪</span>
-                <h3>Abarrotes</h3>
-                <div class="desc">Primera necesidad</div>
-                <span class="count">40 productos</span>
+        <div class="niche-grid" id="nicheGrid">
+            <div class="niche-btn" data-niche="abarrotes">
+                <span class="niche-emoji">🏪</span>
+                <span class="niche-name">Abarrotes</span>
+                <span class="niche-desc">Primera necesidad</span>
+                <span class="niche-products">40 productos</span>
             </div>
-            <div class="niche-option" data-niche="ferreteria" onclick="selectNiche(this)">
-                <span class="emoji">🔧</span>
-                <h3>Ferretería</h3>
-                <div class="desc">Herramientas y construcción</div>
-                <span class="count">30 productos</span>
+            <div class="niche-btn" data-niche="ferreteria">
+                <span class="niche-emoji">🔧</span>
+                <span class="niche-name">Ferretería</span>
+                <span class="niche-desc">Construcción</span>
+                <span class="niche-products">30 productos</span>
             </div>
-            <div class="niche-option" data-niche="lubricentro" onclick="selectNiche(this)">
-                <span class="emoji">🛢️</span>
-                <h3>Lubricentro</h3>
-                <div class="desc">Aceites, filtros y servicios</div>
-                <span class="count">30 productos</span>
+            <div class="niche-btn" data-niche="lubricentro">
+                <span class="niche-emoji">🛢️</span>
+                <span class="niche-name">Lubricentro</span>
+                <span class="niche-desc">Aceites y filtros</span>
+                <span class="niche-products">30 productos</span>
             </div>
-            <div class="niche-option" data-niche="repuestera" onclick="selectNiche(this)">
-                <span class="emoji">⚙️</span>
-                <h3>Repuestera</h3>
-                <div class="desc">Autopartes y repuestos</div>
-                <span class="count">30 productos</span>
+            <div class="niche-btn" data-niche="repuestera">
+                <span class="niche-emoji">⚙️</span>
+                <span class="niche-name">Repuestera</span>
+                <span class="niche-desc">Autopartes</span>
+                <span class="niche-products">30 productos</span>
             </div>
-            <div class="niche-option" data-niche="ropas" onclick="selectNiche(this)">
-                <span class="emoji">👕</span>
-                <h3>Ropas</h3>
-                <div class="desc">Hombre, mujer y niños</div>
-                <span class="count">30 productos</span>
+            <div class="niche-btn" data-niche="ropas">
+                <span class="niche-emoji">👕</span>
+                <span class="niche-name">Ropas</span>
+                <span class="niche-desc">Toda la familia</span>
+                <span class="niche-products">30 productos</span>
             </div>
-            <div class="niche-option" data-niche="zapateria" onclick="selectNiche(this)">
-                <span class="emoji">👟</span>
-                <h3>Zapatería</h3>
-                <div class="desc">Todo tipo de calzado</div>
-                <span class="count">25 productos</span>
+            <div class="niche-btn" data-niche="zapateria">
+                <span class="niche-emoji">👟</span>
+                <span class="niche-name">Zapatería</span>
+                <span class="niche-desc">Calzado</span>
+                <span class="niche-products">25 productos</span>
             </div>
-            <div class="niche-option" data-niche="grifo" onclick="selectNiche(this)">
-                <span class="emoji">⛽</span>
-                <h3>Grifo</h3>
-                <div class="desc">Combustible y tienda</div>
-                <span class="count">25 productos</span>
+            <div class="niche-btn" data-niche="grifo">
+                <span class="niche-emoji">⛽</span>
+                <span class="niche-name">Grifo</span>
+                <span class="niche-desc">Combustible</span>
+                <span class="niche-products">25 productos</span>
             </div>
         </div>
 
-        <!-- Preview -->
-        <div class="preview-section" id="preview-section">
-            <div class="preview-label">Vista previa del catálogo</div>
-            <div class="preview-list" id="preview-list"></div>
-            <div class="preview-more" id="preview-more"></div>
+        <div class="preview" id="preview">
+            <div class="preview-title">Productos de ejemplo:</div>
+            <div class="preview-list" id="previewList"></div>
         </div>
 
-        <!-- CTA -->
-        <button class="demo-cta" id="btn-enter-demo" disabled onclick="enterDemo()">
-            <i class="fas fa-play"></i> Iniciar Demo
-        </button>
-        <div class="demo-note">
-            <i class="fas fa-lock-open"></i> Sin registro · Sin tarjeta · 100% gratis
+        <div class="cta-area">
+            <button class="cta-btn" id="ctaBtn" disabled>
+                <i class="fas fa-play"></i> <span id="ctaText">Selecciona tu negocio</span>
+            </button>
+            <div class="cta-note">Sin registro. Sin tarjeta. Demo de 24 horas.</div>
         </div>
+
+        <div class="error" id="errorMsg"></div>
     </main>
 
     <!-- Loading -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Preparando tu demo...</div>
-        <div class="loading-sub" id="loading-sub">Cargando catálogo de bodega</div>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Preparando tu demo...</div>
+        <div class="loading-sub" id="loadingSub">Creando tienda y cargando productos</div>
+        <div class="loading-steps" id="loadingSteps"></div>
     </div>
 
     <script>
-    // ====================================================
-    // DEMO PAGE LOGIC
-    // ====================================================
-
-    // Sample products for preview (first 5 of each)
-    const PREVIEWS = {
-        abarrotes: [
-            {name: "Arroz Costeño 1kg", cat: "Abarrotes", price: "5.00"},
-            {name: "Aceite Primor 1L", cat: "Abarrotes", price: "9.50"},
-            {name: "Leche Gloria 1L", cat: "Lácteos", price: "5.50"},
-            {name: "Inca Kola 500ml", cat: "Bebidas", price: "2.50"},
-            {name: "Jabón Bolívar 230g", cat: "Limpieza", price: "2.80"},
-        ],
-        ferreteria: [
-            {name: "Cemento Sol 42.5kg", cat: "Construcción", price: "32.00"},
-            {name: "Cable TW 14 AWG x100m", cat: "Eléctrico", price: "85.00"},
-            {name: "Foco LED 12W", cat: "Eléctrico", price: "8.00"},
-            {name: "Martillo 16oz", cat: "Herramientas", price: "18.00"},
-            {name: "Pintura Latex 4L", cat: "Pintura", price: "35.00"},
-        ],
-        lubricentro: [
-            {name: "Aceite Motor 20W-50 1L", cat: "Aceites Motor", price: "25.00"},
-            {name: "Aceite Sintético 10W-40 1L", cat: "Aceites Motor", price: "45.00"},
-            {name: "Filtro Aceite Universal", cat: "Filtros", price: "15.00"},
-            {name: "WD-40 311g", cat: "Lubricantes", price: "28.00"},
-            {name: "Cambio Aceite Auto", cat: "Servicios", price: "30.00"},
-        ],
-        repuestera: [
-            {name: "Pastillas Freno Toyota", cat: "Frenos", price: "55.00"},
-            {name: "Amortiguador Delantero", cat: "Suspensión", price: "120.00"},
-            {name: "Batería 13 Placas", cat: "Eléctrico", price: "280.00"},
-            {name: "Kit Distribución", cat: "Distribución", price: "180.00"},
-            {name: "Bujía NGK Iridium", cat: "Encendido", price: "25.00"},
-        ],
-        ropas: [
-            {name: "Polo algodón hombre M", cat: "Hombre", price: "25.00"},
-            {name: "Jean hombre clásico", cat: "Hombre", price: "55.00"},
-            {name: "Blusa mujer casual", cat: "Mujer", price: "35.00"},
-            {name: "Polo niño estampado", cat: "Niños", price: "18.00"},
-            {name: "Casaca jean hombre", cat: "Hombre", price: "65.00"},
-        ],
-        zapateria: [
-            {name: "Zapatilla deportiva hombre", cat: "Hombre", price: "65.00"},
-            {name: "Bota trabajo punta acero", cat: "Hombre", price: "95.00"},
-            {name: "Sandalia mujer casual", cat: "Mujer", price: "35.00"},
-            {name: "Zapato escolar niño", cat: "Niños", price: "50.00"},
-            {name: "Zapatilla running", cat: "Hombre", price: "90.00"},
-        ],
-        grifo: [
-            {name: "Gasolina 90 octanos", cat: "Combustible", price: "14.50"},
-            {name: "Diesel B5 S-50", cat: "Combustible", price: "14.20"},
-            {name: "Aceite Motor 20W-50 1L", cat: "Lubricantes", price: "28.00"},
-            {name: "Coca-Cola 500ml", cat: "Tienda", price: "3.00"},
-            {name: "Café pasado vaso", cat: "Tienda", price: "3.00"},
-        ]
-    };
-
-    const NICHE_NAMES = {
-        abarrotes: "Abarrotes",
-        ferreteria: "Ferretería",
-        lubricentro: "Lubricentro",
-        repuestera: "Repuestera",
-        ropas: "Ropas",
-        zapateria: "Zapatería",
-        grifo: "Grifo"
-    };
-
-    const NICHE_COUNTS = {
-        abarrotes: 40,
-        ferreteria: 30,
-        lubricentro: 30,
-        repuestera: 30,
-        ropas: 30,
-        zapateria: 25,
-        grifo: 25
-    };
-
-    let selectedNiche = null;
-
-    // Check URL param
     (function() {
-        const params = new URLSearchParams(window.location.search);
-        const niche = params.get('niche');
-        if (niche && PREVIEWS[niche]) {
-            const el = document.querySelector(`[data-niche="${niche}"]`);
-            if (el) selectNiche(el);
+        // ── Product previews per niche ──
+        const PREVIEWS = {
+            abarrotes: ["Arroz Costeño 1kg", "Aceite Primor 1L", "Leche Gloria 1L", "Inca Kola 500ml", "Azúcar Rubia 1kg", "Fideos Don Vittorio", "Atún A-1"],
+            ferreteria: ["Cemento Sol 42.5kg", "Fierro 1/2\" 9m", "Ladrillo King Kong", "Cable TW 14 AWG", "Pintura Latex 1gl", "Martillo", "Clavos 2\""],
+            lubricentro: ["Aceite 20W-50 1qt", "Aceite Sintético 10W-40", "Filtro Aceite Toyota", "Filtro Aire", "Refrigerante 1L", "Grasa Multiuso", "Cambio Aceite Auto"],
+            repuestera: ["Pastillas Freno Del.", "Amortiguador Del.", "Bujía NGK Iridium", "Correa Distribución", "Bomba Agua", "Faro Delantero", "Batería 13 Placas"],
+            ropas: ["Polo Hombre M", "Jeans Hombre 32", "Blusa Mujer S", "Vestido Casual", "Conjunto Niña 6", "Medias x3 Pack", "Mochila Escolar"],
+            zapateria: ["Zapatilla Deportiva 40", "Zapato Casual", "Sandalia Mujer 37", "Bota Trabajo Acero", "Zapatilla Niño 30", "Ojotas Playa", "Running 42"],
+            grifo: ["Gasolina 90 (galón)", "Gasolina 95 (galón)", "Diesel B5 (galón)", "GLP Vehicular", "Agua Cielo 625ml", "Aceite Motor 20W-50", "Red Bull 250ml"]
+        };
+
+        const PRODUCT_COUNTS = {
+            abarrotes: 40, ferreteria: 30, lubricentro: 30,
+            repuestera: 30, ropas: 30, zapateria: 25, grifo: 25
+        };
+
+        const NICHE_NAMES = {
+            abarrotes: "Abarrotes", ferreteria: "Ferretería", lubricentro: "Lubricentro",
+            repuestera: "Repuestera", ropas: "Tienda de Ropas", zapateria: "Zapatería", grifo: "Grifo"
+        };
+
+        let selectedNiche = null;
+
+        const grid = document.getElementById('nicheGrid');
+        const preview = document.getElementById('preview');
+        const previewList = document.getElementById('previewList');
+        const ctaBtn = document.getElementById('ctaBtn');
+        const ctaText = document.getElementById('ctaText');
+        const errorMsg = document.getElementById('errorMsg');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const loadingSub = document.getElementById('loadingSub');
+        const loadingSteps = document.getElementById('loadingSteps');
+
+        // ── Check URL param for pre-select ──
+        const urlNiche = new URLSearchParams(window.location.search).get('niche');
+        if (urlNiche && PREVIEWS[urlNiche]) {
+            setTimeout(() => selectNiche(urlNiche), 100);
         }
+
+        // ── Click niche card ──
+        grid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.niche-btn');
+            if (!btn) return;
+            selectNiche(btn.dataset.niche);
+        });
+
+        function selectNiche(niche) {
+            selectedNiche = niche;
+
+            // Visual selection
+            grid.querySelectorAll('.niche-btn').forEach(b => b.classList.remove('selected'));
+            const active = grid.querySelector(`[data-niche="${niche}"]`);
+            if (active) active.classList.add('selected');
+
+            // Preview
+            previewList.innerHTML = '';
+            (PREVIEWS[niche] || []).forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.textContent = p;
+                previewList.appendChild(div);
+            });
+            preview.classList.add('show');
+
+            // CTA
+            ctaBtn.disabled = false;
+            ctaText.textContent = `Probar ${NICHE_NAMES[niche] || niche}`;
+
+            // Clear error
+            errorMsg.classList.remove('show');
+        }
+
+        // ── Animated loading steps (for Carlos to show clients) ──
+        async function showImportAnimation(niche) {
+            const total = PRODUCT_COUNTS[niche] || 30;
+            const name = NICHE_NAMES[niche] || niche;
+            const steps = [
+                { text: `Creando tienda "${name} Demo"...`, delay: 400 },
+                { text: `Conectando con catálogo ${name}...`, delay: 300 },
+                { text: `Importando ${total} productos...`, delay: 200 },
+            ];
+
+            // Show steps one by one
+            for (const step of steps) {
+                const div = document.createElement('div');
+                div.className = 'step-item';
+                div.innerHTML = `<i class="fas fa-check-circle"></i> ${step.text}`;
+                loadingSteps.appendChild(div);
+                await new Promise(r => setTimeout(r, step.delay));
+            }
+
+            // Animate product count
+            const counter = document.createElement('div');
+            counter.className = 'step-counter';
+            loadingSteps.appendChild(counter);
+
+            for (let i = 1; i <= total; i++) {
+                counter.textContent = `${i} de ${total} productos cargados`;
+                await new Promise(r => setTimeout(r, 30));
+            }
+
+            // Final check
+            const done = document.createElement('div');
+            done.className = 'step-item step-done';
+            done.innerHTML = `<i class="fas fa-check-circle"></i> ¡Listo! ${total} productos cargados`;
+            loadingSteps.appendChild(done);
+        }
+
+        // ── Start demo ──
+        ctaBtn.addEventListener('click', async () => {
+            if (!selectedNiche || ctaBtn.disabled) return;
+            ctaBtn.disabled = true;
+            errorMsg.classList.remove('show');
+
+            // Show loading with animation
+            loadingSteps.innerHTML = '';
+            loadingText.textContent = `Preparando ${NICHE_NAMES[selectedNiche]}...`;
+            loadingSub.textContent = 'Creando tienda demo y cargando productos';
+            loading.classList.add('show');
+
+            // Start import animation in parallel with API call
+            const animPromise = showImportAnimation(selectedNiche);
+
+            try {
+                // 1. Demo login (runs in parallel with animation)
+                const resp = await fetch('/api/v1/auth/demo-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ niche: selectedNiche })
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.detail || `Error ${resp.status}`);
+                }
+
+                const data = await resp.json();
+
+                // 2. Wait for animation to finish (so client always sees it)
+                await animPromise;
+
+                // 3. Store token and session info
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user_id', data.user_id);
+                localStorage.setItem('store_id', data.store_id);
+                localStorage.setItem('store_name', data.store_name);
+                localStorage.setItem('is_demo', 'true');
+                localStorage.setItem('demo_niche', selectedNiche);
+
+                // 4. Update loading
+                loadingText.textContent = '¡Tu tienda está lista!';
+                loadingSub.textContent = 'Abriendo punto de venta...';
+
+                // 5. Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 800);
+
+            } catch (err) {
+                loading.classList.remove('show');
+                ctaBtn.disabled = false;
+                errorMsg.textContent = `Error: ${err.message}. Intenta de nuevo.`;
+                errorMsg.classList.add('show');
+                console.error('Demo login error:', err);
+            }
+        });
     })();
-
-    function selectNiche(el) {
-        // Deselect all
-        document.querySelectorAll('.niche-option').forEach(n => n.classList.remove('selected'));
-        
-        // Select this one
-        el.classList.add('selected');
-        selectedNiche = el.dataset.niche;
-
-        // Enable button
-        document.getElementById('btn-enter-demo').disabled = false;
-
-        // Show preview
-        const previewSection = document.getElementById('preview-section');
-        const previewList = document.getElementById('preview-list');
-        const previewMore = document.getElementById('preview-more');
-        
-        const items = PREVIEWS[selectedNiche];
-        previewList.innerHTML = items.map(p => `
-            <div class="preview-item">
-                <div>
-                    <div class="preview-item-name">${p.name}</div>
-                    <div class="preview-item-cat">${p.cat}</div>
-                </div>
-                <div class="preview-item-price">S/${p.price}</div>
-            </div>
-        `).join('');
-
-        const remaining = NICHE_COUNTS[selectedNiche] - items.length;
-        previewMore.textContent = `y ${remaining} productos más...`;
-
-        previewSection.classList.add('visible');
-    }
-
-    async function enterDemo() {
-        if (!selectedNiche) return;
-
-        const overlay = document.getElementById('loading-overlay');
-        const loadingSub = document.getElementById('loading-sub');
-        
-        overlay.classList.add('active');
-        loadingSub.textContent = `Cargando catálogo de ${NICHE_NAMES[selectedNiche]}`;
-
-        try {
-            // Step 1: Create demo session / login
-            loadingSub.textContent = 'Creando sesión demo...';
-            
-            const loginResp = await fetch('/api/v1/auth/demo-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ niche: selectedNiche })
-            });
-
-            if (!loginResp.ok) {
-                throw new Error('Error al crear sesión demo');
-            }
-
-            const loginData = await loginResp.json();
-            
-            // Save token
-            localStorage.setItem('access_token', loginData.access_token);
-            localStorage.setItem('demo_mode', 'true');
-            localStorage.setItem('demo_niche', selectedNiche);
-
-            // Step 2: Import catalog
-            loadingSub.textContent = `Importando ${NICHE_COUNTS[selectedNiche]} productos...`;
-
-            const importResp = await fetch('/api/v1/products/import-catalog', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${loginData.access_token}`
-                },
-                body: JSON.stringify({ catalog: selectedNiche })
-            });
-
-            if (!importResp.ok) {
-                console.warn('Catalog import failed, continuing anyway...');
-            }
-
-            // Step 3: Redirect to dashboard
-            loadingSub.textContent = '¡Listo! Entrando al sistema...';
-            await new Promise(r => setTimeout(r, 600));
-
-            window.location.href = '/dashboard';
-
-        } catch (err) {
-            console.error('[Demo]', err);
-            overlay.classList.remove('active');
-            alert('Error al iniciar demo. Intenta de nuevo.');
-        }
-    }
     </script>
 </body>
 </html>
