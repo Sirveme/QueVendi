@@ -23,6 +23,7 @@ from app.core.database import get_db
 from app.models.store import Store
 from app.models.user import User
 from app.models.product import Product
+from app.models.billing import StoreBillingConfig
 
 router = APIRouter()
 
@@ -81,11 +82,57 @@ DEMO_CONFIG = {
 
 VALID_NICHES = set(DEMO_CONFIG.keys())
 DEMO_PIN = "1234"
+# DNI del owner de Peru Sistemas — su tienda tiene la config de Facturalo.pro
+OWNER_DNI = "63100784"
 
 
 # ================================================================
 # HELPERS
 # ================================================================
+
+def copy_billing_config_to_demo(db: Session, demo_store_id: int):
+    """
+    Copia la StoreBillingConfig de Peru Sistemas al demo store.
+    Todas las demos emiten comprobantes con el certificado de Peru Sistemas
+    (servidor beta SUNAT).
+    """
+    # Buscar al owner por DNI
+    owner = db.query(User).filter(User.dni == OWNER_DNI).first()
+    if not owner:
+        return  # Si no existe el owner, demo funciona sin billing
+
+    # Obtener su config de billing
+    source_config = db.query(StoreBillingConfig).filter(
+        StoreBillingConfig.store_id == owner.store_id
+    ).first()
+    if not source_config:
+        return
+
+    # Verificar si el demo store ya tiene config
+    existing = db.query(StoreBillingConfig).filter(
+        StoreBillingConfig.store_id == demo_store_id
+    ).first()
+    if existing:
+        return  # Ya tiene config, no duplicar
+
+    # Copiar config al demo store (misma conexión Facturalo, series propias para demo)
+    demo_config = StoreBillingConfig(
+        store_id=demo_store_id,
+        ruc=source_config.ruc,
+        razon_social=source_config.razon_social,
+        nombre_comercial=source_config.nombre_comercial,
+        direccion=source_config.direccion,
+        facturalo_url=source_config.facturalo_url,
+        facturalo_token=source_config.facturalo_token,
+        facturalo_secret=source_config.facturalo_secret,
+        serie_boleta=source_config.serie_boleta,
+        serie_factura=source_config.serie_factura,
+        tipo_afectacion_igv=source_config.tipo_afectacion_igv,
+        is_active=True,
+        is_verified=source_config.is_verified,
+    )
+    db.add(demo_config)
+    db.flush()
 
 def load_catalogs() -> dict:
     if not CATALOGS_PATH.exists():
@@ -105,9 +152,12 @@ def get_or_create_demo_store(db: Session, niche: str) -> tuple:
     if user:
         store = db.query(Store).filter(Store.id == user.store_id).first()
         if store:
+            # Asegurar que tenga config de billing (por si se creó antes del fix)
+            copy_billing_config_to_demo(db, store.id)
+            db.commit()
             return store, user
 
-    # Crear tienda demo — campos de tu modelo Store real
+    # Crear tienda demo — solo campos del modelo Store de SQLAlchemy
     store = Store(
         ruc=f"1000000000{cfg['dni'][-1]}",
         business_name=cfg["store"],
@@ -116,14 +166,11 @@ def get_or_create_demo_store(db: Session, niche: str) -> tuple:
         business_type=niche,
         plan="demo",
         is_active=True,
-        # Campos agregados por migration_demo.sql
-        is_demo=True,
-        niche=niche,
     )
     db.add(store)
     db.flush()
 
-    # Crear usuario demo — campos de tu modelo User real
+    # Crear usuario demo — solo campos del modelo User de SQLAlchemy
     user = User(
         store_id=store.id,
         dni=cfg["dni"],
@@ -132,9 +179,20 @@ def get_or_create_demo_store(db: Session, niche: str) -> tuple:
         username=cfg["user"],
         role="seller",
         is_active=True,
-        is_demo=True,
     )
     db.add(user)
+    db.flush()
+
+    # Setear campos is_demo/niche via SQL directo (existen en BD, no en modelo)
+    from sqlalchemy import text
+    db.execute(text("UPDATE stores SET is_demo = TRUE, niche = :n WHERE id = :id"),
+               {"n": niche, "id": store.id})
+    db.execute(text("UPDATE users SET is_demo = TRUE WHERE id = :id"),
+               {"id": user.id})
+
+    # Copiar config de facturación de Peru Sistemas → demo emite a SUNAT beta
+    copy_billing_config_to_demo(db, store.id)
+
     db.commit()
     db.refresh(store)
     db.refresh(user)
@@ -143,7 +201,7 @@ def get_or_create_demo_store(db: Session, niche: str) -> tuple:
 
 
 def import_products_from_catalog(db: Session, store_id: int, niche: str) -> int:
-    """Importa productos del JSON. Limpia existentes y carga catálogo."""
+    """Importa productos del JSON. Limpia ventas demo y productos previos."""
     catalogs = load_catalogs()
 
     if niche not in catalogs:
@@ -151,7 +209,20 @@ def import_products_from_catalog(db: Session, store_id: int, niche: str) -> int:
 
     products_data = catalogs[niche].get("products", [])
 
-    # Limpiar productos demo previos de esta tienda
+    # Limpiar en orden correcto por foreign keys:
+    # comprobantes → sale_items → sales → products
+    from sqlalchemy import text
+    db.execute(text("""
+        DELETE FROM comprobantes WHERE sale_id IN (
+            SELECT id FROM sales WHERE store_id = :sid
+        )
+    """), {"sid": store_id})
+    db.execute(text("""
+        DELETE FROM sale_items WHERE sale_id IN (
+            SELECT id FROM sales WHERE store_id = :sid
+        )
+    """), {"sid": store_id})
+    db.execute(text("DELETE FROM sales WHERE store_id = :sid"), {"sid": store_id})
     db.query(Product).filter(Product.store_id == store_id).delete()
 
     count = 0
