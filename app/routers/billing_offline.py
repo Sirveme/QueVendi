@@ -308,7 +308,7 @@ async def reserve_correlative_block(
         raise HTTPException(403, "No autorizado")
 
     _ensure_tables(db)
-    store_id = current_user.store_id
+    store_id = current_user["store_id"]
     cantidad = min(req.cantidad, MAX_BLOCK_SIZE)
 
     # Verificar que el dispositivo está registrado con esta serie
@@ -365,7 +365,7 @@ async def sync_offline_comprobantes(
     Se llama cuando el dispositivo recupera internet.
     """
     _ensure_tables(db)
-    store_id = current_user.store_id
+    store_id = current_user["store_id"]
 
     # Obtener config de facturación
     config = db.query(StoreBillingConfig).filter(
@@ -481,7 +481,7 @@ async def list_devices(
 ):
     """Listar dispositivos registrados de esta tienda"""
     _ensure_tables(db)
-    store_id = current_user.store_id
+    store_id = current_user["store_id"]
 
     rows = db.execute(text("""
         SELECT d.device_id, d.device_name, d.serie, d.tipo, d.ultimo_numero,
@@ -510,7 +510,7 @@ async def get_block_status(
 ):
     """Ver estado de bloques de una serie"""
     _ensure_tables(db)
-    store_id = current_user.store_id
+    store_id = current_user["store_id"]
 
     blocks = db.execute(text("""
         SELECT desde, hasta, usado_hasta, is_active, reserved_at, synced_at
