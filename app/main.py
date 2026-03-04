@@ -341,5 +341,5 @@ async def settings_page(request: Request):
 
 
 @app.get("/productos", response_class=HTMLResponse)
-async def productos_page(request: Request, current_user=Depends(get_current_user)):
+async def productos_page(request: Request):
     return templates.TemplateResponse("products/products.html", {"request": request})
