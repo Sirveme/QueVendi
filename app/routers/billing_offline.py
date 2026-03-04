@@ -252,11 +252,11 @@ async def register_device(
     Registrar un dispositivo (celular/tablet/PC) y asignarle una serie.
     Solo owner/admin pueden registrar dispositivos.
     """
-    if current_user.role not in ["owner", "admin"]:
+    if current_user["role"] not in ["owner", "admin"]:
         raise HTTPException(403, "Solo el dueño o admin puede registrar dispositivos")
 
     _ensure_tables(db)
-    store_id = current_user.store_id
+    store_id = current_user["store_id"]
 
     # Verificar si ya está registrado
     existing = db.execute(text("""
@@ -304,7 +304,7 @@ async def reserve_correlative_block(
     Reservar un bloque de números correlativos para uso offline.
     El dispositivo guarda este rango en IndexedDB y lo usa sin internet.
     """
-    if current_user.role not in ["owner", "admin", "seller"]:
+    if current_user["role"] not in ["owner", "admin", "seller"]:
         raise HTTPException(403, "No autorizado")
 
     _ensure_tables(db)
