@@ -26,6 +26,7 @@ from app.api.offline import router as offline_router
 from app.api.offline import verification_router
 
 from app.routers import demo
+from app.routers.billing_offline import router as billing_offline_router
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -175,6 +176,7 @@ app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
 app.include_router(offline_router)          # /api/v1/health + /api/v1/products/catalog
 app.include_router(verification_router)     # /v/{code}
 app.include_router(demo.router, prefix="/api/v1", tags=["demo"])
+app.include_router(billing_offline_router, prefix="/api/v1/billing/offline")
 
 
 # ── Health check para PWA offline ──
