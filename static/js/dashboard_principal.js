@@ -2754,39 +2754,39 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
     }
 
     modal.innerHTML = `
-        <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 20px; padding: 20px; max-width: 500px; width: 95%; display: flex; flex-direction: column; max-height: 90vh;">
-            <div style="text-align: center; margin-bottom: 12px;">
-                <div style="font-size: 36px; margin-bottom: 4px;">&#9989;</div>
-                <h3 style="color: white; margin: 0 0 2px; font-size: 18px;">${tipoLabel} ${emitidoLabel}</h3>
-                <p style="color: #a78bfa; font-size: 18px; font-weight: bold; margin: 0;">${numeroFormato || ''}</p>
-            </div>
-
-            <div id="pdf-preview-container" style="flex: 1; min-height: 600px; max-height: 70vh; background: #0d0d1a; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 12px;">
-                <div id="pdf-preview-loader" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b;">
-                    <div style="text-align: center;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
-                        Cargando PDF...
-                    </div>
-                </div>
-                <iframe id="pdf-preview-iframe" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
-            </div>
-
-            <div style="display: flex; gap: 8px;">
-                <button id="btn-modal-download"
-                    style="flex: 1; padding: 12px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <i class="fas fa-download"></i> Descargar
-                </button>
-                <button id="btn-modal-share"
-                    style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <i class="fab fa-whatsapp"></i> Compartir
-                </button>
-                <button id="btn-modal-close"
-                    style="padding: 12px 16px; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; color: #94a3b8; font-size: 14px; cursor: pointer;">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+    <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 16px; padding: 12px; max-width: 420px; width: 95%; display: flex; flex-direction: column; max-height: 95vh;">
+        <div style="text-align: center; margin-bottom: 8px;">
+            <span style="font-size: 24px;">&#9989;</span>
+            <span style="color: white; font-size: 15px; font-weight: 700; margin-left: 6px;">${tipoLabel} ${emitidoLabel}</span>
+            <span style="color: #a78bfa; font-size: 15px; font-weight: 700; margin-left: 4px;">${numeroFormato || ''}</span>
         </div>
-    `;
+
+        <div id="pdf-preview-container" style="flex: 1; min-height: 0; background: #0d0d1a; border-radius: 10px; overflow-y: auto; position: relative; margin-bottom: 10px; -webkit-overflow-scrolling: touch;">
+            <div id="pdf-preview-loader" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                <div style="text-align: center;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 6px; display: block;"></i>
+                    Cargando PDF...
+                </div>
+            </div>
+            <iframe id="pdf-preview-iframe" style="width: 100%; height: 800px; border: none; display: none;"></iframe>
+        </div>
+
+        <div style="display: flex; gap: 6px;">
+            <button id="btn-modal-download"
+                style="flex: 1; padding: 10px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                <i class="fas fa-download"></i> Descargar
+            </button>
+            <button id="btn-modal-share"
+                style="flex: 1; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                <i class="fab fa-whatsapp"></i> Compartir
+            </button>
+            <button id="btn-modal-close"
+                style="padding: 10px 14px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: #94a3b8; font-size: 13px; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+`;
 
     modal.style.cssText = `
         display: flex !important;
