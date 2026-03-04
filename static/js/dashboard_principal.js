@@ -2761,7 +2761,7 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
                 <p style="color: #a78bfa; font-size: 18px; font-weight: bold; margin: 0;">${numeroFormato || ''}</p>
             </div>
 
-            <div id="pdf-preview-container" style="flex: 1; min-height: 400px; max-height: 70vh; background: #0d0d1a; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 12px;">
+            <div id="pdf-preview-container" style="flex: 1; min-height: 600px; max-height: 70vh; background: #0d0d1a; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 12px;">
                 <div id="pdf-preview-loader" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b;">
                     <div style="text-align: center;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
