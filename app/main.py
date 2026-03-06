@@ -28,6 +28,9 @@ from app.api.offline import verification_router
 from app.routers import demo
 from app.routers.billing_offline import router as billing_offline_router
 
+from app.routers.store_config import router as store_config_router
+from app.routers.user_management import router as user_mgmt_router
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -177,6 +180,8 @@ app.include_router(offline_router)          # /api/v1/health + /api/v1/products/
 app.include_router(verification_router)     # /v/{code}
 app.include_router(demo.router, prefix="/api/v1", tags=["demo"])
 app.include_router(billing_offline_router, prefix="/api/v1/billing/offline")
+app.include_router(store_config_router, prefix="/api/v1/store")
+app.include_router(user_mgmt_router, prefix="/api/v1/users")
 
 
 # ── Health check para PWA offline ──
@@ -345,3 +350,14 @@ async def settings_page(request: Request):
 @app.get("/productos", response_class=HTMLResponse)
 async def productos_page(request: Request):
     return templates.TemplateResponse("products/products.html", {"request": request})
+
+
+# ========================================
+# RUTAS DE CONFIGURACIÓN - SOLO VENDEDORES
+# ========================================
+@app.get("/config/negocio", response_class=HTMLResponse)
+async def config_negocio_page(request: Request):
+    return templates.TemplateResponse("config_negocio.html", {"request": request})
+
+
+
