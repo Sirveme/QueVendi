@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueVendi — Configuración del Negocio</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon-32-microfono.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #070b1e; --bg2: #0c1230; --bg3: #111940;
+            --border: rgba(99,140,255,0.1); --border2: rgba(99,140,255,0.2);
+            --text: #e8ecf4; --text2: #8a94b0; --text3: #505a74;
+            --blue: #638cff; --cyan: #22d3ee; --green: #34d399;
+            --gold: #fbbf24; --red: #ef4444; --orange: #fb923c;
+            --font: 'DM Sans', system-ui, sans-serif;
+            --mono: 'JetBrains Mono', 'Courier New', monospace;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; }
+
+        /* ── HEADER ── */
+        .header { padding:12px 16px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20; }
+        .header-left { display:flex; align-items:center; gap:10px; }
+        .header-left a { color:var(--text3); text-decoration:none; font-size:1.1rem; }
+        .header-left h1 { font-size:0.95rem; font-weight:700; }
+        .btn-save { padding:8px 20px; background:linear-gradient(135deg,var(--green),#059669); border:none; border-radius:8px; color:#fff; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:var(--font); display:flex; align-items:center; gap:6px; }
+        .btn-save:active { transform:scale(0.97); }
+        .btn-save:disabled { opacity:0.5; cursor:not-allowed; }
+
+        /* ── LAYOUT ── */
+        .layout { display:flex; gap:0; min-height:calc(100vh - 52px); }
+        .form-panel { flex:1; padding:20px; overflow-y:auto; max-height:calc(100vh - 52px); }
+        .preview-panel { width:340px; background:var(--bg2); border-left:1px solid var(--border); padding:16px; overflow-y:auto; max-height:calc(100vh - 52px); position:sticky; top:52px; }
+
+        /* ── SECTIONS ── */
+        .section { margin-bottom:20px; }
+        .section-title { font-size:0.72rem; color:var(--cyan); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .section-title i { font-size:0.65rem; }
+
+        /* ── FORM FIELDS ── */
+        .field { margin-bottom:12px; }
+        .field-row { display:flex; gap:12px; }
+        .field-row .field { flex:1; }
+        .field label { display:block; font-size:0.7rem; color:var(--text2); font-weight:600; margin-bottom:4px; }
+        .field label .required { color:var(--red); margin-left:2px; }
+        .field input, .field select, .field textarea {
+            width:100%; padding:9px 12px; background:var(--bg); border:1.5px solid var(--border);
+            border-radius:8px; color:var(--text); font-family:var(--font); font-size:0.82rem;
+            outline:none; transition:border-color 0.15s;
+        }
+        .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
+        .field input::placeholder { color:var(--text3); }
+        .field textarea { resize:vertical; min-height:60px; }
+        .field .hint { font-size:0.62rem; color:var(--text3); margin-top:3px; }
+        .field .auto-fill { font-size:0.6rem; color:var(--green); margin-top:3px; display:none; }
+        .field .auto-fill.show { display:block; }
+
+        /* ── LOGO UPLOAD ── */
+        .logo-upload { display:flex; align-items:center; gap:14px; padding:12px; background:var(--bg); border:1.5px dashed var(--border2); border-radius:10px; cursor:pointer; transition:border-color 0.15s; }
+        .logo-upload:hover { border-color:var(--blue); }
+        .logo-preview { width:60px; height:60px; border-radius:8px; background:var(--bg3); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+        .logo-preview img { width:100%; height:100%; object-fit:contain; }
+        .logo-preview i { font-size:1.4rem; color:var(--text3); }
+        .logo-upload-text { font-size:0.72rem; color:var(--text2); }
+        .logo-upload-text strong { color:var(--text); display:block; margin-bottom:2px; }
+        .logo-upload input[type="file"] { display:none; }
+
+        /* ── SERIES CONFIG ── */
+        .series-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .serie-card { padding:10px 12px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; }
+        .serie-card .serie-label { font-size:0.62rem; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+        .serie-card input { width:80px; padding:6px 8px; background:var(--bg3); border:1px solid var(--border); border-radius:5px; color:var(--gold); font-family:var(--mono); font-size:0.85rem; font-weight:600; text-align:center; }
+
+        /* ── PREVIEW TICKET ── */
+        .preview-title { font-size:0.68rem; color:var(--text3); text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:10px; text-align:center; }
+        .ticket { background:#fff; color:#000; font-family:var(--mono); font-size:9px; padding:12px 10px; border-radius:6px; line-height:1.5; min-height:300px; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+        .ticket .t-center { text-align:center; }
+        .ticket .t-bold { font-weight:700; }
+        .ticket .t-big { font-size:12px; }
+        .ticket .t-med { font-size:10px; }
+        .ticket .t-small { font-size:7.5px; color:#666; }
+        .ticket .t-divider { border-top:1px dashed #999; margin:6px 0; }
+        .ticket .t-row { display:flex; justify-content:space-between; }
+        .ticket .t-inverse { background:#000; color:#fff; padding:3px 6px; margin:4px -10px; text-align:center; font-weight:700; }
+        .ticket .t-logo { width:50px; height:50px; margin:0 auto 4px; background:#f0f0f0; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .ticket .t-logo img { width:100%; height:100%; object-fit:contain; }
+        .ticket .t-qr { width:70px; height:70px; background:#f0f0f0; margin:6px auto; display:flex; align-items:center; justify-content:center; font-size:7px; color:#999; }
+        .ticket .t-box { border:1px solid #999; border-radius:3px; padding:4px 8px; margin:6px 0; text-align:center; }
+        .ticket .t-highlight { border:1.5px solid #4a90d9; border-radius:3px; padding:5px 8px; margin:6px 0; text-align:center; }
+        .ticket .t-highlight-url { color:#4a90d9; font-weight:700; font-size:10px; }
+
+        /* ── TABS ── */
+        .tabs { display:flex; gap:4px; margin-bottom:16px; background:var(--bg); border-radius:8px; padding:3px; }
+        .tab { flex:1; padding:8px; text-align:center; font-size:0.72rem; font-weight:600; color:var(--text3); border-radius:6px; cursor:pointer; transition:all 0.15s; }
+        .tab.active { background:var(--bg3); color:var(--text); }
+        .tab:hover:not(.active) { color:var(--text2); }
+
+        /* ── TOAST ── */
+        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:10px 20px; border-radius:10px; font-size:0.78rem; font-weight:600; z-index:100; animation:toastIn 0.3s ease; }
+        .toast-ok { background:rgba(52,211,153,0.95); color:#fff; }
+        .toast-err { background:rgba(239,68,68,0.95); color:#fff; }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+        /* ── DEVICE CARDS ── */
+        .device-list { display:flex; flex-direction:column; gap:10px; }
+        .device-card { background:var(--bg); border:1.5px solid var(--border); border-radius:10px; padding:14px; position:relative; }
+        .device-card.this-device { border-color:var(--green); box-shadow:0 0 12px rgba(52,211,153,0.08); }
+        .device-card.inactive { opacity:0.5; border-color:var(--red); }
+        .device-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+        .device-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+        .device-icon-pc { background:rgba(99,140,255,0.1); color:var(--blue); }
+        .device-icon-mobile { background:rgba(52,211,153,0.1); color:var(--green); }
+        .device-info { flex:1; margin-left:10px; }
+        .device-name { font-size:0.82rem; font-weight:700; }
+        .device-id { font-size:0.6rem; color:var(--text3); font-family:var(--mono); }
+        .device-this-badge { font-size:0.55rem; background:rgba(52,211,153,0.15); color:var(--green); padding:2px 8px; border-radius:10px; font-weight:600; }
+        .device-serie { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--bg3); border-radius:6px; font-family:var(--mono); font-size:0.78rem; font-weight:600; color:var(--gold); margin-top:6px; }
+        .device-stats { display:flex; gap:16px; margin-top:8px; }
+        .device-stat { font-size:0.65rem; color:var(--text2); }
+        .device-stat strong { color:var(--text); display:block; font-size:0.78rem; }
+        .device-stat.low strong { color:var(--orange); }
+        .device-stat.critical strong { color:var(--red); }
+        .device-actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+        .device-btn { padding:6px 12px; border:1px solid var(--border2); border-radius:6px; font-size:0.68rem; font-weight:600; cursor:pointer; font-family:var(--font); background:var(--bg3); color:var(--text2); transition:all 0.15s; }
+        .device-btn:hover { color:var(--text); border-color:var(--blue); }
+        .device-btn-danger { color:var(--red); border-color:rgba(239,68,68,0.3); }
+        .device-btn-danger:hover { background:rgba(239,68,68,0.1); border-color:var(--red); }
+        .device-btn-primary { background:linear-gradient(135deg,var(--blue),#4f6fef); color:#fff; border:none; }
+        .register-box { background:var(--bg); border:2px dashed var(--border2); border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:all 0.15s; }
+        .register-box:hover { border-color:var(--blue); background:rgba(99,140,255,0.03); }
+        .register-box i { font-size:1.8rem; color:var(--blue); margin-bottom:8px; display:block; }
+        .register-box-title { font-size:0.85rem; font-weight:700; margin-bottom:4px; }
+        .register-box-sub { font-size:0.65rem; color:var(--text3); }
+        .plan-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
+        .plan-bar-left { font-size:0.72rem; color:var(--text2); }
+        .plan-bar-left strong { color:var(--text); }
+        .plan-bar-right { font-size:0.65rem; color:var(--cyan); font-weight:600; cursor:pointer; padding:4px 10px; border:1px solid rgba(34,211,238,0.2); border-radius:6px; background:rgba(34,211,238,0.05); transition:all 0.15s; }
+        .plan-bar-right:hover { background:rgba(34,211,238,0.12); border-color:var(--cyan); }
+        .emergency-box { background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15); border-radius:10px; padding:14px; margin-top:14px; }
+        .emergency-title { font-size:0.72rem; font-weight:700; color:var(--gold); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+        .emergency-desc { font-size:0.65rem; color:var(--text2); margin-bottom:10px; line-height:1.5; }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:768px) {
+            .layout { flex-direction:column; }
+            .preview-panel { width:100%; max-height:none; position:static; border-left:none; border-top:1px solid var(--border); }
+            .field-row { flex-direction:column; gap:0; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <a href="/home"><i class="fas fa-arrow-left"></i></a>
+        <h1><i class="fas fa-store" style="color:var(--cyan);margin-right:6px"></i>Configuración del Negocio</h1>
+    </div>
+    <button class="btn-save" id="btnSave" onclick="saveConfig()">
+        <i class="fas fa-check"></i> Guardar
+    </button>
+</header>
+
+<div class="layout">
+    <!-- ══════════ FORM PANEL ══════════ -->
+    <div class="form-panel">
+
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab active" data-tab="general" onclick="switchTab('general')">
+                <i class="fas fa-store"></i> General
+            </div>
+            <div class="tab" data-tab="billing" onclick="switchTab('billing')">
+                <i class="fas fa-file-invoice"></i> Facturación
+            </div>
+            <div class="tab" data-tab="devices" onclick="switchTab('devices')">
+                <i class="fas fa-mobile-screen"></i> Dispositivos
+            </div>
+            <div class="tab" data-tab="print" onclick="switchTab('print')">
+                <i class="fas fa-print"></i> Impresión
+            </div>
+        </div>
+
+        <!-- ── TAB: GENERAL ── -->
+        <div class="tab-content" id="tab-general">
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-building"></i> Datos del Negocio</div>
+
+                <div class="field">
+                    <label>RUC <span class="required">*</span></label>
+                    <input type="text" id="ruc" maxlength="11" placeholder="20615446565" oninput="onRucChange(this)">
+                    <div class="auto-fill" id="ruc-autofill"><i class="fas fa-check-circle"></i> Datos cargados de SUNAT</div>
+                    <div class="hint">Se consultará automáticamente en SUNAT</div>
+                </div>
+
+                <div class="field">
+                    <label>Razón Social <span class="required">*</span></label>
+                    <input type="text" id="razon_social" placeholder="PERU SISTEMAS PRO E.I.R.L." oninput="updatePreview()">
+                </div>
+
+                <div class="field">
+                    <label>Nombre Comercial</label>
+                    <input type="text" id="nombre_comercial" placeholder="QueVendi" oninput="updatePreview()">
+                    <div class="hint">Si es diferente a la razón social (lo que aparece en el ticket)</div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label>Dirección <span class="required">*</span></label>
+                        <input type="text" id="direccion" placeholder="Calle Iquitos Mz A, Lt 49" oninput="updatePreview()">
+                    </div>
+                    <div class="field" style="max-width:120px">
+                        <label>Cód. Establecimiento</label>
+                        <input type="text" id="cod_establecimiento" maxlength="4" placeholder="0000" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label>Distrito</label>
+                        <input type="text" id="distrito" placeholder="Punchana" oninput="updatePreview()">
+                    </div>
+                    <div class="field">
+                        <label>Provincia</label>
+                        <input type="text" id="provincia" placeholder="Maynas" oninput="updatePreview()">
+                    </div>
+                    <div class="field">
+                        <label>Departamento</label>
+                        <input type="text" id="departamento" placeholder="Loreto" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Giro del Negocio</label>
+                    <input type="text" id="giro" placeholder="VENTA DE MATERIALES DE CONSTRUCCIÓN" oninput="updatePreview()">
+                    <div class="hint">Actividad económica principal</div>
+                </div>
+
+                <div class="field">
+                    <label>Eslogan</label>
+                    <input type="text" id="slogan" placeholder="¡Gracias por su preferencia, vuelva pronto!" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-phone"></i> Contacto</div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label>Teléfono / Celular <span class="required">*</span></label>
+                        <input type="tel" id="telefono" placeholder="967317946" oninput="updatePreview()">
+                    </div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="info@minegocio.com" oninput="updatePreview()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-image"></i> Logo del Negocio</div>
+                <label class="logo-upload" for="logoInput">
+                    <div class="logo-preview" id="logoPreview">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="logo-upload-text">
+                        <strong>Subir logo</strong>
+                        JPG, PNG o WebP. Máximo 500KB.<br>Aparecerá en tickets y documentos.
+                    </div>
+                    <input type="file" id="logoInput" accept="image/*" onchange="handleLogo(this)">
+                </label>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-calculator"></i> Datos del Contador</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>RUC del Contador</label>
+                        <input type="text" id="contador_ruc" maxlength="11" placeholder="10051234567">
+                    </div>
+                    <div class="field">
+                        <label>Nombre del Contador</label>
+                        <input type="text" id="contador_nombre" placeholder="CPC Juan Pérez López">
+                    </div>
+                </div>
+                <div class="hint">Opcional. Algunos negocios lo incluyen en sus comprobantes.</div>
+            </div>
+        </div>
+
+        <!-- ── TAB: FACTURACIÓN ── -->
+        <div class="tab-content" id="tab-billing" style="display:none">
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-receipt"></i> Series de Comprobantes</div>
+                <div class="series-grid">
+                    <div class="serie-card">
+                        <div class="serie-label">Boleta de Venta</div>
+                        <input type="text" id="serie_boleta" value="B001" maxlength="4" oninput="updatePreview()">
+                    </div>
+                    <div class="serie-card">
+                        <div class="serie-label">Factura</div>
+                        <input type="text" id="serie_factura" value="F001" maxlength="4" oninput="updatePreview()">
+                    </div>
+                    <div class="serie-card">
+                        <div class="serie-label">Nota de Crédito (B)</div>
+                        <input type="text" id="serie_nc_boleta" value="BC01" maxlength="4">
+                    </div>
+                    <div class="serie-card">
+                        <div class="serie-label">Nota de Crédito (F)</div>
+                        <input type="text" id="serie_nc_factura" value="FC01" maxlength="4">
+                    </div>
+                </div>
+                <div class="hint" style="margin-top:8px">Las series se asignan por dispositivo para facturación offline. SUNAT las reconoce automáticamente.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-percent"></i> Afectación IGV</div>
+                <div class="field">
+                    <select id="tipo_igv" onchange="updatePreview()">
+                        <option value="20" selected>Exonerado (Amazonía - Ley 27037)</option>
+                        <option value="10">Gravado (18% IGV)</option>
+                        <option value="30">Inafecto</option>
+                    </select>
+                    <div class="hint">Negocios en Loreto, Ucayali, San Martín, Amazonas y Madre de Dios están exonerados del IGV.</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-globe"></i> Leyendas</div>
+                <div class="field">
+                    <label>
+                        <input type="checkbox" id="es_amazonia" checked onchange="updatePreview()" style="width:auto;margin-right:6px">
+                        Incluir leyenda "Bienes transferidos en la Amazonía"
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-link"></i> Conexión Facturalo.pro</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>API Token</label>
+                        <input type="password" id="facturalo_token" placeholder="••••••••">
+                    </div>
+                    <div class="field">
+                        <label>API Secret</label>
+                        <input type="password" id="facturalo_secret" placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>URL API</label>
+                    <input type="url" id="facturalo_url" value="https://facturalo.pro/api/v1" placeholder="https://facturalo.pro/api/v1">
+                </div>
+                <button onclick="testConnection()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--blue);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:4px">
+                    <i class="fas fa-plug"></i> Verificar conexión
+                </button>
+            </div>
+        </div>
+
+        <!-- ── TAB: DISPOSITIVOS ── -->
+        <div class="tab-content" id="tab-devices" style="display:none">
+
+            <!-- Plan limits bar -->
+            <div class="plan-bar">
+                <div class="plan-bar-left">
+                    <i class="fas fa-layer-group" style="color:var(--blue);margin-right:4px"></i>
+                    Plan: <strong id="planName">Básico</strong> — <span id="deviceCount">0</span>/<span id="deviceLimit">2</span> dispositivos
+                </div>
+                <div class="plan-bar-right" onclick="showPlanUpgrade()">
+                    <i class="fas fa-arrow-up"></i> Mejorar plan
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-mobile-screen"></i> Dispositivos Registrados</div>
+
+                <div id="deviceList" class="device-list">
+                    <div style="text-align:center;padding:20px;color:var(--text3);font-size:0.78rem">
+                        <i class="fas fa-spinner fa-spin" style="font-size:1.2rem;margin-bottom:8px;display:block"></i>
+                        Cargando dispositivos...
+                    </div>
+                </div>
+
+                <!-- Register this device -->
+                <div class="register-box" id="registerBox" onclick="registerThisDevice()" style="margin-top:12px">
+                    <i class="fas fa-plus-circle"></i>
+                    <div class="register-box-title">Registrar este dispositivo</div>
+                    <div class="register-box-sub">Asigna una serie única para facturar desde aquí</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-shield-halved"></i> Seguridad</div>
+
+                <div class="emergency-box">
+                    <div class="emergency-title"><i class="fas fa-triangle-exclamation"></i> Acceso de emergencia</div>
+                    <div class="emergency-desc">
+                        Si perdiste acceso a todos tus dispositivos (robo, pérdida),
+                        genera un código temporal para acceder desde otro equipo.
+                        El código expira en 30 minutos y permite 1 solo uso.
+                    </div>
+                    <button onclick="generateEmergencyCode()" class="device-btn device-btn-primary" style="width:100%">
+                        <i class="fas fa-key"></i> Generar código de emergencia
+                    </button>
+                    <div id="emergencyResult" style="margin-top:8px;display:none"></div>
+                </div>
+
+                <div style="margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
+                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:6px;color:var(--red);display:flex;align-items:center;gap:6px">
+                        <i class="fas fa-ban"></i> Desactivar todos los dispositivos
+                    </div>
+                    <div style="font-size:0.62rem;color:var(--text3);margin-bottom:8px">
+                        Bloquea todos los dispositivos excepto este. Útil si sospechas de uso no autorizado.
+                        Los vendedores necesitarán re-registrarse.
+                    </div>
+                    <button onclick="revokeAllDevices()" class="device-btn device-btn-danger" style="width:100%">
+                        <i class="fas fa-power-off"></i> Desactivar todos (excepto este)
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-users"></i> Usuarios del Negocio</div>
+                <div id="userList" style="font-size:0.78rem;color:var(--text3);padding:10px">
+                    Cargando...
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: IMPRESIÓN ── -->
+        <div class="tab-content" id="tab-print" style="display:none">
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-print"></i> Impresora</div>
+                <div class="field">
+                    <label>Ancho del Ticket</label>
+                    <select id="ticket_width">
+                        <option value="80" selected>80mm (estándar POS)</option>
+                        <option value="58">58mm (portátil)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Método de Impresión</label>
+                    <select id="print_method">
+                        <option value="agent">Print Agent (ESC/POS directo — recomendado)</option>
+                        <option value="browser">Navegador (window.print)</option>
+                    </select>
+                    <div class="hint">Print Agent: impresión instantánea sin diálogo. Requiere QueVendiPrint.exe instalado.</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-cog"></i> Print Agent</div>
+                <div class="field">
+                    <label>Estado</label>
+                    <div id="agentStatus" style="padding:8px 12px;background:var(--bg);border-radius:6px;font-size:0.78rem;color:var(--text3)">
+                        Verificando...
+                    </div>
+                </div>
+                <button onclick="checkAgent()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--cyan);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font)">
+                    <i class="fas fa-sync-alt"></i> Verificar Print Agent
+                </button>
+                <button onclick="testPrintAgent()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--green);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">
+                    <i class="fas fa-print"></i> Imprimir prueba
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ PREVIEW PANEL ══════════ -->
+    <div class="preview-panel">
+        <div class="preview-title"><i class="fas fa-eye"></i> Preview del Ticket</div>
+        <div class="ticket" id="ticketPreview"></div>
+    </div>
+</div>
+
+<script>
+// ── STATE ──
+let logoDataUrl = null;
+let _configLoaded = false;
+
+// ── TABS ──
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).style.display = 'block';
+    document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+}
+
+// ── RUC AUTO-FILL ──
+let rucTimeout = null;
+function onRucChange(input) {
+    clearTimeout(rucTimeout);
+    const ruc = input.value.trim();
+    updatePreview();
+
+    if (ruc.length === 11) {
+        rucTimeout = setTimeout(async () => {
+            try {
+                const token = localStorage.getItem('access_token');
+                const resp = await fetch(`/api/v1/billing/consulta/ruc/${ruc}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    document.getElementById('razon_social').value = data.razon_social || '';
+                    document.getElementById('direccion').value = data.direccion || '';
+                    document.getElementById('ruc-autofill').classList.add('show');
+                    setTimeout(() => document.getElementById('ruc-autofill').classList.remove('show'), 3000);
+                    updatePreview();
+                }
+            } catch (e) { console.warn('RUC lookup failed:', e); }
+        }, 500);
+    }
+}
+
+// ── LOGO ──
+function handleLogo(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 512000) { showToast('Logo muy grande. Máximo 500KB.', 'err'); return; }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        logoDataUrl = e.target.result;
+        document.getElementById('logoPreview').innerHTML = `<img src="${logoDataUrl}" alt="Logo">`;
+        updatePreview();
+    };
+    reader.readAsDataURL(file);
+}
+
+// ── HELPER: get form values ──
+function getFormData() {
+    const v = (id) => document.getElementById(id)?.value || '';
+    const ch = (id) => document.getElementById(id)?.checked || false;
+    return {
+        ruc: v('ruc'), razon_social: v('razon_social'), nombre_comercial: v('nombre_comercial'),
+        direccion: v('direccion'), cod_establecimiento: v('cod_establecimiento'),
+        distrito: v('distrito'), provincia: v('provincia'), departamento: v('departamento'),
+        giro: v('giro'), slogan: v('slogan'), telefono: v('telefono'), email: v('email'),
+        serie_boleta: v('serie_boleta'), serie_factura: v('serie_factura'),
+        serie_nc_boleta: v('serie_nc_boleta'), serie_nc_factura: v('serie_nc_factura'),
+        tipo_igv: v('tipo_igv'), es_amazonia: ch('es_amazonia'),
+        ticket_width: v('ticket_width'), print_method: v('print_method'),
+        contador_ruc: v('contador_ruc'), contador_nombre: v('contador_nombre'),
+        facturalo_url: v('facturalo_url'), facturalo_token: v('facturalo_token'),
+        facturalo_secret: v('facturalo_secret'), logo: logoDataUrl,
+    };
+}
+
+// ── LIVE PREVIEW ──
+function updatePreview() {
+    const d = getFormData();
+    const nombre = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
+    const ruc = d.ruc || '00000000000';
+    const dir = d.direccion || 'Dirección del negocio';
+    const cod = d.cod_establecimiento || '0000';
+    const tel = d.telefono || '000000000';
+    const serie = d.serie_boleta || 'B001';
+    const ubicacion = [d.distrito, d.provincia, d.departamento].filter(Boolean).join(' - ');
+    const tipoIgv = d.tipo_igv || '20';
+
+    // Calcular totales según IGV
+    const subtotal = 139.00;
+    let opGravada = 0, opExonerada = 0, opInafecta = 0, igv = 0, total = subtotal;
+    if (tipoIgv === '10') {
+        opGravada = +(subtotal / 1.18).toFixed(2);
+        igv = +(subtotal - opGravada).toFixed(2);
+        total = subtotal;
+    } else if (tipoIgv === '20') {
+        opExonerada = subtotal;
+    } else {
+        opInafecta = subtotal;
+    }
+
+    const logoHtml = logoDataUrl
+        ? `<div class="t-logo"><img src="${logoDataUrl}"></div>`
+        : `<div class="t-logo"><i class="fas fa-store" style="font-size:18px;color:#999"></i></div>`;
+
+    // Totales HTML dinámico
+    let totalesHtml = '';
+    if (opGravada > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Gravada S/</span><span>${opGravada.toFixed(2)}</span></div>`;
+    if (opExonerada > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Exonerada S/</span><span>${opExonerada.toFixed(2)}</span></div>`;
+    if (opInafecta > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Inafecta S/</span><span>${opInafecta.toFixed(2)}</span></div>`;
+    if (igv > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>IGV 18% S/</span><span>${igv.toFixed(2)}</span></div>`;
+
+    document.getElementById('ticketPreview').innerHTML = `
+        <div class="t-center">
+            ${logoHtml}
+            <div class="t-bold t-big">${esc(nombre)}</div>
+            ${d.giro ? `<div class="t-small">${esc(d.giro)}</div>` : ''}
+            <div class="t-small">${esc(dir)}</div>
+            ${ubicacion ? `<div class="t-small">${esc(ubicacion)}</div>` : ''}
+            <div class="t-small">COD ESTAB: ${esc(cod)} ${tel !== '000000000' ? 'CEL: ' + esc(tel) : ''}</div>
+            ${d.email ? `<div class="t-small">${esc(d.email)}</div>` : ''}
+        </div>
+
+        <div class="t-center t-bold" style="margin:6px 0;font-size:11px">RUC: ${esc(ruc)}</div>
+
+        <div class="t-inverse">BOLETA DE VENTA ELECTRÓNICA</div>
+        <div class="t-center t-bold t-big" style="margin:4px 0">${esc(serie)}-00000001</div>
+
+        <div class="t-row t-small">
+            <span>Fecha E.: ${new Date().toLocaleDateString('es-PE')}</span>
+            <span>F.Pago: Contado</span>
+        </div>
+
+        <div class="t-divider"></div>
+
+        <div style="font-size:8px">
+            <div>DNI: 05393776</div>
+            <div>Cliente: DUILIO RESTUCCIA ESLAVA</div>
+            <div>Dirección: -</div>
+        </div>
+
+        <div class="t-divider"></div>
+
+        <div class="t-row t-bold" style="font-size:8px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
+            <span style="flex:2">Producto</span>
+            <span style="width:30px;text-align:center">Cant</span>
+            <span style="width:30px;text-align:center">Unid</span>
+            <span style="width:40px;text-align:right">Precio</span>
+            <span style="width:40px;text-align:right">Total</span>
+        </div>
+        <div class="t-row" style="font-size:8px;margin-bottom:2px">
+            <span style="flex:2">Cemento Sol 42.5kg</span>
+            <span style="width:30px;text-align:center">2</span>
+            <span style="width:30px;text-align:center">NIU</span>
+            <span style="width:40px;text-align:right">32.00</span>
+            <span style="width:40px;text-align:right">64.00</span>
+        </div>
+        <div class="t-row" style="font-size:8px;margin-bottom:2px">
+            <span style="flex:2">Fierro 1/2" x 9m</span>
+            <span style="width:30px;text-align:center">3</span>
+            <span style="width:30px;text-align:center">NIU</span>
+            <span style="width:40px;text-align:right">25.00</span>
+            <span style="width:40px;text-align:right">75.00</span>
+        </div>
+
+        <div class="t-divider"></div>
+
+        <div class="t-row" style="font-size:8px"><span>Items: 2</span></div>
+        ${totalesHtml}
+        ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>Op.Gratuita S/</span><span>0.00</span></div>'}
+        ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>I.G.V. S/</span><span>0.00</span></div>'}
+        <div class="t-row t-bold" style="font-size:11px;margin:4px 0"><span>TOTAL IMPORTE S/</span><span>${total.toFixed(2)}</span></div>
+        <div class="t-small">Son: ${tipoIgv === '10' ? 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES' : 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES'}</div>
+        <div class="t-small">Efectivo S/ 150.00    Vuelto S/ 11.00</div>
+
+        ${tel && tel !== '000000000' ? `
+        <div class="t-highlight">
+            <div style="font-size:7px;color:#333">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
+            <div class="t-highlight-url">HTTPS://QUEVENDI.PRO/${esc(tel)}</div>
+            <div style="font-size:7px;color:#666">PARA RECOJOS O DELIVERY</div>
+        </div>
+        ` : ''}
+
+        <div class="t-qr">[ QR CODE ]</div>
+
+        <div class="t-center t-small">
+            Representación impresa de la<br>
+            Boleta de Venta Electrónica, consúltelo en<br>
+            www.sunat.gob.pe
+        </div>
+
+        ${d.es_amazonia ? `
+        <div class="t-divider"></div>
+        <div class="t-center t-bold" style="font-size:7.5px">
+            BIENES TRANSFERIDOS EN LA AMAZONÍA PARA SER<br>CONSUMIDOS EN LA MISMA
+        </div>
+        ` : ''}
+
+        ${d.slogan ? `
+        <div class="t-divider"></div>
+        <div class="t-center" style="font-size:8px;color:#c00;font-style:italic">
+            ¡¡¡ ${esc(d.slogan)} !!!
+        </div>
+        ` : ''}
+
+        ${d.contador_nombre ? `
+        <div class="t-small t-center" style="margin-top:4px">Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' RUC: ' + esc(d.contador_ruc) : ''}</div>
+        ` : ''}
+
+        <div class="t-divider"></div>
+        <div class="t-center t-small">
+            Sistema de Ventas: <b>https://quevendi.pro</b><br>
+            Facturación: <b>https://facturalo.pro</b><br>
+            El favorito de los bodegueros
+        </div>
+    `;
+}
+
+function esc(t) {
+    if (!t) return '';
+    const d = document.createElement('div'); d.textContent = t; return d.innerHTML;
+}
+
+// ── SAVE (localStorage + servidor) ──
+async function saveConfig() {
+    const btn = document.getElementById('btnSave');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+    const config = getFormData();
+
+    // Siempre guardar en localStorage
+    localStorage.setItem('emisor_ruc', config.ruc);
+    localStorage.setItem('emisor_razon_social', config.razon_social);
+    localStorage.setItem('emisor_nombre_comercial', config.nombre_comercial);
+    localStorage.setItem('emisor_direccion', config.direccion);
+    localStorage.setItem('emisor_telefono', config.telefono);
+    localStorage.setItem('emisor_email', config.email);
+    localStorage.setItem('store_config', JSON.stringify(config));
+
+    // Guardar en servidor
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch('/api/v1/store/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(config)
+        });
+
+        if (resp.ok) {
+            showToast('Configuración guardada en el servidor', 'ok');
+        } else {
+            const err = await resp.json().catch(() => ({}));
+            showToast(`Guardado local. Servidor: ${err.detail || 'error'}`, 'err');
+        }
+    } catch (e) {
+        showToast('Guardado localmente (sin conexión al servidor)', 'ok');
+    }
+
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Guardar';
+}
+
+// ── LOAD (servidor primero, luego localStorage) ──
+async function loadConfig() {
+    // 1. Intentar cargar del servidor
+    try {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            const resp = await fetch('/api/v1/store/config', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.configured && data.config) {
+                    _applyConfig(data.config);
+                    _configLoaded = true;
+                    console.log('[Config] ✅ Cargado desde servidor');
+                    updatePreview();
+                    return;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[Config] Servidor no disponible, cargando local');
+    }
+
+    // 2. Fallback: localStorage
+    try {
+        const saved = JSON.parse(localStorage.getItem('store_config') || '{}');
+        if (Object.keys(saved).length > 0) {
+            _applyConfig(saved);
+            console.log('[Config] ✅ Cargado desde localStorage');
+        }
+    } catch (e) {}
+
+    updatePreview();
+}
+
+function _applyConfig(config) {
+    const fields = ['ruc','razon_social','nombre_comercial','direccion','cod_establecimiento',
+        'distrito','provincia','departamento','giro','slogan','telefono','email',
+        'serie_boleta','serie_factura','serie_nc_boleta','serie_nc_factura',
+        'tipo_igv','ticket_width','print_method','contador_ruc','contador_nombre',
+        'facturalo_url','facturalo_token','facturalo_secret'];
+
+    fields.forEach(f => {
+        if (config[f] !== undefined && config[f] !== null && document.getElementById(f)) {
+            document.getElementById(f).value = config[f];
+        }
+    });
+
+    if (config.es_amazonia !== undefined) {
+        document.getElementById('es_amazonia').checked = config.es_amazonia;
+    }
+    if (config.logo) {
+        logoDataUrl = config.logo;
+        document.getElementById('logoPreview').innerHTML = `<img src="${logoDataUrl}" alt="Logo">`;
+    }
+}
+
+// ── PRINT AGENT ──
+async function checkAgent() {
+    const el = document.getElementById('agentStatus');
+    try {
+        const resp = await fetch('http://localhost:9638/status', { signal: AbortSignal.timeout(2000) });
+        const data = await resp.json();
+        el.innerHTML = `<span style="color:var(--green)"><i class="fas fa-check-circle"></i> Conectado — v${data.version} en ${data.hostname}</span>`;
+    } catch (e) {
+        el.innerHTML = `<span style="color:var(--red)"><i class="fas fa-times-circle"></i> No detectado. Inicia QueVendiPrint.exe</span>`;
+    }
+}
+
+async function testPrintAgent() {
+    const d = getFormData();
+    const tipoIgv = d.tipo_igv || '20';
+    const subtotal = 139.00;
+    let opGravada = 0, opExonerada = 0, igv = 0;
+    if (tipoIgv === '10') {
+        opGravada = +(subtotal / 1.18).toFixed(2);
+        igv = +(subtotal - opGravada).toFixed(2);
+    } else {
+        opExonerada = subtotal;
+    }
+
+    const ticketData = {
+        emisor: {
+            ruc: d.ruc || '00000000000',
+            razon_social: d.razon_social || 'MI NEGOCIO',
+            nombre_comercial: d.nombre_comercial || d.razon_social || 'MI NEGOCIO',
+            direccion: d.direccion || '',
+            telefono: d.telefono || '',
+            email: d.email || '',
+            logo: logoDataUrl || null,
+        },
+        logo: logoDataUrl || null,
+        cliente: { tipo_doc: '1', num_doc: '05393776', nombre: 'DUILIO RESTUCCIA ESLAVA', direccion: '' },
+        tipo: '03',
+        serie: d.serie_boleta || 'B001',
+        numero: 1,
+        numero_formato: `${d.serie_boleta || 'B001'}-00000001`,
+        fecha: new Date().toLocaleDateString('es-PE'),
+        hora: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        fecha_iso: new Date().toISOString().split('T')[0],
+        items: [
+            { descripcion: 'Cemento Sol 42.5kg', cantidad: 2, unidad: 'NIU', precio_unitario: 32.00 },
+            { descripcion: 'Fierro 1/2" x 9m', cantidad: 3, unidad: 'NIU', precio_unitario: 25.00 }
+        ],
+        total: subtotal,
+        op_exonerada: opExonerada,
+        op_gravada: opGravada,
+        igv: igv,
+        payment_method: 'efectivo',
+        importe_letras: 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES',
+        es_amazonia: d.es_amazonia,
+        hash: 'abc123hash456ejemplo',
+        verification_code: 'QVDI-00000001'
+    };
+
+    try {
+        const resp = await fetch('http://localhost:9638/print/ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ticketData)
+        });
+        const result = await resp.json();
+        showToast(result.success ? '🖨️ Ticket de prueba impreso con tus datos' : result.error, result.success ? 'ok' : 'err');
+    } catch (e) {
+        showToast('Print Agent no disponible. Inicia QueVendiPrint.exe', 'err');
+    }
+}
+
+async function testConnection() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch('/api/v1/billing/config/verify', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await resp.json();
+        if (data.success) {
+            showToast(`✅ Conectado: ${data.empresa} (RUC: ${data.ruc})`, 'ok');
+        } else {
+            showToast(data.detail || 'Error de conexión', 'err');
+        }
+    } catch (e) {
+        showToast('Error verificando conexión', 'err');
+    }
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── DEVICES TAB ──
+const PLAN_LIMITS = { demo: 2, basico: 2, crece: 3, pro: 99 };
+
+async function loadDevices() {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        const resp = await fetch('/api/v1/billing/offline/devices', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resp.ok) {
+            document.getElementById('deviceList').innerHTML = `
+                <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
+                    <i class="fas fa-info-circle" style="margin-right:4px"></i>
+                    No hay dispositivos registrados
+                </div>`;
+            return;
+        }
+
+        const devices = await resp.json();
+        const currentDeviceId = await _getCurrentDeviceId();
+
+        // Update counter
+        document.getElementById('deviceCount').textContent = devices.length;
+
+        if (devices.length === 0) {
+            document.getElementById('deviceList').innerHTML = `
+                <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
+                    <i class="fas fa-mobile-screen" style="font-size:1.2rem;margin-bottom:6px;display:block;color:var(--blue)"></i>
+                    Ningún dispositivo registrado.<br>Registra este dispositivo para habilitar facturación.
+                </div>`;
+            return;
+        }
+
+        let html = '';
+        for (const dev of devices) {
+            const isThis = dev.device_id === currentDeviceId;
+            const remaining = 50; // TODO: get from block status
+            const statusClass = remaining < 5 ? 'critical' : remaining < 15 ? 'low' : '';
+            const iconClass = dev.device_name.toLowerCase().includes('cel') || dev.device_name.toLowerCase().includes('móvil') || dev.device_name.toLowerCase().includes('phone')
+                ? 'device-icon-mobile' : 'device-icon-pc';
+            const iconName = iconClass === 'device-icon-mobile' ? 'fa-mobile-screen' : 'fa-desktop';
+
+            html += `
+            <div class="device-card ${isThis ? 'this-device' : ''}">
+                <div class="device-header">
+                    <div style="display:flex;align-items:center">
+                        <div class="device-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
+                        <div class="device-info">
+                            <div class="device-name">${_esc(dev.device_name || 'Dispositivo')}</div>
+                            <div class="device-id">${dev.device_id}</div>
+                        </div>
+                    </div>
+                    ${isThis ? '<span class="device-this-badge"><i class="fas fa-check-circle"></i> Este dispositivo</span>' : ''}
+                </div>
+
+                <div class="device-serie">
+                    <i class="fas fa-barcode"></i> Serie: ${dev.serie}
+                    <span style="color:var(--text3);font-size:0.6rem;margin-left:6px">(${dev.tipo === '03' ? 'Boletas' : 'Facturas'})</span>
+                </div>
+
+                <div class="device-stats">
+                    <div class="device-stat">
+                        <strong>${dev.ultimo_numero}</strong>
+                        Último número
+                    </div>
+                    <div class="device-stat ${statusClass}">
+                        <strong>${dev.bloques_activos > 0 ? 'Activo' : 'Sin bloque'}</strong>
+                        Estado
+                    </div>
+                    <div class="device-stat">
+                        <strong>${_timeAgo(dev.registered_at)}</strong>
+                        Registrado
+                    </div>
+                </div>
+
+                <div class="device-actions">
+                    ${!isThis ? `
+                    <button onclick="revokeDevice('${dev.device_id}', '${_esc(dev.device_name)}')" class="device-btn device-btn-danger">
+                        <i class="fas fa-ban"></i> Desactivar
+                    </button>
+                    ` : ''}
+                    <button onclick="refillBlock('${dev.serie}', '${dev.device_id}')" class="device-btn">
+                        <i class="fas fa-plus"></i> Reservar números
+                    </button>
+                    <button onclick="viewBlockStatus('${dev.serie}')" class="device-btn">
+                        <i class="fas fa-info-circle"></i> Ver bloques
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('deviceList').innerHTML = html;
+
+        // Hide register box if at limit
+        const plan = localStorage.getItem('store_plan') || 'basico';
+        const limit = PLAN_LIMITS[plan] || 2;
+        document.getElementById('deviceLimit').textContent = limit;
+        document.getElementById('planName').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+        if (devices.length >= limit) {
+            document.getElementById('registerBox').style.display = 'none';
+        }
+
+    } catch (e) {
+        console.warn('[Devices] Error loading:', e);
+        document.getElementById('deviceList').innerHTML = `
+            <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
+                No se pudieron cargar los dispositivos
+            </div>`;
+    }
+}
+
+async function _getCurrentDeviceId() {
+    if (typeof OfflineDB !== 'undefined' && OfflineDB.isReady()) {
+        return (await OfflineDB.meta.getDeviceId());
+    }
+    // Fallback: generate/get from localStorage
+    let id = localStorage.getItem('device_id');
+    if (!id) {
+        id = 'DEV-' + crypto.randomUUID().split('-')[0].toUpperCase();
+        localStorage.setItem('device_id', id);
+    }
+    return id;
+}
+
+async function registerThisDevice() {
+    const deviceId = await _getCurrentDeviceId();
+    const name = prompt('Nombre de este dispositivo (ej: "PC Caja", "Celular Juan"):');
+    if (!name) return;
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch('/api/v1/billing/offline/device/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ device_id: deviceId, device_name: name, tipo: '03' })
+        });
+
+        const data = await resp.json();
+        if (resp.ok) {
+            showToast(`✅ Registrado: serie ${data.serie}`, 'ok');
+
+            // Reserve first block
+            const blockResp = await fetch('/api/v1/billing/offline/reserve-block', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ serie: data.serie, device_id: deviceId, cantidad: 50 })
+            });
+            if (blockResp.ok) {
+                const block = await blockResp.json();
+                showToast(`📦 ${block.cantidad} números reservados (${block.desde}-${block.hasta})`, 'ok');
+            }
+
+            loadDevices();
+        } else {
+            showToast(data.detail || 'Error al registrar', 'err');
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'err');
+    }
+}
+
+async function revokeDevice(deviceId, deviceName) {
+    if (!confirm(`¿Desactivar "${deviceName}"?\n\nEste dispositivo no podrá emitir más comprobantes.\nLos números pendientes serán anulados.`)) return;
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch(`/api/v1/billing/offline/device/${deviceId}/revoke`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (resp.ok) {
+            showToast(`🚫 Dispositivo "${deviceName}" desactivado`, 'ok');
+            loadDevices();
+        } else {
+            const data = await resp.json().catch(() => ({}));
+            showToast(data.detail || 'Error al desactivar', 'err');
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'err');
+    }
+}
+
+async function refillBlock(serie, deviceId) {
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch('/api/v1/billing/offline/reserve-block', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ serie: serie, device_id: deviceId, cantidad: 50 })
+        });
+
+        if (resp.ok) {
+            const data = await resp.json();
+            showToast(`📦 +${data.cantidad} números: ${serie}-${String(data.desde).padStart(8,'0')} al ${String(data.hasta).padStart(8,'0')}`, 'ok');
+            loadDevices();
+        } else {
+            const err = await resp.json().catch(() => ({}));
+            showToast(err.detail || 'Error', 'err');
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'err');
+    }
+}
+
+async function viewBlockStatus(serie) {
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch(`/api/v1/billing/offline/block-status/${serie}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resp.ok) { showToast('Error cargando bloques', 'err'); return; }
+        const data = await resp.json();
+
+        let html = `<div style="font-size:0.72rem;font-weight:700;margin-bottom:8px">Bloques de ${serie}</div>`;
+        if (data.bloques.length === 0) {
+            html += '<div style="font-size:0.7rem;color:var(--text3)">Sin bloques reservados</div>';
+        } else {
+            for (const b of data.bloques) {
+                const pct = b.restantes > 0 ? Math.round((1 - b.restantes / (b.hasta - b.desde + 1)) * 100) : 100;
+                const color = b.restantes < 5 ? 'var(--red)' : b.restantes < 15 ? 'var(--orange)' : 'var(--green)';
+                html += `
+                <div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+                        <span>${String(b.desde).padStart(8,'0')} — ${String(b.hasta).padStart(8,'0')}</span>
+                        <span style="color:${color};font-weight:700">${b.restantes} restantes</span>
+                    </div>
+                    <div style="height:4px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden">
+                        <div style="height:100%;width:${pct}%;background:${color};border-radius:2px"></div>
+                    </div>
+                </div>`;
+            }
+        }
+
+        // Show in a mini-modal
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px';
+        modal.innerHTML = `<div style="background:var(--bg2);border-radius:14px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto">
+            ${html}
+            <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:0.75rem;cursor:pointer;font-family:var(--font)">Cerrar</button>
+        </div>`;
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        document.body.appendChild(modal);
+
+    } catch (e) {
+        showToast('Error de conexión', 'err');
+    }
+}
+
+async function revokeAllDevices() {
+    if (!confirm('⚠️ ¿DESACTIVAR TODOS los dispositivos excepto este?\n\nTodos los vendedores perderán acceso.\nLos números pendientes serán anulados.\n\n¿Estás seguro?')) return;
+
+    showToast('🔄 Desactivando dispositivos...', 'ok');
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const currentDeviceId = await _getCurrentDeviceId();
+
+        // Get all devices
+        const resp = await fetch('/api/v1/billing/offline/devices', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const devices = await resp.json();
+
+        let revoked = 0;
+        for (const dev of devices) {
+            if (dev.device_id === currentDeviceId) continue;
+            try {
+                await fetch(`/api/v1/billing/offline/device/${dev.device_id}/revoke`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                revoked++;
+            } catch (e) {}
+        }
+
+        showToast(`🚫 ${revoked} dispositivo(s) desactivado(s)`, 'ok');
+        loadDevices();
+    } catch (e) {
+        showToast('Error', 'err');
+    }
+}
+
+async function generateEmergencyCode() {
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const el = document.getElementById('emergencyResult');
+    el.style.display = 'block';
+    el.innerHTML = `
+        <div style="background:var(--bg);border:1.5px solid var(--gold);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:0.6rem;color:var(--text3);margin-bottom:4px">Código de emergencia (30 min)</div>
+            <div style="font-family:var(--mono);font-size:1.4rem;font-weight:800;color:var(--gold);letter-spacing:3px">${code}</div>
+            <div style="font-size:0.6rem;color:var(--text3);margin-top:4px">Usa este código en quevendi.pro/emergency</div>
+        </div>`;
+    // TODO: save code to server with expiration
+    showToast('Código generado. Válido por 30 minutos.', 'ok');
+}
+
+function showPlanUpgrade() {
+    showToast('Contacta a tu vendedor para mejorar de plan', 'ok');
+}
+
+async function loadUsers() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch('/api/v1/users/store-users', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resp.ok) {
+            document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">No se pudieron cargar usuarios</div>';
+            return;
+        }
+
+        const users = await resp.json();
+        const userList = Array.isArray(users) ? users : (users.users || []);
+
+        if (userList.length === 0) {
+            document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Sin usuarios registrados</div>';
+            return;
+        }
+
+        const roles = { owner: '👑 Dueño', admin: '🔧 Admin', seller: '🛒 Vendedor', cashier: '💰 Cajero' };
+        let html = '';
+        for (const u of userList) {
+            const rolLabel = roles[u.role] || u.role;
+            const active = u.is_active !== false;
+            html += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;${!active ? 'opacity:0.5' : ''}">
+                <div>
+                    <div style="font-size:0.78rem;font-weight:600">${_esc(u.full_name || u.username)}</div>
+                    <div style="font-size:0.6rem;color:var(--text3)">${rolLabel} · DNI: ${u.dni || '-'}</div>
+                </div>
+                ${u.role !== 'owner' ? `
+                <button onclick="toggleUser(${u.id}, ${active})" class="device-btn ${active ? 'device-btn-danger' : ''}" style="font-size:0.6rem">
+                    ${active ? '<i class="fas fa-ban"></i> Desactivar' : '<i class="fas fa-check"></i> Activar'}
+                </button>` : '<span style="font-size:0.6rem;color:var(--green)"><i class="fas fa-shield-halved"></i></span>'}
+            </div>`;
+        }
+        document.getElementById('userList').innerHTML = html;
+
+    } catch (e) {
+        document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Error cargando usuarios</div>';
+    }
+}
+
+async function toggleUser(userId, currentlyActive) {
+    const action = currentlyActive ? 'desactivar' : 'activar';
+    if (!confirm(`¿${action.charAt(0).toUpperCase() + action.slice(1)} este usuario?`)) return;
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const resp = await fetch(`/api/v1/users/${userId}/${currentlyActive ? 'deactivate' : 'activate'}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (resp.ok) {
+            showToast(`Usuario ${action}do`, 'ok');
+            loadUsers();
+            loadDevices();
+        } else {
+            const data = await resp.json().catch(() => ({}));
+            showToast(data.detail || 'Error', 'err');
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'err');
+    }
+}
+
+function _timeAgo(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'Ahora';
+    if (diff < 3600) return `${Math.floor(diff/60)}min`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff/86400)}d`;
+    return d.toLocaleDateString('es-PE', { day:'2-digit', month:'short' });
+}
+
+function _esc(t) { return esc(t); }
+
+// ── INIT ──
+loadConfig();
+setTimeout(checkAgent, 1000);
+
+// ── TABS ── (override to load data on tab switch)
+const _origSwitchTab = switchTab;
+switchTab = function(tab) {
+    _origSwitchTab(tab);
+    if (tab === 'devices') {
+        loadDevices();
+        loadUsers();
+    }
+};
+</script>
+
+</body>
+</html>
