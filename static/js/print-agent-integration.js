@@ -60,6 +60,9 @@ const PrintAgentIntegration = (() => {
                 cod_establecimiento: config.cod_establecimiento || '0000',
                 giro: config.giro || '',
                 slogan: config.slogan || '',
+                distrito: config.distrito || '',
+                provincia: config.provincia || '',
+                departamento: config.departamento || '',
                 es_amazonia: config.es_amazonia !== false,
                 tipo_igv: config.tipo_igv || '20',
             };
