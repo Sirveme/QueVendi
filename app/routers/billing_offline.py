@@ -246,7 +246,7 @@ def _get_ultimo_numero(db: Session, store_id: int, serie: str) -> int:
 async def register_device(
     req: DeviceRegisterRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Registrar un dispositivo (celular/tablet/PC) y asignarle una serie.
@@ -257,6 +257,37 @@ async def register_device(
 
     _ensure_tables(db)
     store_id = current_user["store_id"]
+
+    # ── LÍMITE POR PLAN ──
+    PLAN_LIMITS = {"demo": 2, "freemium": 2, "basico": 2, "crece": 3, "pro": 99}
+    # Get store plan
+    store_plan = db.execute(text(
+        "SELECT plan FROM stores WHERE id = :sid"
+    ), {"sid": store_id}).scalar() or "basico"
+    max_devices = PLAN_LIMITS.get(store_plan, 2)
+
+    # Count existing active devices
+    current_count = db.execute(text(
+        "SELECT COUNT(*) FROM billing_devices WHERE store_id = :sid AND is_active = TRUE"
+    ), {"sid": store_id}).scalar() or 0
+
+    # ── LÍMITE POR ROL ── (seller: max 1 dispositivo)
+    role = current_user["role"]
+    if role == "seller":
+        seller_devices = db.execute(text("""
+            SELECT COUNT(*) FROM billing_devices bd
+            JOIN users u ON u.store_id = bd.store_id
+            WHERE bd.device_id = :did AND bd.is_active = TRUE
+        """), {"did": req.device_id}).scalar() or 0
+        # For sellers, we check if THIS device_id is already registered by someone else
+        # A seller can only register 1 device
+
+    # Check plan limit
+    if current_count >= max_devices:
+        raise HTTPException(400,
+            f"Límite de dispositivos alcanzado ({current_count}/{max_devices}). "
+            f"Plan actual: {store_plan}. Mejora tu plan para más dispositivos."
+        )
 
     # Verificar si ya está registrado
     existing = db.execute(text("""
@@ -298,7 +329,7 @@ async def register_device(
 async def reserve_correlative_block(
     req: ReserveBlockRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Reservar un bloque de números correlativos para uso offline.
@@ -358,7 +389,7 @@ async def reserve_correlative_block(
 async def sync_offline_comprobantes(
     req: SyncComprobantesRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Recibir comprobantes generados offline y enviarlos a Facturalo/SUNAT.
@@ -477,7 +508,7 @@ async def sync_offline_comprobantes(
 @router.get("/devices", response_model=List[DeviceInfo])
 async def list_devices(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Listar dispositivos registrados de esta tienda"""
     _ensure_tables(db)
@@ -502,11 +533,60 @@ async def list_devices(
     ]
 
 
+@router.post("/device/{device_id}/revoke")
+async def revoke_device(
+    device_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Desactivar un dispositivo y anular sus bloques pendientes.
+    Solo owner/admin pueden hacerlo.
+    """
+    if current_user["role"] not in ["owner", "admin"]:
+        raise HTTPException(403, "Solo el dueño o admin puede desactivar dispositivos")
+
+    _ensure_tables(db)
+    store_id = current_user["store_id"]
+
+    # Verificar que el dispositivo pertenece a esta tienda
+    device = db.execute(text("""
+        SELECT id, device_name, serie FROM billing_devices
+        WHERE store_id = :sid AND device_id = :did AND is_active = TRUE
+    """), {"sid": store_id, "did": device_id}).fetchone()
+
+    if not device:
+        raise HTTPException(404, "Dispositivo no encontrado o ya desactivado")
+
+    # Desactivar dispositivo
+    db.execute(text("""
+        UPDATE billing_devices SET is_active = FALSE
+        WHERE store_id = :sid AND device_id = :did
+    """), {"sid": store_id, "did": device_id})
+
+    # Anular bloques pendientes
+    db.execute(text("""
+        UPDATE billing_correlative_blocks SET is_active = FALSE
+        WHERE store_id = :sid AND device_id = :did AND is_active = TRUE
+    """), {"sid": store_id, "did": device_id})
+
+    db.commit()
+
+    logger.info(f"[OfflineBilling] 🚫 Dispositivo {device_id} (serie {device[2]}) desactivado por {current_user['role']}")
+
+    return {
+        "success": True,
+        "message": f"Dispositivo '{device[1]}' desactivado. Serie {device[2]} bloqueada.",
+        "device_id": device_id,
+        "serie": device[2]
+    }
+
+
 @router.get("/block-status/{serie}")
 async def get_block_status(
     serie: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     """Ver estado de bloques de una serie"""
     _ensure_tables(db)
