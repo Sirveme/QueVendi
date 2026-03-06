@@ -252,8 +252,8 @@ async def register_device(
     Registrar un dispositivo (celular/tablet/PC) y asignarle una serie.
     Solo owner/admin pueden registrar dispositivos.
     """
-    if current_user["role"] not in ["owner", "admin"]:
-        raise HTTPException(403, "Solo el dueño o admin puede registrar dispositivos")
+    if current_user["role"] not in ["owner", "admin", "seller"]:
+        raise HTTPException(403, "Solo el dueño, admin o vendedor puede registrar dispositivos")
 
     _ensure_tables(db)
     store_id = current_user["store_id"]
@@ -543,8 +543,8 @@ async def revoke_device(
     Desactivar un dispositivo y anular sus bloques pendientes.
     Solo owner/admin pueden hacerlo.
     """
-    if current_user["role"] not in ["owner", "admin"]:
-        raise HTTPException(403, "Solo el dueño o admin puede desactivar dispositivos")
+    if current_user["role"] not in ["owner", "admin", "seller"]:
+        raise HTTPException(403, "Solo el dueño, admin o vendedor puede desactivar dispositivos")
 
     _ensure_tables(db)
     store_id = current_user["store_id"]
