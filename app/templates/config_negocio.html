@@ -149,6 +149,242 @@
             .preview-panel { width:100%; max-height:none; position:static; border-left:none; border-top:1px solid var(--border); }
             .field-row { flex-direction:column; gap:0; }
         }
+
+        /* ══════════════════════════════════════
+           TAB IMPRESIÓN — estilos dark theme
+           ══════════════════════════════════════ */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@700&family=Lato:wght@700&family=Ubuntu:wght@700&family=Raleway:wght@700&display=swap');
+
+        /* ── Grillas de selección ── */
+        .header-style-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        @media(max-width:600px){ .header-style-grid { grid-template-columns:1fr; } }
+
+        .style-card {
+            position: relative;
+            border: 1.5px solid var(--border2);
+            border-radius: 10px;
+            background: var(--bg);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all .15s;
+            display: flex;
+            flex-direction: column;
+        }
+        .style-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+        .style-card:hover { border-color: var(--blue); transform: translateY(-1px); }
+        .style-card:has(input:checked) { border-color: var(--blue); background: rgba(99,140,255,0.07); }
+
+        .style-card__preview {
+            padding: 10px 10px 6px;
+            background: var(--bg3);
+            border-bottom: 1px solid var(--border);
+        }
+        .style-card__preview svg { width:100%; height:auto; display:block; }
+
+        .style-card__info { padding: 9px 11px 11px; flex:1; }
+        .style-card__name { display:block; font-size:0.75rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+        .style-card__desc { display:block; font-size:0.65rem; color:var(--text2); line-height:1.4; }
+
+        .style-card__badge {
+            position: absolute; top:7px; right:7px;
+            width:18px; height:18px;
+            background: var(--blue); color:#fff;
+            border-radius: 50%; font-size:10px;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; transform:scale(.5); transition:all .15s;
+        }
+        .style-card:has(input:checked) .style-card__badge { opacity:1; transform:scale(1); }
+
+        /* ── Font cards ── */
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .font-card {
+            position: relative;
+            border: 1.5px solid var(--border2);
+            border-radius: 8px;
+            background: var(--bg);
+            cursor: pointer;
+            padding: 12px 10px 9px;
+            display: flex; flex-direction:column; align-items:center; text-align:center;
+            transition: all .15s; overflow:hidden;
+        }
+        .font-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+        .font-card:hover { border-color: var(--blue); transform: translateY(-1px); }
+        .font-card:has(input:checked) { border-color: var(--blue); background: rgba(99,140,255,0.07); }
+
+        .font-card__preview {
+            font-size:16px; font-weight:700; color:var(--text);
+            display:block; margin-bottom:6px; line-height:1.2; white-space:nowrap;
+        }
+        .font-playfair { font-family:'Playfair Display',serif; }
+        .font-oswald   { font-family:'Oswald',sans-serif; }
+        .font-lato     { font-family:'Lato',sans-serif; }
+        .font-ubuntu   { font-family:'Ubuntu',sans-serif; }
+        .font-raleway  { font-family:'Raleway',sans-serif; }
+
+        .font-card__name { font-size:0.7rem; font-weight:700; color:var(--text); display:block; margin-bottom:2px; }
+        .font-card__tags { font-size:0.6rem; color:var(--text3); display:block; line-height:1.4; }
+
+        .font-card__badge {
+            position:absolute; top:6px; right:6px;
+            width:16px; height:16px;
+            background:var(--blue); color:#fff;
+            border-radius:50%; font-size:9px;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; transform:scale(.5); transition:all .15s;
+        }
+        .font-card:has(input:checked) .font-card__badge { opacity:1; transform:scale(1); }
+
+        /* ── Paper selector ── */
+        .paper-options { display:flex; gap:10px; }
+        .paper-card {
+            position:relative;
+            border: 1.5px solid var(--border2);
+            border-radius:10px; background:var(--bg);
+            cursor:pointer; padding:14px 16px;
+            display:flex; align-items:center; gap:14px;
+            transition:all .15s; flex:1;
+        }
+        .paper-card input { position:absolute; opacity:0; width:0; height:0; }
+        .paper-card:hover { border-color:var(--blue); }
+        .paper-card:has(input:checked) { border-color:var(--blue); background:rgba(99,140,255,0.07); }
+
+        .paper-card__visual {
+            background:var(--bg3); border:1px solid var(--border);
+            border-radius:3px; display:flex; align-items:center;
+            justify-content:center; flex-shrink:0;
+        }
+        .paper-80mm { width:40px; height:54px; }
+        .paper-58mm { width:30px; height:54px; }
+        .paper-card__lines { width:78%; display:flex; flex-direction:column; gap:4px; padding:6px 4px; }
+        .paper-card__lines div { height:3px; background:var(--border2); border-radius:1px; width:100%; }
+        .paper-card__lines div.w-short { width:60%; }
+
+        .paper-card__label { display:block; font-size:1.1rem; font-weight:800; color:var(--text); }
+        .paper-card__desc  { display:block; font-size:0.65rem; color:var(--text2); margin-top:2px; }
+
+        .paper-card__badge {
+            position:absolute; top:7px; right:7px;
+            width:18px; height:18px;
+            background:var(--blue); color:#fff;
+            border-radius:50%; font-size:10px;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; transform:scale(.5); transition:all .15s;
+        }
+        .paper-card:has(input:checked) .paper-card__badge { opacity:1; transform:scale(1); }
+
+        /* ── Toggle catálogo ── */
+        .toggle-row {
+            display:flex; align-items:center; justify-content:space-between;
+            gap:16px; margin-bottom:12px; cursor:pointer;
+        }
+        .toggle-info { flex:1; }
+        .toggle-label { display:block; font-size:0.82rem; font-weight:600; color:var(--text); }
+        .toggle-sub   { display:block; font-size:0.65rem; color:var(--text3); margin-top:2px; }
+
+        .toggle-switch { position:relative; flex-shrink:0; }
+        .toggle-switch input { opacity:0; width:0; height:0; }
+        .toggle-track {
+            display:block; width:44px; height:24px;
+            background:var(--bg3); border:1px solid var(--border2);
+            border-radius:12px; cursor:pointer; transition:all .15s;
+            position:relative;
+        }
+        .toggle-track::after {
+            content:''; position:absolute;
+            width:18px; height:18px; background:var(--text3);
+            border-radius:50%; top:2px; left:2px; transition:all .15s;
+        }
+        .toggle-switch input:checked + .toggle-track { background:var(--blue); border-color:var(--blue); }
+        .toggle-switch input:checked + .toggle-track::after { background:#fff; transform:translateX(20px); }
+
+        /* ── Preview banner catálogo ── */
+        .catalogo-preview {
+            max-height:0; overflow:hidden;
+            transition:max-height .3s ease, opacity .3s ease; opacity:0;
+        }
+        .catalogo-preview.visible { max-height:110px; opacity:1; }
+
+        .ticket-banner-mock {
+            border:1.5px solid var(--border2);
+            border-radius:8px; padding:12px;
+            text-align:center;
+            background:var(--bg3);
+            font-family:var(--mono);
+        }
+        .ticket-banner-mock__top  { display:block; font-size:0.7rem; font-weight:700; color:var(--text2); letter-spacing:.3px; }
+        .ticket-banner-mock__url  { display:block; font-size:0.95rem; font-weight:900; color:var(--cyan); margin:4px 0; }
+        .ticket-banner-mock__sub  { display:block; font-size:0.65rem; color:var(--text3); }
+
+        /* ── Printer row ── */
+        .printer-row { display:flex; gap:8px; align-items:stretch; }
+        .printer-row .field { flex:1; margin:0; }
+        .btn-detect {
+            border:1.5px solid var(--border2); border-radius:8px;
+            background:var(--bg3); color:var(--text2);
+            font-size:0.75rem; font-weight:600;
+            padding:0 14px; cursor:pointer; white-space:nowrap;
+            font-family:var(--font); transition:all .15s;
+        }
+        .btn-detect:hover { border-color:var(--blue); color:var(--blue); }
+
+        .printer-status { margin-top:6px; font-size:0.72rem; min-height:18px; }
+        .printer-status.ok    { color:var(--green); }
+        .printer-status.error { color:var(--red); }
+        .printer-status.info  { color:var(--text3); }
+
+        .printer-option {
+            display:inline-block; margin:4px 4px 0 0;
+            padding:4px 10px; background:var(--bg3);
+            border:1px solid var(--border2); border-radius:6px;
+            color:var(--cyan); font-size:0.7rem; font-weight:600;
+            cursor:pointer; font-family:var(--font); transition:all .15s;
+        }
+        .printer-option:hover { border-color:var(--cyan); background:rgba(34,211,238,.08); }
+
+        /* ── Hint ── */
+        .print-hint {
+            font-size:0.65rem; color:var(--text3);
+            background:var(--bg3); border:1px solid var(--border);
+            border-radius:6px; padding:7px 10px; margin-top:8px; line-height:1.5;
+        }
+
+        /* ── Eslogan char count ── */
+        .cfg-charcount { display:block; text-align:right; font-size:0.6rem; color:var(--text3); margin-top:3px; }
+
+        /* ── Btn imprimir prueba ── */
+        .btn-print-test {
+            padding:9px 18px;
+            background:linear-gradient(135deg, rgba(52,211,153,.15), rgba(52,211,153,.05));
+            border:1.5px solid rgba(52,211,153,.3);
+            border-radius:8px; color:var(--green);
+            font-size:0.8rem; font-weight:700;
+            cursor:pointer; font-family:var(--font);
+            transition:all .15s; display:inline-flex; align-items:center; gap:7px;
+        }
+        .btn-print-test:hover { background:rgba(52,211,153,.15); border-color:var(--green); }
+
+        /* Fade-in secciones */
+        #tab-print .section { animation: cfgFadeIn .22s ease both; }
+        #tab-print .section:nth-child(1){ animation-delay:.00s; }
+        #tab-print .section:nth-child(2){ animation-delay:.05s; }
+        #tab-print .section:nth-child(3){ animation-delay:.10s; }
+        #tab-print .section:nth-child(4){ animation-delay:.15s; }
+        #tab-print .section:nth-child(5){ animation-delay:.20s; }
+        #tab-print .section:nth-child(6){ animation-delay:.25s; }
+        @keyframes cfgFadeIn {
+            from { opacity:0; transform:translateY(7px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -433,40 +669,235 @@
         <!-- ── TAB: IMPRESIÓN ── -->
         <div class="tab-content" id="tab-print" style="display:none">
 
+            <!-- ① DISEÑO DEL ENCABEZADO -->
             <div class="section">
-                <div class="section-title"><i class="fas fa-print"></i> Impresora</div>
-                <div class="field">
-                    <label>Ancho del Ticket</label>
-                    <select id="ticket_width">
-                        <option value="80" selected>80mm (estándar POS)</option>
-                        <option value="58">58mm (portátil)</option>
-                    </select>
+                <div class="section-title"><i class="fas fa-palette"></i> Diseño del Encabezado</div>
+                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:12px">
+                    Elige cómo se verá el nombre y logo en cada ticket. El cliente ve esto primero.
                 </div>
+                <div class="header-style-grid">
+                    <label class="style-card">
+                        <input type="radio" name="header_style" value="1" id="hs1" checked>
+                        <div class="style-card__preview">
+                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
+                                <circle cx="60" cy="22" r="10" fill="none" stroke="#638cff" stroke-width="1.2"/>
+                                <text x="60" y="26" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
+                                <rect x="25" y="37" width="70" height="4" rx="1" fill="#e8ecf4"/>
+                                <rect x="35" y="44" width="50" height="2.5" rx="1" fill="#505a74"/>
+                                <rect x="30" y="49" width="60" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="38" y="54" width="44" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="32" y="59" width="56" height="2" rx="1" fill="#2a3048"/>
+                            </svg>
+                        </div>
+                        <div class="style-card__info">
+                            <span class="style-card__name">Clásico</span>
+                            <span class="style-card__desc">Logo centrado arriba, datos centrados</span>
+                        </div>
+                        <div class="style-card__badge">&#10003;</div>
+                    </label>
+                    <label class="style-card">
+                        <input type="radio" name="header_style" value="2" id="hs2">
+                        <div class="style-card__preview">
+                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
+                                <rect x="8" y="10" width="32" height="60" rx="5" fill="#0c1230" stroke="#638cff33" stroke-width="1"/>
+                                <text x="24" y="44" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
+                                <rect x="48" y="16" width="64" height="4.5" rx="1" fill="#e8ecf4"/>
+                                <rect x="48" y="24" width="50" height="2.5" rx="1" fill="#505a74"/>
+                                <rect x="48" y="30" width="58" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="48" y="35" width="46" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="48" y="40" width="54" height="2" rx="1" fill="#2a3048"/>
+                                <rect x="48" y="46" width="42" height="2" rx="1" fill="#2a3048"/>
+                            </svg>
+                        </div>
+                        <div class="style-card__info">
+                            <span class="style-card__name">Rectangular</span>
+                            <span class="style-card__desc">Logo en recuadro izq., datos a la derecha</span>
+                        </div>
+                        <div class="style-card__badge">&#10003;</div>
+                    </label>
+                    <label class="style-card">
+                        <input type="radio" name="header_style" value="3" id="hs3">
+                        <div class="style-card__preview">
+                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
+                                <circle cx="28" cy="40" r="18" fill="#0c1230" stroke="#638cff44" stroke-width="1"/>
+                                <text x="28" y="44" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
+                                <rect x="54" y="16" width="58" height="4.5" rx="1" fill="#e8ecf4"/>
+                                <rect x="54" y="24" width="46" height="2.5" rx="1" fill="#505a74"/>
+                                <rect x="54" y="30" width="52" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="54" y="35" width="42" height="2" rx="1" fill="#3a4259"/>
+                                <rect x="54" y="40" width="50" height="2" rx="1" fill="#2a3048"/>
+                                <rect x="54" y="46" width="40" height="2" rx="1" fill="#2a3048"/>
+                            </svg>
+                        </div>
+                        <div class="style-card__info">
+                            <span class="style-card__name">Circular</span>
+                            <span class="style-card__desc">Logo en círculo izq., datos a la derecha</span>
+                        </div>
+                        <div class="style-card__badge">&#10003;</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ② FUENTE DEL NOMBRE -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-font"></i> Fuente del Nombre del Negocio</div>
+                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:12px">
+                    La tipografía le da carácter. Elige la que mejor represente tu negocio.
+                </div>
+                <div class="font-grid">
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="playfair" id="fd_playfair" checked>
+                        <span class="font-card__preview font-playfair">Mi Negocio</span>
+                        <span class="font-card__name">Playfair</span>
+                        <span class="font-card__tags">Restaurantes · Eventos · Hoteles</span>
+                        <div class="font-card__badge">&#10003;</div>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="oswald" id="fd_oswald">
+                        <span class="font-card__preview font-oswald">MI NEGOCIO</span>
+                        <span class="font-card__name">Oswald</span>
+                        <span class="font-card__tags">Ferreterías · Lubricentros</span>
+                        <div class="font-card__badge">&#10003;</div>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="lato" id="fd_lato">
+                        <span class="font-card__preview font-lato">MI NEGOCIO</span>
+                        <span class="font-card__name">Lato</span>
+                        <span class="font-card__tags">Uso general · Profesional</span>
+                        <div class="font-card__badge">&#10003;</div>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="ubuntu" id="fd_ubuntu">
+                        <span class="font-card__preview font-ubuntu">Mi Negocio</span>
+                        <span class="font-card__name">Ubuntu</span>
+                        <span class="font-card__tags">Bodegas · Ropa · Zapatería</span>
+                        <div class="font-card__badge">&#10003;</div>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="raleway" id="fd_raleway">
+                        <span class="font-card__preview font-raleway">MI NEGOCIO</span>
+                        <span class="font-card__name">Raleway</span>
+                        <span class="font-card__tags">Impacto · Clásico</span>
+                        <div class="font-card__badge">&#10003;</div>
+                    </label>
+                </div>
+                <div class="print-hint">
+                    <i class="fas fa-info-circle"></i> Las fuentes se descargan automaticamente la primera vez que imprimes. Solo requiere internet en esa ocasion.
+                </div>
+            </div>
+
+            <!-- ③ ESLOGAN SECUNDARIO -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-comment-dots"></i> Eslogan Secundario
+                    <span style="font-size:0.6rem;background:var(--bg3);color:var(--text3);border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;text-transform:none;letter-spacing:0">opcional</span>
+                </div>
+                <div class="field" style="margin-bottom:0">
+                    <label>Aparece al pie del encabezado, bajo los datos del negocio</label>
+                    <input type="text" id="eslogan2" maxlength="50"
+                           placeholder="Ej: Atendemos todo tipo de eventos"
+                           oninput="document.getElementById('eslogan2Count').textContent=this.value.length">
+                    <span class="cfg-charcount"><span id="eslogan2Count">0</span>/50</span>
+                </div>
+            </div>
+
+            <!-- ④ TIENDA ONLINE EN EL TICKET -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-cart-shopping"></i> Tienda Online en el Ticket</div>
+                <label class="toggle-row" for="catalogo_activo">
+                    <div class="toggle-info">
+                        <span class="toggle-label">Mostrar seccion de Tienda Online</span>
+                        <span class="toggle-sub">Activa si tienes Catalogo Virtual habilitado</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="catalogo_activo" onchange="toggleCatalogoPreview()">
+                        <span class="toggle-track"></span>
+                    </div>
+                </label>
+                <div class="catalogo-preview" id="catalogoPreviewBlock">
+                    <div class="ticket-banner-mock">
+                        <span class="ticket-banner-mock__top">&gt;&gt;&gt; Visita nuestra Tienda Online &lt;&lt;&lt;</span>
+                        <span class="ticket-banner-mock__url" id="catalogoMockUrl">www.quevendi.pro/930322529</span>
+                        <span class="ticket-banner-mock__sub">Compra para RECOGER o para DELIVERY</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⑤ ANCHO DEL PAPEL -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-ruler-horizontal"></i> Ancho del Papel</div>
+                <div class="paper-options">
+                    <label class="paper-card">
+                        <input type="radio" name="papel_ancho" value="80" id="papel80" checked>
+                        <div class="paper-card__visual paper-80mm">
+                            <div class="paper-card__lines"><div></div><div></div><div></div><div class="w-short"></div></div>
+                        </div>
+                        <div>
+                            <span class="paper-card__label">80 mm</span>
+                            <span class="paper-card__desc">Mas espacio · Recomendado</span>
+                        </div>
+                        <div class="paper-card__badge">&#10003;</div>
+                    </label>
+                    <label class="paper-card">
+                        <input type="radio" name="papel_ancho" value="58" id="papel58">
+                        <div class="paper-card__visual paper-58mm">
+                            <div class="paper-card__lines"><div></div><div></div><div></div><div class="w-short"></div></div>
+                        </div>
+                        <div>
+                            <span class="paper-card__label">58 mm</span>
+                            <span class="paper-card__desc">Compacto · Impresoras pequeñas</span>
+                        </div>
+                        <div class="paper-card__badge">&#10003;</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ⑥ PRINT AGENT -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-print"></i> Print Agent</div>
+
                 <div class="field">
-                    <label>Método de Impresión</label>
+                    <label>Estado del agente</label>
+                    <div id="agentStatus" style="padding:8px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--text3)">
+                        Verificando...
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Metodo de Impresion</label>
                     <select id="print_method">
                         <option value="agent">Print Agent (ESC/POS directo — recomendado)</option>
                         <option value="browser">Navegador (window.print)</option>
                     </select>
-                    <div class="hint">Print Agent: impresión instantánea sin diálogo. Requiere QueVendiPrint.exe instalado.</div>
+                    <div class="hint">Print Agent: impresion instantanea sin dialogo. Requiere QueVendiPrint.exe instalado.</div>
+                </div>
+
+                <div class="field">
+                    <label>Nombre de la impresora</label>
+                    <div class="printer-row">
+                        <div class="field" style="margin:0">
+                            <input type="text" id="printer_name" placeholder="Ej: POS80 Printer / USB005">
+                        </div>
+                        <button class="btn-detect" id="btnDetectPrinter" onclick="detectPrinters()">
+                            Detectar
+                        </button>
+                    </div>
+                    <div class="printer-status" id="printerStatus"></div>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+                    <button onclick="checkAgent()" style="padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--cyan);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font)">
+                        <i class="fas fa-sync-alt"></i> Verificar agente
+                    </button>
+                    <button class="btn-print-test" onclick="testPrintAgent()">
+                        <i class="fas fa-print"></i> Imprimir ticket de prueba
+                    </button>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-cog"></i> Print Agent</div>
-                <div class="field">
-                    <label>Estado</label>
-                    <div id="agentStatus" style="padding:8px 12px;background:var(--bg);border-radius:6px;font-size:0.78rem;color:var(--text3)">
-                        Verificando...
-                    </div>
-                </div>
-                <button onclick="checkAgent()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--cyan);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font)">
-                    <i class="fas fa-sync-alt"></i> Verificar Print Agent
-                </button>
-                <button onclick="testPrintAgent()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--green);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">
-                    <i class="fas fa-print"></i> Imprimir prueba
-                </button>
-            </div>
         </div>
     </div>
 
@@ -474,6 +905,23 @@
     <div class="preview-panel">
         <div class="preview-title"><i class="fas fa-eye"></i> Preview del Ticket</div>
         <div class="ticket" id="ticketPreview"></div>
+
+        <!-- Preview real del encabezado -->
+        <div style="margin-top:12px">
+            <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;text-align:center">
+                Preview real del encabezado
+            </div>
+            <button onclick="previewHeader()"
+                    style="width:100%;padding:7px;background:var(--bg3);border:1px solid var(--border2);
+                        border-radius:6px;color:var(--cyan);font-size:0.72rem;font-weight:600;
+                        cursor:pointer;font-family:var(--font);margin-bottom:8px">
+                <i class="fas fa-eye"></i> Ver encabezado real
+            </button>
+            <img id="headerPreviewImg"
+                style="display:none;width:100%;border-radius:6px;border:1px solid var(--border)"
+                alt="Preview encabezado">
+        </div>
+
     </div>
 </div>
 
@@ -544,7 +992,13 @@ function getFormData() {
         serie_boleta: v('serie_boleta'), serie_factura: v('serie_factura'),
         serie_nc_boleta: v('serie_nc_boleta'), serie_nc_factura: v('serie_nc_factura'),
         tipo_igv: v('tipo_igv'), es_amazonia: ch('es_amazonia'),
-        ticket_width: v('ticket_width'), print_method: v('print_method'),
+        print_method: v('print_method'),
+        printer_name: v('printer_name'),
+        papel_ancho: parseInt(document.querySelector('input[name="papel_ancho"]:checked')?.value || 80),
+        header_style: parseInt(document.querySelector('input[name="header_style"]:checked')?.value || 1),
+        font_decorativa: document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair',
+        eslogan2: v('eslogan2'),
+        catalogo_activo: ch('catalogo_activo'),
         contador_ruc: v('contador_ruc'), contador_nombre: v('contador_nombre'),
         facturalo_url: v('facturalo_url'), facturalo_token: v('facturalo_token'),
         facturalo_secret: v('facturalo_secret'), logo: logoDataUrl,
@@ -738,37 +1192,49 @@ async function saveConfig() {
 
 // ── LOAD (servidor primero, luego localStorage) ──
 async function loadConfig() {
-    // 1. Intentar cargar del servidor
+    const token = localStorage.getItem('access_token');
+
+    // Si no hay token, ir directo al fallback local sin error en consola
+    if (!token) {
+        console.warn('[Config] Sin token — cargando desde localStorage');
+        _loadFromLocalStorage();
+        return;
+    }
+
     try {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            const resp = await fetch('/api/v1/store/config', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (resp.ok) {
-                const data = await resp.json();
-                if (data.configured && data.config) {
-                    _applyConfig(data.config);
-                    _configLoaded = true;
-                    console.log('[Config] ✅ Cargado desde servidor');
-                    updatePreview();
-                    return;
-                }
+        const resp = await fetch('/api/v1/store/config', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (resp.status === 401) {
+            // Token expirado — limpiar y redirigir al login
+            localStorage.removeItem('access_token');
+            window.location.href = '/login?next=/config/negocio';
+            return;
+        }
+
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.configured && data.config) {
+                _applyConfig(data.config);
+                updatePreview();
+                return;
             }
         }
     } catch (e) {
-        console.warn('[Config] Servidor no disponible, cargando local');
+        console.warn('[Config] Servidor no disponible');
     }
 
-    // 2. Fallback: localStorage
+    _loadFromLocalStorage();
+}
+
+function _loadFromLocalStorage() {
     try {
         const saved = JSON.parse(localStorage.getItem('store_config') || '{}');
         if (Object.keys(saved).length > 0) {
             _applyConfig(saved);
-            console.log('[Config] ✅ Cargado desde localStorage');
         }
     } catch (e) {}
-
     updatePreview();
 }
 
@@ -776,7 +1242,8 @@ function _applyConfig(config) {
     const fields = ['ruc','razon_social','nombre_comercial','direccion','cod_establecimiento',
         'distrito','provincia','departamento','giro','slogan','telefono','email',
         'serie_boleta','serie_factura','serie_nc_boleta','serie_nc_factura',
-        'tipo_igv','ticket_width','print_method','contador_ruc','contador_nombre',
+        'tipo_igv','print_method','printer_name','eslogan2',
+        'contador_ruc','contador_nombre',
         'facturalo_url','facturalo_token','facturalo_secret'];
 
     fields.forEach(f => {
@@ -785,13 +1252,105 @@ function _applyConfig(config) {
         }
     });
 
-    if (config.es_amazonia !== undefined) {
+    if (config.es_amazonia !== undefined)
         document.getElementById('es_amazonia').checked = config.es_amazonia;
+
+    // Diseño header
+    if (config.header_style) {
+        const r = document.querySelector(`input[name="header_style"][value="${config.header_style}"]`);
+        if (r) r.checked = true;
     }
+    // Fuente decorativa
+    if (config.font_decorativa) {
+        const r = document.querySelector(`input[name="font_decorativa"][value="${config.font_decorativa}"]`);
+        if (r) r.checked = true;
+    }
+    // Papel
+    if (config.papel_ancho) {
+        const r = document.querySelector(`input[name="papel_ancho"][value="${config.papel_ancho}"]`);
+        if (r) r.checked = true;
+    }
+    // Catálogo
+    if (config.catalogo_activo !== undefined) {
+        document.getElementById('catalogo_activo').checked = config.catalogo_activo;
+        toggleCatalogoPreview();
+    }
+    // Eslogan2 charcount
+    const esl = document.getElementById('eslogan2');
+    if (esl && esl.value) {
+        const cc = document.getElementById('eslogan2Count');
+        if (cc) cc.textContent = esl.value.length;
+    }
+    // URL catálogo mock
+    if (config.telefono) {
+        const tel = config.telefono.replace(/\D/g,'');
+        const m = document.getElementById('catalogoMockUrl');
+        if (m) m.textContent = `www.quevendi.pro/${tel}`;
+    }
+
     if (config.logo) {
         logoDataUrl = config.logo;
         document.getElementById('logoPreview').innerHTML = `<img src="${logoDataUrl}" alt="Logo">`;
     }
+}
+
+// ── IMPRESIÓN: funciones del tab ──
+function toggleCatalogoPreview() {
+    const activo = document.getElementById('catalogo_activo')?.checked;
+    document.getElementById('catalogoPreviewBlock')?.classList.toggle('visible', activo);
+    // Actualizar URL mock con teléfono actual
+    const tel = (document.getElementById('telefono')?.value || '').replace(/\D/g,'');
+    if (tel) {
+        const m = document.getElementById('catalogoMockUrl');
+        if (m) m.textContent = `www.quevendi.pro/${tel}`;
+    }
+}
+
+async function detectPrinters() {
+    const btn     = document.getElementById('btnDetectPrinter');
+    const statusEl = document.getElementById('printerStatus');
+    btn.disabled  = true;
+    btn.textContent = '⏳ Detectando...';
+    statusEl.className = 'printer-status info';
+    statusEl.textContent = 'Consultando al Print Agent...';
+
+    try {
+        const resp = await fetch('http://localhost:9638/printers', { signal: AbortSignal.timeout(4000) });
+        if (!resp.ok) throw new Error();
+        const data = await resp.json();
+        const printers = data.printers || [];
+
+        if (!printers.length) {
+            statusEl.className = 'printer-status error';
+            statusEl.textContent = 'No se encontraron impresoras conectadas.';
+            return;
+        }
+        if (printers.length === 1) {
+            document.getElementById('printer_name').value = printers[0];
+            statusEl.className = 'printer-status ok';
+            statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Detectada: ${printers[0]}`;
+            return;
+        }
+        // Múltiples impresoras
+        statusEl.className = 'printer-status info';
+        statusEl.innerHTML = 'Selecciona: ' +
+            printers.map(p =>
+                `<button class="printer-option" onclick="selectPrinter('${p.replace(/'/g,"\\'")}')">${p}</button>`
+            ).join('');
+    } catch {
+        statusEl.className = 'printer-status error';
+        statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Print Agent no disponible en localhost:9638';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Detectar';
+    }
+}
+
+function selectPrinter(name) {
+    document.getElementById('printer_name').value = name;
+    const s = document.getElementById('printerStatus');
+    s.className = 'printer-status ok';
+    s.innerHTML = `<i class="fas fa-check-circle"></i> Seleccionada: ${name}`;
 }
 
 // ── PRINT AGENT ──
@@ -834,6 +1393,9 @@ async function testPrintAgent() {
             provincia: d.provincia || '',
             departamento: d.departamento || '',
             es_amazonia: d.es_amazonia,
+            header_style:    d.header_style    || 1,
+            font_decorativa: d.font_decorativa || 'playfair',
+            eslogan2:        d.eslogan2        || '',
         },
         logo: logoDataUrl || null,
         cliente: { tipo_doc: '1', num_doc: '05393776', nombre: 'DUILIO RESTUCCIA ESLAVA', direccion: '' },
@@ -871,6 +1433,44 @@ async function testPrintAgent() {
         showToast('Print Agent no disponible. Inicia QueVendiPrint.exe', 'err');
     }
 }
+
+async function previewHeader() {
+    const d = getFormData();
+    const payload = {
+        emisor: {
+            nombre_comercial: d.nombre_comercial || d.razon_social || 'MI NEGOCIO',
+            razon_social:     d.razon_social || '',
+            giro:             d.giro || '',
+            direccion:        d.direccion || '',
+            distrito:         d.distrito || '',
+            provincia:        d.provincia || '',
+            departamento:     d.departamento || '',
+            cod_establecimiento: d.cod_establecimiento || '0000',
+            telefono:         d.telefono || '',
+            email:            d.email || '',
+            header_style:     d.header_style || 1,
+            font_decorativa:  d.font_decorativa || 'playfair',
+            eslogan2:         d.eslogan2 || '',
+            logo:             logoDataUrl || null,
+        }
+    };
+    try {
+        const resp = await fetch('http://localhost:9638/preview/header', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!resp.ok) throw new Error();
+        const blob = await resp.blob();
+        const url  = URL.createObjectURL(blob);
+        document.getElementById('headerPreviewImg').src = url;
+        document.getElementById('headerPreviewImg').style.display = 'block';
+    } catch {
+        showToast('Preview requiere Print Agent activo', 'err');
+    }
+}
+
 
 async function testConnection() {
     try {
@@ -1289,6 +1889,17 @@ function _esc(t) { return esc(t); }
 // ── INIT ──
 loadConfig();
 setTimeout(checkAgent, 1000);
+
+
+// Al final de tu bloque <script>, después de loadConfig():
+document.querySelectorAll('input[name="header_style"], input[name="font_decorativa"]')
+    .forEach(r => r.addEventListener('change', () => {
+        // Solo actualiza si el Print Agent está activo y hay imagen previa
+        if (document.getElementById('headerPreviewImg').src) {
+            previewHeader();
+        }
+}));
+
 
 // ── TABS ── (override to load data on tab switch)
 const _origSwitchTab = switchTab;
