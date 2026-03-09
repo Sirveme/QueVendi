@@ -337,7 +337,6 @@ async def cobrar_fiados_page(request: Request):
     return templates.TemplateResponse("cobrar_fiados.html", {"request": request})
 
 
-
 # ========================================
 # RUTAS DE CONFIGURACIÓN - SOLO PROPIETARIOS
 # ========================================
@@ -358,4 +357,5 @@ async def productos_page(request: Request):
 @app.get("/config/negocio", response_class=HTMLResponse)
 async def config_negocio_page(request: Request):
     return templates.TemplateResponse("config_negocio.html", {"request": request})
+
 
