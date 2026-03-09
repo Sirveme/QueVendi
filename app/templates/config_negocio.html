@@ -1031,6 +1031,16 @@ function getFormData() {
 // ── LIVE PREVIEW ──
 function updatePreview() {
     const d = getFormData();
+
+    const fontMap = {
+        playfair:'Playfair Display', oswald:'Oswald', lato:'Lato',
+        ubuntu:'Ubuntu', raleway:'Raleway', bebas:'Bebas Neue',
+        pacifico:'Pacifico', cinzel:'Cinzel', righteous:'Righteous',
+        archivo:'Archivo Black'
+    };
+    const fontKey = document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair';
+    const fontFamily = fontMap[fontKey] || 'Playfair Display';
+
     const nombre = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
     const ruc = d.ruc || '00000000000';
     const dir = d.direccion || 'Dirección del negocio';
@@ -1067,7 +1077,7 @@ function updatePreview() {
     document.getElementById('ticketPreview').innerHTML = `
         <div class="t-center">
             ${logoHtml}
-            <div class="t-bold t-big">${esc(nombre)}</div>
+            <div class="t-bold t-big" style="font-family:'${fontFamily}',sans-serif">${esc(nombre)}</div>
             ${d.giro ? `<div class="t-small">${esc(d.giro)}</div>` : ''}
             <div class="t-small">${esc(dir)}</div>
             ${ubicacion ? `<div class="t-small">${esc(ubicacion)}</div>` : ''}
@@ -1872,6 +1882,10 @@ switchTab = function(tab) {
         loadUsers();
     }
 };
+
+// ── LISTENERS DE DISEÑO ──
+document.querySelectorAll('input[name="font_decorativa"], input[name="header_style"]')
+    .forEach(r => r.addEventListener('change', updatePreview));
 </script>
 
 </body>
