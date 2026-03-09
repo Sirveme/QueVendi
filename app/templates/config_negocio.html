@@ -829,6 +829,101 @@
                 </div>
             </div>
 
+            <!-- ②b FUENTES POR SECCIÓN -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-sliders-h"></i> Fuente por Sección</div>
+                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:14px">
+                    Personaliza la tipografía de cada parte del ticket de forma independiente.
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+                    <!-- RUC -->
+                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
+                            <i class="fas fa-id-card" style="color:var(--blue)"></i> RUC
+                        </div>
+                        <div style="font-size:0.78rem;color:var(--text);font-weight:700;margin-bottom:4px" id="prev_ruc">RUC: 10054058565</div>
+                        <select id="font_ruc" onchange="updatePreview()"
+                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
+                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
+                            <option value="lato">Lato — limpio</option>
+                            <option value="bebas">Bebas Neue — impacto</option>
+                            <option value="oswald">Oswald — condensado</option>
+                            <option value="archivo">Archivo Black — negra</option>
+                            <option value="playfair">Playfair — elegante</option>
+                            <option value="cinzel">Cinzel — clásica</option>
+                            <option value="ubuntu">Ubuntu — amigable</option>
+                            <option value="raleway">Raleway — profesional</option>
+                        </select>
+                    </div>
+
+                    <!-- N° TICKET -->
+                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
+                            <i class="fas fa-hashtag" style="color:var(--cyan)"></i> N° Ticket
+                        </div>
+                        <div style="font-size:0.78rem;color:#fff;background:#333;border-radius:4px;
+                                    padding:3px 8px;margin-bottom:4px;text-align:center;font-weight:700"
+                             id="prev_numero">B001-00000001</div>
+                        <select id="font_numero" onchange="updatePreview()"
+                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
+                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
+                            <option value="bebas">Bebas Neue — impacto</option>
+                            <option value="archivo">Archivo Black — negra</option>
+                            <option value="oswald">Oswald — condensado</option>
+                            <option value="cinzel">Cinzel — clásica</option>
+                            <option value="lato">Lato — limpio</option>
+                            <option value="raleway">Raleway — profesional</option>
+                            <option value="righteous">Righteous — retro</option>
+                            <option value="ubuntu">Ubuntu — amigable</option>
+                        </select>
+                    </div>
+
+                    <!-- TOTAL S/ -->
+                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
+                            <i class="fas fa-dollar-sign" style="color:var(--green)"></i> TOTAL S/
+                        </div>
+                        <div style="font-size:0.9rem;color:var(--green);font-weight:900;margin-bottom:4px"
+                             id="prev_total">TOTAL S/ 139.00</div>
+                        <select id="font_total" onchange="updatePreview()"
+                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
+                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
+                            <option value="archivo">Archivo Black — negra</option>
+                            <option value="bebas">Bebas Neue — impacto</option>
+                            <option value="oswald">Oswald — condensado</option>
+                            <option value="cinzel">Cinzel — clásica</option>
+                            <option value="lato">Lato — limpio</option>
+                            <option value="raleway">Raleway — profesional</option>
+                            <option value="righteous">Righteous — retro</option>
+                            <option value="playfair">Playfair — elegante</option>
+                        </select>
+                    </div>
+
+                    <!-- ESLOGAN -->
+                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
+                            <i class="fas fa-comment-dots" style="color:var(--gold)"></i> Eslogan
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--gold);font-style:italic;margin-bottom:4px"
+                             id="prev_slogan">✦ El favorito del barrio ✦</div>
+                        <select id="font_slogan" onchange="updatePreview()"
+                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
+                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
+                            <option value="pacifico">Pacifico — cursiva cálida</option>
+                            <option value="playfair">Playfair — elegante</option>
+                            <option value="cinzel">Cinzel — clásica</option>
+                            <option value="raleway">Raleway — profesional</option>
+                            <option value="righteous">Righteous — retro</option>
+                            <option value="lato">Lato — limpio</option>
+                            <option value="ubuntu">Ubuntu — amigable</option>
+                            <option value="oswald">Oswald — impacto</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
             <!-- ③ ESLOGAN SECUNDARIO -->
             <div class="section">
                 <div class="section-title">
@@ -1021,6 +1116,10 @@ function getFormData() {
         header_style: parseInt(document.querySelector('input[name="header_style"]:checked')?.value || 1),
         font_decorativa: document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair',
         eslogan2: v('eslogan2'),
+        font_ruc:    v('font_ruc')    || 'lato',
+        font_numero: v('font_numero') || 'bebas',
+        font_total:  v('font_total')  || 'archivo',
+        font_slogan: v('font_slogan') || 'pacifico',
         catalogo_activo: ch('catalogo_activo'),
         contador_ruc: v('contador_ruc'), contador_nombre: v('contador_nombre'),
         facturalo_url: v('facturalo_url'), facturalo_token: v('facturalo_token'),
@@ -1031,17 +1130,28 @@ function getFormData() {
 // ── LIVE PREVIEW ──
 function updatePreview() {
     const d = getFormData();
-
     const fontMap = {
         playfair:'Playfair Display', oswald:'Oswald', lato:'Lato',
         ubuntu:'Ubuntu', raleway:'Raleway', bebas:'Bebas Neue',
         pacifico:'Pacifico', cinzel:'Cinzel', righteous:'Righteous',
         archivo:'Archivo Black'
     };
-    const fontKey = document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair';
+    const fontKey    = document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair';
     const fontFamily = fontMap[fontKey] || 'Playfair Display';
+    const fontRuc    = fontMap[d.font_ruc]    || 'Lato';
+    const fontNumero = fontMap[d.font_numero] || 'Bebas Neue';
+    const fontTotal  = fontMap[d.font_total]  || 'Archivo Black';
+    const fontSlogan = fontMap[d.font_slogan] || 'Pacifico';
 
-    const nombre = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
+    // Actualizar mini-previews de la sección fuentes por sección
+    const eRuc = document.getElementById('prev_ruc');
+    if (eRuc) eRuc.style.fontFamily = `'${fontRuc}', sans-serif`;
+    const eNum = document.getElementById('prev_numero');
+    if (eNum) eNum.style.fontFamily = `'${fontNumero}', sans-serif`;
+    const eTot = document.getElementById('prev_total');
+    if (eTot) eTot.style.fontFamily = `'${fontTotal}', sans-serif`;
+    const eSlo = document.getElementById('prev_slogan');
+    if (eSlo) { eSlo.style.fontFamily = `'${fontSlogan}', cursive`; eSlo.textContent = d.eslogan2 ? `✦ ${d.eslogan2} ✦` : '✦ El favorito del barrio ✦'; }
     const ruc = d.ruc || '00000000000';
     const dir = d.direccion || 'Dirección del negocio';
     const cod = d.cod_establecimiento || '0000';
@@ -1077,7 +1187,7 @@ function updatePreview() {
     document.getElementById('ticketPreview').innerHTML = `
         <div class="t-center">
             ${logoHtml}
-            <div class="t-bold t-big" style="font-family:'${fontFamily}',sans-serif">${esc(nombre)}</div>
+            <div class="t-bold t-big" style="font-family:'${fontFamily}',serif">${esc(nombre)}</div>
             ${d.giro ? `<div class="t-small">${esc(d.giro)}</div>` : ''}
             <div class="t-small">${esc(dir)}</div>
             ${ubicacion ? `<div class="t-small">${esc(ubicacion)}</div>` : ''}
@@ -1085,10 +1195,10 @@ function updatePreview() {
             ${d.email ? `<div class="t-small">${esc(d.email)}</div>` : ''}
         </div>
 
-        <div class="t-center t-bold" style="margin:6px 0;font-size:11px">RUC: ${esc(ruc)}</div>
+        <div class="t-center t-bold" style="margin:6px 0;font-size:11px;font-family:'${fontRuc}',sans-serif">RUC: ${esc(ruc)}</div>
 
         <div class="t-inverse">BOLETA DE VENTA ELECTRÓNICA</div>
-        <div class="t-center t-bold t-big" style="margin:4px 0">${esc(serie)}-00000001</div>
+        <div class="t-center t-bold t-big" style="margin:4px 0;font-family:'${fontNumero}',sans-serif">${esc(serie)}-00000001</div>
 
         <div class="t-row t-small">
             <span>Fecha E.: ${new Date().toLocaleDateString('es-PE')}</span>
@@ -1133,7 +1243,7 @@ function updatePreview() {
         ${totalesHtml}
         ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>Op.Gratuita S/</span><span>0.00</span></div>'}
         ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>I.G.V. S/</span><span>0.00</span></div>'}
-        <div class="t-row t-bold" style="font-size:11px;margin:4px 0"><span>TOTAL IMPORTE S/</span><span>${total.toFixed(2)}</span></div>
+        <div class="t-row t-bold" style="font-size:11px;margin:4px 0;font-family:'${fontTotal}',sans-serif"><span>TOTAL IMPORTE S/</span><span>${total.toFixed(2)}</span></div>
         <div class="t-small">Son: ${tipoIgv === '10' ? 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES' : 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES'}</div>
         <div class="t-small">Efectivo S/ 150.00    Vuelto S/ 11.00</div>
 
@@ -1286,6 +1396,11 @@ function _applyConfig(config) {
         const r = document.querySelector(`input[name="font_decorativa"][value="${config.font_decorativa}"]`);
         if (r) r.checked = true;
     }
+    // Fuentes por sección
+    ['font_ruc','font_numero','font_total','font_slogan'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && config[id]) el.value = config[id];
+    });
     // Papel
     if (config.papel_ancho) {
         const r = document.querySelector(`input[name="papel_ancho"][value="${config.papel_ancho}"]`);
@@ -1414,9 +1529,13 @@ async function testPrintAgent() {
             provincia: d.provincia || '',
             departamento: d.departamento || '',
             es_amazonia: d.es_amazonia,
-            header_style:    d.header_style    || 1,
-            font_decorativa: d.font_decorativa || 'playfair',
-            eslogan2:        d.eslogan2        || '',
+            header_style:     d.header_style    || 1,
+            font_decorativa:  d.font_decorativa || 'playfair',
+            eslogan2:         d.eslogan2        || '',
+            font_ruc:         d.font_ruc        || 'lato',
+            font_numero:      d.font_numero     || 'bebas',
+            font_total:       d.font_total      || 'archivo',
+            font_slogan:      d.font_slogan     || 'pacifico',
         },
         logo: logoDataUrl || null,
         cliente: { tipo_doc: '1', num_doc: '05393776', nombre: 'DUILIO RESTUCCIA ESLAVA', direccion: '' },
@@ -1882,10 +2001,6 @@ switchTab = function(tab) {
         loadUsers();
     }
 };
-
-// ── LISTENERS DE DISEÑO ──
-document.querySelectorAll('input[name="font_decorativa"], input[name="header_style"]')
-    .forEach(r => r.addEventListener('change', updatePreview));
 </script>
 
 </body>
