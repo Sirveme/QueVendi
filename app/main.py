@@ -155,7 +155,6 @@ if STATIC_DIR.exists():
 else:
     print(f"⚠️ Directorio static/ no encontrado")
 
-
 # ========================================
 # ROUTERS API (prefix /api/v1)
 # ========================================
@@ -357,5 +356,6 @@ async def productos_page(request: Request):
 @app.get("/config/negocio", response_class=HTMLResponse)
 async def config_negocio_page(request: Request):
     return templates.TemplateResponse("config_negocio.html", {"request": request})
+
 
 
