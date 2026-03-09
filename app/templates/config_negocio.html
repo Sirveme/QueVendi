@@ -1143,6 +1143,15 @@ function updatePreview() {
     const fontTotal  = fontMap[d.font_total]  || 'Archivo Black';
     const fontSlogan = fontMap[d.font_slogan] || 'Pacifico';
 
+    const nombre = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
+    const ruc    = d.ruc || '00000000000';
+    const dir    = d.direccion || 'Dirección del negocio';
+    const cod    = d.cod_establecimiento || '0000';
+    const tel    = d.telefono || '000000000';
+    const serie  = d.serie_boleta || 'B001';
+    const ubicacion = [d.distrito, d.provincia, d.departamento].filter(Boolean).join(' - ');
+    const tipoIgv   = d.tipo_igv || '20';
+
     // Actualizar mini-previews de la sección fuentes por sección
     const eRuc = document.getElementById('prev_ruc');
     if (eRuc) eRuc.style.fontFamily = `'${fontRuc}', sans-serif`;
@@ -1152,13 +1161,6 @@ function updatePreview() {
     if (eTot) eTot.style.fontFamily = `'${fontTotal}', sans-serif`;
     const eSlo = document.getElementById('prev_slogan');
     if (eSlo) { eSlo.style.fontFamily = `'${fontSlogan}', cursive`; eSlo.textContent = d.eslogan2 ? `✦ ${d.eslogan2} ✦` : '✦ El favorito del barrio ✦'; }
-    const ruc = d.ruc || '00000000000';
-    const dir = d.direccion || 'Dirección del negocio';
-    const cod = d.cod_establecimiento || '0000';
-    const tel = d.telefono || '000000000';
-    const serie = d.serie_boleta || 'B001';
-    const ubicacion = [d.distrito, d.provincia, d.departamento].filter(Boolean).join(' - ');
-    const tipoIgv = d.tipo_igv || '20';
 
     // Calcular totales según IGV
     const subtotal = 139.00;
