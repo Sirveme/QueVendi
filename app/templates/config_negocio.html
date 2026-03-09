@@ -2003,6 +2003,11 @@ switchTab = function(tab) {
         loadUsers();
     }
 };
+
+// ── LISTENERS DE DISEÑO ──
+// Radios de header y fuente del nombre actualizan el preview al instante
+document.querySelectorAll('input[name="font_decorativa"], input[name="header_style"]')
+    .forEach(r => r.addEventListener('change', updatePreview));
 </script>
 
 </body>
