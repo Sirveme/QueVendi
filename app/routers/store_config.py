@@ -104,6 +104,17 @@ class StoreConfigRequest(BaseModel):
     facturalo_url: Optional[str] = 'https://facturalo.pro/api/v1'
     facturalo_token: Optional[str] = None
     facturalo_secret: Optional[str] = None
+    # ── Diseño del ticket ──
+    header_style:    Optional[int] = 1
+    font_decorativa: Optional[str] = 'playfair'
+    font_ruc:        Optional[str] = 'lato'
+    font_numero:     Optional[str] = 'bebas'
+    font_total:      Optional[str] = 'archivo'
+    font_slogan:     Optional[str] = 'pacifico'
+    eslogan2:        Optional[str] = ''
+    papel_ancho:     Optional[int] = 80
+    printer_name:    Optional[str] = ''
+    catalogo_activo: Optional[bool] = False
 
 
 # ================================================================
