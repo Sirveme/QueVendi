@@ -1,465 +1,526 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QueVendi — Configuración del Negocio</title>
-    <link rel="icon" type="image/png" href="/static/img/favicon-32-microfono.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        :root {
-            --bg: #070b1e; --bg2: #0c1230; --bg3: #111940;
-            --border: rgba(99,140,255,0.1); --border2: rgba(99,140,255,0.2);
-            --text: #e8ecf4; --text2: #8a94b0; --text3: #505a74;
-            --blue: #638cff; --cyan: #22d3ee; --green: #34d399;
-            --gold: #fbbf24; --red: #ef4444; --orange: #fb923c;
-            --font: 'DM Sans', system-ui, sans-serif;
-            --mono: 'JetBrains Mono', 'Courier New', monospace;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Configuración del Negocio — QueVendi</title>
 
-        /* ── HEADER ── */
-        .header { padding:12px 16px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20; }
-        .header-left { display:flex; align-items:center; gap:10px; }
-        .header-left a { color:var(--text3); text-decoration:none; font-size:1.1rem; }
-        .header-left h1 { font-size:0.95rem; font-weight:700; }
-        .btn-save { padding:8px 20px; background:linear-gradient(135deg,var(--green),#059669); border:none; border-radius:8px; color:#fff; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:var(--font); display:flex; align-items:center; gap:6px; }
-        .btn-save:active { transform:scale(0.97); }
-        .btn-save:disabled { opacity:0.5; cursor:not-allowed; }
+<!-- ★ Google Fonts via <link> — más confiable que @import ★ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@600;700&family=Lato:wght@700;900&family=Ubuntu:wght@700&family=Raleway:wght@700;800&family=Bebas+Neue&family=Pacifico&family=Cinzel:wght@700;900&family=Righteous&family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* ── LAYOUT ── */
-        .layout { display:flex; gap:0; min-height:calc(100vh - 52px); }
-        .form-panel { flex:1; padding:20px; overflow-y:auto; max-height:calc(100vh - 52px); }
-        .preview-panel { width:340px; background:var(--bg2); border-left:1px solid var(--border); padding:16px; overflow-y:auto; max-height:calc(100vh - 52px); position:sticky; top:52px; }
+<style>
+/* ══════════════════════════════════════════════
+   VARIABLES
+══════════════════════════════════════════════ */
+:root {
+    --bg:      #0d0d14;
+    --bg2:     #13131e;
+    --bg3:     #1a1a28;
+    --bg4:     #222236;
+    --border:  rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --orange:  #ff6b35;
+    --orange2: #ff8c42;
+    --blue:    #638cff;
+    --green:   #00e676;
+    --red:     #ff4444;
+    --gold:    #ffd700;
+    --cyan:    #00d4ff;
+    --text:    #e8ecf4;
+    --text2:   #94a3b8;
+    --text3:   #4a5568;
+    --font:    'DM Sans', sans-serif;
+    --radius:  10px;
+    --topbar:  52px;
+    --sidebar: 200px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text); }
 
-        /* ── SECTIONS ── */
-        .section { margin-bottom:20px; }
-        .section-title { font-size:0.72rem; color:var(--cyan); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
-        .section-title i { font-size:0.65rem; }
+/* ══════════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════════ */
+.topbar {
+    height: var(--topbar);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.topbar__brand { font-family: 'Bebas Neue',sans-serif; font-size: 1.5rem; color: var(--orange); letter-spacing: 1px; }
+.topbar__title { font-size: 0.78rem; font-weight: 600; color: var(--text2); }
+.topbar__actions { display: flex; align-items: center; gap: 10px; }
+.agent-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 4px 10px;
+    font-size: 0.68rem; color: var(--text3);
+}
+.agent-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+.agent-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.agent-dot.err { background: var(--red); }
+.btn-save {
+    background: linear-gradient(135deg, var(--orange), var(--orange2));
+    border: none; border-radius: 8px; color: white;
+    font-family: var(--font); font-size: 0.8rem; font-weight: 700;
+    padding: 8px 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+    transition: all 0.15s;
+}
+.btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,107,53,0.4); }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-back {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text2); font-size: 0.78rem; padding: 8px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+    font-family: var(--font);
+}
+.btn-back:hover { background: var(--bg4); color: var(--text); }
 
-        /* ── FORM FIELDS ── */
-        .field { margin-bottom:12px; }
-        .field-row { display:flex; gap:12px; }
-        .field-row .field { flex:1; }
-        .field label { display:block; font-size:0.7rem; color:var(--text2); font-weight:600; margin-bottom:4px; }
-        .field label .required { color:var(--red); margin-left:2px; }
-        .field input, .field select, .field textarea {
-            width:100%; padding:9px 12px; background:var(--bg); border:1.5px solid var(--border);
-            border-radius:8px; color:var(--text); font-family:var(--font); font-size:0.82rem;
-            outline:none; transition:border-color 0.15s;
-        }
-        .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--blue); }
-        .field input::placeholder { color:var(--text3); }
-        .field textarea { resize:vertical; min-height:60px; }
-        .field .hint { font-size:0.62rem; color:var(--text3); margin-top:3px; }
-        .field .auto-fill { font-size:0.6rem; color:var(--green); margin-top:3px; display:none; }
-        .field .auto-fill.show { display:block; }
+/* ══════════════════════════════════════════════
+   LAYOUT PRINCIPAL: sidebar + form + preview
+══════════════════════════════════════════════ */
+.main {
+    height: calc(100dvh - var(--topbar));
+    display: grid;
+    grid-template-columns: var(--sidebar) 1fr 320px;
+    overflow: hidden;
+}
 
-        /* ── LOGO UPLOAD ── */
-        .logo-upload { display:flex; align-items:center; gap:14px; padding:12px; background:var(--bg); border:1.5px dashed var(--border2); border-radius:10px; cursor:pointer; transition:border-color 0.15s; }
-        .logo-upload:hover { border-color:var(--blue); }
-        .logo-preview { width:60px; height:60px; border-radius:8px; background:var(--bg3); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
-        .logo-preview img { width:100%; height:100%; object-fit:contain; }
-        .logo-preview i { font-size:1.4rem; color:var(--text3); }
-        .logo-upload-text { font-size:0.72rem; color:var(--text2); }
-        .logo-upload-text strong { color:var(--text); display:block; margin-bottom:2px; }
-        .logo-upload input[type="file"] { display:none; }
+/* ══════════════════════════════════════════════
+   SIDEBAR DE TABS VERTICAL
+══════════════════════════════════════════════ */
+.sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    overflow-y: auto;
+    gap: 2px;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+.stab {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    font-size: 0.73rem; font-weight: 600;
+    color: var(--text3); cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    background: none; border-top: none; border-right: none; border-bottom: none;
+    text-align: left; font-family: var(--font);
+    border-radius: 0;
+}
+.stab:hover { background: rgba(255,255,255,0.04); color: var(--text2); }
+.stab.active { border-left-color: var(--orange); background: rgba(255,107,53,0.08); color: var(--orange); }
+.stab i { width: 16px; text-align: center; font-size: 0.78rem; }
+.sidebar-sep { height: 1px; background: var(--border); margin: 6px 12px; }
 
-        /* ── SERIES CONFIG ── */
-        .series-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-        .serie-card { padding:10px 12px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; }
-        .serie-card .serie-label { font-size:0.62rem; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
-        .serie-card input { width:80px; padding:6px 8px; background:var(--bg3); border:1px solid var(--border); border-radius:5px; color:var(--gold); font-family:var(--mono); font-size:0.85rem; font-weight:600; text-align:center; }
+/* ══════════════════════════════════════════════
+   PANEL DE FORMULARIO (centro)
+══════════════════════════════════════════════ */
+.form-area {
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--bg);
+}
+.form-area::-webkit-scrollbar { width: 4px; }
+.form-area::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
 
-        /* ── PREVIEW TICKET ── */
-        .preview-title { font-size:0.68rem; color:var(--text3); text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:10px; text-align:center; }
-        .ticket { background:#fff; color:#000; font-family:var(--mono); font-size:9px; padding:12px 10px; border-radius:6px; line-height:1.5; min-height:300px; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
-        .ticket .t-center { text-align:center; }
-        .ticket .t-bold { font-weight:700; }
-        .ticket .t-big { font-size:12px; }
-        .ticket .t-med { font-size:10px; }
-        .ticket .t-small { font-size:7.5px; color:#666; }
-        .ticket .t-divider { border-top:1px dashed #999; margin:6px 0; }
-        .ticket .t-row { display:flex; justify-content:space-between; }
-        .ticket .t-inverse { background:#000; color:#fff; padding:3px 6px; margin:4px -10px; text-align:center; font-weight:700; }
-        .ticket .t-logo { width:50px; height:50px; margin:0 auto 4px; background:#f0f0f0; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .ticket .t-logo img { width:100%; height:100%; object-fit:contain; }
-        .ticket .t-qr { width:70px; height:70px; background:#f0f0f0; margin:6px auto; display:flex; align-items:center; justify-content:center; font-size:7px; color:#999; }
-        .ticket .t-box { border:1px solid #999; border-radius:3px; padding:4px 8px; margin:6px 0; text-align:center; }
-        .ticket .t-highlight { border:1.5px solid #4a90d9; border-radius:3px; padding:5px 8px; margin:6px 0; text-align:center; }
-        .ticket .t-highlight-url { color:#4a90d9; font-weight:700; font-size:10px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-        /* ── TABS ── */
-        .tabs { display:flex; gap:4px; margin-bottom:16px; background:var(--bg); border-radius:8px; padding:3px; }
-        .tab { flex:1; padding:8px; text-align:center; font-size:0.72rem; font-weight:600; color:var(--text3); border-radius:6px; cursor:pointer; transition:all 0.15s; }
-        .tab.active { background:var(--bg3); color:var(--text); }
-        .tab:hover:not(.active) { color:var(--text2); }
+.section-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.section-title {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--orange);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+}
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+    display: block; font-size: 0.68rem; font-weight: 600;
+    color: var(--text3); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.field input, .field select, .field textarea {
+    width: 100%; background: var(--bg3);
+    border: 1px solid var(--border2); border-radius: 7px;
+    padding: 8px 10px; color: var(--text); font-family: var(--font);
+    font-size: 0.82rem; outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--orange); }
+.field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+.field select option { background: var(--bg3); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.charcount { font-size: 0.6rem; color: var(--text3); text-align: right; margin-top: 2px; }
 
-        /* ── TOAST ── */
-        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:10px 20px; border-radius:10px; font-size:0.78rem; font-weight:600; z-index:100; animation:toastIn 0.3s ease; }
-        .toast-ok { background:rgba(52,211,153,0.95); color:#fff; }
-        .toast-err { background:rgba(239,68,68,0.95); color:#fff; }
-        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+/* Toggle switch */
+.toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+}
+.toggle-row span { font-size: 0.75rem; color: var(--text2); }
+.toggle-row input[type="checkbox"] {
+    width: 36px !important; height: 20px !important;
+    appearance: none; background: var(--bg4);
+    border-radius: 10px; position: relative; cursor: pointer;
+    border: 1px solid var(--border2) !important;
+    transition: background 0.2s; padding: 0 !important;
+}
+.toggle-row input[type="checkbox"]::after {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text3); top: 2px; left: 2px; transition: all 0.2s;
+}
+.toggle-row input[type="checkbox"]:checked { background: var(--orange); border-color: var(--orange) !important; }
+.toggle-row input[type="checkbox"]:checked::after { left: 18px; background: white; }
 
-        /* ── DEVICE CARDS ── */
-        .device-list { display:flex; flex-direction:column; gap:10px; }
-        .device-card { background:var(--bg); border:1.5px solid var(--border); border-radius:10px; padding:14px; position:relative; }
-        .device-card.this-device { border-color:var(--green); box-shadow:0 0 12px rgba(52,211,153,0.08); }
-        .device-card.inactive { opacity:0.5; border-color:var(--red); }
-        .device-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-        .device-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
-        .device-icon-pc { background:rgba(99,140,255,0.1); color:var(--blue); }
-        .device-icon-mobile { background:rgba(52,211,153,0.1); color:var(--green); }
-        .device-info { flex:1; margin-left:10px; }
-        .device-name { font-size:0.82rem; font-weight:700; }
-        .device-id { font-size:0.6rem; color:var(--text3); font-family:var(--mono); }
-        .device-this-badge { font-size:0.55rem; background:rgba(52,211,153,0.15); color:var(--green); padding:2px 8px; border-radius:10px; font-weight:600; }
-        .device-serie { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--bg3); border-radius:6px; font-family:var(--mono); font-size:0.78rem; font-weight:600; color:var(--gold); margin-top:6px; }
-        .device-stats { display:flex; gap:16px; margin-top:8px; }
-        .device-stat { font-size:0.65rem; color:var(--text2); }
-        .device-stat strong { color:var(--text); display:block; font-size:0.78rem; }
-        .device-stat.low strong { color:var(--orange); }
-        .device-stat.critical strong { color:var(--red); }
-        .device-actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
-        .device-btn { padding:6px 12px; border:1px solid var(--border2); border-radius:6px; font-size:0.68rem; font-weight:600; cursor:pointer; font-family:var(--font); background:var(--bg3); color:var(--text2); transition:all 0.15s; }
-        .device-btn:hover { color:var(--text); border-color:var(--blue); }
-        .device-btn-danger { color:var(--red); border-color:rgba(239,68,68,0.3); }
-        .device-btn-danger:hover { background:rgba(239,68,68,0.1); border-color:var(--red); }
-        .device-btn-primary { background:linear-gradient(135deg,var(--blue),#4f6fef); color:#fff; border:none; }
-        .register-box { background:var(--bg); border:2px dashed var(--border2); border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:all 0.15s; }
-        .register-box:hover { border-color:var(--blue); background:rgba(99,140,255,0.03); }
-        .register-box i { font-size:1.8rem; color:var(--blue); margin-bottom:8px; display:block; }
-        .register-box-title { font-size:0.85rem; font-weight:700; margin-bottom:4px; }
-        .register-box-sub { font-size:0.65rem; color:var(--text3); }
-        .plan-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
-        .plan-bar-left { font-size:0.72rem; color:var(--text2); }
-        .plan-bar-left strong { color:var(--text); }
-        .plan-bar-right { font-size:0.65rem; color:var(--cyan); font-weight:600; cursor:pointer; padding:4px 10px; border:1px solid rgba(34,211,238,0.2); border-radius:6px; background:rgba(34,211,238,0.05); transition:all 0.15s; }
-        .plan-bar-right:hover { background:rgba(34,211,238,0.12); border-color:var(--cyan); }
-        .emergency-box { background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15); border-radius:10px; padding:14px; margin-top:14px; }
-        .emergency-title { font-size:0.72rem; font-weight:700; color:var(--gold); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
-        .emergency-desc { font-size:0.65rem; color:var(--text2); margin-bottom:10px; line-height:1.5; }
+/* ══════════════════════════════════════════════
+   PLANTILLAS (presets)
+══════════════════════════════════════════════ */
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.template-card {
+    background: var(--bg3);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+.template-card:hover { border-color: var(--orange); background: var(--bg4); }
+.template-card.active { border-color: var(--orange); background: rgba(255,107,53,0.1); }
+.template-card__name-preview {
+    font-size: 0.9rem; margin-bottom: 4px; line-height: 1;
+}
+.template-card__label { font-size: 0.65rem; font-weight: 700; color: var(--text2); margin-bottom: 2px; }
+.template-card__tags { font-size: 0.58rem; color: var(--text3); line-height: 1.3; }
 
-        /* ── RESPONSIVE ── */
-        @media(max-width:768px) {
-            .layout { flex-direction:column; }
-            .preview-panel { width:100%; max-height:none; position:static; border-left:none; border-top:1px solid var(--border); }
-            .field-row { flex-direction:column; gap:0; }
-        }
+/* ══════════════════════════════════════════════
+   FONT CARDS
+══════════════════════════════════════════════ */
+.font-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.font-card {
+    background: var(--bg3); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 8px;
+}
+.font-card:has(input:checked) { border-color: var(--orange); background: rgba(255,107,53,0.08); }
+.font-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.font-card__preview { font-size: 1.1rem; line-height: 1; flex-shrink: 0; min-width: 70px; }
+.font-card__info {}
+.font-card__name { font-size: 0.65rem; font-weight: 700; color: var(--text); display: block; }
+.font-card__tags { font-size: 0.58rem; color: var(--text3); }
+.font-playfair  { font-family: 'Playfair Display', serif; }
+.font-oswald    { font-family: 'Oswald', sans-serif; }
+.font-lato      { font-family: 'Lato', sans-serif; }
+.font-ubuntu    { font-family: 'Ubuntu', sans-serif; }
+.font-raleway   { font-family: 'Raleway', sans-serif; }
+.font-bebas     { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+.font-pacifico  { font-family: 'Pacifico', cursive; }
+.font-cinzel    { font-family: 'Cinzel', serif; }
+.font-righteous { font-family: 'Righteous', sans-serif; }
+.font-archivo   { font-family: 'Archivo Black', sans-serif; }
 
-        /* ══════════════════════════════════════
-           TAB IMPRESIÓN — estilos dark theme
-           ══════════════════════════════════════ */
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@700&family=Lato:wght@700&family=Ubuntu:wght@700&family=Raleway:wght@700&family=Bebas+Neue&family=Pacifico&family=Cinzel:wght@700&family=Righteous&family=Archivo+Black&display=swap');
+/* ══════════════════════════════════════════════
+   SLIDERS DE TAMAÑO
+══════════════════════════════════════════════ */
+.size-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.size-row:last-child { border-bottom: none; }
+.size-row__label { font-size: 0.68rem; color: var(--text2); flex: 1; }
+.size-row__preview { font-size: 0.75rem; width: 80px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.size-row input[type="range"] {
+    flex: 1; max-width: 100px;
+    appearance: none; height: 4px;
+    background: var(--bg4); border-radius: 2px; outline: none;
+    border: none !important; padding: 0 !important; border-radius: 2px !important;
+}
+.size-row input[type="range"]::-webkit-slider-thumb {
+    appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--orange); cursor: pointer;
+}
+.size-val { font-size: 0.65rem; color: var(--orange); width: 22px; text-align: center; font-weight: 700; }
 
-        /* ── Grillas de selección ── */
-        .header-style-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 4px;
-        }
-        @media(max-width:600px){ .header-style-grid { grid-template-columns:1fr; } }
+/* Header style cards */
+.hstyle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.hstyle-card {
+    background: var(--bg3); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 8px; cursor: pointer; text-align: center;
+}
+.hstyle-card:has(input:checked) { border-color: var(--orange); background: rgba(255,107,53,0.08); }
+.hstyle-card input { position: absolute; opacity: 0; width: 0; height: 0; }
+.hstyle-mini { font-size: 0.6rem; line-height: 1.5; background: white; color: #333; border-radius: 4px; padding: 4px; margin-bottom: 4px; }
+.hstyle-label { font-size: 0.6rem; color: var(--text2); }
 
-        .style-card {
-            position: relative;
-            border: 1.5px solid var(--border2);
-            border-radius: 10px;
-            background: var(--bg);
-            cursor: pointer;
-            overflow: hidden;
-            transition: all .15s;
-            display: flex;
-            flex-direction: column;
-        }
-        .style-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
-        .style-card:hover { border-color: var(--blue); transform: translateY(-1px); }
-        .style-card:has(input:checked) { border-color: var(--blue); background: rgba(99,140,255,0.07); }
+/* ══════════════════════════════════════════════
+   PREVIEW DERECHO
+══════════════════════════════════════════════ */
+.preview-panel {
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.preview-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.preview-title { font-size: 0.68rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.preview-zoom { display: flex; gap: 4px; }
+.zoom-btn {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 5px;
+    color: var(--text3); font-size: 0.65rem; padding: 3px 7px; cursor: pointer;
+    font-family: var(--font); transition: all 0.1s;
+}
+.zoom-btn:hover, .zoom-btn.active { background: var(--bg4); color: var(--text); border-color: var(--orange); }
+.preview-wrap {
+    flex: 1; overflow-y: auto;
+    display: flex; justify-content: center;
+    padding: 16px 12px;
+    background: #888;
+}
+.preview-wrap::-webkit-scrollbar { width: 4px; }
+.preview-wrap::-webkit-scrollbar-thumb { background: #666; }
 
-        .style-card__preview {
-            padding: 10px 10px 6px;
-            background: var(--bg3);
-            border-bottom: 1px solid var(--border);
-        }
-        .style-card__preview svg { width:100%; height:auto; display:block; }
+/* El ticket simulado — blanco como papel térmico */
+#ticketPreview {
+    background: white; color: #111;
+    width: 280px;   /* ≈ 80mm a resolución pantalla */
+    padding: 8px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    line-height: 1.5;
+    transform-origin: top center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: width 0.2s;
+}
+#ticketPreview.zoom-sm { width: 220px; font-size: 7px; }
+#ticketPreview.zoom-lg { width: 340px; font-size: 9.5px; }
 
-        .style-card__info { padding: 9px 11px 11px; flex:1; }
-        .style-card__name { display:block; font-size:0.75rem; font-weight:700; color:var(--text); margin-bottom:2px; }
-        .style-card__desc { display:block; font-size:0.65rem; color:var(--text2); line-height:1.4; }
+/* Clases internas del ticket preview */
+#ticketPreview .t-center  { text-align: center; }
+#ticketPreview .t-right   { text-align: right; }
+#ticketPreview .t-bold    { font-weight: bold; }
+#ticketPreview .t-big     { font-size: 1.3em; }
+#ticketPreview .t-small   { font-size: 0.85em; color: #444; }
+#ticketPreview .t-divider { border: none; border-top: 1px dashed #bbb; margin: 4px 0; }
+#ticketPreview .t-divider-solid { border: none; border-top: 1px solid #999; margin: 4px 0; }
+#ticketPreview .t-inverse { background: #222; color: white; text-align: center; padding: 3px; font-size: 0.9em; font-weight: bold; margin: 4px 0; }
+#ticketPreview .t-row     { display: flex; justify-content: space-between; }
+#ticketPreview .t-logo    { margin: 4px auto; text-align: center; }
+#ticketPreview .t-logo img { max-width: 60px; max-height: 40px; object-fit: contain; }
+#ticketPreview .t-qr      { text-align: center; font-size: 0.75em; color: #666; padding: 4px; border: 1px dashed #ccc; margin: 4px 0; }
+#ticketPreview .t-highlight {
+    border: 1.5px solid #4a90d9; border-radius: 3px;
+    padding: 4px 6px; margin: 4px 0; text-align: center;
+}
+#ticketPreview .t-highlight-url { color: #4a90d9; font-weight: bold; font-size: 1em; }
+#ticketPreview .t-footer-boxes {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3px; margin-top: 4px;
+}
+#ticketPreview .t-footer-box {
+    border: 1px solid #ddd; border-radius: 2px;
+    padding: 3px 2px; text-align: center; font-size: 0.75em;
+}
+#ticketPreview .t-footer-box .f-title { font-weight: bold; font-size: 0.85em; color: #333; }
+#ticketPreview .t-footer-box .f-url   { font-weight: bold; }
+#ticketPreview .t-footer-box .f-sub   { color: #777; font-size: 0.8em; }
 
-        .style-card__badge {
-            position: absolute; top:7px; right:7px;
-            width:18px; height:18px;
-            background: var(--blue); color:#fff;
-            border-radius: 50%; font-size:10px;
-            display:flex; align-items:center; justify-content:center;
-            opacity:0; transform:scale(.5); transition:all .15s;
-        }
-        .style-card:has(input:checked) .style-card__badge { opacity:1; transform:scale(1); }
+/* ══════════════════════════════════════════════
+   MISC FORM UI
+══════════════════════════════════════════════ */
+.logo-box {
+    border: 2px dashed var(--border2); border-radius: 8px;
+    padding: 16px; text-align: center; cursor: pointer;
+    transition: border-color 0.15s; position: relative;
+}
+.logo-box:hover { border-color: var(--orange); }
+.logo-box input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+#logoPreview img { max-height: 60px; max-width: 100%; object-fit: contain; }
+.logo-box-hint { font-size: 0.68rem; color: var(--text3); margin-top: 4px; }
 
-        /* ── Font cards ── */
-        .font-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .font-card {
-            position: relative;
-            border: 1.5px solid var(--border2);
-            border-radius: 8px;
-            background: var(--bg);
-            cursor: pointer;
-            padding: 12px 10px 9px;
-            display: flex; flex-direction:column; align-items:center; text-align:center;
-            transition: all .15s; overflow:hidden;
-        }
-        .font-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
-        .font-card:hover { border-color: var(--blue); transform: translateY(-1px); }
-        .font-card:has(input:checked) { border-color: var(--blue); background: rgba(99,140,255,0.07); }
+.ruc-autofill { display: none; font-size: 0.65rem; color: var(--green); margin-top: 3px; }
+.ruc-autofill.show { display: block; }
 
-        .font-card__preview {
-            font-size:16px; font-weight:700; color:var(--text);
-            display:block; margin-bottom:6px; line-height:1.2; white-space:nowrap;
-        }
-        .font-playfair  { font-family:'Playfair Display',serif; }
-        .font-oswald    { font-family:'Oswald',sans-serif; }
-        .font-lato      { font-family:'Lato',sans-serif; }
-        .font-ubuntu    { font-family:'Ubuntu',sans-serif; }
-        .font-raleway   { font-family:'Raleway',sans-serif; }
-        .font-bebas     { font-family:'Bebas Neue',sans-serif; letter-spacing:2px; }
-        .font-pacifico  { font-family:'Pacifico',cursive; }
-        .font-cinzel    { font-family:'Cinzel',serif; }
-        .font-righteous { font-family:'Righteous',sans-serif; }
-        .font-archivo   { font-family:'Archivo Black',sans-serif; }
+.section-sub {
+    font-size: 0.65rem; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px; margin-top: 12px;
+}
 
-        .font-card__name { font-size:0.7rem; font-weight:700; color:var(--text); display:block; margin-bottom:2px; }
-        .font-card__tags { font-size:0.6rem; color:var(--text3); display:block; line-height:1.4; }
+/* Device / billing cards */
+.device-card {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 14px; margin-bottom: 10px;
+}
+.device-card.this-device { border-color: var(--green); }
+.device-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.device-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-right: 10px; }
+.device-icon-pc { background: rgba(99,140,255,0.15); color: var(--blue); }
+.device-icon-mobile { background: rgba(0,230,118,0.1); color: var(--green); }
+.device-name { font-size: 0.8rem; font-weight: 700; }
+.device-id { font-size: 0.6rem; color: var(--text3); font-family: monospace; }
+.device-serie { font-size: 0.68rem; color: var(--text2); margin-bottom: 8px; }
+.device-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 10px; }
+.device-stat { background: var(--bg4); border-radius: 6px; padding: 6px; text-align: center; font-size: 0.65rem; color: var(--text3); }
+.device-stat strong { display: block; font-size: 0.75rem; color: var(--text); }
+.device-stat.critical strong { color: var(--red); }
+.device-stat.low strong { color: var(--orange); }
+.device-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.device-btn { background: var(--bg4); border: 1px solid var(--border2); border-radius: 6px; color: var(--text2); font-size: 0.65rem; padding: 5px 10px; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.device-btn:hover { background: var(--bg); color: var(--text); }
+.device-btn-danger:hover { border-color: var(--red); color: var(--red); }
+.device-this-badge { font-size: 0.6rem; color: var(--green); }
 
-        .font-card__badge {
-            position:absolute; top:6px; right:6px;
-            width:16px; height:16px;
-            background:var(--blue); color:#fff;
-            border-radius:50%; font-size:9px;
-            display:flex; align-items:center; justify-content:center;
-            opacity:0; transform:scale(.5); transition:all .15s;
-        }
-        .font-card:has(input:checked) .font-card__badge { opacity:1; transform:scale(1); }
+.register-box {
+    background: var(--bg3); border: 1px dashed var(--border2);
+    border-radius: 10px; padding: 14px; margin-top: 10px;
+}
+.info-box { background: rgba(99,140,255,0.08); border: 1px solid rgba(99,140,255,0.2); border-radius: 8px; padding: 10px; font-size: 0.7rem; color: var(--text2); line-height: 1.5; }
 
-        /* ── Paper selector ── */
-        .paper-options { display:flex; gap:10px; }
-        .paper-card {
-            position:relative;
-            border: 1.5px solid var(--border2);
-            border-radius:10px; background:var(--bg);
-            cursor:pointer; padding:14px 16px;
-            display:flex; align-items:center; gap:14px;
-            transition:all .15s; flex:1;
-        }
-        .paper-card input { position:absolute; opacity:0; width:0; height:0; }
-        .paper-card:hover { border-color:var(--blue); }
-        .paper-card:has(input:checked) { border-color:var(--blue); background:rgba(99,140,255,0.07); }
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+.toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 10px 18px;
+    font-size: 0.78rem; font-weight: 600;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 999; animation: slideUp 0.2s ease;
+}
+.toast-ok  { border-color: var(--green); color: var(--green); }
+.toast-err { border-color: var(--red);   color: var(--red); }
+.toast-ok2 { border-color: var(--cyan);  color: var(--cyan); }
+@keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        .paper-card__visual {
-            background:var(--bg3); border:1px solid var(--border);
-            border-radius:3px; display:flex; align-items:center;
-            justify-content:center; flex-shrink:0;
-        }
-        .paper-80mm { width:40px; height:54px; }
-        .paper-58mm { width:30px; height:54px; }
-        .paper-card__lines { width:78%; display:flex; flex-direction:column; gap:4px; padding:6px 4px; }
-        .paper-card__lines div { height:3px; background:var(--border2); border-radius:1px; width:100%; }
-        .paper-card__lines div.w-short { width:60%; }
-
-        .paper-card__label { display:block; font-size:1.1rem; font-weight:800; color:var(--text); }
-        .paper-card__desc  { display:block; font-size:0.65rem; color:var(--text2); margin-top:2px; }
-
-        .paper-card__badge {
-            position:absolute; top:7px; right:7px;
-            width:18px; height:18px;
-            background:var(--blue); color:#fff;
-            border-radius:50%; font-size:10px;
-            display:flex; align-items:center; justify-content:center;
-            opacity:0; transform:scale(.5); transition:all .15s;
-        }
-        .paper-card:has(input:checked) .paper-card__badge { opacity:1; transform:scale(1); }
-
-        /* ── Toggle catálogo ── */
-        .toggle-row {
-            display:flex; align-items:center; justify-content:space-between;
-            gap:16px; margin-bottom:12px; cursor:pointer;
-        }
-        .toggle-info { flex:1; }
-        .toggle-label { display:block; font-size:0.82rem; font-weight:600; color:var(--text); }
-        .toggle-sub   { display:block; font-size:0.65rem; color:var(--text3); margin-top:2px; }
-
-        .toggle-switch { position:relative; flex-shrink:0; }
-        .toggle-switch input { opacity:0; width:0; height:0; }
-        .toggle-track {
-            display:block; width:44px; height:24px;
-            background:var(--bg3); border:1px solid var(--border2);
-            border-radius:12px; cursor:pointer; transition:all .15s;
-            position:relative;
-        }
-        .toggle-track::after {
-            content:''; position:absolute;
-            width:18px; height:18px; background:var(--text3);
-            border-radius:50%; top:2px; left:2px; transition:all .15s;
-        }
-        .toggle-switch input:checked + .toggle-track { background:var(--blue); border-color:var(--blue); }
-        .toggle-switch input:checked + .toggle-track::after { background:#fff; transform:translateX(20px); }
-
-        /* ── Preview banner catálogo ── */
-        .catalogo-preview {
-            max-height:0; overflow:hidden;
-            transition:max-height .3s ease, opacity .3s ease; opacity:0;
-        }
-        .catalogo-preview.visible { max-height:110px; opacity:1; }
-
-        .ticket-banner-mock {
-            border:1.5px solid var(--border2);
-            border-radius:8px; padding:12px;
-            text-align:center;
-            background:var(--bg3);
-            font-family:var(--mono);
-        }
-        .ticket-banner-mock__top  { display:block; font-size:0.7rem; font-weight:700; color:var(--text2); letter-spacing:.3px; }
-        .ticket-banner-mock__url  { display:block; font-size:0.95rem; font-weight:900; color:var(--cyan); margin:4px 0; }
-        .ticket-banner-mock__sub  { display:block; font-size:0.65rem; color:var(--text3); }
-
-        /* ── Printer row ── */
-        .printer-row { display:flex; gap:8px; align-items:stretch; }
-        .printer-row .field { flex:1; margin:0; }
-        .btn-detect {
-            border:1.5px solid var(--border2); border-radius:8px;
-            background:var(--bg3); color:var(--text2);
-            font-size:0.75rem; font-weight:600;
-            padding:0 14px; cursor:pointer; white-space:nowrap;
-            font-family:var(--font); transition:all .15s;
-        }
-        .btn-detect:hover { border-color:var(--blue); color:var(--blue); }
-
-        .printer-status { margin-top:6px; font-size:0.72rem; min-height:18px; }
-        .printer-status.ok    { color:var(--green); }
-        .printer-status.error { color:var(--red); }
-        .printer-status.info  { color:var(--text3); }
-
-        .printer-option {
-            display:inline-block; margin:4px 4px 0 0;
-            padding:4px 10px; background:var(--bg3);
-            border:1px solid var(--border2); border-radius:6px;
-            color:var(--cyan); font-size:0.7rem; font-weight:600;
-            cursor:pointer; font-family:var(--font); transition:all .15s;
-        }
-        .printer-option:hover { border-color:var(--cyan); background:rgba(34,211,238,.08); }
-
-        /* ── Hint ── */
-        .print-hint {
-            font-size:0.65rem; color:var(--text3);
-            background:var(--bg3); border:1px solid var(--border);
-            border-radius:6px; padding:7px 10px; margin-top:8px; line-height:1.5;
-        }
-
-        /* ── Eslogan char count ── */
-        .cfg-charcount { display:block; text-align:right; font-size:0.6rem; color:var(--text3); margin-top:3px; }
-
-        /* ── Btn imprimir prueba ── */
-        .btn-print-test {
-            padding:9px 18px;
-            background:linear-gradient(135deg, rgba(52,211,153,.15), rgba(52,211,153,.05));
-            border:1.5px solid rgba(52,211,153,.3);
-            border-radius:8px; color:var(--green);
-            font-size:0.8rem; font-weight:700;
-            cursor:pointer; font-family:var(--font);
-            transition:all .15s; display:inline-flex; align-items:center; gap:7px;
-        }
-        .btn-print-test:hover { background:rgba(52,211,153,.15); border-color:var(--green); }
-
-        /* Fade-in secciones */
-        #tab-print .section { animation: cfgFadeIn .22s ease both; }
-        #tab-print .section:nth-child(1){ animation-delay:.00s; }
-        #tab-print .section:nth-child(2){ animation-delay:.05s; }
-        #tab-print .section:nth-child(3){ animation-delay:.10s; }
-        #tab-print .section:nth-child(4){ animation-delay:.15s; }
-        #tab-print .section:nth-child(5){ animation-delay:.20s; }
-        #tab-print .section:nth-child(6){ animation-delay:.25s; }
-        @keyframes cfgFadeIn {
-            from { opacity:0; transform:translateY(7px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
-    </style>
+/* Responsive mínimo */
+@media (max-width: 900px) {
+    .main { grid-template-columns: 52px 1fr 260px; }
+    .stab span { display: none; }
+    .stab { justify-content: center; padding: 12px; }
+    --sidebar: 52px;
+}
+</style>
 </head>
 <body>
 
-<header class="header">
-    <div class="header-left">
-        <a href="/home"><i class="fas fa-arrow-left"></i></a>
-        <h1><i class="fas fa-store" style="color:var(--cyan);margin-right:6px"></i>Configuración del Negocio</h1>
+<!-- ══════════════ TOPBAR ══════════════ -->
+<header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+        <a href="/bodegas/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> Volver</a>
+        <div>
+            <div class="topbar__brand">QueVendi</div>
+        </div>
+        <span style="color:var(--border2)">|</span>
+        <span class="topbar__title">Configuración del Negocio</span>
     </div>
-    <button class="btn-save" id="btnSave" onclick="saveConfig()">
-        <i class="fas fa-check"></i> Guardar
-    </button>
+    <div class="topbar__actions">
+        <div class="agent-badge">
+            <div class="agent-dot" id="agentDot"></div>
+            <span id="agentLabel">Impresora</span>
+        </div>
+        <button class="btn-save" id="btnSave" onclick="saveConfig()">
+            <i class="fas fa-floppy-disk"></i> Guardar
+        </button>
+    </div>
 </header>
 
-<div class="layout">
-    <!-- ══════════ FORM PANEL ══════════ -->
-    <div class="form-panel">
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main">
 
-        <!-- TABS -->
-        <div class="tabs">
-            <div class="tab active" data-tab="general" onclick="switchTab('general')">
-                <i class="fas fa-store"></i> General
-            </div>
-            <div class="tab" data-tab="billing" onclick="switchTab('billing')">
-                <i class="fas fa-file-invoice"></i> Facturación
-            </div>
-            <div class="tab" data-tab="devices" onclick="switchTab('devices')">
-                <i class="fas fa-mobile-screen"></i> Dispositivos
-            </div>
-            <div class="tab" data-tab="print" onclick="switchTab('print')">
-                <i class="fas fa-print"></i> Impresión
-            </div>
-        </div>
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar">
+        <button class="stab active" onclick="switchTab('negocio')" id="stab-negocio">
+            <i class="fas fa-store"></i> <span>Negocio</span>
+        </button>
+        <button class="stab" onclick="switchTab('plantilla')" id="stab-plantilla">
+            <i class="fas fa-palette"></i> <span>Plantilla</span>
+        </button>
+        <button class="stab" onclick="switchTab('fuentes')" id="stab-fuentes">
+            <i class="fas fa-font"></i> <span>Fuentes</span>
+        </button>
+        <button class="stab" onclick="switchTab('ticket')" id="stab-ticket">
+            <i class="fas fa-receipt"></i> <span>Ticket</span>
+        </button>
+        <div class="sidebar-sep"></div>
+        <button class="stab" onclick="switchTab('print')" id="stab-print">
+            <i class="fas fa-print"></i> <span>Impresión</span>
+        </button>
+        <button class="stab" onclick="switchTab('facturacion')" id="stab-facturacion">
+            <i class="fas fa-file-invoice"></i> <span>Facturación</span>
+        </button>
+        <button class="stab" onclick="switchTab('devices')" id="stab-devices">
+            <i class="fas fa-desktop"></i> <span>Dispositivos</span>
+        </button>
+    </nav>
 
-        <!-- ── TAB: GENERAL ── -->
-        <div class="tab-content" id="tab-general">
+    <!-- ── FORM AREA ── -->
+    <div class="form-area">
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-building"></i> Datos del Negocio</div>
+        <!-- ①  NEGOCIO -->
+        <div class="tab-panel active" id="tab-negocio">
 
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-id-card"></i> Datos Fiscales</div>
                 <div class="field">
-                    <label>RUC <span class="required">*</span></label>
-                    <input type="text" id="ruc" maxlength="11" placeholder="20615446565" oninput="onRucChange(this)">
-                    <div class="auto-fill" id="ruc-autofill"><i class="fas fa-check-circle"></i> Datos cargados de SUNAT</div>
-                    <div class="hint">Se consultará automáticamente en SUNAT</div>
+                    <label>RUC</label>
+                    <input type="text" id="ruc" maxlength="11" placeholder="20600123456"
+                           oninput="onRucChange(this)">
+                    <div class="ruc-autofill" id="ruc-autofill">✅ Datos completados desde SUNAT</div>
                 </div>
-
                 <div class="field">
-                    <label>Razón Social <span class="required">*</span></label>
-                    <input type="text" id="razon_social" placeholder="PERU SISTEMAS PRO E.I.R.L." oninput="updatePreview()">
+                    <label>Razón Social</label>
+                    <input type="text" id="razon_social" placeholder="PERU SISTEMAS PRO E.I.R.L."
+                           oninput="updatePreview()">
                 </div>
-
                 <div class="field">
-                    <label>Nombre Comercial</label>
-                    <input type="text" id="nombre_comercial" placeholder="QueVendi" oninput="updatePreview()">
-                    <div class="hint">Si es diferente a la razón social (lo que aparece en el ticket)</div>
+                    <label>Nombre Comercial (aparece grande en el ticket)</label>
+                    <input type="text" id="nombre_comercial" placeholder="QueVendi"
+                           oninput="updatePreview()">
                 </div>
+            </div>
 
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-map-marker-alt"></i> Ubicación</div>
                 <div class="field-row">
                     <div class="field">
-                        <label>Dirección <span class="required">*</span></label>
-                        <input type="text" id="direccion" placeholder="Calle Iquitos Mz A, Lt 49" oninput="updatePreview()">
+                        <label>Dirección</label>
+                        <input type="text" id="direccion" placeholder="Av. Iquitos 123" oninput="updatePreview()">
                     </div>
-                    <div class="field" style="max-width:120px">
-                        <label>Cód. Establecimiento</label>
+                    <div class="field">
+                        <label>Cod. Establecimiento</label>
                         <input type="text" id="cod_establecimiento" maxlength="4" placeholder="0000" oninput="updatePreview()">
                     </div>
                 </div>
-
-                <div class="field-row">
+                <div class="field-row-3">
                     <div class="field">
                         <label>Distrito</label>
                         <input type="text" id="distrito" placeholder="Punchana" oninput="updatePreview()">
@@ -473,596 +534,582 @@
                         <input type="text" id="departamento" placeholder="Loreto" oninput="updatePreview()">
                     </div>
                 </div>
-
-                <div class="field">
-                    <label>Giro del Negocio</label>
-                    <input type="text" id="giro" placeholder="VENTA DE MATERIALES DE CONSTRUCCIÓN" oninput="updatePreview()">
-                    <div class="hint">Actividad económica principal</div>
-                </div>
-
-                <div class="field">
-                    <label>Eslogan</label>
-                    <input type="text" id="slogan" placeholder="¡Gracias por su preferencia, vuelva pronto!" oninput="updatePreview()">
-                </div>
             </div>
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-phone"></i> Contacto</div>
-
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-info-circle"></i> Información Adicional</div>
+                <div class="field">
+                    <label>Giro del Negocio</label>
+                    <input type="text" id="giro" placeholder="VENTA DE ABARROTES Y BEBIDAS" oninput="updatePreview()">
+                </div>
                 <div class="field-row">
                     <div class="field">
-                        <label>Teléfono / Celular <span class="required">*</span></label>
+                        <label>Teléfono / Celular</label>
                         <input type="tel" id="telefono" placeholder="967317946" oninput="updatePreview()">
                     </div>
                     <div class="field">
                         <label>Email</label>
-                        <input type="email" id="email" placeholder="info@minegocio.com" oninput="updatePreview()">
+                        <input type="email" id="email" placeholder="tienda@gmail.com" oninput="updatePreview()">
                     </div>
+                </div>
+                <div class="field">
+                    <label>Slogan principal (pie del encabezado)</label>
+                    <input type="text" id="slogan" maxlength="60"
+                           placeholder="¡Gracias por su preferencia, vuelva pronto!"
+                           oninput="updatePreview()">
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-image"></i> Logo del Negocio</div>
-                <label class="logo-upload" for="logoInput">
-                    <div class="logo-preview" id="logoPreview">
-                        <i class="fas fa-camera"></i>
-                    </div>
-                    <div class="logo-upload-text">
-                        <strong>Subir logo</strong>
-                        JPG, PNG o WebP. Máximo 500KB.<br>Aparecerá en tickets y documentos.
-                    </div>
-                    <input type="file" id="logoInput" accept="image/*" onchange="handleLogo(this)">
-                </label>
-            </div>
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-calculator"></i> Datos del Contador</div>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-user-tie"></i> Contador (opcional)</div>
                 <div class="field-row">
                     <div class="field">
                         <label>RUC del Contador</label>
-                        <input type="text" id="contador_ruc" maxlength="11" placeholder="10051234567">
+                        <input type="text" id="contador_ruc" maxlength="11" placeholder="10xxxxxxxxx">
                     </div>
                     <div class="field">
                         <label>Nombre del Contador</label>
-                        <input type="text" id="contador_nombre" placeholder="CPC Juan Pérez López">
+                        <input type="text" id="contador_nombre" placeholder="CPC Juan Pérez">
                     </div>
-                </div>
-                <div class="hint">Opcional. Algunos negocios lo incluyen en sus comprobantes.</div>
-            </div>
-        </div>
-
-        <!-- ── TAB: FACTURACIÓN ── -->
-        <div class="tab-content" id="tab-billing" style="display:none">
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-receipt"></i> Series de Comprobantes</div>
-                <div class="series-grid">
-                    <div class="serie-card">
-                        <div class="serie-label">Boleta de Venta</div>
-                        <input type="text" id="serie_boleta" value="B001" maxlength="4" oninput="updatePreview()">
-                    </div>
-                    <div class="serie-card">
-                        <div class="serie-label">Factura</div>
-                        <input type="text" id="serie_factura" value="F001" maxlength="4" oninput="updatePreview()">
-                    </div>
-                    <div class="serie-card">
-                        <div class="serie-label">Nota de Crédito (B)</div>
-                        <input type="text" id="serie_nc_boleta" value="BC01" maxlength="4">
-                    </div>
-                    <div class="serie-card">
-                        <div class="serie-label">Nota de Crédito (F)</div>
-                        <input type="text" id="serie_nc_factura" value="FC01" maxlength="4">
-                    </div>
-                </div>
-                <div class="hint" style="margin-top:8px">Las series se asignan por dispositivo para facturación offline. SUNAT las reconoce automáticamente.</div>
-            </div>
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-percent"></i> Afectación IGV</div>
-                <div class="field">
-                    <select id="tipo_igv" onchange="updatePreview()">
-                        <option value="20" selected>Exonerado (Amazonía - Ley 27037)</option>
-                        <option value="10">Gravado (18% IGV)</option>
-                        <option value="30">Inafecto</option>
-                    </select>
-                    <div class="hint">Negocios en Loreto, Ucayali, San Martín, Amazonas y Madre de Dios están exonerados del IGV.</div>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-globe"></i> Leyendas</div>
-                <div class="field">
-                    <label>
-                        <input type="checkbox" id="es_amazonia" checked onchange="updatePreview()" style="width:auto;margin-right:6px">
-                        Incluir leyenda "Bienes transferidos en la Amazonía"
-                    </label>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-image"></i> Logo del Negocio</div>
+                <div class="logo-box" onclick="document.getElementById('logoInput').click()">
+                    <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogo(this)">
+                    <div id="logoPreview">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;color:var(--text3)"></i>
+                        <div class="logo-box-hint">Click para subir logo<br>PNG/JPG · Max 500KB · Recomendado: fondo blanco</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-title"><i class="fas fa-link"></i> Conexión Facturalo.pro</div>
-                <div class="field-row">
-                    <div class="field">
-                        <label>API Token</label>
-                        <input type="password" id="facturalo_token" placeholder="••••••••">
-                    </div>
-                    <div class="field">
-                        <label>API Secret</label>
-                        <input type="password" id="facturalo_secret" placeholder="••••••••">
-                    </div>
-                </div>
-                <div class="field">
-                    <label>URL API</label>
-                    <input type="url" id="facturalo_url" value="https://facturalo.pro/api/v1" placeholder="https://facturalo.pro/api/v1">
-                </div>
-                <button onclick="testConnection()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--blue);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:4px">
-                    <i class="fas fa-plug"></i> Verificar conexión
-                </button>
-            </div>
-        </div>
+        </div><!-- /tab-negocio -->
 
-        <!-- ── TAB: DISPOSITIVOS ── -->
-        <div class="tab-content" id="tab-devices" style="display:none">
+        <!-- ②  PLANTILLA -->
+        <div class="tab-panel" id="tab-plantilla">
 
-            <!-- Plan limits bar -->
-            <div class="plan-bar">
-                <div class="plan-bar-left">
-                    <i class="fas fa-layer-group" style="color:var(--blue);margin-right:4px"></i>
-                    Plan: <strong id="planName">Básico</strong> — <span id="deviceCount">0</span>/<span id="deviceLimit">2</span> dispositivos
-                </div>
-                <div class="plan-bar-right" onclick="showPlanUpgrade()">
-                    <i class="fas fa-arrow-up"></i> Mejorar plan
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-mobile-screen"></i> Dispositivos Registrados</div>
-
-                <div id="deviceList" class="device-list">
-                    <div style="text-align:center;padding:20px;color:var(--text3);font-size:0.78rem">
-                        <i class="fas fa-spinner fa-spin" style="font-size:1.2rem;margin-bottom:8px;display:block"></i>
-                        Cargando dispositivos...
-                    </div>
-                </div>
-
-                <!-- Register this device -->
-                <div class="register-box" id="registerBox" onclick="registerThisDevice()" style="margin-top:12px">
-                    <i class="fas fa-plus-circle"></i>
-                    <div class="register-box-title">Registrar este dispositivo</div>
-                    <div class="register-box-sub">Asigna una serie única para facturar desde aquí</div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-shield-halved"></i> Seguridad</div>
-
-                <div class="emergency-box">
-                    <div class="emergency-title"><i class="fas fa-triangle-exclamation"></i> Acceso de emergencia</div>
-                    <div class="emergency-desc">
-                        Si perdiste acceso a todos tus dispositivos (robo, pérdida),
-                        genera un código temporal para acceder desde otro equipo.
-                        El código expira en 30 minutos y permite 1 solo uso.
-                    </div>
-                    <button onclick="generateEmergencyCode()" class="device-btn device-btn-primary" style="width:100%">
-                        <i class="fas fa-key"></i> Generar código de emergencia
-                    </button>
-                    <div id="emergencyResult" style="margin-top:8px;display:none"></div>
-                </div>
-
-                <div style="margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px">
-                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:6px;color:var(--red);display:flex;align-items:center;gap:6px">
-                        <i class="fas fa-ban"></i> Desactivar todos los dispositivos
-                    </div>
-                    <div style="font-size:0.62rem;color:var(--text3);margin-bottom:8px">
-                        Bloquea todos los dispositivos excepto este. Útil si sospechas de uso no autorizado.
-                        Los vendedores necesitarán re-registrarse.
-                    </div>
-                    <button onclick="revokeAllDevices()" class="device-btn device-btn-danger" style="width:100%">
-                        <i class="fas fa-power-off"></i> Desactivar todos (excepto este)
-                    </button>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title"><i class="fas fa-users"></i> Usuarios del Negocio</div>
-                <div id="userList" style="font-size:0.78rem;color:var(--text3);padding:10px">
-                    Cargando...
-                </div>
-            </div>
-        </div>
-
-        <!-- ── TAB: IMPRESIÓN ── -->
-        <div class="tab-content" id="tab-print" style="display:none">
-
-            <!-- ① DISEÑO DEL ENCABEZADO -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-palette"></i> Diseño del Encabezado</div>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-wand-magic-sparkles"></i> Presets por Nicho</div>
                 <div style="font-size:0.68rem;color:var(--text3);margin-bottom:12px">
-                    Elige cómo se verá el nombre y logo en cada ticket. El cliente ve esto primero.
+                    Aplica un diseño completo con un solo click. Puedes modificarlo después.
                 </div>
-                <div class="header-style-grid">
-                    <label class="style-card">
+                <div class="template-grid">
+
+                    <div class="template-card" id="tpl-bodega" onclick="applyTemplate('bodega')">
+                        <div class="template-card__name-preview font-lato" style="font-size:0.85rem;font-weight:900">MI BODEGA</div>
+                        <div class="template-card__label">Bodega / Abarrotes</div>
+                        <div class="template-card__tags">Amazónica · Exonerada</div>
+                    </div>
+
+                    <div class="template-card" id="tpl-ferreteria" onclick="applyTemplate('ferreteria')">
+                        <div class="template-card__name-preview font-bebas" style="font-size:1.1rem">FERRETERÍA</div>
+                        <div class="template-card__label">Ferretería / Grifo</div>
+                        <div class="template-card__tags">Industrial · Bold</div>
+                    </div>
+
+                    <div class="template-card" id="tpl-consultorio" onclick="applyTemplate('consultorio')">
+                        <div class="template-card__name-preview font-cinzel" style="font-size:0.75rem">Consultorio</div>
+                        <div class="template-card__label">Salud / Notaría</div>
+                        <div class="template-card__tags">Elegante · Formal</div>
+                    </div>
+
+                    <div class="template-card" id="tpl-gym" onclick="applyTemplate('gym')">
+                        <div class="template-card__name-preview font-oswald" style="font-size:1rem;font-weight:700">GYM PRO</div>
+                        <div class="template-card__label">Gimnasio / Sport</div>
+                        <div class="template-card__tags">Fuerte · Dinámico</div>
+                    </div>
+
+                    <div class="template-card" id="tpl-salon" onclick="applyTemplate('salon')">
+                        <div class="template-card__name-preview font-pacifico" style="font-size:0.8rem">Salón</div>
+                        <div class="template-card__label">Belleza / Veterinaria</div>
+                        <div class="template-card__tags">Amigable · Cálido</div>
+                    </div>
+
+                    <div class="template-card" id="tpl-notaria" onclick="applyTemplate('notaria')">
+                        <div class="template-card__name-preview font-playfair" style="font-size:0.8rem">Notaría</div>
+                        <div class="template-card__label">Profesional / Formal</div>
+                        <div class="template-card__tags">Clásico · Serif</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-layer-group"></i> Estilo del Encabezado</div>
+                <div class="hstyle-grid">
+                    <label class="hstyle-card">
                         <input type="radio" name="header_style" value="1" id="hs1" checked onchange="updatePreview()">
-                        <div class="style-card__preview">
-                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
-                                <circle cx="60" cy="22" r="10" fill="none" stroke="#638cff" stroke-width="1.2"/>
-                                <text x="60" y="26" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
-                                <rect x="25" y="37" width="70" height="4" rx="1" fill="#e8ecf4"/>
-                                <rect x="35" y="44" width="50" height="2.5" rx="1" fill="#505a74"/>
-                                <rect x="30" y="49" width="60" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="38" y="54" width="44" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="32" y="59" width="56" height="2" rx="1" fill="#2a3048"/>
-                            </svg>
+                        <div class="hstyle-mini">
+                            <div style="font-weight:bold;text-align:center">MI NEGOCIO</div>
+                            <div style="text-align:center;font-size:0.8em">RUC: 20600...</div>
+                            <div style="text-align:center;font-size:0.8em">Av. Principal</div>
                         </div>
-                        <div class="style-card__info">
-                            <span class="style-card__name">Clásico</span>
-                            <span class="style-card__desc">Logo centrado arriba, datos centrados</span>
-                        </div>
-                        <div class="style-card__badge">&#10003;</div>
+                        <div class="hstyle-label">Clásico centrado</div>
                     </label>
-                    <label class="style-card">
+                    <label class="hstyle-card">
                         <input type="radio" name="header_style" value="2" id="hs2" onchange="updatePreview()">
-                        <div class="style-card__preview">
-                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
-                                <rect x="8" y="10" width="32" height="60" rx="5" fill="#0c1230" stroke="#638cff33" stroke-width="1"/>
-                                <text x="24" y="44" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
-                                <rect x="48" y="16" width="64" height="4.5" rx="1" fill="#e8ecf4"/>
-                                <rect x="48" y="24" width="50" height="2.5" rx="1" fill="#505a74"/>
-                                <rect x="48" y="30" width="58" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="48" y="35" width="46" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="48" y="40" width="54" height="2" rx="1" fill="#2a3048"/>
-                                <rect x="48" y="46" width="42" height="2" rx="1" fill="#2a3048"/>
-                            </svg>
+                        <div class="hstyle-mini">
+                            <div style="text-align:center">[ LOGO ]</div>
+                            <div style="font-weight:bold;text-align:center">MI NEGOCIO</div>
+                            <div style="text-align:center;font-size:0.8em">RUC: 20600...</div>
                         </div>
-                        <div class="style-card__info">
-                            <span class="style-card__name">Rectangular</span>
-                            <span class="style-card__desc">Logo en recuadro izq., datos a la derecha</span>
-                        </div>
-                        <div class="style-card__badge">&#10003;</div>
+                        <div class="hstyle-label">Con logo arriba</div>
                     </label>
-                    <label class="style-card">
+                    <label class="hstyle-card">
                         <input type="radio" name="header_style" value="3" id="hs3" onchange="updatePreview()">
-                        <div class="style-card__preview">
-                            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
-                                <circle cx="28" cy="40" r="18" fill="#0c1230" stroke="#638cff44" stroke-width="1"/>
-                                <text x="28" y="44" text-anchor="middle" font-size="6" fill="#638cff">LOGO</text>
-                                <rect x="54" y="16" width="58" height="4.5" rx="1" fill="#e8ecf4"/>
-                                <rect x="54" y="24" width="46" height="2.5" rx="1" fill="#505a74"/>
-                                <rect x="54" y="30" width="52" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="54" y="35" width="42" height="2" rx="1" fill="#3a4259"/>
-                                <rect x="54" y="40" width="50" height="2" rx="1" fill="#2a3048"/>
-                                <rect x="54" y="46" width="40" height="2" rx="1" fill="#2a3048"/>
-                            </svg>
+                        <div class="hstyle-mini">
+                            <div style="text-align:center">[ LOGO ] MI NEGOCIO</div>
+                            <div style="font-size:0.8em">RUC: 20600...</div>
+                            <div style="font-size:0.8em">Av. Principal 123</div>
                         </div>
-                        <div class="style-card__info">
-                            <span class="style-card__name">Circular</span>
-                            <span class="style-card__desc">Logo en círculo izq., datos a la derecha</span>
-                        </div>
-                        <div class="style-card__badge">&#10003;</div>
+                        <div class="hstyle-label">Logo + texto lateral</div>
                     </label>
                 </div>
             </div>
 
-            <!-- ② FUENTE DEL NOMBRE -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-font"></i> Fuente del Nombre del Negocio</div>
-                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:12px">
-                    La tipografía le da carácter. Elige la que mejor represente tu negocio.
-                </div>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-font"></i> Fuente del Nombre Comercial</div>
                 <div class="font-grid">
                     <label class="font-card">
                         <input type="radio" name="font_decorativa" value="playfair" id="fd_playfair" checked onchange="updatePreview()">
-                        <span class="font-card__preview font-playfair">Mi Negocio</span>
-                        <span class="font-card__name">Playfair</span>
-                        <span class="font-card__tags">Restaurantes · Eventos · Hoteles</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="cinzel" id="fd_cinzel" onchange="updatePreview()">
-                        <span class="font-card__preview font-cinzel">MI NEGOCIO</span>
-                        <span class="font-card__name">Cinzel</span>
-                        <span class="font-card__tags">Elegancia romana · Eventos</span>
-                        <div class="font-card__badge">&#10003;</div>
+                        <span class="font-card__preview font-playfair">Negocio</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Playfair</span>
+                            <span class="font-card__tags">Restaurantes · Eventos</span>
+                        </span>
                     </label>
                     <label class="font-card">
                         <input type="radio" name="font_decorativa" value="bebas" id="fd_bebas" onchange="updatePreview()">
-                        <span class="font-card__preview font-bebas">MI NEGOCIO</span>
-                        <span class="font-card__name">Bebas Neue</span>
-                        <span class="font-card__tags">Ferreterías · Grifos · Impacto</span>
-                        <div class="font-card__badge">&#10003;</div>
+                        <span class="font-card__preview font-bebas">NEGOCIO</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Bebas Neue</span>
+                            <span class="font-card__tags">Ferreterías · Grifos</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="cinzel" id="fd_cinzel" onchange="updatePreview()">
+                        <span class="font-card__preview font-cinzel">NEGOCIO</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Cinzel</span>
+                            <span class="font-card__tags">Notarías · Elegancia</span>
+                        </span>
                     </label>
                     <label class="font-card">
                         <input type="radio" name="font_decorativa" value="oswald" id="fd_oswald" onchange="updatePreview()">
-                        <span class="font-card__preview font-oswald">MI NEGOCIO</span>
-                        <span class="font-card__name">Oswald</span>
-                        <span class="font-card__tags">Ferreterías · Lubricentros</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="archivo" id="fd_archivo" onchange="updatePreview()">
-                        <span class="font-card__preview font-archivo">MI NEGOCIO</span>
-                        <span class="font-card__name">Archivo Black</span>
-                        <span class="font-card__tags">Maximo impacto · Uso general</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="righteous" id="fd_righteous" onchange="updatePreview()">
-                        <span class="font-card__preview font-righteous">MI NEGOCIO</span>
-                        <span class="font-card__name">Righteous</span>
-                        <span class="font-card__tags">Cafes · Hamburguesas · Moderno</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="raleway" id="fd_raleway" onchange="updatePreview()">
-                        <span class="font-card__preview font-raleway">MI NEGOCIO</span>
-                        <span class="font-card__name">Raleway</span>
-                        <span class="font-card__tags">Clasico · Profesional</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="lato" id="fd_lato" onchange="updatePreview()">
-                        <span class="font-card__preview font-lato">MI NEGOCIO</span>
-                        <span class="font-card__name">Lato</span>
-                        <span class="font-card__tags">Uso general · Neutro</span>
-                        <div class="font-card__badge">&#10003;</div>
-                    </label>
-                    <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="ubuntu" id="fd_ubuntu" onchange="updatePreview()">
-                        <span class="font-card__preview font-ubuntu">Mi Negocio</span>
-                        <span class="font-card__name">Ubuntu</span>
-                        <span class="font-card__tags">Bodegas · Ropa · Amigable</span>
-                        <div class="font-card__badge">&#10003;</div>
+                        <span class="font-card__preview font-oswald">NEGOCIO</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Oswald</span>
+                            <span class="font-card__tags">Gym · Impacto</span>
+                        </span>
                     </label>
                     <label class="font-card">
                         <input type="radio" name="font_decorativa" value="pacifico" id="fd_pacifico" onchange="updatePreview()">
-                        <span class="font-card__preview font-pacifico">Mi Negocio</span>
-                        <span class="font-card__name">Pacifico</span>
-                        <span class="font-card__tags">Dulcerias · Ropa · Calido</span>
-                        <div class="font-card__badge">&#10003;</div>
+                        <span class="font-card__preview font-pacifico">Negocio</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Pacifico</span>
+                            <span class="font-card__tags">Salones · Mascota</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="righteous" id="fd_righteous" onchange="updatePreview()">
+                        <span class="font-card__preview font-righteous">Negocio</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Righteous</span>
+                            <span class="font-card__tags">Retro · Moderno</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="raleway" id="fd_raleway" onchange="updatePreview()">
+                        <span class="font-card__preview font-raleway">Negocio</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Raleway</span>
+                            <span class="font-card__tags">Boutiques · Minimalista</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="archivo" id="fd_archivo" onchange="updatePreview()">
+                        <span class="font-card__preview font-archivo">NEGOCIO</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Archivo Black</span>
+                            <span class="font-card__tags">Ferreterías · Bold</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="ubuntu" id="fd_ubuntu" onchange="updatePreview()">
+                        <span class="font-card__preview font-ubuntu">Negocio</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Ubuntu</span>
+                            <span class="font-card__tags">Tecnología · Limpio</span>
+                        </span>
+                    </label>
+                    <label class="font-card">
+                        <input type="radio" name="font_decorativa" value="lato" id="fd_lato" onchange="updatePreview()">
+                        <span class="font-card__preview font-lato">NEGOCIO</span>
+                        <span class="font-card__info">
+                            <span class="font-card__name">Lato Black</span>
+                            <span class="font-card__tags">Bodega · Versátil</span>
+                        </span>
                     </label>
                 </div>
-                <div class="print-hint">
-                    <i class="fas fa-info-circle"></i> Las fuentes se descargan automaticamente la primera vez que imprimes. Solo requiere internet en esa ocasion.
+            </div>
+
+        </div><!-- /tab-plantilla -->
+
+        <!-- ③  FUENTES -->
+        <div class="tab-panel" id="tab-fuentes">
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-text-height"></i> Fuente por Sección</div>
+                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:12px">
+                    Cada zona del ticket puede tener su propia fuente y tamaño.
+                </div>
+
+                <div class="section-sub">Zona RUC y datos legales</div>
+                <div class="field-row" style="margin-bottom:10px">
+                    <div class="field">
+                        <label>Fuente</label>
+                        <select id="font_ruc" onchange="updatePreview()">
+                            <option value="lato">Lato</option>
+                            <option value="oswald">Oswald</option>
+                            <option value="ubuntu">Ubuntu</option>
+                            <option value="raleway">Raleway</option>
+                            <option value="archivo">Archivo Black</option>
+                            <option value="cinzel">Cinzel</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Previsualización</label>
+                        <div id="prev_ruc" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px;font-size:0.9rem;text-align:center">RUC: 20600123456</div>
+                    </div>
+                </div>
+
+                <div class="section-sub">Número de comprobante</div>
+                <div class="field-row" style="margin-bottom:10px">
+                    <div class="field">
+                        <label>Fuente</label>
+                        <select id="font_numero" onchange="updatePreview()">
+                            <option value="bebas">Bebas Neue</option>
+                            <option value="oswald">Oswald</option>
+                            <option value="archivo">Archivo Black</option>
+                            <option value="righteous">Righteous</option>
+                            <option value="ubuntu">Ubuntu</option>
+                            <option value="lato">Lato</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Previsualización</label>
+                        <div id="prev_numero" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px;font-size:1.2rem;text-align:center">B001-00000001</div>
+                    </div>
+                </div>
+
+                <div class="section-sub">Total a pagar</div>
+                <div class="field-row" style="margin-bottom:10px">
+                    <div class="field">
+                        <label>Fuente</label>
+                        <select id="font_total" onchange="updatePreview()">
+                            <option value="archivo">Archivo Black</option>
+                            <option value="bebas">Bebas Neue</option>
+                            <option value="oswald">Oswald</option>
+                            <option value="ubuntu">Ubuntu</option>
+                            <option value="raleway">Raleway</option>
+                            <option value="lato">Lato</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Previsualización</label>
+                        <div id="prev_total" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px;font-size:1rem;text-align:center">TOTAL S/ 139.00</div>
+                    </div>
+                </div>
+
+                <div class="section-sub">Eslogan secundario</div>
+                <div class="field-row" style="margin-bottom:10px">
+                    <div class="field">
+                        <label>Fuente</label>
+                        <select id="font_slogan" onchange="updatePreview()">
+                            <option value="pacifico">Pacifico</option>
+                            <option value="playfair">Playfair</option>
+                            <option value="cinzel">Cinzel</option>
+                            <option value="righteous">Righteous</option>
+                            <option value="raleway">Raleway</option>
+                            <option value="lato">Lato</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Previsualización</label>
+                        <div id="prev_slogan" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px;font-size:0.85rem;text-align:center">✦ El favorito del barrio ✦</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-text-height"></i> Tamaño de Fuentes</div>
+                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:10px">Los cambios afectan el preview. Para el ticket impreso, actualiza también ticket_bitmaps.py.</div>
+
+                <div class="size-row">
+                    <span class="size-row__label">Nombre comercial</span>
+                    <input type="range" id="size_nombre" min="10" max="22" value="15" oninput="updateSizePreview('nombre',this.value); updatePreview()">
+                    <span class="size-val" id="sz_nombre">15</span>
+                    <span class="size-row__preview font-playfair" id="sprev_nombre" style="font-size:15px">Mi Negocio</span>
+                </div>
+                <div class="size-row">
+                    <span class="size-row__label">RUC / datos</span>
+                    <input type="range" id="size_ruc" min="7" max="14" value="10" oninput="updateSizePreview('ruc',this.value); updatePreview()">
+                    <span class="size-val" id="sz_ruc">10</span>
+                    <span class="size-row__preview" id="sprev_ruc" style="font-size:10px">RUC: 2060...</span>
+                </div>
+                <div class="size-row">
+                    <span class="size-row__label">N° comprobante</span>
+                    <input type="range" id="size_numero" min="10" max="20" value="14" oninput="updateSizePreview('numero',this.value); updatePreview()">
+                    <span class="size-val" id="sz_numero">14</span>
+                    <span class="size-row__preview font-bebas" id="sprev_numero" style="font-size:14px">B001-00001</span>
+                </div>
+                <div class="size-row">
+                    <span class="size-row__label">Productos / items</span>
+                    <input type="range" id="size_items" min="6" max="11" value="8" oninput="updateSizePreview('items',this.value); updatePreview()">
+                    <span class="size-val" id="sz_items">8</span>
+                    <span class="size-row__preview" id="sprev_items" style="font-size:8px">Cemento Sol 42kg</span>
+                </div>
+                <div class="size-row">
+                    <span class="size-row__label">Total a pagar</span>
+                    <input type="range" id="size_total" min="9" max="16" value="12" oninput="updateSizePreview('total',this.value); updatePreview()">
+                    <span class="size-val" id="sz_total">12</span>
+                    <span class="size-row__preview font-archivo" id="sprev_total" style="font-size:12px">S/ 139.00</span>
+                </div>
+                <div class="size-row">
+                    <span class="size-row__label">Eslogan</span>
+                    <input type="range" id="size_slogan" min="7" max="13" value="9" oninput="updateSizePreview('slogan',this.value); updatePreview()">
+                    <span class="size-val" id="sz_slogan">9</span>
+                    <span class="size-row__preview font-pacifico" id="sprev_slogan" style="font-size:9px">✦ favorito ✦</span>
                 </div>
             </div>
 
-            <!-- ②b FUENTES POR SECCIÓN -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-sliders-h"></i> Fuente por Sección</div>
-                <div style="font-size:0.68rem;color:var(--text3);margin-bottom:14px">
-                    Personaliza la tipografía de cada parte del ticket de forma independiente.
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-
-                    <!-- RUC -->
-                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
-                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
-                            <i class="fas fa-id-card" style="color:var(--blue)"></i> RUC
-                        </div>
-                        <div style="font-size:0.78rem;color:var(--text);font-weight:700;margin-bottom:4px" id="prev_ruc">RUC: 10054058565</div>
-                        <select id="font_ruc" onchange="updatePreview()"
-                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
-                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
-                            <option value="lato">Lato — limpio</option>
-                            <option value="bebas">Bebas Neue — impacto</option>
-                            <option value="oswald">Oswald — condensado</option>
-                            <option value="archivo">Archivo Black — negra</option>
-                            <option value="playfair">Playfair — elegante</option>
-                            <option value="cinzel">Cinzel — clásica</option>
-                            <option value="ubuntu">Ubuntu — amigable</option>
-                            <option value="raleway">Raleway — profesional</option>
-                        </select>
-                    </div>
-
-                    <!-- N° TICKET -->
-                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
-                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
-                            <i class="fas fa-hashtag" style="color:var(--cyan)"></i> N° Ticket
-                        </div>
-                        <div style="font-size:0.78rem;color:#fff;background:#333;border-radius:4px;
-                                    padding:3px 8px;margin-bottom:4px;text-align:center;font-weight:700"
-                             id="prev_numero">B001-00000001</div>
-                        <select id="font_numero" onchange="updatePreview()"
-                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
-                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
-                            <option value="bebas">Bebas Neue — impacto</option>
-                            <option value="archivo">Archivo Black — negra</option>
-                            <option value="oswald">Oswald — condensado</option>
-                            <option value="cinzel">Cinzel — clásica</option>
-                            <option value="lato">Lato — limpio</option>
-                            <option value="raleway">Raleway — profesional</option>
-                            <option value="righteous">Righteous — retro</option>
-                            <option value="ubuntu">Ubuntu — amigable</option>
-                        </select>
-                    </div>
-
-                    <!-- TOTAL S/ -->
-                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
-                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
-                            <i class="fas fa-dollar-sign" style="color:var(--green)"></i> TOTAL S/
-                        </div>
-                        <div style="font-size:0.9rem;color:var(--green);font-weight:900;margin-bottom:4px"
-                             id="prev_total">TOTAL S/ 139.00</div>
-                        <select id="font_total" onchange="updatePreview()"
-                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
-                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
-                            <option value="archivo">Archivo Black — negra</option>
-                            <option value="bebas">Bebas Neue — impacto</option>
-                            <option value="oswald">Oswald — condensado</option>
-                            <option value="cinzel">Cinzel — clásica</option>
-                            <option value="lato">Lato — limpio</option>
-                            <option value="raleway">Raleway — profesional</option>
-                            <option value="righteous">Righteous — retro</option>
-                            <option value="playfair">Playfair — elegante</option>
-                        </select>
-                    </div>
-
-                    <!-- ESLOGAN -->
-                    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
-                        <div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;font-weight:600">
-                            <i class="fas fa-comment-dots" style="color:var(--gold)"></i> Eslogan
-                        </div>
-                        <div style="font-size:0.72rem;color:var(--gold);font-style:italic;margin-bottom:4px"
-                             id="prev_slogan">✦ El favorito del barrio ✦</div>
-                        <select id="font_slogan" onchange="updatePreview()"
-                                style="width:100%;background:var(--bg3);border:1px solid var(--border2);
-                                       color:var(--text);border-radius:5px;padding:4px 6px;font-size:0.7rem">
-                            <option value="pacifico">Pacifico — cursiva cálida</option>
-                            <option value="playfair">Playfair — elegante</option>
-                            <option value="cinzel">Cinzel — clásica</option>
-                            <option value="raleway">Raleway — profesional</option>
-                            <option value="righteous">Righteous — retro</option>
-                            <option value="lato">Lato — limpio</option>
-                            <option value="ubuntu">Ubuntu — amigable</option>
-                            <option value="oswald">Oswald — impacto</option>
-                        </select>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ③ ESLOGAN SECUNDARIO -->
-            <div class="section">
-                <div class="section-title">
-                    <i class="fas fa-comment-dots"></i> Eslogan Secundario
-                    <span style="font-size:0.6rem;background:var(--bg3);color:var(--text3);border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;text-transform:none;letter-spacing:0">opcional</span>
-                </div>
-                <div class="field" style="margin-bottom:0">
-                    <label>Aparece al pie del encabezado, bajo los datos del negocio</label>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-comment-dots"></i> Eslogan Secundario</div>
+                <div class="field">
+                    <label>Aparece al pie del ticket, antes del footer</label>
                     <input type="text" id="eslogan2" maxlength="50"
                            placeholder="Ej: Atendemos todo tipo de eventos"
-                           oninput="document.getElementById('eslogan2Count').textContent=this.value.length; updatePreview();">
-                    <span class="cfg-charcount"><span id="eslogan2Count">0</span>/50</span>
+                           oninput="document.getElementById('eslogan2Count').textContent=this.value.length; updatePreview()">
+                    <div class="charcount"><span id="eslogan2Count">0</span>/50</div>
                 </div>
             </div>
 
-            <!-- ④ TIENDA ONLINE EN EL TICKET -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-cart-shopping"></i> Tienda Online en el Ticket</div>
-                <label class="toggle-row" for="catalogo_activo">
-                    <div class="toggle-info">
-                        <span class="toggle-label">Mostrar seccion de Tienda Online</span>
-                        <span class="toggle-sub">Activa si tienes Catalogo Virtual habilitado</span>
+        </div><!-- /tab-fuentes -->
+
+        <!-- ④  TICKET -->
+        <div class="tab-panel" id="tab-ticket">
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-file-invoice-dollar"></i> Comprobante</div>
+                <div class="field">
+                    <label>Tipo de IGV</label>
+                    <select id="tipo_igv" onchange="updatePreview()">
+                        <option value="20">Operación Exonerada (Amazonia)</option>
+                        <option value="30">Operación Inafecta</option>
+                        <option value="10">Gravado 18% IGV</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Serie Boleta</label>
+                        <input type="text" id="serie_boleta" value="B001" maxlength="4" oninput="updatePreview()">
                     </div>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="catalogo_activo" onchange="toggleCatalogoPreview(); updatePreview();">
-                        <span class="toggle-track"></span>
+                    <div class="field">
+                        <label>Serie Factura</label>
+                        <input type="text" id="serie_factura" value="F001" maxlength="4">
                     </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Serie NC Boleta</label>
+                        <input type="text" id="serie_nc_boleta" value="BC01" maxlength="4">
+                    </div>
+                    <div class="field">
+                        <label>Serie NC Factura</label>
+                        <input type="text" id="serie_nc_factura" value="FC01" maxlength="4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-toggle-on"></i> Opciones del Ticket</div>
+                <label class="toggle-row" for="es_amazonia" style="margin-bottom:8px">
+                    <span><i class="fas fa-leaf" style="color:var(--green);margin-right:6px"></i> Régimen Amazónico (sin IGV)</span>
+                    <input type="checkbox" id="es_amazonia" checked onchange="updatePreview()">
                 </label>
-                <div class="catalogo-preview" id="catalogoPreviewBlock">
-                    <div class="ticket-banner-mock">
-                        <span class="ticket-banner-mock__top">&gt;&gt;&gt; Visita nuestra Tienda Online &lt;&lt;&lt;</span>
-                        <span class="ticket-banner-mock__url" id="catalogoMockUrl">www.quevendi.pro/930322529</span>
-                        <span class="ticket-banner-mock__sub">Compra para RECOGER o para DELIVERY</span>
-                    </div>
+                <label class="toggle-row" for="catalogo_activo">
+                    <span><i class="fas fa-shop" style="color:var(--cyan);margin-right:6px"></i> Mostrar bloque Tienda Online en el ticket</span>
+                    <input type="checkbox" id="catalogo_activo" onchange="toggleCatalogoPreview(); updatePreview();">
+                </label>
+            </div>
+
+            <div class="section-card" id="catalogoPreviewBlock" style="display:none">
+                <div class="section-title"><i class="fas fa-globe"></i> Vista Previa — Bloque Tienda Online</div>
+                <div style="border:1.5px solid #4a90d9;border-radius:6px;padding:10px;text-align:center;background:rgba(74,144,217,0.05)">
+                    <div style="font-size:0.65rem;color:#666">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
+                    <div style="color:#4a90d9;font-weight:700;font-size:0.85rem" id="catalogoMockUrl">www.quevendi.pro/TU-TELEFONO</div>
+                    <div style="font-size:0.65rem;color:#666">PARA RECOJOS O DELIVERY</div>
                 </div>
             </div>
 
-            <!-- ⑤ ANCHO DEL PAPEL -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-ruler-horizontal"></i> Ancho del Papel</div>
-                <div class="paper-options">
-                    <label class="paper-card">
-                        <input type="radio" name="papel_ancho" value="80" id="papel80" checked>
-                        <div class="paper-card__visual paper-80mm">
-                            <div class="paper-card__lines"><div></div><div></div><div></div><div class="w-short"></div></div>
-                        </div>
-                        <div>
-                            <span class="paper-card__label">80 mm</span>
-                            <span class="paper-card__desc">Mas espacio · Recomendado</span>
-                        </div>
-                        <div class="paper-card__badge">&#10003;</div>
-                    </label>
-                    <label class="paper-card">
-                        <input type="radio" name="papel_ancho" value="58" id="papel58">
-                        <div class="paper-card__visual paper-58mm">
-                            <div class="paper-card__lines"><div></div><div></div><div></div><div class="w-short"></div></div>
-                        </div>
-                        <div>
-                            <span class="paper-card__label">58 mm</span>
-                            <span class="paper-card__desc">Compacto · Impresoras pequeñas</span>
-                        </div>
-                        <div class="paper-card__badge">&#10003;</div>
-                    </label>
-                </div>
-            </div>
+        </div><!-- /tab-ticket -->
 
-            <!-- ⑥ PRINT AGENT -->
-            <div class="section">
-                <div class="section-title"><i class="fas fa-print"></i> Print Agent</div>
-
+        <!-- ⑤  IMPRESIÓN -->
+        <div class="tab-panel" id="tab-print">
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-print"></i> Configuración de Impresora</div>
                 <div class="field">
-                    <label>Estado del agente</label>
-                    <div id="agentStatus" style="padding:8px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--text3)">
-                        Verificando...
+                    <label>Ancho de papel</label>
+                    <div style="display:flex;gap:10px;margin-top:4px">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                            <input type="radio" name="papel_ancho" value="58" style="width:auto"> 58mm
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                            <input type="radio" name="papel_ancho" value="80" checked style="width:auto"> 80mm
+                        </label>
                     </div>
                 </div>
-
                 <div class="field">
-                    <label>Metodo de Impresion</label>
+                    <label>Método de impresión</label>
                     <select id="print_method">
-                        <option value="agent">Print Agent (ESC/POS directo — recomendado)</option>
+                        <option value="agent">Print Agent (Windows, recomendado)</option>
                         <option value="browser">Navegador (window.print)</option>
                     </select>
-                    <div class="hint">Print Agent: impresion instantanea sin dialogo. Requiere QueVendiPrint.exe instalado.</div>
                 </div>
-
                 <div class="field">
                     <label>Nombre de la impresora</label>
-                    <div class="printer-row">
-                        <div class="field" style="margin:0">
-                            <input type="text" id="printer_name" placeholder="Ej: POS80 Printer / USB005">
-                        </div>
-                        <button class="btn-detect" id="btnDetectPrinter" onclick="detectPrinters()">
-                            Detectar
-                        </button>
-                    </div>
-                    <div class="printer-status" id="printerStatus"></div>
-                </div>
-
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-                    <button onclick="checkAgent()" style="padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--cyan);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font)">
-                        <i class="fas fa-sync-alt"></i> Verificar agente
-                    </button>
-                    <button class="btn-print-test" onclick="testPrintAgent()">
-                        <i class="fas fa-print"></i> Imprimir ticket de prueba
-                    </button>
+                    <input type="text" id="printer_name" placeholder="Epson TM-T20III">
+                    <div id="printerList" style="margin-top:6px"></div>
                 </div>
             </div>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-vial"></i> Pruebas</div>
+                <button onclick="testPrintAgent()" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:0.78rem;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;transition:all 0.15s" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--border2)'">
+                    <i class="fas fa-print"></i> Imprimir ticket de prueba con tus datos
+                </button>
+            </div>
+        </div><!-- /tab-print -->
 
+        <!-- ⑥  FACTURACIÓN -->
+        <div class="tab-panel" id="tab-facturacion">
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-plug"></i> Conexión con Facturalo.pro</div>
+                <div class="info-box" style="margin-bottom:14px">
+                    Facturalo.pro es el sistema de facturación electrónica de Peru Sistemas.<br>
+                    Tus comprobantes se envían automáticamente a SUNAT.
+                </div>
+                <div class="field">
+                    <label>URL del servidor</label>
+                    <input type="text" id="facturalo_url" placeholder="https://facturalo.pro/api">
+                </div>
+                <div class="field">
+                    <label>Token (API Key)</label>
+                    <input type="password" id="facturalo_token" placeholder="fpl_...">
+                </div>
+                <div class="field">
+                    <label>Secret</label>
+                    <input type="password" id="facturalo_secret" placeholder="secret_...">
+                </div>
+                <button onclick="testConnection()" style="width:100%;padding:10px;background:rgba(99,140,255,0.1);border:1px solid rgba(99,140,255,0.3);border-radius:8px;color:var(--blue);font-size:0.78rem;cursor:pointer;font-family:var(--font)">
+                    <i class="fas fa-plug"></i> Verificar conexión
+                </button>
+            </div>
+        </div><!-- /tab-facturacion -->
+
+        <!-- ⑦  DISPOSITIVOS -->
+        <div class="tab-panel" id="tab-devices">
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fas fa-desktop"></i> Dispositivos Registrados
+                    <span style="margin-left:auto;font-size:0.65rem;color:var(--text3);text-transform:none">
+                        Plan: <span id="planName" style="color:var(--orange)">—</span>
+                        · Límite: <span id="deviceLimit">—</span>
+                        · Activos: <span id="deviceCount">—</span>
+                    </span>
+                </div>
+                <div id="deviceList"><div style="color:var(--text3);font-size:0.75rem;padding:8px">Cargando...</div></div>
+                <div class="register-box" id="registerBox">
+                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:8px;color:var(--text2)">Registrar este dispositivo</div>
+                    <button onclick="registerThisDevice()" class="device-btn" style="width:100%;padding:10px;justify-content:center;display:flex;align-items:center;gap:6px;font-size:0.72rem">
+                        <i class="fas fa-plus"></i> Registrar dispositivo actual
+                    </button>
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px">
+                    <button onclick="revokeAllDevices()" class="device-btn device-btn-danger" style="flex:1">
+                        <i class="fas fa-shield-halved"></i> Revocar todos excepto este
+                    </button>
+                    <button onclick="generateEmergencyCode()" class="device-btn" style="flex:1">
+                        <i class="fas fa-key"></i> Código de emergencia
+                    </button>
+                </div>
+                <div id="emergencyResult" style="display:none;margin-top:10px"></div>
+            </div>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-users"></i> Usuarios</div>
+                <div id="userList"><div style="color:var(--text3);font-size:0.72rem">Cargando...</div></div>
+            </div>
+        </div><!-- /tab-devices -->
+
+    </div><!-- /form-area -->
+
+    <!-- ── PREVIEW PANEL ── -->
+    <aside class="preview-panel">
+        <div class="preview-header">
+            <span class="preview-title"><i class="fas fa-eye"></i> Vista previa del ticket</span>
+            <div class="preview-zoom">
+                <button class="zoom-btn" onclick="setZoom('sm')">−</button>
+                <button class="zoom-btn active" onclick="setZoom('md')">100%</button>
+                <button class="zoom-btn" onclick="setZoom('lg')">+</button>
+            </div>
         </div>
-    </div>
+        <div class="preview-wrap">
+            <div id="ticketPreview"></div>
+        </div>
+    </aside>
 
-    <!-- ══════════ PREVIEW PANEL ══════════ -->
-    <div class="preview-panel">
-        <div class="preview-title"><i class="fas fa-eye"></i> Preview del Ticket</div>
-        <div class="ticket" id="ticketPreview"></div>
-    </div>
-</div>
+</div><!-- /main -->
 
 <script>
-// ── STATE ──
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
 let logoDataUrl = null;
 let _configLoaded = false;
 
-// ── TABS ──
+// ════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════
 function switchTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab-' + tab).style.display = 'block';
-    document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('stab-' + tab).classList.add('active');
+    if (tab === 'devices') { loadDevices(); loadUsers(); }
+    if (tab === 'print') { loadPrinters(); }
 }
 
-// ── RUC AUTO-FILL ──
+// ════════════════════════════════════════════════
+// ZOOM PREVIEW
+// ════════════════════════════════════════════════
+function setZoom(size) {
+    const tp = document.getElementById('ticketPreview');
+    tp.className = size === 'sm' ? 'zoom-sm' : size === 'lg' ? 'zoom-lg' : '';
+    document.querySelectorAll('.zoom-btn').forEach((b,i) => {
+        b.classList.toggle('active', ['sm','md','lg'][i] === size);
+    });
+}
+
+// ════════════════════════════════════════════════
+// RUC AUTOFILL
+// ════════════════════════════════════════════════
 let rucTimeout = null;
 function onRucChange(input) {
     clearTimeout(rucTimeout);
-    const ruc = input.value.trim();
     updatePreview();
-
+    const ruc = input.value.trim();
     if (ruc.length === 11) {
         rucTimeout = setTimeout(async () => {
             try {
@@ -1070,25 +1117,28 @@ function onRucChange(input) {
                 const resp = await fetch(`/api/v1/billing/consulta/ruc/${ruc}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await resp.json();
-                if (data.success) {
-                    document.getElementById('razon_social').value = data.razon_social || '';
-                    document.getElementById('direccion').value = data.direccion || '';
-                    document.getElementById('ruc-autofill').classList.add('show');
-                    setTimeout(() => document.getElementById('ruc-autofill').classList.remove('show'), 3000);
-                    updatePreview();
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.razon_social) {
+                        document.getElementById('razon_social').value  = data.razon_social || '';
+                        document.getElementById('direccion').value     = data.direccion || '';
+                        document.getElementById('ruc-autofill').classList.add('show');
+                        setTimeout(() => document.getElementById('ruc-autofill').classList.remove('show'), 3000);
+                        updatePreview();
+                    }
                 }
             } catch (e) { console.warn('RUC lookup failed:', e); }
         }, 500);
     }
 }
 
-// ── LOGO ──
+// ════════════════════════════════════════════════
+// LOGO
+// ════════════════════════════════════════════════
 function handleLogo(input) {
     const file = input.files[0];
     if (!file) return;
     if (file.size > 512000) { showToast('Logo muy grande. Máximo 500KB.', 'err'); return; }
-
     const reader = new FileReader();
     reader.onload = (e) => {
         logoDataUrl = e.target.result;
@@ -1098,36 +1148,113 @@ function handleLogo(input) {
     reader.readAsDataURL(file);
 }
 
-// ── HELPER: get form values ──
+// ════════════════════════════════════════════════
+// SIZE PREVIEW (sliders)
+// ════════════════════════════════════════════════
+function updateSizePreview(key, val) {
+    document.getElementById('sz_' + key).textContent = val;
+    const el = document.getElementById('sprev_' + key);
+    if (el) el.style.fontSize = val + 'px';
+    // Actualizar fuente correcta en el preview del slider
+    const fontMap = { playfair:'Playfair Display', oswald:'Oswald', lato:'Lato',
+        ubuntu:'Ubuntu', raleway:'Raleway', bebas:'Bebas Neue',
+        pacifico:'Pacifico', cinzel:'Cinzel', righteous:'Righteous', archivo:'Archivo Black' };
+    if (key === 'nombre') {
+        const fk = document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair';
+        if (el) el.style.fontFamily = `'${fontMap[fk]}', serif`;
+    }
+}
+
+// ════════════════════════════════════════════════
+// TEMPLATES / PRESETS
+// ════════════════════════════════════════════════
+const TEMPLATES = {
+    bodega:      { font_decorativa:'lato',     font_ruc:'lato',    font_numero:'bebas',   font_total:'archivo', font_slogan:'lato',     header_style:1, es_amazonia:true },
+    ferreteria:  { font_decorativa:'bebas',    font_ruc:'oswald',  font_numero:'bebas',   font_total:'bebas',   font_slogan:'oswald',   header_style:3, es_amazonia:true },
+    consultorio: { font_decorativa:'cinzel',   font_ruc:'lato',    font_numero:'cinzel',  font_total:'lato',    font_slogan:'cinzel',   header_style:2, es_amazonia:false },
+    gym:         { font_decorativa:'oswald',   font_ruc:'ubuntu',  font_numero:'bebas',   font_total:'archivo', font_slogan:'righteous',header_style:3, es_amazonia:false },
+    salon:       { font_decorativa:'pacifico', font_ruc:'raleway', font_numero:'righteous',font_total:'raleway',font_slogan:'pacifico', header_style:2, es_amazonia:false },
+    notaria:     { font_decorativa:'playfair', font_ruc:'lato',    font_numero:'playfair',font_total:'oswald',  font_slogan:'playfair', header_style:2, es_amazonia:false },
+};
+
+function applyTemplate(name) {
+    const t = TEMPLATES[name];
+    if (!t) return;
+    // Font decorativa
+    const r = document.querySelector(`input[name="font_decorativa"][value="${t.font_decorativa}"]`);
+    if (r) r.checked = true;
+    // Header style
+    const hs = document.querySelector(`input[name="header_style"][value="${t.header_style}"]`);
+    if (hs) hs.checked = true;
+    // Selects
+    ['font_ruc','font_numero','font_total','font_slogan'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && t[id]) el.value = t[id];
+    });
+    // es_amazonia
+    const ea = document.getElementById('es_amazonia');
+    if (ea !== null) ea.checked = t.es_amazonia;
+    // Marcar template activo
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('tpl-' + name)?.classList.add('active');
+    updatePreview();
+    showToast(`Plantilla "${name}" aplicada`, 'ok2');
+}
+
+// ════════════════════════════════════════════════
+// GET FORM DATA
+// ════════════════════════════════════════════════
 function getFormData() {
-    const v = (id) => document.getElementById(id)?.value || '';
+    const v  = (id) => document.getElementById(id)?.value?.trim() || '';
     const ch = (id) => document.getElementById(id)?.checked || false;
     return {
-        ruc: v('ruc'), razon_social: v('razon_social'), nombre_comercial: v('nombre_comercial'),
-        direccion: v('direccion'), cod_establecimiento: v('cod_establecimiento'),
-        distrito: v('distrito'), provincia: v('provincia'), departamento: v('departamento'),
-        giro: v('giro'), slogan: v('slogan'), telefono: v('telefono'), email: v('email'),
-        serie_boleta: v('serie_boleta'), serie_factura: v('serie_factura'),
-        serie_nc_boleta: v('serie_nc_boleta'), serie_nc_factura: v('serie_nc_factura'),
-        tipo_igv: v('tipo_igv'), es_amazonia: ch('es_amazonia'),
-        print_method: v('print_method'),
-        printer_name: v('printer_name'),
-        papel_ancho: parseInt(document.querySelector('input[name="papel_ancho"]:checked')?.value || 80),
-        header_style: parseInt(document.querySelector('input[name="header_style"]:checked')?.value || 1),
-        font_decorativa: document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair',
-        eslogan2: v('eslogan2'),
-        font_ruc:    v('font_ruc')    || 'lato',
-        font_numero: v('font_numero') || 'bebas',
-        font_total:  v('font_total')  || 'archivo',
-        font_slogan: v('font_slogan') || 'pacifico',
-        catalogo_activo: ch('catalogo_activo'),
-        contador_ruc: v('contador_ruc'), contador_nombre: v('contador_nombre'),
-        facturalo_url: v('facturalo_url'), facturalo_token: v('facturalo_token'),
-        facturalo_secret: v('facturalo_secret'), logo: logoDataUrl,
+        ruc:              v('ruc'),
+        razon_social:     v('razon_social'),
+        nombre_comercial: v('nombre_comercial'),
+        direccion:        v('direccion'),
+        cod_establecimiento: v('cod_establecimiento'),
+        distrito:         v('distrito'),
+        provincia:        v('provincia'),
+        departamento:     v('departamento'),
+        giro:             v('giro'),
+        slogan:           v('slogan'),
+        telefono:         v('telefono'),
+        email:            v('email'),
+        serie_boleta:     v('serie_boleta') || 'B001',
+        serie_factura:    v('serie_factura') || 'F001',
+        serie_nc_boleta:  v('serie_nc_boleta') || 'BC01',
+        serie_nc_factura: v('serie_nc_factura') || 'FC01',
+        tipo_igv:         v('tipo_igv') || '20',
+        es_amazonia:      ch('es_amazonia'),
+        print_method:     v('print_method'),
+        printer_name:     v('printer_name'),
+        papel_ancho:      parseInt(document.querySelector('input[name="papel_ancho"]:checked')?.value || 80),
+        header_style:     parseInt(document.querySelector('input[name="header_style"]:checked')?.value || 1),
+        font_decorativa:  document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair',
+        eslogan2:         v('eslogan2'),
+        font_ruc:         v('font_ruc')    || 'lato',
+        font_numero:      v('font_numero') || 'bebas',
+        font_total:       v('font_total')  || 'archivo',
+        font_slogan:      v('font_slogan') || 'pacifico',
+        size_nombre:      parseInt(document.getElementById('size_nombre')?.value || 15),
+        size_ruc:         parseInt(document.getElementById('size_ruc')?.value || 10),
+        size_numero:      parseInt(document.getElementById('size_numero')?.value || 14),
+        size_items:       parseInt(document.getElementById('size_items')?.value || 8),
+        size_total:       parseInt(document.getElementById('size_total')?.value || 12),
+        size_slogan:      parseInt(document.getElementById('size_slogan')?.value || 9),
+        catalogo_activo:  ch('catalogo_activo'),
+        contador_ruc:     v('contador_ruc'),
+        contador_nombre:  v('contador_nombre'),
+        facturalo_url:    v('facturalo_url'),
+        facturalo_token:  v('facturalo_token'),
+        facturalo_secret: v('facturalo_secret'),
+        logo: logoDataUrl,
     };
 }
 
-// ── LIVE PREVIEW ──
+// ════════════════════════════════════════════════
+// UPDATE PREVIEW — el corazón del sistema
+// ════════════════════════════════════════════════
 function updatePreview() {
     const d = getFormData();
     const fontMap = {
@@ -1136,215 +1263,243 @@ function updatePreview() {
         pacifico:'Pacifico', cinzel:'Cinzel', righteous:'Righteous',
         archivo:'Archivo Black'
     };
-    const fontKey    = document.querySelector('input[name="font_decorativa"]:checked')?.value || 'playfair';
-    const fontFamily = fontMap[fontKey] || 'Playfair Display';
-    const fontRuc    = fontMap[d.font_ruc]    || 'Lato';
-    const fontNumero = fontMap[d.font_numero] || 'Bebas Neue';
-    const fontTotal  = fontMap[d.font_total]  || 'Archivo Black';
-    const fontSlogan = fontMap[d.font_slogan] || 'Pacifico';
+    const fNombre  = fontMap[d.font_decorativa] || 'Playfair Display';
+    const fRuc     = fontMap[d.font_ruc]    || 'Lato';
+    const fNumero  = fontMap[d.font_numero] || 'Bebas Neue';
+    const fTotal   = fontMap[d.font_total]  || 'Archivo Black';
+    const fSlogan  = fontMap[d.font_slogan] || 'Pacifico';
 
-    const nombre = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
-    const ruc    = d.ruc || '00000000000';
-    const dir    = d.direccion || 'Dirección del negocio';
-    const cod    = d.cod_establecimiento || '0000';
-    const tel    = d.telefono || '000000000';
-    const serie  = d.serie_boleta || 'B001';
+    // Actualizar mini-previews de sliders de fuente
+    ['ruc','numero','total','slogan'].forEach(k => {
+        const el = document.getElementById('prev_' + k);
+        if (!el) return;
+        const fk = k === 'ruc' ? fRuc : k === 'numero' ? fNumero : k === 'total' ? fTotal : fSlogan;
+        el.style.fontFamily = `'${fk}', sans-serif`;
+    });
+    // Actualizar mini-preview del slider nombre
+    const spNombre = document.getElementById('sprev_nombre');
+    if (spNombre) spNombre.style.fontFamily = `'${fNombre}', serif`;
+
+    // Construir datos del ticket
+    const nombre   = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
+    const razon    = d.razon_social || '';
+    const ruc      = d.ruc || '00000000000';
+    const dir      = d.direccion || 'Dirección del negocio';
+    const cod      = d.cod_establecimiento || '0000';
+    const tel      = d.telefono || '';
+    const serie    = d.serie_boleta || 'B001';
     const ubicacion = [d.distrito, d.provincia, d.departamento].filter(Boolean).join(' - ');
-    const tipoIgv   = d.tipo_igv || '20';
-
-    // Actualizar mini-previews de la sección fuentes por sección
-    const eRuc = document.getElementById('prev_ruc');
-    if (eRuc) eRuc.style.fontFamily = `'${fontRuc}', sans-serif`;
-    const eNum = document.getElementById('prev_numero');
-    if (eNum) eNum.style.fontFamily = `'${fontNumero}', sans-serif`;
-    const eTot = document.getElementById('prev_total');
-    if (eTot) eTot.style.fontFamily = `'${fontTotal}', sans-serif`;
-    const eSlo = document.getElementById('prev_slogan');
-    if (eSlo) { eSlo.style.fontFamily = `'${fontSlogan}', cursive`; eSlo.textContent = d.eslogan2 ? `✦ ${d.eslogan2} ✦` : '✦ El favorito del barrio ✦'; }
 
     // Calcular totales según IGV
     const subtotal = 139.00;
     let opGravada = 0, opExonerada = 0, opInafecta = 0, igv = 0, total = subtotal;
-    if (tipoIgv === '10') {
+    if (d.tipo_igv === '10') {
         opGravada = +(subtotal / 1.18).toFixed(2);
         igv = +(subtotal - opGravada).toFixed(2);
-        total = subtotal;
-    } else if (tipoIgv === '20') {
+    } else if (d.tipo_igv === '20') {
         opExonerada = subtotal;
     } else {
         opInafecta = subtotal;
     }
 
+    // Header según estilo
+    let headerHtml = '';
     const logoHtml = logoDataUrl
         ? `<div class="t-logo"><img src="${logoDataUrl}"></div>`
-        : `<div class="t-logo"><i class="fas fa-store" style="font-size:18px;color:#999"></i></div>`;
+        : '';
 
-    // Totales HTML dinámico
+    if (d.header_style === 2) {
+        // Logo arriba, texto abajo centrado
+        headerHtml = `
+            ${logoHtml}
+            <div style="font-family:'${fNombre}',serif;font-size:${d.size_nombre}px;font-weight:700;text-align:center;line-height:1.2">${esc(nombre)}</div>
+            ${razon && razon !== nombre ? `<div style="font-size:${Math.max(d.size_ruc-1,7)}px;text-align:center;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+            ${d.giro ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(d.giro)}</div>` : ''}
+            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
+            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
+            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
+        `;
+    } else if (d.header_style === 3) {
+        // Logo a la izquierda + texto a la derecha
+        headerHtml = `
+            <div style="display:flex;gap:6px;align-items:flex-start">
+                ${logoDataUrl ? `<img src="${logoDataUrl}" style="width:32px;height:32px;object-fit:contain;flex-shrink:0">` : ''}
+                <div style="flex:1">
+                    <div style="font-family:'${fNombre}',serif;font-size:${Math.max(d.size_nombre-2,10)}px;font-weight:700;line-height:1.2">${esc(nombre)}</div>
+                    ${razon && razon !== nombre ? `<div style="font-size:${Math.max(d.size_ruc-1,7)}px;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+                    ${d.giro ? `<div style="font-size:${d.size_ruc}px">${esc(d.giro)}</div>` : ''}
+                    <div style="font-size:${d.size_ruc}px">${esc(dir)}</div>
+                    ${ubicacion ? `<div style="font-size:${d.size_ruc}px">${esc(ubicacion)}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else {
+        // Clásico centrado (style 1)
+        headerHtml = `
+            ${logoHtml}
+            <div style="font-family:'${fNombre}',serif;font-size:${d.size_nombre}px;font-weight:700;text-align:center;line-height:1.2">${esc(nombre)}</div>
+            ${razon && razon !== nombre ? `<div style="font-size:${Math.max(d.size_ruc-1,7)}px;text-align:center;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+            ${d.giro ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(d.giro)}</div>` : ''}
+            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
+            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
+            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
+        `;
+    }
+
+    // Totales HTML
     let totalesHtml = '';
-    if (opGravada > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Gravada S/</span><span>${opGravada.toFixed(2)}</span></div>`;
-    if (opExonerada > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Exonerada S/</span><span>${opExonerada.toFixed(2)}</span></div>`;
-    if (opInafecta > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>Op. Inafecta S/</span><span>${opInafecta.toFixed(2)}</span></div>`;
-    if (igv > 0) totalesHtml += `<div class="t-row" style="font-size:8px"><span>IGV 18% S/</span><span>${igv.toFixed(2)}</span></div>`;
+    if (opGravada   > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Gravada S/</span><span>${opGravada.toFixed(2)}</span></div>`;
+    if (opExonerada > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Exonerada S/</span><span>${opExonerada.toFixed(2)}</span></div>`;
+    if (opInafecta  > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Inafecta S/</span><span>${opInafecta.toFixed(2)}</span></div>`;
+    if (igv         > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>IGV 18% S/</span><span>${igv.toFixed(2)}</span></div>`;
 
     document.getElementById('ticketPreview').innerHTML = `
-        <div class="t-center">
-            ${logoHtml}
-            <div class="t-bold t-big" style="font-family:'${fontFamily}',serif">${esc(nombre)}</div>
-            ${d.giro ? `<div class="t-small">${esc(d.giro)}</div>` : ''}
-            <div class="t-small">${esc(dir)}</div>
-            ${ubicacion ? `<div class="t-small">${esc(ubicacion)}</div>` : ''}
-            <div class="t-small">COD ESTAB: ${esc(cod)} ${tel !== '000000000' ? 'CEL: ' + esc(tel) : ''}</div>
-            ${d.email ? `<div class="t-small">${esc(d.email)}</div>` : ''}
+        <div class="t-center">${headerHtml}</div>
+
+        <hr class="t-divider-solid">
+
+        <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc + 2}px;font-weight:bold;text-align:center;margin:3px 0">
+            RUC: ${esc(ruc)}
+        </div>
+        ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;text-align:center;color:#555">COD ESTAB: ${esc(cod)}</div>` : ''}
+
+        <hr class="t-divider">
+
+        <div class="t-inverse" style="font-size:${d.size_items + 1}px">BOLETA DE VENTA ELECTRÓNICA</div>
+        <div style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:bold;text-align:center;margin:3px 0">
+            ${esc(serie)}-00000001
         </div>
 
-        <div class="t-center t-bold" style="margin:6px 0;font-size:11px;font-family:'${fontRuc}',sans-serif">RUC: ${esc(ruc)}</div>
-
-        <div class="t-inverse">BOLETA DE VENTA ELECTRÓNICA</div>
-        <div class="t-center t-bold t-big" style="margin:4px 0;font-family:'${fontNumero}',sans-serif">${esc(serie)}-00000001</div>
-
-        <div class="t-row t-small">
-            <span>Fecha E.: ${new Date().toLocaleDateString('es-PE')}</span>
+        <div class="t-row" style="font-size:${d.size_items}px;margin:2px 0">
+            <span>Fecha: ${new Date().toLocaleDateString('es-PE')}</span>
             <span>F.Pago: Contado</span>
         </div>
 
-        <div class="t-divider"></div>
+        <hr class="t-divider">
 
-        <div style="font-size:8px">
+        <div style="font-size:${d.size_items}px">
             <div>DNI: 05393776</div>
             <div>Cliente: DUILIO RESTUCCIA ESLAVA</div>
             <div>Dirección: -</div>
         </div>
 
-        <div class="t-divider"></div>
+        <hr class="t-divider">
 
-        <div class="t-row t-bold" style="font-size:8px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
+        <div class="t-row t-bold" style="font-size:${d.size_items}px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:2px">
             <span style="flex:2">Producto</span>
-            <span style="width:30px;text-align:center">Cant</span>
-            <span style="width:30px;text-align:center">Unid</span>
-            <span style="width:40px;text-align:right">Precio</span>
-            <span style="width:40px;text-align:right">Total</span>
+            <span style="width:24px;text-align:center">Cant</span>
+            <span style="width:36px;text-align:right">P.Unit</span>
+            <span style="width:36px;text-align:right">Total</span>
         </div>
-        <div class="t-row" style="font-size:8px;margin-bottom:2px">
+        <div class="t-row" style="font-size:${d.size_items}px">
             <span style="flex:2">Cemento Sol 42.5kg</span>
-            <span style="width:30px;text-align:center">2</span>
-            <span style="width:30px;text-align:center">NIU</span>
-            <span style="width:40px;text-align:right">32.00</span>
-            <span style="width:40px;text-align:right">64.00</span>
+            <span style="width:24px;text-align:center">2</span>
+            <span style="width:36px;text-align:right">32.00</span>
+            <span style="width:36px;text-align:right">64.00</span>
         </div>
-        <div class="t-row" style="font-size:8px;margin-bottom:2px">
+        <div class="t-row" style="font-size:${d.size_items}px">
             <span style="flex:2">Fierro 1/2" x 9m</span>
-            <span style="width:30px;text-align:center">3</span>
-            <span style="width:30px;text-align:center">NIU</span>
-            <span style="width:40px;text-align:right">25.00</span>
-            <span style="width:40px;text-align:right">75.00</span>
+            <span style="width:24px;text-align:center">3</span>
+            <span style="width:36px;text-align:right">25.00</span>
+            <span style="width:36px;text-align:right">75.00</span>
         </div>
 
-        <div class="t-divider"></div>
+        <hr class="t-divider">
 
-        <div class="t-row" style="font-size:8px"><span>Items: 2</span></div>
         ${totalesHtml}
-        ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>Op.Gratuita S/</span><span>0.00</span></div>'}
-        ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>I.G.V. S/</span><span>0.00</span></div>'}
-        <div class="t-row t-bold" style="font-size:11px;margin:4px 0;font-family:'${fontTotal}',sans-serif"><span>TOTAL IMPORTE S/</span><span>${total.toFixed(2)}</span></div>
-        <div class="t-small">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
-        <div class="t-small">Efectivo S/ 150.00    Vuelto S/ 11.00</div>
+        <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px;margin:3px 0">
+            <span>TOTAL IMPORTE S/</span>
+            <span>${total.toFixed(2)}</span>
+        </div>
+        <div style="font-size:${d.size_items}px">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
+        <div style="font-size:${d.size_items}px">Efectivo S/ 150.00 &nbsp; Vuelto S/ 11.00</div>
 
         ${d.catalogo_activo ? `
-        <div class="t-highlight">
-            <div style="font-size:7px;color:#333">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
-            <div class="t-highlight-url">HTTPS://QUEVENDI.PRO/${esc(tel && tel !== '000000000' ? tel : 'TU-TELEFONO')}</div>
-            <div style="font-size:7px;color:#666">PARA RECOJOS O DELIVERY</div>
-        </div>
-        ` : ''}
+        <div class="t-highlight" style="font-size:${d.size_items}px">
+            <div style="font-size:${d.size_items - 1}px;color:#444">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
+            <div class="t-highlight-url">QUEVENDI.PRO/${tel || 'TU-NUMERO'}</div>
+            <div style="font-size:${d.size_items - 1}px;color:#666">PARA RECOJOS O DELIVERY</div>
+        </div>` : ''}
 
-        <div class="t-qr">[ QR CODE ]</div>
+        <div class="t-qr" style="font-size:${d.size_items}px">[ CÓDIGO QR DE VERIFICACIÓN ]</div>
 
-        <div class="t-center t-small">
+        <div style="font-size:${d.size_items}px;text-align:center;line-height:1.5">
             Representación impresa de la<br>
-            Boleta de Venta Electrónica, consúltelo en<br>
-            www.sunat.gob.pe
+            Boleta de Venta Electrónica<br>
+            Consúltela en: www.sunat.gob.pe
         </div>
 
         ${d.es_amazonia ? `
-        <div class="t-divider"></div>
-        <div class="t-center t-bold" style="font-size:7.5px">
-            BIENES TRANSFERIDOS EN LA AMAZONÍA PARA SER<br>CONSUMIDOS EN LA MISMA
-        </div>
-        ` : ''}
+        <hr class="t-divider">
+        <div style="font-size:${d.size_items - 1}px;text-align:center;font-weight:bold">
+            BIENES TRANSFERIDOS EN LA AMAZONIA<br>PARA SER CONSUMIDOS EN LA MISMA
+        </div>` : ''}
 
         ${d.eslogan2 ? `
-        <div class="t-divider"></div>
-        <div class="t-center" style="font-size:9px;font-style:italic;font-family:'${fontSlogan}',cursive;color:#444">
+        <hr class="t-divider">
+        <div style="font-family:'${fSlogan}',cursive;font-size:${d.size_slogan}px;text-align:center;color:#444">
             ✦ ${esc(d.eslogan2)} ✦
-        </div>
-        ` : ''}
+        </div>` : ''}
 
         ${d.slogan ? `
-        <div class="t-divider"></div>
-        <div class="t-center" style="font-size:8px;color:#c00;font-style:italic">
+        <hr class="t-divider">
+        <div style="font-size:${d.size_slogan}px;text-align:center;color:#c00;font-style:italic">
             ¡¡¡ ${esc(d.slogan)} !!!
-        </div>
-        ` : ''}
+        </div>` : ''}
 
         ${d.contador_nombre ? `
-        <div class="t-small t-center" style="margin-top:4px">Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' RUC: ' + esc(d.contador_ruc) : ''}</div>
-        ` : ''}
+        <div style="font-size:${d.size_items - 1}px;text-align:center;margin-top:3px">
+            Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' · RUC: ' + esc(d.contador_ruc) : ''}
+        </div>` : ''}
 
-        <div class="t-divider"></div>
-        <div class="t-center t-small">
-            Sistema de Ventas: <b>https://quevendi.pro</b><br>
-            Facturación: <b>https://facturalo.pro</b><br>
-            El favorito de los bodegueros
+        <hr class="t-divider">
+
+        <div class="t-footer-boxes">
+            <div class="t-footer-box">
+                <div class="f-title">SISTEMA DE VENTAS</div>
+                <div class="f-url" style="color:#ff6b35">quevendi.pro</div>
+                <div class="f-sub">Usado en todo el Perú</div>
+            </div>
+            <div class="t-footer-box">
+                <div class="f-title">SISTEMA DE FACTURACIÓN</div>
+                <div class="f-url" style="color:#2563eb">facturalo.pro</div>
+                <div class="f-sub">Contadores y Empresas</div>
+            </div>
         </div>
     `;
 }
 
-function esc(t) {
-    if (!t) return '';
-    const d = document.createElement('div'); d.textContent = t; return d.innerHTML;
-}
-
-// ── SAVE (localStorage + servidor) ──
+// ════════════════════════════════════════════════
+// SAVE / LOAD CONFIG
+// ════════════════════════════════════════════════
 async function saveConfig() {
     const btn = document.getElementById('btnSave');
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-
-    const config = getFormData();
-
-    // Siempre guardar en localStorage
-    localStorage.setItem('emisor_ruc', config.ruc);
-    localStorage.setItem('emisor_razon_social', config.razon_social);
-    localStorage.setItem('emisor_nombre_comercial', config.nombre_comercial);
-    localStorage.setItem('emisor_direccion', config.direccion);
-    localStorage.setItem('emisor_telefono', config.telefono);
-    localStorage.setItem('emisor_email', config.email);
-    localStorage.setItem('store_config', JSON.stringify(config));
-
-    // Guardar en servidor
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+    const d = getFormData();
     try {
         const token = localStorage.getItem('access_token');
         const resp = await fetch('/api/v1/store/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(config)
+            body: JSON.stringify(d)
         });
-
         if (resp.ok) {
-            showToast('Configuración guardada en el servidor', 'ok');
+            localStorage.setItem('store_config', JSON.stringify(d));
+            showToast('✅ Configuración guardada', 'ok');
         } else {
             const err = await resp.json().catch(() => ({}));
-            showToast(`Guardado local. Servidor: ${err.detail || 'error'}`, 'err');
+            showToast(err.detail || 'Error al guardar', 'err');
         }
     } catch (e) {
-        showToast('Guardado localmente (sin conexión al servidor)', 'ok');
+        localStorage.setItem('store_config', JSON.stringify(d));
+        showToast('✅ Guardado localmente (sin conexión)', 'ok2');
     }
-
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Guardar';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar';
 }
 
-// ── LOAD (servidor primero, luego localStorage) ──
 async function loadConfig() {
-    // 1. Intentar cargar del servidor
     try {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -1356,157 +1511,109 @@ async function loadConfig() {
                 if (data.configured && data.config) {
                     _applyConfig(data.config);
                     _configLoaded = true;
-                    console.log('[Config] ✅ Cargado desde servidor');
                     updatePreview();
                     return;
                 }
             }
         }
-    } catch (e) {
-        console.warn('[Config] Servidor no disponible, cargando local');
-    }
-
-    // 2. Fallback: localStorage
+    } catch (e) { console.warn('[Config] Servidor no disponible'); }
     try {
         const saved = JSON.parse(localStorage.getItem('store_config') || '{}');
-        if (Object.keys(saved).length > 0) {
-            _applyConfig(saved);
-            console.log('[Config] ✅ Cargado desde localStorage');
-        }
+        if (Object.keys(saved).length > 0) _applyConfig(saved);
     } catch (e) {}
-
     updatePreview();
 }
 
 function _applyConfig(config) {
-    const fields = ['ruc','razon_social','nombre_comercial','direccion','cod_establecimiento',
+    const fields = [
+        'ruc','razon_social','nombre_comercial','direccion','cod_establecimiento',
         'distrito','provincia','departamento','giro','slogan','telefono','email',
         'serie_boleta','serie_factura','serie_nc_boleta','serie_nc_factura',
         'tipo_igv','print_method','printer_name','eslogan2',
-        'contador_ruc','contador_nombre',
-        'facturalo_url','facturalo_token','facturalo_secret'];
-
+        'contador_ruc','contador_nombre','facturalo_url','facturalo_token','facturalo_secret'
+    ];
     fields.forEach(f => {
-        if (config[f] !== undefined && config[f] !== null && document.getElementById(f)) {
-            document.getElementById(f).value = config[f];
-        }
+        const el = document.getElementById(f);
+        if (el && config[f] !== undefined && config[f] !== null) el.value = config[f];
     });
-
-    if (config.es_amazonia !== undefined)
-        document.getElementById('es_amazonia').checked = config.es_amazonia;
-
-    // Diseño header
+    if (config.es_amazonia !== undefined) document.getElementById('es_amazonia').checked = config.es_amazonia;
     if (config.header_style) {
         const r = document.querySelector(`input[name="header_style"][value="${config.header_style}"]`);
         if (r) r.checked = true;
     }
-    // Fuente decorativa
     if (config.font_decorativa) {
         const r = document.querySelector(`input[name="font_decorativa"][value="${config.font_decorativa}"]`);
         if (r) r.checked = true;
     }
-    // Fuentes por sección
     ['font_ruc','font_numero','font_total','font_slogan'].forEach(id => {
         const el = document.getElementById(id);
         if (el && config[id]) el.value = config[id];
     });
-    // Papel
+    // Tamaños
+    ['size_nombre','size_ruc','size_numero','size_items','size_total','size_slogan'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && config[id]) {
+            el.value = config[id];
+            updateSizePreview(id.replace('size_',''), config[id]);
+        }
+    });
     if (config.papel_ancho) {
         const r = document.querySelector(`input[name="papel_ancho"][value="${config.papel_ancho}"]`);
         if (r) r.checked = true;
     }
-    // Catálogo
     if (config.catalogo_activo !== undefined) {
         document.getElementById('catalogo_activo').checked = config.catalogo_activo;
         toggleCatalogoPreview();
     }
-    // Eslogan2 charcount
     const esl = document.getElementById('eslogan2');
-    if (esl && esl.value) {
-        const cc = document.getElementById('eslogan2Count');
-        if (cc) cc.textContent = esl.value.length;
-    }
-    // URL catálogo mock
+    if (esl?.value) document.getElementById('eslogan2Count').textContent = esl.value.length;
     if (config.telefono) {
         const tel = config.telefono.replace(/\D/g,'');
         const m = document.getElementById('catalogoMockUrl');
         if (m) m.textContent = `www.quevendi.pro/${tel}`;
     }
-
     if (config.logo) {
         logoDataUrl = config.logo;
         document.getElementById('logoPreview').innerHTML = `<img src="${logoDataUrl}" alt="Logo">`;
     }
 }
 
-// ── IMPRESIÓN: funciones del tab ──
-function toggleCatalogoPreview() {
-    const activo = document.getElementById('catalogo_activo')?.checked;
-    document.getElementById('catalogoPreviewBlock')?.classList.toggle('visible', activo);
-    // Actualizar URL mock con teléfono actual
-    const tel = (document.getElementById('telefono')?.value || '').replace(/\D/g,'');
-    if (tel) {
-        const m = document.getElementById('catalogoMockUrl');
-        if (m) m.textContent = `www.quevendi.pro/${tel}`;
-    }
-}
-
-async function detectPrinters() {
-    const btn     = document.getElementById('btnDetectPrinter');
-    const statusEl = document.getElementById('printerStatus');
-    btn.disabled  = true;
-    btn.textContent = '⏳ Detectando...';
-    statusEl.className = 'printer-status info';
-    statusEl.textContent = 'Consultando al Print Agent...';
-
+// ════════════════════════════════════════════════
+// PRINT / AGENT
+// ════════════════════════════════════════════════
+async function loadPrinters() {
     try {
         const resp = await fetch('http://localhost:9638/printers', { signal: AbortSignal.timeout(4000) });
-        if (!resp.ok) throw new Error();
-        const data = await resp.json();
-        const printers = data.printers || [];
-
-        if (!printers.length) {
-            statusEl.className = 'printer-status error';
-            statusEl.textContent = 'No se encontraron impresoras conectadas.';
-            return;
+        if (resp.ok) {
+            const data = await resp.json();
+            const list = document.getElementById('printerList');
+            if (list && data.printers?.length) {
+                list.innerHTML = data.printers.map(p =>
+                    `<div onclick="document.getElementById('printer_name').value='${esc(p)}'" style="padding:4px 8px;font-size:0.7rem;cursor:pointer;color:var(--cyan);background:var(--bg3);border-radius:4px;margin-top:3px">→ ${esc(p)}</div>`
+                ).join('');
+            }
         }
-        if (printers.length === 1) {
-            document.getElementById('printer_name').value = printers[0];
-            statusEl.className = 'printer-status ok';
-            statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Detectada: ${printers[0]}`;
-            return;
-        }
-        // Múltiples impresoras
-        statusEl.className = 'printer-status info';
-        statusEl.innerHTML = 'Selecciona: ' +
-            printers.map(p =>
-                `<button class="printer-option" onclick="selectPrinter('${p.replace(/'/g,"\\'")}')">${p}</button>`
-            ).join('');
-    } catch {
-        statusEl.className = 'printer-status error';
-        statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Print Agent no disponible en localhost:9638';
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Detectar';
-    }
+    } catch {}
 }
 
-function selectPrinter(name) {
-    document.getElementById('printer_name').value = name;
-    const s = document.getElementById('printerStatus');
-    s.className = 'printer-status ok';
-    s.innerHTML = `<i class="fas fa-check-circle"></i> Seleccionada: ${name}`;
+function toggleCatalogoPreview() {
+    const activo = document.getElementById('catalogo_activo')?.checked;
+    const block  = document.getElementById('catalogoPreviewBlock');
+    if (block) block.style.display = activo ? 'block' : 'none';
+    const tel = document.getElementById('telefono')?.value?.replace(/\D/g,'') || '';
+    const m   = document.getElementById('catalogoMockUrl');
+    if (m) m.textContent = `www.quevendi.pro/${tel || 'TU-NUMERO'}`;
 }
 
-// ── PRINT AGENT ──
 async function checkAgent() {
-    const el = document.getElementById('agentStatus');
     try {
         const resp = await fetch('http://localhost:9638/status', { signal: AbortSignal.timeout(2000) });
-        const data = await resp.json();
-        el.innerHTML = `<span style="color:var(--green)"><i class="fas fa-check-circle"></i> Conectado — v${data.version} en ${data.hostname}</span>`;
-    } catch (e) {
-        el.innerHTML = `<span style="color:var(--red)"><i class="fas fa-times-circle"></i> No detectado. Inicia QueVendiPrint.exe</span>`;
+        const ok = resp.ok;
+        document.getElementById('agentDot').className = 'agent-dot ' + (ok ? 'ok' : 'err');
+        document.getElementById('agentLabel').textContent = ok ? 'Impresora OK' : 'Sin impresora';
+    } catch {
+        document.getElementById('agentDot').className = 'agent-dot err';
+        document.getElementById('agentLabel').textContent = 'Sin impresora';
     }
 }
 
@@ -1515,225 +1622,126 @@ async function testPrintAgent() {
     const tipoIgv = d.tipo_igv || '20';
     const subtotal = 139.00;
     let opGravada = 0, opExonerada = 0, igv = 0;
-    if (tipoIgv === '10') {
-        opGravada = +(subtotal / 1.18).toFixed(2);
-        igv = +(subtotal - opGravada).toFixed(2);
-    } else {
-        opExonerada = subtotal;
-    }
-
+    if (tipoIgv === '10') { opGravada = +(subtotal/1.18).toFixed(2); igv = +(subtotal-opGravada).toFixed(2); }
+    else { opExonerada = subtotal; }
     const ticketData = {
         emisor: {
-            ruc: d.ruc || '00000000000',
-            razon_social: d.razon_social || 'MI NEGOCIO',
+            ruc: d.ruc || '00000000000', razon_social: d.razon_social || 'MI NEGOCIO',
             nombre_comercial: d.nombre_comercial || d.razon_social || 'MI NEGOCIO',
-            direccion: d.direccion || '',
-            telefono: d.telefono || '',
-            email: d.email || '',
-            logo: logoDataUrl || null,
-            cod_establecimiento: d.cod_establecimiento || '0000',
-            giro: d.giro || '',
-            slogan: d.slogan || '',
-            distrito: d.distrito || '',
-            provincia: d.provincia || '',
-            departamento: d.departamento || '',
-            es_amazonia: d.es_amazonia,
-            header_style:     d.header_style    || 1,
-            font_decorativa:  d.font_decorativa || 'playfair',
-            eslogan2:         d.eslogan2        || '',
-            font_ruc:         d.font_ruc        || 'lato',
-            font_numero:      d.font_numero     || 'bebas',
-            font_total:       d.font_total      || 'archivo',
-            font_slogan:      d.font_slogan     || 'pacifico',
+            direccion: d.direccion || '', telefono: d.telefono || '', email: d.email || '',
+            logo: logoDataUrl || null, cod_establecimiento: d.cod_establecimiento || '0000',
+            giro: d.giro || '', slogan: d.slogan || '',
+            distrito: d.distrito || '', provincia: d.provincia || '', departamento: d.departamento || '',
+            es_amazonia: d.es_amazonia, header_style: d.header_style || 1,
+            font_decorativa: d.font_decorativa || 'playfair', eslogan2: d.eslogan2 || '',
+            font_ruc: d.font_ruc || 'lato', font_numero: d.font_numero || 'bebas',
+            font_total: d.font_total || 'archivo', font_slogan: d.font_slogan || 'pacifico',
         },
         logo: logoDataUrl || null,
-        cliente: { tipo_doc: '1', num_doc: '05393776', nombre: 'DUILIO RESTUCCIA ESLAVA', direccion: '' },
-        tipo: '03',
-        serie: d.serie_boleta || 'B001',
-        numero: 1,
+        cliente: { tipo_doc:'1', num_doc:'05393776', nombre:'DUILIO RESTUCCIA ESLAVA', direccion:'' },
+        tipo:'03', serie: d.serie_boleta || 'B001', numero:1,
         numero_formato: `${d.serie_boleta || 'B001'}-00000001`,
         fecha: new Date().toLocaleDateString('es-PE'),
-        hora: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        hora: new Date().toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', hour12:false }),
         fecha_iso: new Date().toISOString().split('T')[0],
         items: [
-            { descripcion: 'Cemento Sol 42.5kg', cantidad: 2, unidad: 'NIU', precio_unitario: 32.00 },
-            { descripcion: 'Fierro 1/2" x 9m', cantidad: 3, unidad: 'NIU', precio_unitario: 25.00 }
+            { descripcion:'Cemento Sol 42.5kg', cantidad:2, unidad:'NIU', precio_unitario:32.00 },
+            { descripcion:'Fierro 1/2" x 9m',   cantidad:3, unidad:'NIU', precio_unitario:25.00 }
         ],
-        total: subtotal,
-        op_exonerada: opExonerada,
-        op_gravada: opGravada,
-        igv: igv,
-        payment_method: 'efectivo',
-        importe_letras: 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES',
-        es_amazonia: d.es_amazonia,
-        hash: 'abc123hash456ejemplo',
-        verification_code: 'QVDI-00000001'
+        total: subtotal, op_exonerada: opExonerada, op_gravada: opGravada, igv: igv,
+        payment_method:'efectivo', importe_letras:'CIENTO TREINTA Y NUEVE CON 00/100 SOLES',
+        es_amazonia: d.es_amazonia, hash:'abc123hash456ejemplo', verification_code:'QVDI-00000001'
     };
-
     try {
         const resp = await fetch('http://localhost:9638/print/ticket', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method:'POST', headers:{ 'Content-Type':'application/json' },
             body: JSON.stringify(ticketData)
         });
         const result = await resp.json();
-        showToast(result.success ? '🖨️ Ticket de prueba impreso con tus datos' : result.error, result.success ? 'ok' : 'err');
+        showToast(result.success ? '🖨️ Ticket de prueba impreso' : result.error, result.success ? 'ok' : 'err');
     } catch (e) {
-        showToast('Print Agent no disponible. Inicia QueVendiPrint.exe', 'err');
+        showToast('Print Agent no disponible', 'err');
     }
 }
 
+// ════════════════════════════════════════════════
+// BILLING / CONNECTION
+// ════════════════════════════════════════════════
 async function testConnection() {
     try {
         const token = localStorage.getItem('access_token');
         const resp = await fetch('/api/v1/billing/config/verify', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+            method:'POST', headers:{ 'Authorization': `Bearer ${token}` }
         });
         const data = await resp.json();
-        if (data.success) {
-            showToast(`✅ Conectado: ${data.empresa} (RUC: ${data.ruc})`, 'ok');
-        } else {
-            showToast(data.detail || 'Error de conexión', 'err');
-        }
-    } catch (e) {
-        showToast('Error verificando conexión', 'err');
-    }
+        showToast(data.success ? `✅ Conectado: ${data.empresa}` : data.detail || 'Error de conexión', data.success ? 'ok' : 'err');
+    } catch (e) { showToast('Error verificando conexión', 'err'); }
 }
 
-// ── TOAST ──
-function showToast(msg, type) {
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+function showToast(msg, type='ok2') {
     const t = document.createElement('div');
     t.className = `toast toast-${type}`;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-// ── DEVICES TAB ──
-const PLAN_LIMITS = { demo: 2, basico: 2, crece: 3, pro: 99 };
+// ════════════════════════════════════════════════
+// DEVICES
+// ════════════════════════════════════════════════
+const PLAN_LIMITS = { demo:2, basico:2, crece:3, pro:99 };
 
 async function loadDevices() {
     try {
         const token = localStorage.getItem('access_token');
         if (!token) return;
-
-        const resp = await fetch('/api/v1/billing/offline/devices', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!resp.ok) {
-            document.getElementById('deviceList').innerHTML = `
-                <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
-                    <i class="fas fa-info-circle" style="margin-right:4px"></i>
-                    No hay dispositivos registrados
-                </div>`;
-            return;
-        }
-
+        const resp = await fetch('/api/v1/billing/offline/devices', { headers:{ 'Authorization': `Bearer ${token}` } });
+        if (!resp.ok) { document.getElementById('deviceList').innerHTML = '<div style="font-size:0.72rem;color:var(--text3);padding:8px">No hay dispositivos registrados</div>'; return; }
         const devices = await resp.json();
         const currentDeviceId = await _getCurrentDeviceId();
-
-        // Update counter
         document.getElementById('deviceCount').textContent = devices.length;
-
-        if (devices.length === 0) {
-            document.getElementById('deviceList').innerHTML = `
-                <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
-                    <i class="fas fa-mobile-screen" style="font-size:1.2rem;margin-bottom:6px;display:block;color:var(--blue)"></i>
-                    Ningún dispositivo registrado.<br>Registra este dispositivo para habilitar facturación.
-                </div>`;
-            return;
-        }
-
+        if (devices.length === 0) { document.getElementById('deviceList').innerHTML = '<div style="font-size:0.72rem;color:var(--text3);padding:8px">Ningún dispositivo registrado.</div>'; return; }
         let html = '';
         for (const dev of devices) {
             const isThis = dev.device_id === currentDeviceId;
-            const remaining = 50; // TODO: get from block status
-            const statusClass = remaining < 5 ? 'critical' : remaining < 15 ? 'low' : '';
-            const iconClass = dev.device_name.toLowerCase().includes('cel') || dev.device_name.toLowerCase().includes('móvil') || dev.device_name.toLowerCase().includes('phone')
-                ? 'device-icon-mobile' : 'device-icon-pc';
-            const iconName = iconClass === 'device-icon-mobile' ? 'fa-mobile-screen' : 'fa-desktop';
-
-            html += `
-            <div class="device-card ${isThis ? 'this-device' : ''}">
+            const iconClass = dev.device_name.toLowerCase().includes('cel') || dev.device_name.toLowerCase().includes('phone') ? 'device-icon-mobile' : 'device-icon-pc';
+            const iconName  = iconClass === 'device-icon-mobile' ? 'fa-mobile-screen' : 'fa-desktop';
+            html += `<div class="device-card ${isThis?'this-device':''}">
                 <div class="device-header">
                     <div style="display:flex;align-items:center">
                         <div class="device-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
-                        <div class="device-info">
-                            <div class="device-name">${_esc(dev.device_name || 'Dispositivo')}</div>
-                            <div class="device-id">${dev.device_id}</div>
-                        </div>
+                        <div class="device-info"><div class="device-name">${_esc(dev.device_name||'Dispositivo')}</div><div class="device-id">${dev.device_id}</div></div>
                     </div>
                     ${isThis ? '<span class="device-this-badge"><i class="fas fa-check-circle"></i> Este dispositivo</span>' : ''}
                 </div>
-
-                <div class="device-serie">
-                    <i class="fas fa-barcode"></i> Serie: ${dev.serie}
-                    <span style="color:var(--text3);font-size:0.6rem;margin-left:6px">(${dev.tipo === '03' ? 'Boletas' : 'Facturas'})</span>
-                </div>
-
+                <div class="device-serie"><i class="fas fa-barcode"></i> Serie: ${dev.serie}</div>
                 <div class="device-stats">
-                    <div class="device-stat">
-                        <strong>${dev.ultimo_numero}</strong>
-                        Último número
-                    </div>
-                    <div class="device-stat ${statusClass}">
-                        <strong>${dev.bloques_activos > 0 ? 'Activo' : 'Sin bloque'}</strong>
-                        Estado
-                    </div>
-                    <div class="device-stat">
-                        <strong>${_timeAgo(dev.registered_at)}</strong>
-                        Registrado
-                    </div>
+                    <div class="device-stat"><strong>${dev.ultimo_numero}</strong>Último N°</div>
+                    <div class="device-stat"><strong>${dev.bloques_activos>0?'Activo':'Sin bloque'}</strong>Estado</div>
+                    <div class="device-stat"><strong>${_timeAgo(dev.registered_at)}</strong>Registro</div>
                 </div>
-
                 <div class="device-actions">
-                    ${!isThis ? `
-                    <button onclick="revokeDevice('${dev.device_id}', '${_esc(dev.device_name)}')" class="device-btn device-btn-danger">
-                        <i class="fas fa-ban"></i> Desactivar
-                    </button>
-                    ` : ''}
-                    <button onclick="refillBlock('${dev.serie}', '${dev.device_id}')" class="device-btn">
-                        <i class="fas fa-plus"></i> Reservar números
-                    </button>
-                    <button onclick="viewBlockStatus('${dev.serie}')" class="device-btn">
-                        <i class="fas fa-info-circle"></i> Ver bloques
-                    </button>
+                    ${!isThis ? `<button onclick="revokeDevice('${dev.device_id}','${_esc(dev.device_name)}')" class="device-btn device-btn-danger"><i class="fas fa-ban"></i> Desactivar</button>` : ''}
+                    <button onclick="refillBlock('${dev.serie}','${dev.device_id}')" class="device-btn"><i class="fas fa-plus"></i> Reservar números</button>
+                    <button onclick="viewBlockStatus('${dev.serie}')" class="device-btn"><i class="fas fa-info-circle"></i> Ver bloques</button>
                 </div>
             </div>`;
         }
-
         document.getElementById('deviceList').innerHTML = html;
-
-        // Hide register box if at limit
-        const plan = localStorage.getItem('store_plan') || 'basico';
+        const plan  = localStorage.getItem('store_plan') || 'basico';
         const limit = PLAN_LIMITS[plan] || 2;
         document.getElementById('deviceLimit').textContent = limit;
         document.getElementById('planName').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-        if (devices.length >= limit) {
-            document.getElementById('registerBox').style.display = 'none';
-        }
-
-    } catch (e) {
-        console.warn('[Devices] Error loading:', e);
-        document.getElementById('deviceList').innerHTML = `
-            <div style="text-align:center;padding:16px;color:var(--text3);font-size:0.75rem">
-                No se pudieron cargar los dispositivos
-            </div>`;
-    }
+        if (devices.length >= limit) document.getElementById('registerBox').style.display = 'none';
+    } catch (e) { document.getElementById('deviceList').innerHTML = '<div style="font-size:0.72rem;color:var(--text3);padding:8px">No se pudieron cargar los dispositivos</div>'; }
 }
 
 async function _getCurrentDeviceId() {
-    if (typeof OfflineDB !== 'undefined' && OfflineDB.isReady()) {
-        return (await OfflineDB.meta.getDeviceId());
-    }
-    // Fallback: generate/get from localStorage
     let id = localStorage.getItem('device_id');
-    if (!id) {
-        id = 'DEV-' + crypto.randomUUID().split('-')[0].toUpperCase();
-        localStorage.setItem('device_id', id);
-    }
+    if (!id) { id = 'DEV-' + crypto.randomUUID().split('-')[0].toUpperCase(); localStorage.setItem('device_id', id); }
     return id;
 }
 
@@ -1741,102 +1749,60 @@ async function registerThisDevice() {
     const deviceId = await _getCurrentDeviceId();
     const name = prompt('Nombre de este dispositivo (ej: "PC Caja", "Celular Juan"):');
     if (!name) return;
-
     try {
         const token = localStorage.getItem('access_token');
         const resp = await fetch('/api/v1/billing/offline/device/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ device_id: deviceId, device_name: name, tipo: '03' })
+            method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ device_id: deviceId, device_name: name, tipo:'03' })
         });
-
         const data = await resp.json();
         if (resp.ok) {
             showToast(`✅ Registrado: serie ${data.serie}`, 'ok');
-
-            // Reserve first block
             const blockResp = await fetch('/api/v1/billing/offline/reserve-block', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ serie: data.serie, device_id: deviceId, cantidad: 50 })
             });
-            if (blockResp.ok) {
-                const block = await blockResp.json();
-                showToast(`📦 ${block.cantidad} números reservados (${block.desde}-${block.hasta})`, 'ok');
-            }
-
+            if (blockResp.ok) { const block = await blockResp.json(); showToast(`📦 ${block.cantidad} números reservados`, 'ok'); }
             loadDevices();
-        } else {
-            showToast(data.detail || 'Error al registrar', 'err');
-        }
-    } catch (e) {
-        showToast('Error de conexión', 'err');
-    }
+        } else { showToast(data.detail || 'Error al registrar', 'err'); }
+    } catch (e) { showToast('Error de conexión', 'err'); }
 }
 
 async function revokeDevice(deviceId, deviceName) {
-    if (!confirm(`¿Desactivar "${deviceName}"?\n\nEste dispositivo no podrá emitir más comprobantes.\nLos números pendientes serán anulados.`)) return;
-
+    if (!confirm(`¿Desactivar "${deviceName}"?`)) return;
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch(`/api/v1/billing/offline/device/${deviceId}/revoke`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (resp.ok) {
-            showToast(`🚫 Dispositivo "${deviceName}" desactivado`, 'ok');
-            loadDevices();
-        } else {
-            const data = await resp.json().catch(() => ({}));
-            showToast(data.detail || 'Error al desactivar', 'err');
-        }
-    } catch (e) {
-        showToast('Error de conexión', 'err');
-    }
+        const resp = await fetch(`/api/v1/billing/offline/device/${deviceId}/revoke`, { method:'POST', headers:{ 'Authorization': `Bearer ${token}` } });
+        if (resp.ok) { showToast(`🚫 "${deviceName}" desactivado`, 'ok'); loadDevices(); }
+        else { const data = await resp.json().catch(()=>({})); showToast(data.detail || 'Error', 'err'); }
+    } catch (e) { showToast('Error de conexión', 'err'); }
 }
 
 async function refillBlock(serie, deviceId) {
     try {
         const token = localStorage.getItem('access_token');
         const resp = await fetch('/api/v1/billing/offline/reserve-block', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ serie: serie, device_id: deviceId, cantidad: 50 })
+            method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ serie, device_id: deviceId, cantidad: 50 })
         });
-
-        if (resp.ok) {
-            const data = await resp.json();
-            showToast(`📦 +${data.cantidad} números: ${serie}-${String(data.desde).padStart(8,'0')} al ${String(data.hasta).padStart(8,'0')}`, 'ok');
-            loadDevices();
-        } else {
-            const err = await resp.json().catch(() => ({}));
-            showToast(err.detail || 'Error', 'err');
-        }
-    } catch (e) {
-        showToast('Error de conexión', 'err');
-    }
+        if (resp.ok) { const data = await resp.json(); showToast(`📦 +${data.cantidad} números`, 'ok'); loadDevices(); }
+        else { const err = await resp.json().catch(()=>({})); showToast(err.detail || 'Error', 'err'); }
+    } catch (e) { showToast('Error de conexión', 'err'); }
 }
 
 async function viewBlockStatus(serie) {
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch(`/api/v1/billing/offline/block-status/${serie}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
+        const resp = await fetch(`/api/v1/billing/offline/block-status/${serie}`, { headers:{ 'Authorization': `Bearer ${token}` } });
         if (!resp.ok) { showToast('Error cargando bloques', 'err'); return; }
         const data = await resp.json();
-
         let html = `<div style="font-size:0.72rem;font-weight:700;margin-bottom:8px">Bloques de ${serie}</div>`;
-        if (data.bloques.length === 0) {
-            html += '<div style="font-size:0.7rem;color:var(--text3)">Sin bloques reservados</div>';
-        } else {
+        if (!data.bloques?.length) { html += '<div style="font-size:0.7rem;color:var(--text3)">Sin bloques reservados</div>'; }
+        else {
             for (const b of data.bloques) {
                 const pct = b.restantes > 0 ? Math.round((1 - b.restantes / (b.hasta - b.desde + 1)) * 100) : 100;
                 const color = b.restantes < 5 ? 'var(--red)' : b.restantes < 15 ? 'var(--orange)' : 'var(--green)';
-                html += `
-                <div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;border:1px solid var(--border)">
+                html += `<div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;border:1px solid var(--border)">
                     <div style="display:flex;justify-content:space-between;font-size:0.7rem">
                         <span>${String(b.desde).padStart(8,'0')} — ${String(b.hasta).padStart(8,'0')}</span>
                         <span style="color:${color};font-weight:700">${b.restantes} restantes</span>
@@ -1847,175 +1813,94 @@ async function viewBlockStatus(serie) {
                 </div>`;
             }
         }
-
-        // Show in a mini-modal
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px';
-        modal.innerHTML = `<div style="background:var(--bg2);border-radius:14px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto">
-            ${html}
-            <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:0.75rem;cursor:pointer;font-family:var(--font)">Cerrar</button>
-        </div>`;
+        modal.innerHTML = `<div style="background:var(--bg2);border-radius:14px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto">${html}<button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:0.75rem;cursor:pointer;font-family:var(--font)">Cerrar</button></div>`;
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
-
-    } catch (e) {
-        showToast('Error de conexión', 'err');
-    }
+    } catch (e) { showToast('Error de conexión', 'err'); }
 }
 
 async function revokeAllDevices() {
-    if (!confirm('⚠️ ¿DESACTIVAR TODOS los dispositivos excepto este?\n\nTodos los vendedores perderán acceso.\nLos números pendientes serán anulados.\n\n¿Estás seguro?')) return;
-
-    showToast('🔄 Desactivando dispositivos...', 'ok');
-
+    if (!confirm('⚠️ ¿DESACTIVAR TODOS los dispositivos excepto este?\n\nTodos los vendedores perderán acceso.')) return;
+    showToast('🔄 Desactivando dispositivos...', 'ok2');
     try {
         const token = localStorage.getItem('access_token');
         const currentDeviceId = await _getCurrentDeviceId();
-
-        // Get all devices
-        const resp = await fetch('/api/v1/billing/offline/devices', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const resp = await fetch('/api/v1/billing/offline/devices', { headers:{ 'Authorization': `Bearer ${token}` } });
         const devices = await resp.json();
-
         let revoked = 0;
         for (const dev of devices) {
             if (dev.device_id === currentDeviceId) continue;
-            try {
-                await fetch(`/api/v1/billing/offline/device/${dev.device_id}/revoke`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                revoked++;
-            } catch (e) {}
+            try { await fetch(`/api/v1/billing/offline/device/${dev.device_id}/revoke`, { method:'POST', headers:{ 'Authorization': `Bearer ${token}` } }); revoked++; } catch {}
         }
-
         showToast(`🚫 ${revoked} dispositivo(s) desactivado(s)`, 'ok');
         loadDevices();
-    } catch (e) {
-        showToast('Error', 'err');
-    }
+    } catch (e) { showToast('Error', 'err'); }
 }
 
 async function generateEmergencyCode() {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const code = Math.random().toString(36).substring(2,8).toUpperCase();
     const el = document.getElementById('emergencyResult');
     el.style.display = 'block';
-    el.innerHTML = `
-        <div style="background:var(--bg);border:1.5px solid var(--gold);border-radius:8px;padding:12px;text-align:center">
-            <div style="font-size:0.6rem;color:var(--text3);margin-bottom:4px">Código de emergencia (30 min)</div>
-            <div style="font-family:var(--mono);font-size:1.4rem;font-weight:800;color:var(--gold);letter-spacing:3px">${code}</div>
-            <div style="font-size:0.6rem;color:var(--text3);margin-top:4px">Usa este código en quevendi.pro/emergency</div>
-        </div>`;
-    // TODO: save code to server with expiration
+    el.innerHTML = `<div style="background:var(--bg);border:1.5px solid var(--gold);border-radius:8px;padding:12px;text-align:center"><div style="font-size:0.6rem;color:var(--text3);margin-bottom:4px">Código de emergencia (30 min)</div><div style="font-family:monospace;font-size:1.4rem;font-weight:800;color:var(--gold);letter-spacing:3px">${code}</div><div style="font-size:0.6rem;color:var(--text3);margin-top:4px">Usa este código en quevendi.pro/emergency</div></div>`;
     showToast('Código generado. Válido por 30 minutos.', 'ok');
 }
 
-function showPlanUpgrade() {
-    showToast('Contacta a tu vendedor para mejorar de plan', 'ok');
-}
+function showPlanUpgrade() { showToast('Contacta a tu vendedor para mejorar de plan', 'ok2'); }
 
 async function loadUsers() {
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch('/api/v1/users/store-users', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!resp.ok) {
-            document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">No se pudieron cargar usuarios</div>';
-            return;
-        }
-
+        const resp = await fetch('/api/v1/users/store-users', { headers:{ 'Authorization': `Bearer ${token}` } });
+        if (!resp.ok) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">No se pudieron cargar usuarios</div>'; return; }
         const users = await resp.json();
         const userList = Array.isArray(users) ? users : (users.users || []);
-
-        if (userList.length === 0) {
-            document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Sin usuarios registrados</div>';
-            return;
-        }
-
-        const roles = { owner: '👑 Dueño', admin: '🔧 Admin', seller: '🛒 Vendedor', cashier: '💰 Cajero' };
+        if (!userList.length) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Sin usuarios registrados</div>'; return; }
+        const roles = { owner:'👑 Dueño', admin:'🔧 Admin', seller:'🛒 Vendedor', cashier:'💰 Cajero' };
         let html = '';
         for (const u of userList) {
-            const rolLabel = roles[u.role] || u.role;
             const active = u.is_active !== false;
-            html += `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;${!active ? 'opacity:0.5' : ''}">
-                <div>
-                    <div style="font-size:0.78rem;font-weight:600">${_esc(u.full_name || u.username)}</div>
-                    <div style="font-size:0.6rem;color:var(--text3)">${rolLabel} · DNI: ${u.dni || '-'}</div>
-                </div>
-                ${u.role !== 'owner' ? `
-                <button onclick="toggleUser(${u.id}, ${active})" class="device-btn ${active ? 'device-btn-danger' : ''}" style="font-size:0.6rem">
-                    ${active ? '<i class="fas fa-ban"></i> Desactivar' : '<i class="fas fa-check"></i> Activar'}
-                </button>` : '<span style="font-size:0.6rem;color:var(--green)"><i class="fas fa-shield-halved"></i></span>'}
+            html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;${!active?'opacity:0.5':''}">
+                <div><div style="font-size:0.78rem;font-weight:600">${_esc(u.full_name||u.username)}</div><div style="font-size:0.6rem;color:var(--text3)">${roles[u.role]||u.role} · DNI: ${u.dni||'-'}</div></div>
+                ${u.role!=='owner'?`<button onclick="toggleUser(${u.id},${active})" class="device-btn ${active?'device-btn-danger':''}" style="font-size:0.6rem">${active?'<i class="fas fa-ban"></i> Desactivar':'<i class="fas fa-check"></i> Activar'}</button>`:'<span style="font-size:0.6rem;color:var(--green)"><i class="fas fa-shield-halved"></i></span>'}
             </div>`;
         }
         document.getElementById('userList').innerHTML = html;
-
-    } catch (e) {
-        document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Error cargando usuarios</div>';
-    }
+    } catch (e) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Error cargando usuarios</div>'; }
 }
 
 async function toggleUser(userId, currentlyActive) {
-    const action = currentlyActive ? 'desactivar' : 'activar';
-    if (!confirm(`¿${action.charAt(0).toUpperCase() + action.slice(1)} este usuario?`)) return;
-
+    if (!confirm(`¿${currentlyActive?'Desactivar':'Activar'} este usuario?`)) return;
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch(`/api/v1/users/${userId}/${currentlyActive ? 'deactivate' : 'activate'}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (resp.ok) {
-            showToast(`Usuario ${action}do`, 'ok');
-            loadUsers();
-            loadDevices();
-        } else {
-            const data = await resp.json().catch(() => ({}));
-            showToast(data.detail || 'Error', 'err');
-        }
-    } catch (e) {
-        showToast('Error de conexión', 'err');
-    }
+        const resp = await fetch(`/api/v1/users/${userId}/${currentlyActive?'deactivate':'activate'}`, { method:'POST', headers:{ 'Authorization': `Bearer ${token}` } });
+        if (resp.ok) { showToast(`Usuario ${currentlyActive?'desactivado':'activado'}`, 'ok'); loadUsers(); loadDevices(); }
+        else { const data = await resp.json().catch(()=>({})); showToast(data.detail||'Error','err'); }
+    } catch (e) { showToast('Error de conexión','err'); }
 }
 
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+function esc(t) { if (!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function _esc(t) { return esc(t); }
 function _timeAgo(dateStr) {
     if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return 'Ahora';
-    if (diff < 3600) return `${Math.floor(diff/60)}min`;
-    if (diff < 86400) return `${Math.floor(diff/3600)}h`;
-    if (diff < 604800) return `${Math.floor(diff/86400)}d`;
-    return d.toLocaleDateString('es-PE', { day:'2-digit', month:'short' });
+    const d = new Date(dateStr), now = new Date(), diff = Math.floor((now-d)/1000);
+    if (diff<60) return 'Ahora'; if (diff<3600) return `${Math.floor(diff/60)}min`;
+    if (diff<86400) return `${Math.floor(diff/3600)}h`; if (diff<604800) return `${Math.floor(diff/86400)}d`;
+    return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
 }
 
-function _esc(t) { return esc(t); }
-
-// ── INIT ──
-loadConfig();
-setTimeout(checkAgent, 1000);
-
-// ── TABS ── (override to load data on tab switch)
-const _origSwitchTab = switchTab;
-switchTab = function(tab) {
-    _origSwitchTab(tab);
-    if (tab === 'devices') {
-        loadDevices();
-        loadUsers();
-    }
-};
-
-// ── LISTENERS DE DISEÑO ──
-// Radios de header y fuente del nombre actualizan el preview al instante
-document.querySelectorAll('input[name="font_decorativa"], input[name="header_style"]')
-    .forEach(r => r.addEventListener('change', updatePreview));
+// ════════════════════════════════════════════════
+// INIT — esperar que las fuentes carguen antes del primer preview
+// ════════════════════════════════════════════════
+document.fonts.ready.then(() => {
+    loadConfig();
+    setTimeout(checkAgent, 800);
+    setInterval(checkAgent, 30000);
+});
 </script>
-
 </body>
 </html>
