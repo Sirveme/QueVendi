@@ -1246,13 +1246,13 @@ function updatePreview() {
         ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>Op.Gratuita S/</span><span>0.00</span></div>'}
         ${igv > 0 ? '' : '<div class="t-row" style="font-size:8px"><span>I.G.V. S/</span><span>0.00</span></div>'}
         <div class="t-row t-bold" style="font-size:11px;margin:4px 0;font-family:'${fontTotal}',sans-serif"><span>TOTAL IMPORTE S/</span><span>${total.toFixed(2)}</span></div>
-        <div class="t-small">Son: ${tipoIgv === '10' ? 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES' : 'CIENTO TREINTA Y NUEVE CON 00/100 SOLES'}</div>
+        <div class="t-small">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
         <div class="t-small">Efectivo S/ 150.00    Vuelto S/ 11.00</div>
 
-        ${tel && tel !== '000000000' ? `
+        ${d.catalogo_activo ? `
         <div class="t-highlight">
             <div style="font-size:7px;color:#333">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
-            <div class="t-highlight-url">HTTPS://QUEVENDI.PRO/${esc(tel)}</div>
+            <div class="t-highlight-url">HTTPS://QUEVENDI.PRO/${esc(tel && tel !== '000000000' ? tel : 'TU-TELEFONO')}</div>
             <div style="font-size:7px;color:#666">PARA RECOJOS O DELIVERY</div>
         </div>
         ` : ''}
@@ -1269,6 +1269,13 @@ function updatePreview() {
         <div class="t-divider"></div>
         <div class="t-center t-bold" style="font-size:7.5px">
             BIENES TRANSFERIDOS EN LA AMAZONÍA PARA SER<br>CONSUMIDOS EN LA MISMA
+        </div>
+        ` : ''}
+
+        ${d.eslogan2 ? `
+        <div class="t-divider"></div>
+        <div class="t-center" style="font-size:9px;font-style:italic;font-family:'${fontSlogan}',cursive;color:#444">
+            ✦ ${esc(d.eslogan2)} ✦
         </div>
         ` : ''}
 
