@@ -682,7 +682,7 @@
                 </div>
                 <div class="header-style-grid">
                     <label class="style-card">
-                        <input type="radio" name="header_style" value="1" id="hs1" checked>
+                        <input type="radio" name="header_style" value="1" id="hs1" checked onchange="updatePreview()">
                         <div class="style-card__preview">
                             <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
@@ -702,7 +702,7 @@
                         <div class="style-card__badge">&#10003;</div>
                     </label>
                     <label class="style-card">
-                        <input type="radio" name="header_style" value="2" id="hs2">
+                        <input type="radio" name="header_style" value="2" id="hs2" onchange="updatePreview()">
                         <div class="style-card__preview">
                             <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
@@ -723,7 +723,7 @@
                         <div class="style-card__badge">&#10003;</div>
                     </label>
                     <label class="style-card">
-                        <input type="radio" name="header_style" value="3" id="hs3">
+                        <input type="radio" name="header_style" value="3" id="hs3" onchange="updatePreview()">
                         <div class="style-card__preview">
                             <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="2" y="2" width="116" height="76" rx="4" fill="#111940" stroke="#638cff44" stroke-width="1.5"/>
@@ -754,70 +754,70 @@
                 </div>
                 <div class="font-grid">
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="playfair" id="fd_playfair" checked>
+                        <input type="radio" name="font_decorativa" value="playfair" id="fd_playfair" checked onchange="updatePreview()">
                         <span class="font-card__preview font-playfair">Mi Negocio</span>
                         <span class="font-card__name">Playfair</span>
                         <span class="font-card__tags">Restaurantes · Eventos · Hoteles</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="cinzel" id="fd_cinzel">
+                        <input type="radio" name="font_decorativa" value="cinzel" id="fd_cinzel" onchange="updatePreview()">
                         <span class="font-card__preview font-cinzel">MI NEGOCIO</span>
                         <span class="font-card__name">Cinzel</span>
                         <span class="font-card__tags">Elegancia romana · Eventos</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="bebas" id="fd_bebas">
+                        <input type="radio" name="font_decorativa" value="bebas" id="fd_bebas" onchange="updatePreview()">
                         <span class="font-card__preview font-bebas">MI NEGOCIO</span>
                         <span class="font-card__name">Bebas Neue</span>
                         <span class="font-card__tags">Ferreterías · Grifos · Impacto</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="oswald" id="fd_oswald">
+                        <input type="radio" name="font_decorativa" value="oswald" id="fd_oswald" onchange="updatePreview()">
                         <span class="font-card__preview font-oswald">MI NEGOCIO</span>
                         <span class="font-card__name">Oswald</span>
                         <span class="font-card__tags">Ferreterías · Lubricentros</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="archivo" id="fd_archivo">
+                        <input type="radio" name="font_decorativa" value="archivo" id="fd_archivo" onchange="updatePreview()">
                         <span class="font-card__preview font-archivo">MI NEGOCIO</span>
                         <span class="font-card__name">Archivo Black</span>
                         <span class="font-card__tags">Maximo impacto · Uso general</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="righteous" id="fd_righteous">
+                        <input type="radio" name="font_decorativa" value="righteous" id="fd_righteous" onchange="updatePreview()">
                         <span class="font-card__preview font-righteous">MI NEGOCIO</span>
                         <span class="font-card__name">Righteous</span>
                         <span class="font-card__tags">Cafes · Hamburguesas · Moderno</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="raleway" id="fd_raleway">
+                        <input type="radio" name="font_decorativa" value="raleway" id="fd_raleway" onchange="updatePreview()">
                         <span class="font-card__preview font-raleway">MI NEGOCIO</span>
                         <span class="font-card__name">Raleway</span>
                         <span class="font-card__tags">Clasico · Profesional</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="lato" id="fd_lato">
+                        <input type="radio" name="font_decorativa" value="lato" id="fd_lato" onchange="updatePreview()">
                         <span class="font-card__preview font-lato">MI NEGOCIO</span>
                         <span class="font-card__name">Lato</span>
                         <span class="font-card__tags">Uso general · Neutro</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="ubuntu" id="fd_ubuntu">
+                        <input type="radio" name="font_decorativa" value="ubuntu" id="fd_ubuntu" onchange="updatePreview()">
                         <span class="font-card__preview font-ubuntu">Mi Negocio</span>
                         <span class="font-card__name">Ubuntu</span>
                         <span class="font-card__tags">Bodegas · Ropa · Amigable</span>
                         <div class="font-card__badge">&#10003;</div>
                     </label>
                     <label class="font-card">
-                        <input type="radio" name="font_decorativa" value="pacifico" id="fd_pacifico">
+                        <input type="radio" name="font_decorativa" value="pacifico" id="fd_pacifico" onchange="updatePreview()">
                         <span class="font-card__preview font-pacifico">Mi Negocio</span>
                         <span class="font-card__name">Pacifico</span>
                         <span class="font-card__tags">Dulcerias · Ropa · Calido</span>
@@ -934,7 +934,7 @@
                     <label>Aparece al pie del encabezado, bajo los datos del negocio</label>
                     <input type="text" id="eslogan2" maxlength="50"
                            placeholder="Ej: Atendemos todo tipo de eventos"
-                           oninput="document.getElementById('eslogan2Count').textContent=this.value.length">
+                           oninput="document.getElementById('eslogan2Count').textContent=this.value.length; updatePreview();">
                     <span class="cfg-charcount"><span id="eslogan2Count">0</span>/50</span>
                 </div>
             </div>
@@ -948,7 +948,7 @@
                         <span class="toggle-sub">Activa si tienes Catalogo Virtual habilitado</span>
                     </div>
                     <div class="toggle-switch">
-                        <input type="checkbox" id="catalogo_activo" onchange="toggleCatalogoPreview()">
+                        <input type="checkbox" id="catalogo_activo" onchange="toggleCatalogoPreview(); updatePreview();">
                         <span class="toggle-track"></span>
                     </div>
                 </label>
