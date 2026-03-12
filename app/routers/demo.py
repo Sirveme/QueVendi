@@ -13,6 +13,7 @@ import json
 from datetime import timedelta
 from pathlib import Path
 
+from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -25,7 +26,63 @@ from app.models.user import User
 from app.models.product import Product
 from app.models.billing import StoreBillingConfig
 
-router = APIRouter()
+router = APIRouter(tags=["demo"])
+
+# Store IDs habilitados para demo — ajusta si agregas más nichos
+DEMO_STORE_IDS = [4, 5, 6, 7]
+
+class SelectStoreRequest(BaseModel):
+    store_id: int
+
+@router.post("/demo/select-store")
+async def select_demo_store(
+    data: SelectStoreRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Solo demo_sellers pueden usar este endpoint
+    if current_user.role != "demo_seller":
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    if data.store_id not in DEMO_STORE_IDS:
+        raise HTTPException(status_code=400, detail="Tienda demo no válida")
+
+    store = db.query(Store).filter(Store.id == data.store_id).first()
+    if not store:
+        raise HTTPException(status_code=404, detail="Tienda no encontrada")
+
+    # Emitir nuevo JWT con store_id del nicho elegido
+    token_data = {
+        "sub": str(current_user.id),
+        "role": "demo_seller",
+        "store_id": data.store_id,
+        "store_name": store.business_name,
+        "is_demo": True,
+    }
+    token = create_access_token(
+        data=token_data,
+        expires_delta=timedelta(hours=8)
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "store_id": data.store_id,
+        "store_name": store.business_name,
+        "redirect": "/bodegas/onboarding"  # ← flujo de carga de productos
+    }
+
+
+@router.get("/demo/selector", response_class=HTMLResponse)
+async def demo_selector_page(
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "demo_seller":
+        raise HTTPException(status_code=403)
+    # Sirve el HTML — ver archivo demo_selector.html
+    with open("app/templates/demo/selector.html") as f:
+        return f.read()
+
 
 
 # ================================================================
