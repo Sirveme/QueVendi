@@ -10,6 +10,7 @@ from typing import Optional
 
 from app.core.database import get_db
 from app.core.security import hash_password, verify_password, create_access_token
+from app.api.dependencies import get_current_user
 from app.models.store import Store
 from app.models.user import User
 from app.models.subscription import Subscription
@@ -274,8 +275,6 @@ async def login(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Login de usuario"""
-
     user = db.query(User).filter(User.dni == data.dni).first()
 
     if not user or not verify_password(data.pin, user.pin_hash):
@@ -290,50 +289,67 @@ async def login(
             detail="Usuario inactivo"
         )
 
-    # Actualizar último login
     user.last_login = datetime.now(timezone.utc)
     db.commit()
 
-    # Generar token
+    # ── Duración según rol ──────────────────────────────────────────
+    if user.role == "demo_seller":
+        expires = timedelta(hours=12)   # jornada de trabajo completa
+    elif user.role in ("owner", "admin"):
+        expires = timedelta(days=30)    # dueño no debe re-loguearse
+    else:
+        expires = timedelta(hours=10)   # cajero/vendedor normal
+
     access_token = create_access_token(
         data={
-            "sub": str(user.id),
-            "user_id": user.id,
-            "dni": user.dni,
+            "sub":      str(user.id),
+            "user_id":  user.id,
+            "dni":      user.dni,
             "store_id": user.store_id,
-            "role": user.role
-        }
+            "role":     user.role,
+            "full_name": user.full_name,   # ← lo usa demo_selector.html
+        },
+        expires_delta=expires              # ← asegúrate que create_access_token lo acepte
     )
 
-    # ════════════════════════════════════════════════════════════════
-    # RESPONSE CON first_login
-    # ════════════════════════════════════════════════════════════════
+    # ── Redirect según rol ──────────────────────────────────────────
+    if user.role == "demo_seller":
+        redirect_url = "/demo/selector"
+    elif getattr(user, 'first_login', False):
+        redirect_url = "/bodegas/onboarding"
+    else:
+        redirect_url = "/bodegas/dashboard"
+
     response_data = {
         "access_token": access_token,
-        "token_type": "bearer",
-        "first_login": getattr(user, 'first_login', False),  # ← AGREGAR ESTO
+        "token_type":   "bearer",
+        "first_login":  getattr(user, 'first_login', False),
+        "redirect":     redirect_url,      # ← el JS del login lee esto
+        "is_demo":      user.role == "demo_seller",
         "user": {
-            "id": user.id,
-            "dni": user.dni,
+            "id":        user.id,
+            "dni":       user.dni,
             "full_name": user.full_name,
-            "username": user.username,
-            "role": user.role,
-            "avatar_url": user.avatar_url,
-            "store_id": user.store_id
+            "username":  user.username,
+            "role":      user.role,
+            "avatar_url":user.avatar_url,
+            "store_id":  user.store_id,
         }
     }
 
     response = JSONResponse(content=response_data)
 
-    # Cookie
-    is_secure = request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https"
+    is_secure = (
+        request.url.scheme == "https" or
+        request.headers.get("x-forwarded-proto") == "https"
+    )
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
         httponly=True,
         secure=is_secure,
         samesite="lax",
-        max_age=86400,
+        max_age=int(expires.total_seconds()),  # ← consistente con el token
         path="/"
     )
 
@@ -500,6 +516,29 @@ async def reset_password(
     
     return {"message": "Clave restablecida correctamente"}
 
+
+# ============================================
+# REFRESH TOKEN SIN PEDIR PIN DE NUEVO
+# ============================================
+@router.post("/refresh")
+async def refresh_token(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Renueva el token sin pedir PIN de nuevo"""
+    expires = timedelta(hours=12 if current_user.role == "demo_seller" else 10)
+    new_token = create_access_token(
+        data={
+            "sub":       str(current_user.id),
+            "user_id":   current_user.id,
+            "dni":       current_user.dni,
+            "store_id":  current_user.store_id,
+            "role":      current_user.role,
+            "full_name": current_user.full_name,
+        },
+        expires_delta=expires
+    )
+    return {"access_token": new_token, "token_type": "bearer"}
 
 # ============================================
 # MODIFICAR EL LOGIN EXISTENTE
