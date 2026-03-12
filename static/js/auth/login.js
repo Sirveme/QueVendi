@@ -300,7 +300,7 @@ const Login = {
                 this.showMessage(`¡Bienvenido ${data.user.full_name}!`, 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '/home';
+                    window.location.href = data.redirect || '/home';
                 }, 1000);
                 
             } else {
@@ -413,7 +413,7 @@ const Login = {
                 this.showMessage('¡Clave actualizada correctamente!', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '/home';
+                    window.location.href = data.redirect || '/home';
                 }, 1000);
             } else {
                 this.showMessage(data.detail || 'Error al cambiar clave', 'error');
