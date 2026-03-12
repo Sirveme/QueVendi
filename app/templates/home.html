@@ -2410,17 +2410,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     status.style.display = 'none';
                     result.style.display = 'block';
                     result.innerHTML = `
-                        <div style="background: rgba(74, 222, 128, 0.2); padding: 15px; border-radius: 8px;">
-                            <div style="color: #4ade80; font-weight: bold; margin-bottom: 10px;">✅ Boleta emitida</div>
-                            <div style="color: white; font-size: 18px; font-weight: bold;">${data.numero_formato}</div>
-                            ${data.pdf_url ? `<a href="${data.pdf_url}" target="_blank" style="display: inline-block; margin-top: 10px; color: #60a5fa; text-decoration: none;">📥 Descargar PDF</a>` : ''}
+                        <div style="background:rgba(74,222,128,0.2);padding:15px;border-radius:8px;">
+                            <div style="color:#4ade80;font-weight:bold;margin-bottom:6px;">✅ Boleta emitida</div>
+                            <div style="color:white;font-size:18px;font-weight:bold;">${data.numero_formato}</div>
                         </div>
                     `;
 
-                    // Cerrar automáticamente después de 3 segundos
-                    setTimeout(closeBoletaModal, 3000);
-                } else {
-                    throw new Error(data.detail || data.error || 'Error al emitir');
+                    // Intentar imprimir por Print Agent
+                    if (data.comprobante_id) {
+                        await imprimirTicketComprobante(data.comprobante_id);
+                    }
+
+                    setTimeout(closeBoletaModal, 2500);
                 }
             } catch (error) {
                 status.style.display = 'none';
@@ -2499,12 +2500,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok && data.success) {
                     closeFacturaDatosModal();
-                    alert(`✅ Factura emitida: ${data.numero_formato}`);
-                    if (data.pdf_url) {
-                        window.open(data.pdf_url, '_blank');
+                    // Intentar imprimir por Print Agent
+                    if (data.comprobante_id) {
+                        await imprimirTicketComprobante(data.comprobante_id);
                     }
-                } else {
-                    throw new Error(data.detail || data.error || 'Error al emitir factura');
+                    // Notificación simple sin abrir PDF
+                    mostrarToastExito(`✅ Factura emitida: ${data.numero_formato}`);
                 }
             } catch (error) {
                 alert(`❌ Error: ${error.message}`);
@@ -2518,6 +2519,145 @@ document.addEventListener('DOMContentLoaded', function() {
         window.emitirFactura = emitirFactura;
         window.closeFacturaDatosModal = closeFacturaDatosModal;
         window.confirmarFactura = confirmarFactura;
+    </script>
+
+    <script>
+        async function imprimirTicketComprobante(comprobanteId) {
+            try {
+                // 1. Obtener datos del comprobante
+                const resp = await fetchWithAuth(`/api/v1/billing/comprobante/${comprobanteId}`);
+                if (!resp.ok) return;
+                const comp = await resp.json();
+
+                // 2. Intentar Print Agent (impresora térmica local)
+                const agentResp = await fetch('http://localhost:9638/print/ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comprobante_id: comprobanteId, ...comp }),
+                    signal: AbortSignal.timeout(2000)   // 2 seg — si no hay agente, no bloquea
+                }).catch(() => null);
+
+                if (agentResp && agentResp.ok) {
+                    console.log('[Print] ✅ Impreso por Print Agent');
+                    return;
+                }
+
+                // 3. Sin Print Agent → mostrar ticket HTML en modal (ventana del browser)
+                mostrarTicketModal(comp);
+
+            } catch (e) {
+                console.warn('[Print] Sin impresora — mostrando ticket en pantalla');
+            }
+        }
+
+        function mostrarTicketModal(comp) {
+            // Construir HTML del ticket (mismo formato que preview config_negocio)
+            const html = buildTicketHtmlDesdeComprobante(comp);
+
+            const modal = document.createElement('div');
+            modal.id = 'ticket-preview-modal';
+            modal.style.cssText = `
+                position:fixed;inset:0;background:rgba(0,0,0,0.85);
+                z-index:10010;display:flex;flex-direction:column;
+                align-items:center;justify-content:center;padding:16px;
+            `;
+            modal.innerHTML = `
+                <div style="background:#1a1a2e;border-radius:12px;width:100%;max-width:400px;overflow:hidden">
+                    <div style="background:#13131e;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+                        <span style="color:#4ade80;font-weight:700;font-size:0.9rem">✅ Ticket emitido</span>
+                        <div style="display:flex;gap:8px">
+                            <button onclick="window.print()"
+                                style="background:#ff6b35;border:none;border-radius:6px;
+                                    padding:7px 14px;color:white;font-weight:700;
+                                    cursor:pointer;font-size:0.8rem">
+                                🖨 Imprimir
+                            </button>
+                            <button onclick="document.getElementById('ticket-preview-modal').remove()"
+                                style="background:#333;border:none;border-radius:6px;
+                                    padding:7px 12px;color:#aaa;cursor:pointer;font-size:0.8rem">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    <div style="max-height:75vh;overflow-y:auto;padding:16px;display:flex;justify-content:center">
+                        ${html}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function buildTicketHtmlDesdeComprobante(comp) {
+            // Usar el mismo buildTicketHtml de config_negocio_impresion.js
+            // pasando los datos del comprobante como si fueran de preview
+            const cfg = {
+                nombre_comercial: comp.emisor_razon_social || 'TIENDA',
+                razon_social:     comp.emisor_razon_social || '',
+                ruc:              comp.emisor_ruc || '',
+                direccion:        comp.emisor_direccion || '',
+                telefono:         comp.emisor_telefono || '',
+                header_style:     parseInt(localStorage.getItem('header_style') || '1'),
+                font_decorativa:  localStorage.getItem('font_decorativa') || 'bebas',
+                font_razon:       localStorage.getItem('font_razon') || 'dm_sans',
+            };
+
+            const tipo = comp.tipo_comprobante === '01' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+            const numero = `${comp.serie}-${String(comp.numero).padStart(8,'0')}`;
+            const items = (comp.items || []).map(i => ({
+                descripcion: i.descripcion,
+                cantidad: parseFloat(i.cantidad || 1),
+                precio: parseFloat(i.precio_unitario || 0),
+                subtotal: parseFloat(i.subtotal || 0),
+            }));
+            const total = parseFloat(comp.total || 0);
+            const fecha = comp.fecha_emision
+                ? new Date(comp.fecha_emision).toLocaleDateString('es-PE')
+                : new Date().toLocaleDateString('es-PE');
+
+            return `
+            <div class="ticket" style="
+                width:300px;background:white;padding:12px 10px;
+                font-family:'DM Sans',sans-serif;font-size:8pt;color:#111;
+            ">
+                <div style="text-align:center;font-weight:900;font-size:11pt;margin-bottom:2px">
+                    ${cfg.nombre_comercial}
+                </div>
+                <div style="text-align:center;font-size:7.5pt;color:#444">
+                    ${cfg.razon_social}
+                </div>
+                <div style="text-align:center;font-size:7.5pt">RUC: ${cfg.ruc}</div>
+                <div style="text-align:center;font-size:7pt;color:#666">
+                    ${cfg.direccion}${cfg.telefono ? ' · Tel. '+cfg.telefono : ''}
+                </div>
+                <div style="border-top:1px dashed #999;margin:6px 0"></div>
+                <div style="text-align:center;font-weight:700;font-size:8.5pt">${tipo}</div>
+                <div style="text-align:center;font-weight:900;font-size:10pt;
+                            background:#111;color:white;padding:3px;border-radius:3px;margin:3px 0">
+                    ${numero}
+                </div>
+                <div style="font-size:7pt;margin-bottom:4px">
+                    Fecha: ${fecha}
+                    ${comp.cliente_razon_social && comp.cliente_razon_social !== 'CLIENTE VARIOS'
+                        ? `<br>Cliente: ${comp.cliente_razon_social}`
+                        : ''}
+                </div>
+                <div style="border-top:1px dashed #999;margin:4px 0"></div>
+                ${items.map(i => `
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+                    <span style="flex:1">${i.cantidad > 1 ? i.cantidad+'x ' : ''}${i.descripcion}</span>
+                    <span style="margin-left:6px;font-weight:700">S/ ${i.subtotal.toFixed(2)}</span>
+                </div>`).join('')}
+                <div style="border-top:1px dashed #999;margin:4px 0"></div>
+                <div style="display:flex;justify-content:space-between;font-weight:900;font-size:11pt">
+                    <span>TOTAL</span>
+                    <span>S/ ${total.toFixed(2)}</span>
+                </div>
+                <div style="border-top:1px dashed #999;margin:6px 0"></div>
+                <div style="text-align:center;font-size:6.5pt;color:#666">
+                    Verifique en: facturalo.pro/verificar
+                </div>
+            </div>`;
+        }
     </script>
 
     <!-- Scripts de Fiados -->
