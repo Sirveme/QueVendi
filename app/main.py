@@ -237,9 +237,6 @@ async def health():
 # RUTAS HTML - PRIVADAS (requieren auth en frontend)
 # ========================================
 
-
-
-
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
     """Dashboard principal - Auth manejada por JavaScript"""
@@ -267,6 +264,18 @@ async def dashboard_page(request: Request):
             return RedirectResponse(url="/demo/selector", status_code=302)
     
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
+
+
+@app.get("/demo/selector", response_class=HTMLResponse)
+async def demo_selector_page(request: Request):
+    """Pantalla de selección de nicho para demo_seller"""
+    token_cookie = request.cookies.get("access_token", "")
+    if token_cookie.startswith("Bearer "):
+        token = token_cookie[7:]
+        payload = decode_token(token)
+        if payload and payload.get("role") == "demo_seller":
+            return templates.TemplateResponse("demo/selector.html", {"request": request})
+    return RedirectResponse(url="/auth/login", status_code=302)
 
 
 @app.get("/whitelabel", response_class=HTMLResponse)
