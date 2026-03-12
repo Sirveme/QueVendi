@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 
 from app.core.config import settings
+from app.core.security import decode_token
 from app.core.database import SessionLocal
 from app.models.user import User
 from app.models.product import Product
@@ -33,7 +34,6 @@ from app.routers.user_management import router as user_mgmt_router
 
 from dotenv import load_dotenv
 load_dotenv()
-
 
 # ========================================
 # IMPORTAR ROUTERS API
@@ -57,6 +57,8 @@ from app.api.v1 import (
     billing,
     onboarding
 )
+from app.routers import lite
+
 
 # ========================================
 # CONFIGURACIÓN DE DIRECTORIOS
@@ -155,6 +157,7 @@ if STATIC_DIR.exists():
 else:
     print(f"⚠️ Directorio static/ no encontrado")
 
+
 # ========================================
 # ROUTERS API (prefix /api/v1)
 # ========================================
@@ -181,7 +184,7 @@ app.include_router(demo.router, prefix="/api/v1", tags=["demo"])
 app.include_router(billing_offline_router, prefix="/api/v1/billing/offline")
 app.include_router(store_config_router, prefix="/api/v1/store")
 app.include_router(user_mgmt_router, prefix="/api/v1/users")
-
+app.include_router(lite.router)
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -234,17 +237,35 @@ async def health():
 # RUTAS HTML - PRIVADAS (requieren auth en frontend)
 # ========================================
 
+
+
+
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
-    """
-    Dashboard principal - Auth manejada por JavaScript
-    """
-    #return templates.TemplateResponse("home_v2.html", {"request": request})
+    """Dashboard principal - Auth manejada por JavaScript"""
+    
+    # ── Redirigir demo_seller al selector ──────────────────────────
+    token_cookie = request.cookies.get("access_token", "")
+    if token_cookie.startswith("Bearer "):
+        token = token_cookie[7:]
+        payload = decode_token(token)
+        if payload and payload.get("role") == "demo_seller":
+            return RedirectResponse(url="/demo/selector", status_code=302)
+    
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
+    """Mismo fix para /dashboard"""
+    
+    token_cookie = request.cookies.get("access_token", "")
+    if token_cookie.startswith("Bearer "):
+        token = token_cookie[7:]
+        payload = decode_token(token)
+        if payload and payload.get("role") == "demo_seller":
+            return RedirectResponse(url="/demo/selector", status_code=302)
+    
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
 
@@ -336,6 +357,7 @@ async def cobrar_fiados_page(request: Request):
     return templates.TemplateResponse("cobrar_fiados.html", {"request": request})
 
 
+
 # ========================================
 # RUTAS DE CONFIGURACIÓN - SOLO PROPIETARIOS
 # ========================================
@@ -356,6 +378,4 @@ async def productos_page(request: Request):
 @app.get("/config/negocio", response_class=HTMLResponse)
 async def config_negocio_page(request: Request):
     return templates.TemplateResponse("config_negocio.html", {"request": request})
-
-
 
