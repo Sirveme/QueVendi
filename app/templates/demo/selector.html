@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Elegir Demo — QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg:      #0d0d14;
+  --bg2:     #13131e;
+  --bg3:     #1a1a28;
+  --bg4:     #222236;
+  --orange:  #ff6b35;
+  --orange2: #ff8c42;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text:    #e8ecf4;
+  --text2:   #94a3b8;
+  --text3:   #4a5568;
+  --green:   #00e676;
+  --gold:    #ffd700;
+  --font:    'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100dvh; font-family: var(--font);
+  background: var(--bg); color: var(--text);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 20px;
+}
+
+/* ── HEADER ── */
+.header { text-align: center; margin-bottom: 40px; }
+.brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem; color: var(--orange);
+  letter-spacing: 2px; margin-bottom: 6px;
+}
+.welcome {
+  font-size: 0.82rem; color: var(--text3);
+}
+.welcome strong { color: var(--text2); }
+.headline {
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 700; margin: 10px 0 6px;
+  line-height: 1.2;
+}
+.headline em { font-style: normal; color: var(--orange); }
+.subline {
+  font-size: 0.85rem; color: var(--text2); line-height: 1.5;
+}
+
+/* ── GRID DE NICHOS ── */
+.nicho-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  width: 100%; max-width: 580px;
+  margin-bottom: 28px;
+}
+@media (max-width: 420px) {
+  .nicho-grid { grid-template-columns: 1fr; }
+}
+
+.nicho-card {
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 8px; position: relative; overflow: hidden;
+  user-select: none;
+}
+.nicho-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.18s;
+  border-radius: 12px;
+}
+.nicho-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--card-color, var(--orange));
+  box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+}
+.nicho-card:hover::before { opacity: 1; }
+.nicho-card.selected {
+  border-color: var(--card-color, var(--orange));
+  background: color-mix(in srgb, var(--card-color, var(--orange)) 10%, var(--bg2));
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--card-color, var(--orange)) 30%, transparent);
+}
+.nicho-card.loading {
+  pointer-events: none; opacity: 0.7;
+}
+
+.nicho-emoji {
+  font-size: 2rem; line-height: 1;
+  background: var(--bg3); border-radius: 10px;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nicho-name {
+  font-weight: 800; font-size: 1rem;
+  color: var(--text); line-height: 1.2;
+}
+.nicho-sub {
+  font-size: 0.72rem; color: var(--text3); line-height: 1.4;
+}
+.nicho-tags {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;
+}
+.nicho-tag {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.3px;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--bg4); color: var(--text3);
+}
+.nicho-check {
+  position: absolute; top: 12px; right: 12px;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: transparent;
+  transition: all 0.15s;
+}
+.nicho-card.selected .nicho-check {
+  background: var(--card-color, var(--orange));
+  border-color: var(--card-color, var(--orange));
+  color: white;
+}
+
+/* Colores por nicho */
+.nicho-ferreteria { --card-color: #ff6b35; }
+.nicho-grifo       { --card-color: #f59e0b; }
+.nicho-ropas       { --card-color: #a855f7; }
+.nicho-zapateria   { --card-color: #06b6d4; }
+
+.nicho-ferreteria::before { background: linear-gradient(135deg, rgba(255,107,53,0.06), transparent); }
+.nicho-grifo::before      { background: linear-gradient(135deg, rgba(245,158,11,0.06), transparent); }
+.nicho-ropas::before      { background: linear-gradient(135deg, rgba(168,85,247,0.06), transparent); }
+.nicho-zapateria::before  { background: linear-gradient(135deg, rgba(6,182,212,0.06), transparent); }
+
+/* ── BOTÓN CONTINUAR ── */
+.btn-continuar {
+  width: 100%; max-width: 580px;
+  padding: 16px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--orange), var(--orange2));
+  border: none; color: white;
+  font-family: var(--font); font-size: 1rem; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(255,107,53,0.35);
+  transition: all 0.15s;
+  opacity: 0.4; pointer-events: none;
+}
+.btn-continuar.ready {
+  opacity: 1; pointer-events: auto;
+}
+.btn-continuar.ready:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(255,107,53,0.45);
+}
+.btn-continuar.loading-btn {
+  opacity: 0.7; pointer-events: none;
+}
+
+/* ── SPINNER ── */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.loading-btn .spinner { display: block; }
+.loading-btn .btn-icon { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FOOTER INFO ── */
+.demo-info {
+  margin-top: 20px; max-width: 580px;
+  background: rgba(255,215,0,0.06);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 10px; padding: 12px 16px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.demo-info i { color: var(--gold); margin-top: 2px; flex-shrink: 0; }
+.demo-info p { font-size: 0.75rem; color: var(--text2); line-height: 1.5; }
+.demo-info strong { color: var(--text); }
+
+/* ── LOGOUT ── */
+.logout-link {
+  margin-top: 24px; font-size: 0.72rem; color: var(--text3);
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  transition: color 0.15s;
+}
+.logout-link:hover { color: var(--text2); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 10px 20px;
+  font-size: 0.8rem; font-weight: 600; color: #ff4444;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 99;
+  animation: fadeUp 0.2s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateX(-50%) translateY(8px); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">QueVendi</div>
+  <div class="welcome">Bienvenido, <strong id="nombreVendedor">Vendedor</strong></div>
+  <h1 class="headline">¿Qué negocio vas a<br><em>demostrar hoy?</em></h1>
+  <p class="subline">Elige el rubro de tu cliente. Los productos se cargarán automáticamente.</p>
+</div>
+
+<div class="nicho-grid">
+
+  <div class="nicho-card nicho-ferreteria" data-store="4" onclick="seleccionar(this)">
+    <div class="nicho-check"><i class="fas fa-check"></i></div>
+    <div class="nicho-emoji">🔧</div>
+    <div class="nicho-name">Ferretería</div>
+    <div class="nicho-sub">Materiales de construcción, herramientas y acabados</div>
+    <div class="nicho-tags">
+      <span class="nicho-tag">Ferretería Demo</span>
+      <span class="nicho-tag">IGV 18%</span>
+    </div>
+  </div>
+
+  <div class="nicho-card nicho-grifo" data-store="5" onclick="seleccionar(this)">
+    <div class="nicho-check"><i class="fas fa-check"></i></div>
+    <div class="nicho-emoji">⛽</div>
+    <div class="nicho-name">Grifo / Lubricentro</div>
+    <div class="nicho-sub">Combustibles, lubricantes y accesorios vehiculares</div>
+    <div class="nicho-tags">
+      <span class="nicho-tag">Grifo Demo</span>
+      <span class="nicho-tag">Factura</span>
+    </div>
+  </div>
+
+  <div class="nicho-card nicho-ropas" data-store="6" onclick="seleccionar(this)">
+    <div class="nicho-check"><i class="fas fa-check"></i></div>
+    <div class="nicho-emoji">👗</div>
+    <div class="nicho-name">Tienda de Ropas</div>
+    <div class="nicho-sub">Ropa de dama, caballero y accesorios de moda</div>
+    <div class="nicho-tags">
+      <span class="nicho-tag">Ropas Demo</span>
+      <span class="nicho-tag">Amazónica</span>
+    </div>
+  </div>
+
+  <div class="nicho-card nicho-zapateria" data-store="7" onclick="seleccionar(this)">
+    <div class="nicho-check"><i class="fas fa-check"></i></div>
+    <div class="nicho-emoji">👟</div>
+    <div class="nicho-name">Zapatería</div>
+    <div class="nicho-sub">Calzado, carteras, correas y accesorios de cuero</div>
+    <div class="nicho-tags">
+      <span class="nicho-tag">Zapatería Demo</span>
+      <span class="nicho-tag">Tallas</span>
+    </div>
+  </div>
+
+</div>
+
+<button class="btn-continuar" id="btnContinuar" onclick="continuar()">
+  <div class="spinner"></div>
+  <i class="fas fa-play btn-icon"></i>
+  <span class="btn-text">Iniciar demostración</span>
+</button>
+
+<div class="demo-info">
+  <i class="fas fa-info-circle"></i>
+  <p>
+    <strong>Modo demostración:</strong> Puedes vender, configurar y emitir comprobantes reales.
+    Los comprobantes se emiten con el RUC y certificado digital de <strong>Peru Sistemas Pro</strong>.
+  </p>
+</div>
+
+<div class="logout-link" onclick="logout()">
+  <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+</div>
+
+<script>
+let selectedStoreId = null;
+
+// Mostrar nombre del vendedor desde el token
+(function showNombre() {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Buscar nombre en el payload o usar fallback
+    const nombre = payload.full_name || payload.sub || 'Vendedor';
+    // Mostrar solo el primer nombre
+    document.getElementById('nombreVendedor').textContent =
+      nombre.split(' ')[0].charAt(0).toUpperCase() + nombre.split(' ')[0].slice(1).toLowerCase();
+  } catch(e) {}
+})();
+
+function seleccionar(card) {
+  // Deseleccionar anterior
+  document.querySelectorAll('.nicho-card').forEach(c => c.classList.remove('selected'));
+  // Seleccionar actual
+  card.classList.add('selected');
+  selectedStoreId = parseInt(card.dataset.store);
+  // Activar botón
+  document.getElementById('btnContinuar').classList.add('ready');
+}
+
+async function continuar() {
+  if (!selectedStoreId) return;
+
+  const btn = document.getElementById('btnContinuar');
+  btn.classList.add('loading-btn');
+  btn.querySelector('.btn-text').textContent = 'Cargando demo...';
+
+  try {
+    const token = localStorage.getItem('access_token');
+    const resp = await fetch('/api/v1/demo/select-store', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ store_id: selectedStoreId })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || 'Error al seleccionar tienda');
+    }
+
+    const data = await resp.json();
+
+    // Guardar el nuevo token (con store_id del nicho elegido)
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('store_id', data.store_id);
+    localStorage.setItem('store_name', data.store_name);
+    localStorage.setItem('is_demo', 'true');
+
+    // Redirigir al onboarding (carga de productos animada)
+    window.location.href = data.redirect || '/bodegas/onboarding';
+
+  } catch(e) {
+    btn.classList.remove('loading-btn');
+    btn.querySelector('.btn-text').textContent = 'Iniciar demostración';
+    mostrarError(e.message || 'Error de conexión. Intenta de nuevo.');
+  }
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/auth/login';
+}
+
+function mostrarError(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
+// Si ya tiene un nicho seleccionado en localStorage (volvió atrás), restaurarlo
+const prevStore = localStorage.getItem('store_id');
+if (prevStore) {
+  const prev = document.querySelector(`[data-store="${prevStore}"]`);
+  if (prev) seleccionar(prev);
+}
+</script>
+</body>
+</html>
