@@ -37,11 +37,16 @@ class SelectStoreRequest(BaseModel):
 @router.post("/demo/select-store")
 async def select_demo_store(
     data: SelectStoreRequest,
-    current_user: User = Depends(get_current_user),
+    current_user = Depends(get_current_user),   # ← quitar : User
     db: Session = Depends(get_db)
 ):
-    # Solo demo_sellers pueden usar este endpoint
-    if current_user.role != "demo_seller":
+    # ── leer role sea dict o objeto ORM ──
+    role    = current_user.get("role") if isinstance(current_user, dict) else current_user.role
+    user_id = current_user.get("user_id") if isinstance(current_user, dict) else current_user.id
+    dni     = current_user.get("dni", "") if isinstance(current_user, dict) else current_user.dni
+    nombre  = current_user.get("full_name", "") if isinstance(current_user, dict) else current_user.full_name
+
+    if role != "demo_seller":
         raise HTTPException(status_code=403, detail="No autorizado")
 
     if data.store_id not in DEMO_STORE_IDS:
@@ -51,35 +56,36 @@ async def select_demo_store(
     if not store:
         raise HTTPException(status_code=404, detail="Tienda no encontrada")
 
-    # Emitir nuevo JWT con store_id del nicho elegido
-    token_data = {
-        "sub": str(current_user.id),
-        "role": "demo_seller",
-        "store_id": data.store_id,
-        "store_name": store.business_name,
-        "is_demo": True,
-    }
     token = create_access_token(
-        data=token_data,
-        expires_delta=timedelta(hours=8)
+        data={
+            "sub":        str(user_id),
+            "user_id":    user_id,
+            "dni":        dni,
+            "full_name":  nombre,
+            "role":       "demo_seller",
+            "store_id":   data.store_id,
+            "store_name": store.business_name,
+            "is_demo":    True,
+        },
+        expires_delta=timedelta(hours=12)
     )
 
     return {
         "access_token": token,
-        "token_type": "bearer",
-        "store_id": data.store_id,
-        "store_name": store.business_name,
-        "redirect": "/bodegas/onboarding"  # ← flujo de carga de productos
+        "token_type":   "bearer",
+        "store_id":     data.store_id,
+        "store_name":   store.business_name,
+        "redirect":     "/bodegas/onboarding"
     }
 
 
 @router.get("/demo/selector", response_class=HTMLResponse)
 async def demo_selector_page(
-    current_user: User = Depends(get_current_user)
+    current_user = Depends(get_current_user)   # ← quitar : User
 ):
-    if current_user.role != "demo_seller":
+    role = current_user.get("role") if isinstance(current_user, dict) else current_user.role
+    if role != "demo_seller":
         raise HTTPException(status_code=403)
-    # Sirve el HTML — ver archivo demo_selector.html
     with open("app/templates/demo/selector.html") as f:
         return f.read()
 
