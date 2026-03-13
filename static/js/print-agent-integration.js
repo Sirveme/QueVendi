@@ -50,21 +50,53 @@ const PrintAgentIntegration = (() => {
         try {
             const config = JSON.parse(localStorage.getItem('store_config') || '{}');
             _emisorData = {
-                ruc: config.ruc || localStorage.getItem('emisor_ruc') || '',
-                razon_social: config.razon_social || localStorage.getItem('emisor_razon_social') || '',
-                nombre_comercial: config.nombre_comercial || localStorage.getItem('emisor_nombre_comercial') || '',
-                direccion: config.direccion || localStorage.getItem('emisor_direccion') || '',
-                telefono: config.telefono || localStorage.getItem('emisor_telefono') || '',
-                email: config.email || localStorage.getItem('emisor_email') || '',
-                logo: config.logo || null,
-                cod_establecimiento: config.cod_establecimiento || '0000',
-                giro: config.giro || '',
-                slogan: config.slogan || '',
-                distrito: config.distrito || '',
-                provincia: config.provincia || '',
-                departamento: config.departamento || '',
-                es_amazonia: config.es_amazonia !== false,
-                tipo_igv: config.tipo_igv || '20',
+                // ── Datos básicos (ya existían) ──
+                ruc:                  config.ruc || localStorage.getItem('emisor_ruc') || '',
+                razon_social:         config.razon_social || localStorage.getItem('emisor_razon_social') || '',
+                nombre_comercial:     config.nombre_comercial || localStorage.getItem('emisor_nombre_comercial') || '',
+                direccion:            config.direccion || localStorage.getItem('emisor_direccion') || '',
+                telefono:             config.telefono || localStorage.getItem('emisor_telefono') || '',
+                email:                config.email || localStorage.getItem('emisor_email') || '',
+                logo:                 config.logo || null,
+                cod_establecimiento:  config.cod_establecimiento || '0000',
+                giro:                 config.giro || '',
+                slogan:               config.slogan || '',
+                distrito:             config.distrito || '',
+                provincia:            config.provincia || '',
+                departamento:         config.departamento || '',
+                es_amazonia:          config.es_amazonia !== false,
+                tipo_igv:             config.tipo_igv || '20',
+
+                // ── Diseño del ticket (NUEVOS) ──
+                header_style:         config.header_style    || parseInt(localStorage.getItem('header_style') || '1'),
+                font_decorativa:      config.font_decorativa || localStorage.getItem('font_decorativa') || 'bebas',
+                font_razon:           config.font_razon      || localStorage.getItem('font_razon')      || 'dm_sans',
+                eslogan2:             config.eslogan2        || localStorage.getItem('eslogan2')        || '',
+                catalogo_activo:      config.catalogo_activo !== false,
+
+                // ── Tamaños de fuente ──
+                size_nombre:          config.size_nombre  || parseInt(localStorage.getItem('size_nombre')  || '15'),
+                size_razon:           config.size_razon   || parseInt(localStorage.getItem('size_razon')   || '9'),
+                size_ruc:             config.size_ruc     || parseInt(localStorage.getItem('size_ruc')     || '10'),
+                size_numero:          config.size_numero  || parseInt(localStorage.getItem('size_numero')  || '14'),
+                size_items:           config.size_items   || parseInt(localStorage.getItem('size_items')   || '8'),
+                size_total:           config.size_total   || parseInt(localStorage.getItem('size_total')   || '12'),
+                size_slogan:          config.size_slogan  || parseInt(localStorage.getItem('size_slogan')  || '9'),
+
+                // ── Bloque promocional ──
+                promo_activo:         config.promo_activo  || false,
+                promo_tipo:           config.promo_tipo    || 'banner',
+                promo_producto:       config.promo_producto || '',
+                promo_precio_normal:  config.promo_precio_normal || '',
+                promo_precio_oferta:  config.promo_precio_oferta || '',
+                promo_vigencia:       config.promo_vigencia || '',
+                promo_cupon_titulo:   config.promo_cupon_titulo || '',
+                promo_descuento:      config.promo_descuento || '',
+                promo_minimo:         config.promo_minimo || '',
+                promo_vence:          config.promo_vence || '',
+                promo_referido_msg:   config.promo_referido_msg || '',
+                promo_referido_premio:config.promo_referido_premio || '',
+                promo_texto_libre:    config.promo_texto_libre || '',
             };
         } catch (e) {
             _emisorData = {};
