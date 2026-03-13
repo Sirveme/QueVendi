@@ -19,6 +19,7 @@ from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.core.security import get_current_user
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -125,14 +126,14 @@ class StoreConfigRequest(BaseModel):
 async def save_store_config(
     data: StoreConfigRequest,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Guardar configuración del negocio"""
-    if current_user["role"] not in ["owner", "admin", "demo_seller"]:
+    if current_user.role not in ["owner", "admin", "demo_seller"]:
         raise HTTPException(403, "No tienes permiso para configurar el negocio")
 
     _ensure_table(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     # Verificar si existe
     existing = db.execute(text(
@@ -178,11 +179,11 @@ async def save_store_config(
 @router.get("/config")
 async def get_store_config(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Obtener configuración del negocio"""
     _ensure_table(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     row = db.execute(text(
         "SELECT * FROM store_config WHERE store_id = :sid"
