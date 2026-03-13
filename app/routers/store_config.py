@@ -128,7 +128,7 @@ async def save_store_config(
     current_user: dict = Depends(get_current_user)
 ):
     """Guardar configuración del negocio"""
-    if current_user["role"] not in ["owner", "admin", "seller"]:
+    if current_user["role"] not in ["owner", "admin", "demo_seller"]:
         raise HTTPException(403, "No tienes permiso para configurar el negocio")
 
     _ensure_table(db)
