@@ -75,7 +75,7 @@ async def select_demo_store(
         "token_type":   "bearer",
         "store_id":     data.store_id,
         "store_name":   store.business_name,
-        "redirect":     "/bodegas/onboarding"
+        "redirect":     "/onboarding"
     }
 
 
