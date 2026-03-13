@@ -2615,48 +2615,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 : new Date().toLocaleDateString('es-PE');
 
             return `
-            <div class="ticket" style="
-                width:300px;background:white;padding:12px 10px;
-                font-family:'DM Sans',sans-serif;font-size:8pt;color:#111;
-            ">
-                <div style="text-align:center;font-weight:900;font-size:11pt;margin-bottom:2px">
-                    ${cfg.nombre_comercial}
-                </div>
-                <div style="text-align:center;font-size:7.5pt;color:#444">
-                    ${cfg.razon_social}
-                </div>
-                <div style="text-align:center;font-size:7.5pt">RUC: ${cfg.ruc}</div>
-                <div style="text-align:center;font-size:7pt;color:#666">
-                    ${cfg.direccion}${cfg.telefono ? ' · Tel. '+cfg.telefono : ''}
-                </div>
-                <div style="border-top:1px dashed #999;margin:6px 0"></div>
-                <div style="text-align:center;font-weight:700;font-size:8.5pt">${tipo}</div>
-                <div style="text-align:center;font-weight:900;font-size:10pt;
-                            background:#111;color:white;padding:3px;border-radius:3px;margin:3px 0">
-                    ${numero}
-                </div>
-                <div style="font-size:7pt;margin-bottom:4px">
-                    Fecha: ${fecha}
-                    ${comp.cliente_razon_social && comp.cliente_razon_social !== 'CLIENTE VARIOS'
-                        ? `<br>Cliente: ${comp.cliente_razon_social}`
-                        : ''}
-                </div>
-                <div style="border-top:1px dashed #999;margin:4px 0"></div>
-                ${items.map(i => `
-                <div style="display:flex;justify-content:space-between;margin-bottom:2px">
-                    <span style="flex:1">${i.cantidad > 1 ? i.cantidad+'x ' : ''}${i.descripcion}</span>
-                    <span style="margin-left:6px;font-weight:700">S/ ${i.subtotal.toFixed(2)}</span>
-                </div>`).join('')}
-                <div style="border-top:1px dashed #999;margin:4px 0"></div>
-                <div style="display:flex;justify-content:space-between;font-weight:900;font-size:11pt">
-                    <span>TOTAL</span>
-                    <span>S/ ${total.toFixed(2)}</span>
-                </div>
-                <div style="border-top:1px dashed #999;margin:6px 0"></div>
-                <div style="text-align:center;font-size:6.5pt;color:#666">
-                    Verifique en: facturalo.pro/verificar
-                </div>
-            </div>`;
+                <div class="ticket" style="
+                    width:300px;background:white;padding:12px 10px;
+                    font-family:'DM Sans',sans-serif;font-size:8pt;color:#111;
+                ">
+                    <div style="text-align:center;font-weight:900;font-size:11pt;margin-bottom:2px">
+                        ${cfg.nombre_comercial}
+                    </div>
+                    <div style="text-align:center;font-size:7.5pt;color:#444">${cfg.razon_social}</div>
+                    <div style="text-align:center;font-size:7pt;color:#666">
+                        ${cfg.direccion}${cfg.telefono ? ' · Tel. '+cfg.telefono : ''}
+                    </div>
+
+                    <div style="border:1.5px solid #ccc;border-radius:4px;padding:5px;margin:5px 0;text-align:center">
+                        <div style="font-size:8pt;font-weight:bold">RUC: ${cfg.ruc}</div>
+                        <div style="border-top:1px dashed #bbb;margin:3px 0"></div>
+                        <div style="font-size:8pt;font-weight:700">${tipo}</div>
+                        <div style="background:#111;color:white;font-weight:900;font-size:10pt;
+                                    padding:3px;border-radius:3px;margin:3px 0">
+                            ${numero}
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;font-size:7pt;margin:3px 0">
+                        <span>Fecha: ${fecha}</span>
+                        <span>F.Pago: Contado</span>
+                    </div>
+
+                    ${comp.cliente_razon_social && comp.cliente_razon_social !== 'CLIENTE VARIOS' ? `
+                    <div style="border:1px solid #eee;border-radius:4px;padding:4px;margin:4px 0;font-size:7pt">
+                        Cliente: ${comp.cliente_razon_social}
+                    </div>` : ''}
+
+                    <div style="border:1px solid #ddd;border-radius:4px;padding:4px;margin:4px 0">
+                        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:7pt;
+                                    border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
+                            <span style="flex:1">Producto</span>
+                            <span style="width:40px;text-align:right">Cant</span>
+                            <span style="width:50px;text-align:right">Total</span>
+                        </div>
+                        ${items.map(i => `
+                        <div style="display:flex;justify-content:space-between;font-size:7pt;margin-bottom:2px">
+                            <span style="flex:1">${i.descripcion}</span>
+                            <span style="width:40px;text-align:right">${i.cantidad > 1 ? i.cantidad : ''}</span>
+                            <span style="width:50px;text-align:right;font-weight:700">S/ ${i.subtotal.toFixed(2)}</span>
+                        </div>`).join('')}
+                    </div>
+
+                    <div style="border:2px solid #222;border-radius:4px;padding:5px;margin:4px 0">
+                        <div style="display:flex;justify-content:space-between;font-weight:900;font-size:11pt">
+                            <span>TOTAL</span>
+                            <span>S/ ${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div style="border:1px solid #eee;border-radius:4px;padding:4px;margin:4px 0;
+                                font-size:6.5pt;text-align:center;color:#666;line-height:1.5">
+                        Representación impresa de la Boleta de Venta Electrónica<br>
+                        Verifique en: facturalo.pro/verificar
+                    </div>
+                </div>`;
         }
     </script>
 
