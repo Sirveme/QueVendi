@@ -239,29 +239,26 @@ async def health():
 
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(request: Request):
-    """Dashboard principal - Auth manejada por JavaScript"""
-    
-    # ── Redirigir demo_seller al selector ──────────────────────────
     token_cookie = request.cookies.get("access_token", "")
     if token_cookie.startswith("Bearer "):
         token = token_cookie[7:]
         payload = decode_token(token)
         if payload and payload.get("role") == "demo_seller":
-            return RedirectResponse(url="/demo/selector", status_code=302)
-    
+            # Solo redirige si AÚN no eligió nicho (no tiene store_name)
+            if not payload.get("store_name"):
+                return RedirectResponse(url="/demo/selector", status_code=302)
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
-    """Mismo fix para /dashboard"""
-    
     token_cookie = request.cookies.get("access_token", "")
     if token_cookie.startswith("Bearer "):
         token = token_cookie[7:]
         payload = decode_token(token)
         if payload and payload.get("role") == "demo_seller":
-            return RedirectResponse(url="/demo/selector", status_code=302)
+            if not payload.get("store_name"):   # ← agregar esta condición
+                return RedirectResponse(url="/demo/selector", status_code=302)
     
     return templates.TemplateResponse("dashboard_principal.html", {"request": request})
 
