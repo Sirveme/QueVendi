@@ -347,7 +347,7 @@ async function continuar() {
     localStorage.setItem('is_demo', 'true');
 
     // Redirigir al onboarding (carga de productos animada)
-    window.location.href = data.redirect || '/bodegas/onboarding';
+    window.location.href = data.redirect || '/home';
 
   } catch(e) {
     btn.classList.remove('loading-btn');
