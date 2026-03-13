@@ -300,63 +300,59 @@ function updatePreview() {
     document.getElementById('ticketPreview').innerHTML = `
         <div class="t-center">${headerHtml}</div>
 
-        <hr class="t-divider-solid">
-
-        <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc + 2}px;font-weight:bold;text-align:center;margin:3px 0">
-            RUC: ${esc(ruc)}
-        </div>
-        ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;text-align:center;color:#555">COD ESTAB: ${esc(cod)}</div>` : ''}
-
-        <hr class="t-divider">
-
-        <div style="font-size:${d.size_items + 1}px;text-align:center;font-weight:bold;margin:2px 0">BOLETA DE VENTA ELECTRÓNICA</div>
-        <div class="t-inverse" style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:bold">
-            ${esc(serie)}-00000001
+        <div style="border:1.5px solid #ccc;border-radius:4px;padding:5px;margin:5px 0;text-align:center">
+            <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc + 2}px;font-weight:bold">
+                RUC: ${esc(ruc)}
+            </div>
+            ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;color:#555">COD ESTAB: ${esc(cod)}</div>` : ''}
+            <hr class="t-divider">
+            <div style="font-size:${d.size_items + 1}px;font-weight:bold;margin:2px 0">BOLETA DE VENTA ELECTRÓNICA</div>
+            <div class="t-inverse" style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:bold">
+                ${esc(serie)}-00000001
+            </div>
         </div>
 
-        <div class="t-row" style="font-size:${d.size_items}px;margin:2px 0">
+        <div class="t-row" style="font-size:${d.size_items}px;margin:3px 0">
             <span>Fecha: ${new Date().toLocaleDateString('es-PE')}</span>
             <span>F.Pago: Contado</span>
         </div>
 
-        <hr class="t-divider">
-
-        <div style="font-size:${d.size_items}px">
+        <div style="border:1px solid #eee;border-radius:4px;padding:4px;margin:4px 0;font-size:${d.size_items}px">
             <div>DNI: 05393776</div>
             <div>Cliente: DUILIO RESTUCCIA ESLAVA</div>
             <div>Dirección: -</div>
         </div>
 
-        <hr class="t-divider">
+        <div style="border:1px solid #ddd;border-radius:4px;padding:4px;margin:4px 0">
+            <div class="t-row t-bold" style="font-size:${d.size_items}px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
+                <span style="flex:2">Producto</span>
+                <span style="width:24px;text-align:center">Cant</span>
+                <span style="width:36px;text-align:right">P.Unit</span>
+                <span style="width:36px;text-align:right">Total</span>
+            </div>
+            <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:2px">
+                <span style="flex:2">Cemento Sol 42.5kg</span>
+                <span style="width:24px;text-align:center">2</span>
+                <span style="width:36px;text-align:right">32.00</span>
+                <span style="width:36px;text-align:right">64.00</span>
+            </div>
+            <div class="t-row" style="font-size:${d.size_items}px">
+                <span style="flex:2">Fierro 1/2" x 9m</span>
+                <span style="width:24px;text-align:center">3</span>
+                <span style="width:36px;text-align:right">25.00</span>
+                <span style="width:36px;text-align:right">75.00</span>
+            </div>
+        </div>
 
-        <div class="t-row t-bold" style="font-size:${d.size_items}px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:2px">
-            <span style="flex:2">Producto</span>
-            <span style="width:24px;text-align:center">Cant</span>
-            <span style="width:36px;text-align:right">P.Unit</span>
-            <span style="width:36px;text-align:right">Total</span>
+        <div style="border:2px solid #222;border-radius:4px;padding:5px;margin:4px 0">
+            ${totalesHtml}
+            <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px;border-top:1px dashed #555;padding-top:3px;margin-top:3px">
+                <span>TOTAL IMPORTE S/</span>
+                <span>${total.toFixed(2)}</span>
+            </div>
+            <div style="font-size:${d.size_items}px">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
+            <div style="font-size:${d.size_items}px">Efectivo S/ 150.00 &nbsp; Vuelto S/ 11.00</div>
         </div>
-        <div class="t-row" style="font-size:${d.size_items}px">
-            <span style="flex:2">Cemento Sol 42.5kg</span>
-            <span style="width:24px;text-align:center">2</span>
-            <span style="width:36px;text-align:right">32.00</span>
-            <span style="width:36px;text-align:right">64.00</span>
-        </div>
-        <div class="t-row" style="font-size:${d.size_items}px">
-            <span style="flex:2">Fierro 1/2" x 9m</span>
-            <span style="width:24px;text-align:center">3</span>
-            <span style="width:36px;text-align:right">25.00</span>
-            <span style="width:36px;text-align:right">75.00</span>
-        </div>
-
-        <hr class="t-divider">
-
-        ${totalesHtml}
-        <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px;margin:3px 0">
-            <span>TOTAL IMPORTE S/</span>
-            <span>${total.toFixed(2)}</span>
-        </div>
-        <div style="font-size:${d.size_items}px">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
-        <div style="font-size:${d.size_items}px">Efectivo S/ 150.00 &nbsp; Vuelto S/ 11.00</div>
 
         ${d.catalogo_activo ? `
         <div class="t-highlight" style="font-size:${d.size_items}px">
