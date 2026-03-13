@@ -3,6 +3,14 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.core.config import settings
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from app.models.user import User
+
 
 # Contexto para hashing de PINs
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -83,37 +91,25 @@ def decode_token(token: str) -> Optional[dict]:
 # GET CURRENT USER
 # ============================================
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
 security = HTTPBearer()
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> dict:
-    token = credentials.credentials
+    credentials: HTTPAuthorizationCredentials = Depends(security),  # ← era oauth2_scheme
+    db: Session = Depends(get_db)
+):
+    token = credentials.credentials   # ← extraer el token de credentials
     payload = decode_token(token)
-    
-    if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token inválido")
     
     user_id = payload.get("user_id") or payload.get("sub")
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
     
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido - falta user_id",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    # store_id del JWT tiene precedencia (fix para demo_seller)
+    token_store_id = payload.get("store_id")
+    if token_store_id:
+        user.store_id = token_store_id
     
-    return {
-        "user_id": user_id,
-        "store_id": payload.get("store_id"),
-        "email": payload.get("email"),
-        "username": payload.get("username"),
-        "role": payload.get("role")
-    }
+    return user
