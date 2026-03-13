@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadUserData();
 
     // ── OFFLINE PWA ──
-    const storeId = AppState.user?.store_id || localStorage.getItem('store_id');
+    const storeId = localStorage.getItem('store_id') || AppState.user?.store_id;
     const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
     if (storeId) {
         try {
@@ -207,6 +207,10 @@ async function loadUserData() {
 
 function setUserData(user) {
     AppState.user = user;
+    // store_id del localStorage tiene precedencia (demo_seller y login fresco)
+    const lsStoreId = localStorage.getItem('store_id');
+    if (lsStoreId) AppState.user.store_id = parseInt(lsStoreId);
+
     AppState.isOwner = user.role === 'owner';
     
     const initial = user.full_name ? user.full_name[0].toUpperCase() : 'U';
