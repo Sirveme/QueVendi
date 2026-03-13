@@ -346,6 +346,20 @@ async function continuar() {
     localStorage.setItem('store_name', data.store_name);
     localStorage.setItem('is_demo', 'true');
 
+    // ── NUEVO: cargar config de la tienda demo ──
+    try {
+        const cfgResp = await fetch('/api/v1/store/config', {
+            headers: { 'Authorization': `Bearer ${data.access_token}` }
+        });
+        if (cfgResp.ok) {
+            const cfgData = await cfgResp.json();
+            if (cfgData.config) {
+                localStorage.setItem('store_config', JSON.stringify(cfgData.config));
+            }
+        }
+    } catch(e) { /* sin config, continúa igual */ }
+
+
     // Redirigir al onboarding (carga de productos animada)
     window.location.href = data.redirect || '/home';
 
