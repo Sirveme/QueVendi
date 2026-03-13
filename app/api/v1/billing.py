@@ -135,7 +135,7 @@ async def create_or_update_billing_config(
     current_user: User = Depends(get_current_user)
 ):
     """Crear o actualizar configuración de facturación"""
-    if current_user.role not in ["owner", "admin"]:
+    if current_user.role not in ["owner", "admin", "demo_seller"]:
         raise HTTPException(403, "Solo el dueño puede configurar facturación")
 
     config = db.query(StoreBillingConfig).filter(
