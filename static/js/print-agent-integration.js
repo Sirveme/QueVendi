@@ -30,6 +30,11 @@ const PrintAgentIntegration = (() => {
     function init() {
         // Cargar datos del emisor
         _loadEmisorData();
+        // Si store_config está vacío, cargar del servidor
+        const cfg = JSON.parse(localStorage.getItem('store_config') || '{}');
+        if (Object.keys(cfg).length === 0) {
+            _loadEmisorDataFromServer(); // async, no bloquea
+        }
 
         // Cargar preferencia de autoprint
         _autoprint = localStorage.getItem('autoprint_ticket') !== 'false';
@@ -101,6 +106,23 @@ const PrintAgentIntegration = (() => {
         } catch (e) {
             _emisorData = {};
         }
+    }
+
+    async function _loadEmisorDataFromServer() {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+            const resp = await fetch('/api/v1/store/config', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.config) {
+                    localStorage.setItem('store_config', JSON.stringify(data.config));
+                    _loadEmisorData(); // recargar con datos frescos
+                }
+            }
+        } catch(e) {}
     }
 
     async function _checkAgent() {
