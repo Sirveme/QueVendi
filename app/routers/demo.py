@@ -13,7 +13,8 @@ import json
 from datetime import timedelta
 from pathlib import Path
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import Request
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -36,8 +37,9 @@ class SelectStoreRequest(BaseModel):
 
 @router.post("/demo/select-store")
 async def select_demo_store(
+    request: Request,
     data: SelectStoreRequest,
-    current_user = Depends(get_current_user),   # ← quitar : User
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     # ── leer role sea dict o objeto ORM ──
@@ -70,13 +72,30 @@ async def select_demo_store(
         expires_delta=timedelta(hours=12)
     )
 
-    return {
+    # ── Respuesta con cookie actualizada ──────────────────────────
+    response = JSONResponse(content={
         "access_token": token,
         "token_type":   "bearer",
         "store_id":     data.store_id,
         "store_name":   store.business_name,
         "redirect":     "/home"
-    }
+    })
+
+    is_secure = (
+        request.url.scheme == "https" or
+        request.headers.get("x-forwarded-proto") == "https"
+    )
+    response.set_cookie(          # ← actualiza la cookie con el nuevo token
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=is_secure,
+        samesite="lax",
+        max_age=43200,            # 12 horas
+        path="/"
+    )
+
+    return response
 
 
 @router.get("/demo/selector", response_class=HTMLResponse)
