@@ -305,10 +305,10 @@ function updatePreview() {
     // ════════════════════════════════════════════════════════
     document.getElementById('ticketPreview').innerHTML = `
 
-        ${/* ── CABECERA: texto libre, sin box ── */''}
-        <div class="t-center">${headerHtml}</div>
-
-        <hr class="t-divider-solid">
+        ${/* ── BOX 0: CABECERA ── */''}
+        <div style="border:1.5px solid #bbb;border-radius:4px;padding:6px 8px;margin:0 0 4px 0">
+            ${headerHtml}
+        </div>
 
         ${/* ── BOX 1: RUC + TIPO COMPROBANTE + NÚMERO ── */''}
         <div style="border:1.5px solid #999;border-radius:4px;padding:5px 6px;margin:4px 0;text-align:center">
@@ -384,12 +384,24 @@ function updatePreview() {
             <div style="font-size:${d.size_items-1}px;color:#666">Compra para RECOGER o para DELIVERY</div>
         </div>` : ''}
 
-        ${/* ── QR + VERIFICACIÓN: texto libre ── */''}
-        <div class="t-qr" style="font-size:${d.size_items}px;margin:4px 0;line-height:1.6">
-            Representación impresa de la<br>
-            <strong>BOLETA DE VENTA ELECTRÓNICA</strong><br>
-            Verifique en: www.facturalo.pro/verificar<br>
-            <span style="color:#888">y en: www.sunat.gob.pe</span>
+        ${/* ── BOX: QR + VERIFICACIÓN ── */''}
+        <div style="border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin:4px 0">
+            <div style="display:flex;gap:6px;align-items:flex-start">
+                <div style="width:54px;height:54px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:7px;color:#888;text-align:center;border-radius:2px">
+                    [QR]
+                </div>
+                <div style="flex:1;font-size:${d.size_items}px;line-height:1.5">
+                    Representación impresa de la<br>
+                    <strong>BOLETA DE VENTA ELECTRÓNICA</strong><br>
+                    Verifique en:<br>
+                    www.facturalo.pro/verificar<br>
+                    www.sunat.gob.pe
+                </div>
+            </div>
+            <div class="t-row" style="font-size:${d.size_items-1}px;margin-top:4px;color:#666;border-top:1px dashed #ddd;padding-top:3px">
+                <span>Hash: abc123hash45</span>
+                <span>Interno: QVDI 00000001</span>
+            </div>
         </div>
 
         ${/* ── BOX 6: USUARIO / CAJA ── */''}
