@@ -300,81 +300,97 @@ function updatePreview() {
     document.getElementById('ticketPreview').innerHTML = `
         <div class="t-center">${headerHtml}</div>
 
-        <div style="border:1.5px solid #ccc;border-radius:4px;padding:5px;margin:5px 0;text-align:center">
-            <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc + 2}px;font-weight:bold">
+        <div style="border:1.5px solid #999;border-radius:3px;padding:5px;margin:5px 0;text-align:center">
+            <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc+2}px;font-weight:bold">
                 RUC: ${esc(ruc)}
             </div>
             ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;color:#555">COD ESTAB: ${esc(cod)}</div>` : ''}
             <hr class="t-divider">
-            <div style="font-size:${d.size_items + 1}px;font-weight:bold;margin:2px 0">BOLETA DE VENTA ELECTRÓNICA</div>
+            <div style="font-size:${d.size_items+1}px;font-weight:bold;margin:2px 0">BOLETA DE VENTA ELECTRÓNICA</div>
             <div class="t-inverse" style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:bold">
                 ${esc(serie)}-00000001
             </div>
         </div>
 
         <div class="t-row" style="font-size:${d.size_items}px;margin:3px 0">
-            <span>Fecha: ${new Date().toLocaleDateString('es-PE')}</span>
+            <span>Fecha E: ${new Date().toLocaleDateString('es-PE')}</span>
+            <span>Hora: ${new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</span>
             <span>F.Pago: Contado</span>
         </div>
 
-        <div style="border:1px solid #eee;border-radius:4px;padding:4px;margin:4px 0;font-size:${d.size_items}px">
-            <div>DNI: 05393776</div>
+        <div style="border:1px solid #ddd;border-radius:3px;padding:4px;margin:4px 0;font-size:${d.size_items}px">
+            <div>DNI: &nbsp; 05393776</div>
             <div>Cliente: DUILIO RESTUCCIA ESLAVA</div>
-            <div>Dirección: -</div>
+            <div>Dirección:</div>
         </div>
 
-        <div style="border:1px solid #ddd;border-radius:4px;padding:4px;margin:4px 0">
+        <div style="border:1px solid #ddd;border-radius:3px;padding:4px;margin:4px 0">
             <div class="t-row t-bold" style="font-size:${d.size_items}px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
                 <span style="flex:2">Producto</span>
-                <span style="width:24px;text-align:center">Cant</span>
-                <span style="width:36px;text-align:right">P.Unit</span>
+                <span style="width:28px;text-align:center">Cant</span>
+                <span style="width:40px;text-align:right">Uni Precio</span>
                 <span style="width:36px;text-align:right">Total</span>
             </div>
             <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:2px">
                 <span style="flex:2">Cemento Sol 42.5kg</span>
-                <span style="width:24px;text-align:center">2</span>
-                <span style="width:36px;text-align:right">32.00</span>
+                <span style="width:28px;text-align:center">2</span>
+                <span style="width:40px;text-align:right">NIU 32.00</span>
                 <span style="width:36px;text-align:right">64.00</span>
             </div>
-            <div class="t-row" style="font-size:${d.size_items}px">
+            <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:4px">
                 <span style="flex:2">Fierro 1/2" x 9m</span>
-                <span style="width:24px;text-align:center">3</span>
-                <span style="width:36px;text-align:right">25.00</span>
+                <span style="width:28px;text-align:center">3</span>
+                <span style="width:40px;text-align:right">NIU 25.00</span>
                 <span style="width:36px;text-align:right">75.00</span>
+            </div>
+            <div style="font-size:${d.size_items}px;color:#666">Items: 2</div>
+            ${totalesHtml}
+        </div>
+
+        <div style="border:2px solid #333;border-radius:3px;padding:5px;margin:4px 0">
+            <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px">
+                <span>TOTAL S/</span>
+                <span>${total.toFixed(2)}</span>
             </div>
         </div>
 
-        <div style="border:2px solid #222;border-radius:4px;padding:5px;margin:4px 0">
-            ${totalesHtml}
-            <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px;border-top:1px dashed #555;padding-top:3px;margin-top:3px">
-                <span>TOTAL IMPORTE S/</span>
-                <span>${total.toFixed(2)}</span>
-            </div>
-            <div style="font-size:${d.size_items}px">Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES</div>
-            <div style="font-size:${d.size_items}px">Efectivo S/ 150.00 &nbsp; Vuelto S/ 11.00</div>
+        <div style="font-size:${d.size_items}px;margin:3px 0">
+            Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES
+        </div>
+        <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:4px">
+            <span>Efectivo S/ 150.00</span>
+            <span>Vuelto S/ 11.00</span>
         </div>
 
         ${d.catalogo_activo ? `
         <div class="t-highlight" style="font-size:${d.size_items}px">
-            <div style="font-size:${d.size_items - 1}px;color:#444">HAZ TUS PEDIDOS EN LÍNEA GRATIS</div>
-            <div class="t-highlight-url">QUEVENDI.PRO/${tel || 'TU-NUMERO'}</div>
-            <div style="font-size:${d.size_items - 1}px;color:#666">PARA RECOJOS O DELIVERY</div>
+            <div style="font-size:${d.size_items-1}px;color:#444">&gt;&gt;&gt; Visita nuestra Tienda Online &lt;&lt;&lt;</div>
+            <div class="t-highlight-url">www.quevendi.pro/${tel || 'TU-NUMERO'}</div>
+            <div style="font-size:${d.size_items-1}px;color:#666">Compra para RECOGER o para DELIVERY</div>
         </div>` : ''}
 
-        <div class="t-qr" style="font-size:${d.size_items}px">[ CÓDIGO QR DE VERIFICACIÓN ]</div>
+        <div class="t-qr" style="font-size:${d.size_items}px;margin:4px 0">
+            <div>Representación impresa de la</div>
+            <div style="font-weight:bold">BOLETA DE VENTA ELECTRÓNICA</div>
+            <div>Verifique en:</div>
+            <div>www.facturalo.pro/verificar</div>
+            <div>www.sunat.gob.pe</div>
+        </div>
 
-        ${d.promo_activo ? buildPromoHtml(d) : ''}
-
-        <div style="font-size:${d.size_items}px;text-align:center;line-height:1.5">
-            Representación impresa de la<br>
-            Boleta de Venta Electrónica<br>
-            Consúltela en: www.sunat.gob.pe
+        <div style="font-size:${d.size_items-1}px;margin:3px 0">
+            <div class="t-row"><span>Usuario vendedor</span><span>${new Date().toLocaleDateString('es-PE')} ${new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</span></div>
+            <div>CAJA01</div>
+            <div class="t-row"><span>www.quevendi.pro</span><span>WhatsApp: ${tel || ''}</span></div>
         </div>
 
         ${d.es_amazonia ? `
-        <hr class="t-divider">
-        <div style="font-size:${d.size_items - 1}px;text-align:center;font-weight:bold">
-            BIENES TRANSFERIDOS EN LA AMAZONIA<br>PARA SER CONSUMIDOS EN LA MISMA
+        <div style="font-size:${d.size_items-1}px;text-align:center;font-weight:bold;margin:3px 0">
+            /// ATENDEMOS TODO TIPO DE EVENTOS ///
+        </div>` : ''}
+
+        ${d.slogan ? `
+        <div style="font-size:${d.size_slogan}px;text-align:center;color:#c00;font-style:italic;margin:3px 0">
+            /// ${esc(d.slogan)} ///
         </div>` : ''}
 
         ${d.eslogan2 ? `
@@ -383,27 +399,21 @@ function updatePreview() {
             ✦ ${esc(d.eslogan2)} ✦
         </div>` : ''}
 
-        ${d.slogan ? `
-        <hr class="t-divider">
-        <div style="font-size:${d.size_slogan}px;text-align:center;color:#c00;font-style:italic">
-            ¡¡¡ ${esc(d.slogan)} !!!
-        </div>` : ''}
-
         ${d.contador_nombre ? `
-        <div style="font-size:${d.size_items - 1}px;text-align:center;margin-top:3px">
-            Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' · RUC: ' + esc(d.contador_ruc) : ''}
+        <div style="font-size:${d.size_items-1}px;text-align:center;margin-top:3px">
+            Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' · RUC: '+esc(d.contador_ruc) : ''}
         </div>` : ''}
 
         <hr class="t-divider">
 
         <div class="t-footer-boxes">
             <div class="t-footer-box">
-                <div class="f-title">SISTEMA DE VENTAS</div>
+                <div class="f-title">Sistema de Ventas:</div>
                 <div class="f-url" style="color:#ff6b35">quevendi.pro</div>
                 <div class="f-sub">Usado en todo el Perú</div>
             </div>
             <div class="t-footer-box">
-                <div class="f-title">SISTEMA DE FACTURACIÓN</div>
+                <div class="f-title">Sistema de Facturación:</div>
                 <div class="f-url" style="color:#2563eb">facturalo.pro</div>
                 <div class="f-sub">Contadores y Empresas</div>
             </div>
