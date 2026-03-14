@@ -197,215 +197,249 @@ function getFormData() {
 // ════════════════════════════════════════════════
 function updatePreview() {
     const d = getFormData();
+
+    // ── Mapa de fuentes Google ──────────────────────────────
     const fontMap = {
         playfair:'Playfair Display', oswald:'Oswald', lato:'Lato',
         ubuntu:'Ubuntu', raleway:'Raleway', bebas:'Bebas Neue',
         pacifico:'Pacifico', cinzel:'Cinzel', righteous:'Righteous',
-        archivo:'Archivo Black'
+        archivo:'Archivo Black', dm_sans:'DM Sans'
     };
-    const fNombre  = fontMap[d.font_decorativa] || 'Playfair Display';
-    const fRazon   = fontMap[d.font_razon]  || 'Lato';
-    const fRuc     = fontMap[d.font_ruc]    || 'Lato';
-    const fNumero  = fontMap[d.font_numero] || 'Bebas Neue';
-    const fTotal   = fontMap[d.font_total]  || 'Archivo Black';
-    const fSlogan  = fontMap[d.font_slogan] || 'Pacifico';
+    const fNombre = fontMap[d.font_decorativa] || 'Bebas Neue';
+    const fRazon  = fontMap[d.font_razon]      || 'DM Sans';
+    const fRuc    = fontMap[d.font_ruc]        || 'DM Sans';
+    const fNumero = fontMap[d.font_numero]     || 'Bebas Neue';
+    const fTotal  = fontMap[d.font_total]      || 'Archivo Black';
+    const fSlogan = fontMap[d.font_slogan]     || 'Pacifico';
 
-    // Actualizar mini-previews de sliders de fuente
-    ['razon','ruc','numero','total','slogan'].forEach(k => {
-        const el = document.getElementById('prev_' + k);
-        if (!el) return;
-        const fk = k === 'razon' ? fRazon : k === 'ruc' ? fRuc : k === 'numero' ? fNumero : k === 'total' ? fTotal : fSlogan;
-        el.style.fontFamily = `'${fk}', sans-serif`;
+    // ── Actualizar mini-previews de sliders ─────────────────
+    const prevMap = { razon:fRazon, ruc:fRuc, numero:fNumero, total:fTotal, slogan:fSlogan };
+    Object.entries(prevMap).forEach(([k,f]) => {
+        const el = document.getElementById('prev_'+k);
+        if (el) el.style.fontFamily = `'${f}', sans-serif`;
     });
-    // Preview slider razón
-    const spRazon = document.getElementById('sprev_razon');
-    if (spRazon) spRazon.style.fontFamily = `'${fRazon}', sans-serif`;
-    // Actualizar mini-preview del slider nombre
     const spNombre = document.getElementById('sprev_nombre');
-    if (spNombre) spNombre.style.fontFamily = `'${fNombre}', serif`;
+    if (spNombre) spNombre.style.fontFamily = `'${fNombre}', sans-serif`;
+    const spRazon  = document.getElementById('sprev_razon');
+    if (spRazon)  spRazon.style.fontFamily  = `'${fRazon}', sans-serif`;
 
-    // Construir datos del ticket
+    // ── Datos del ticket ────────────────────────────────────
     const nombre   = d.nombre_comercial || d.razon_social || 'MI NEGOCIO';
     const razon    = d.razon_social || '';
     const ruc      = d.ruc || '00000000000';
     const dir      = d.direccion || 'Dirección del negocio';
     const cod      = d.cod_establecimiento || '0000';
     const tel      = d.telefono || '';
+    const giro     = d.giro || '';
     const serie    = d.serie_boleta || 'B001';
     const ubicacion = [d.distrito, d.provincia, d.departamento].filter(Boolean).join(' - ');
+    const fechaHoy  = new Date().toLocaleDateString('es-PE');
+    const horaHoy   = new Date().toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'});
+    const logoHtml  = logoDataUrl
+        ? `<img src="${logoDataUrl}" style="max-width:64px;max-height:48px;object-fit:contain;display:block;margin:0 auto 4px">`
+        : '';
 
-    // Calcular totales según IGV
-    const subtotal = 139.00;
-    let opGravada = 0, opExonerada = 0, opInafecta = 0, igv = 0, total = subtotal;
+    // ── Cálculo de totales ──────────────────────────────────
+    const subtotal    = 139.00;
+    let opGravada = 0, opExonerada = 0, opInafecta = 0, igv = 0;
     if (d.tipo_igv === '10') {
         opGravada = +(subtotal / 1.18).toFixed(2);
-        igv = +(subtotal - opGravada).toFixed(2);
+        igv       = +(subtotal - opGravada).toFixed(2);
     } else if (d.tipo_igv === '20') {
         opExonerada = subtotal;
     } else {
         opInafecta = subtotal;
     }
+    const total = subtotal;
 
-    // Header según estilo
-    let headerHtml = '';
-    const logoHtml = logoDataUrl
-        ? `<div class="t-logo"><img src="${logoDataUrl}"></div>`
-        : '';
-
-    if (d.header_style === 2) {
-        // Logo arriba, texto abajo centrado
-        headerHtml = `
-            ${logoHtml}
-            <div style="font-family:'${fNombre}',serif;font-size:${d.size_nombre}px;font-weight:700;text-align:center;line-height:1.2">${esc(nombre)}</div>
-            ${razon && razon !== nombre ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_razon}px;text-align:center;color:#444;font-weight:600">${esc(razon)}</div>` : ''}
-            ${d.giro ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(d.giro)}</div>` : ''}
-            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
-            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
-            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
-        `;
-    } else if (d.header_style === 3) {
-        // Logo a la izquierda + texto a la derecha
-        headerHtml = `
-            <div style="display:flex;gap:6px;align-items:flex-start">
-                ${logoDataUrl ? `<img src="${logoDataUrl}" style="width:32px;height:32px;object-fit:contain;flex-shrink:0">` : ''}
-                <div style="flex:1">
-                    <div style="font-family:'${fNombre}',serif;font-size:${Math.max(d.size_nombre-2,10)}px;font-weight:700;line-height:1.2">${esc(nombre)}</div>
-                    ${razon && razon !== nombre ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_razon}px;color:#444;font-weight:600">${esc(razon)}</div>` : ''}
-                    ${d.giro ? `<div style="font-size:${d.size_ruc}px">${esc(d.giro)}</div>` : ''}
-                    <div style="font-size:${d.size_ruc}px">${esc(dir)}</div>
-                    ${ubicacion ? `<div style="font-size:${d.size_ruc}px">${esc(ubicacion)}</div>` : ''}
-                </div>
-            </div>
-        `;
-    } else {
-        // Clásico centrado (style 1)
-        headerHtml = `
-            ${logoHtml}
-            <div style="font-family:'${fNombre}',serif;font-size:${d.size_nombre}px;font-weight:700;text-align:center;line-height:1.2">${esc(nombre)}</div>
-            ${razon && razon !== nombre ? `<div style="font-size:${Math.max(d.size_ruc-1,7)}px;text-align:center;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
-            ${d.giro ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(d.giro)}</div>` : ''}
-            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
-            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
-            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
-        `;
-    }
-
-    // Totales HTML
+    // ── Totales HTML ────────────────────────────────────────
     let totalesHtml = '';
     if (opGravada   > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Gravada S/</span><span>${opGravada.toFixed(2)}</span></div>`;
     if (opExonerada > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Exonerada S/</span><span>${opExonerada.toFixed(2)}</span></div>`;
     if (opInafecta  > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>Op. Inafecta S/</span><span>${opInafecta.toFixed(2)}</span></div>`;
     if (igv         > 0) totalesHtml += `<div class="t-row" style="font-size:${d.size_items}px"><span>IGV 18% S/</span><span>${igv.toFixed(2)}</span></div>`;
 
-    document.getElementById('ticketPreview').innerHTML = `
-        <div class="t-center">${headerHtml}</div>
+    // ── HEADER según estilo ─────────────────────────────────
+    let headerHtml = '';
 
-        <div style="border:1.5px solid #999;border-radius:3px;padding:5px;margin:5px 0;text-align:center">
-            <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc+2}px;font-weight:bold">
+    if (d.header_style === 2) {
+        // Estilo 2: Logo centrado arriba, texto debajo centrado
+        headerHtml = `
+            ${logoHtml}
+            <div style="font-family:'${fNombre}',sans-serif;font-size:${d.size_nombre}px;font-weight:900;text-align:center;line-height:1.2;text-transform:uppercase">${esc(nombre)}</div>
+            ${razon && razon !== nombre ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_razon}px;text-align:center;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+            ${giro ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_ruc}px;text-align:center;text-transform:uppercase">${esc(giro)}</div>` : ''}
+            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
+            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
+            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
+            ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;text-align:center;color:#666">COD: ${esc(cod)}</div>` : ''}`;
+
+    } else if (d.header_style === 3) {
+        // Estilo 3: Logo a la izquierda, texto a la derecha
+        headerHtml = `
+            <div style="display:flex;gap:6px;align-items:flex-start">
+                ${logoDataUrl ? `<img src="${logoDataUrl}" style="width:40px;height:40px;object-fit:contain;flex-shrink:0;border-radius:4px">` : ''}
+                <div style="flex:1;text-align:left">
+                    <div style="font-family:'${fNombre}',sans-serif;font-size:${Math.max(d.size_nombre-2,10)}px;font-weight:900;line-height:1.2;text-transform:uppercase">${esc(nombre)}</div>
+                    ${razon && razon !== nombre ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_razon}px;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+                    ${giro ? `<div style="font-size:${d.size_ruc}px;text-transform:uppercase">${esc(giro)}</div>` : ''}
+                    <div style="font-size:${d.size_ruc}px">${esc(dir)}</div>
+                    ${ubicacion ? `<div style="font-size:${d.size_ruc}px">${esc(ubicacion)}</div>` : ''}
+                    ${tel ? `<div style="font-size:${d.size_ruc}px">CEL: ${esc(tel)}</div>` : ''}
+                </div>
+            </div>`;
+
+    } else {
+        // Estilo 1: Clásico centrado (sin logo o logo centrado arriba)
+        headerHtml = `
+            ${logoHtml}
+            <div style="font-family:'${fNombre}',sans-serif;font-size:${d.size_nombre}px;font-weight:900;text-align:center;line-height:1.2;text-transform:uppercase">${esc(nombre)}</div>
+            ${razon && razon !== nombre ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_razon}px;text-align:center;color:#555;font-style:italic">${esc(razon)}</div>` : ''}
+            ${giro ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${d.size_ruc}px;text-align:center;text-transform:uppercase">${esc(giro)}</div>` : ''}
+            <div style="font-size:${d.size_ruc}px;text-align:center">${esc(dir)}</div>
+            ${ubicacion ? `<div style="font-size:${d.size_ruc}px;text-align:center">${esc(ubicacion)}</div>` : ''}
+            ${tel ? `<div style="font-size:${d.size_ruc}px;text-align:center">CEL: ${esc(tel)}</div>` : ''}
+            ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;text-align:center;color:#666">COD: ${esc(cod)}</div>` : ''}`;
+    }
+
+    // ── HTML COMPLETO DEL TICKET ────────────────────────────
+    document.getElementById('ticketPreview').innerHTML = `
+
+        ${/* ── CABECERA ── */''}
+        <div style="text-align:center;margin-bottom:4px">${headerHtml}</div>
+
+        <hr class="t-divider-solid">
+
+        ${/* ── BOX: RUC + TIPO + NÚMERO ── */''}
+        <div style="border:1.5px solid #999;border-radius:3px;padding:5px 6px;margin:4px 0;text-align:center">
+            <div style="font-family:'${fRuc}',sans-serif;font-size:${d.size_ruc+2}px;font-weight:700">
                 RUC: ${esc(ruc)}
             </div>
-            ${cod !== '0000' ? `<div style="font-size:${d.size_ruc}px;color:#555">COD ESTAB: ${esc(cod)}</div>` : ''}
             <hr class="t-divider">
-            <div style="font-size:${d.size_items+1}px;font-weight:bold;margin:2px 0">BOLETA DE VENTA ELECTRÓNICA</div>
-            <div class="t-inverse" style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:bold">
+            <div style="font-size:${d.size_items+1}px;font-weight:700;margin:2px 0">
+                BOLETA DE VENTA ELECTRÓNICA
+            </div>
+            <div class="t-inverse" style="font-family:'${fNumero}',sans-serif;font-size:${d.size_numero}px;font-weight:900;border-radius:3px;margin:3px 0">
                 ${esc(serie)}-00000001
             </div>
         </div>
 
+        ${/* ── FECHA / HORA / PAGO ── */''}
         <div class="t-row" style="font-size:${d.size_items}px;margin:3px 0">
-            <span>Fecha E: ${new Date().toLocaleDateString('es-PE')}</span>
-            <span>Hora: ${new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</span>
+            <span>Fecha E: ${fechaHoy}</span>
+            <span>Hora: ${horaHoy}</span>
             <span>F.Pago: Contado</span>
         </div>
 
-        <div style="border:1px solid #ddd;border-radius:3px;padding:4px;margin:4px 0;font-size:${d.size_items}px">
+        ${/* ── BOX: CLIENTE ── */''}
+        <div style="border:1px solid #ddd;border-radius:3px;padding:4px 6px;margin:4px 0;font-size:${d.size_items}px">
             <div>DNI: &nbsp; 05393776</div>
             <div>Cliente: DUILIO RESTUCCIA ESLAVA</div>
             <div>Dirección:</div>
         </div>
 
-        <div style="border:1px solid #ddd;border-radius:3px;padding:4px;margin:4px 0">
+        ${/* ── BOX: ITEMS ── */''}
+        <div style="border:1px solid #ccc;border-radius:3px;padding:4px 6px;margin:4px 0">
             <div class="t-row t-bold" style="font-size:${d.size_items}px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px">
-                <span style="flex:2">Producto</span>
-                <span style="width:28px;text-align:center">Cant</span>
-                <span style="width:40px;text-align:right">Uni Precio</span>
-                <span style="width:36px;text-align:right">Total</span>
+                <span style="flex:3">Producto</span>
+                <span style="width:22px;text-align:center">Cnt</span>
+                <span style="width:32px;text-align:right">P.Unit</span>
+                <span style="width:34px;text-align:right">Total</span>
             </div>
             <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:2px">
-                <span style="flex:2">Cemento Sol 42.5kg</span>
-                <span style="width:28px;text-align:center">2</span>
-                <span style="width:40px;text-align:right">NIU 32.00</span>
-                <span style="width:36px;text-align:right">64.00</span>
+                <span style="flex:3">Cemento Sol 42.5kg</span>
+                <span style="width:22px;text-align:center">2</span>
+                <span style="width:32px;text-align:right">32.00</span>
+                <span style="width:34px;text-align:right">64.00</span>
             </div>
             <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:4px">
-                <span style="flex:2">Fierro 1/2" x 9m</span>
-                <span style="width:28px;text-align:center">3</span>
-                <span style="width:40px;text-align:right">NIU 25.00</span>
-                <span style="width:36px;text-align:right">75.00</span>
+                <span style="flex:3">Fierro 1/2" x 9m</span>
+                <span style="width:22px;text-align:center">3</span>
+                <span style="width:32px;text-align:right">25.00</span>
+                <span style="width:34px;text-align:right">75.00</span>
             </div>
-            <div style="font-size:${d.size_items}px;color:#666">Items: 2</div>
+            <div style="font-size:${d.size_items}px;color:#777;margin-bottom:3px">Items: 2</div>
             ${totalesHtml}
         </div>
 
-        <div style="border:2px solid #333;border-radius:3px;padding:5px;margin:4px 0">
-            <div class="t-row t-bold" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px">
+        ${/* ── BOX: TOTAL ── */''}
+        <div style="border:2.5px solid #111;border-radius:3px;padding:5px 6px;margin:4px 0">
+            <div class="t-row" style="font-family:'${fTotal}',sans-serif;font-size:${d.size_total}px;font-weight:900">
                 <span>TOTAL S/</span>
                 <span>${total.toFixed(2)}</span>
             </div>
         </div>
 
+        ${/* ── SON / EFECTIVO / VUELTO ── */''}
         <div style="font-size:${d.size_items}px;margin:3px 0">
             Son: CIENTO TREINTA Y NUEVE CON 00/100 SOLES
         </div>
-        <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:4px">
+        <div class="t-row" style="font-size:${d.size_items}px;margin-bottom:5px">
             <span>Efectivo S/ 150.00</span>
             <span>Vuelto S/ 11.00</span>
         </div>
 
+        ${/* ── BOX: CATÁLOGO ONLINE ── */''}
         ${d.catalogo_activo ? `
-        <div class="t-highlight" style="font-size:${d.size_items}px">
+        <div class="t-highlight" style="font-size:${d.size_items}px;margin:4px 0">
             <div style="font-size:${d.size_items-1}px;color:#444">&gt;&gt;&gt; Visita nuestra Tienda Online &lt;&lt;&lt;</div>
-            <div class="t-highlight-url">www.quevendi.pro/${tel || 'TU-NUMERO'}</div>
+            <div class="t-highlight-url" style="font-size:${d.size_items+1}px">www.quevendi.pro/${tel || 'TU-NUMERO'}</div>
             <div style="font-size:${d.size_items-1}px;color:#666">Compra para RECOGER o para DELIVERY</div>
         </div>` : ''}
 
-        <div class="t-qr" style="font-size:${d.size_items}px;margin:4px 0">
+        ${/* ── BOX: QR + VERIFICACIÓN ── */''}
+        <div class="t-qr" style="font-size:${d.size_items}px;margin:4px 0;line-height:1.6">
             <div>Representación impresa de la</div>
-            <div style="font-weight:bold">BOLETA DE VENTA ELECTRÓNICA</div>
-            <div>Verifique en:</div>
-            <div>www.facturalo.pro/verificar</div>
-            <div>www.sunat.gob.pe</div>
+            <div style="font-weight:700">BOLETA DE VENTA ELECTRÓNICA</div>
+            <div>Verifique en: www.facturalo.pro/verificar</div>
+            <div style="color:#888">o en: www.sunat.gob.pe</div>
         </div>
 
-        <div style="font-size:${d.size_items-1}px;margin:3px 0">
-            <div class="t-row"><span>Usuario vendedor</span><span>${new Date().toLocaleDateString('es-PE')} ${new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</span></div>
-            <div>CAJA01</div>
-            <div class="t-row"><span>www.quevendi.pro</span><span>WhatsApp: ${tel || ''}</span></div>
+        ${/* ── PIE: USUARIO / CAJA ── */''}
+        <div style="font-size:${d.size_items-1}px;color:#666;margin:4px 0">
+            <div class="t-row">
+                <span>Usuario: vendedor</span>
+                <span>${fechaHoy} ${horaHoy}</span>
+            </div>
+            <div class="t-row">
+                <span>CAJA01</span>
+                ${tel ? `<span>WhatsApp: ${tel}</span>` : ''}
+            </div>
         </div>
 
+        ${/* ── AMAZONIA ── */''}
         ${d.es_amazonia ? `
-        <div style="font-size:${d.size_items-1}px;text-align:center;font-weight:bold;margin:3px 0">
-            /// ATENDEMOS TODO TIPO DE EVENTOS ///
+        <hr class="t-divider">
+        <div style="font-size:${d.size_items-1}px;text-align:center;font-weight:700;margin:3px 0;line-height:1.5">
+            BIENES TRANSFERIDOS EN LA AMAZONIA<br>PARA SER CONSUMIDOS EN LA MISMA
         </div>` : ''}
 
+        ${/* ── SLOGAN PRINCIPAL ── */''}
         ${d.slogan ? `
+        <hr class="t-divider">
         <div style="font-size:${d.size_slogan}px;text-align:center;color:#c00;font-style:italic;margin:3px 0">
             /// ${esc(d.slogan)} ///
         </div>` : ''}
 
+        ${/* ── ESLOGAN DECORATIVO ── */''}
         ${d.eslogan2 ? `
         <hr class="t-divider">
-        <div style="font-family:'${fSlogan}',cursive;font-size:${d.size_slogan}px;text-align:center;color:#444">
+        <div style="font-family:'${fSlogan}',cursive;font-size:${d.size_slogan}px;text-align:center;color:#555;margin:3px 0">
             ✦ ${esc(d.eslogan2)} ✦
         </div>` : ''}
 
+        ${/* ── BLOQUE PROMOCIONAL ── */''}
+        ${d.promo_activo ? buildPromoHtml(d) : ''}
+
+        ${/* ── CONTADOR ── */''}
         ${d.contador_nombre ? `
-        <div style="font-size:${d.size_items-1}px;text-align:center;margin-top:3px">
+        <hr class="t-divider">
+        <div style="font-size:${d.size_items-1}px;text-align:center;margin:3px 0">
             Contador: ${esc(d.contador_nombre)}${d.contador_ruc ? ' · RUC: '+esc(d.contador_ruc) : ''}
         </div>` : ''}
 
+        ${/* ── FOOTER: DOS COLUMNAS ── */''}
         <hr class="t-divider">
-
         <div class="t-footer-boxes">
             <div class="t-footer-box">
                 <div class="f-title">Sistema de Ventas:</div>
