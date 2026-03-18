@@ -164,7 +164,6 @@ else:
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(incidentes.router, prefix="/api/v1", tags=["incidentes"])
 app.include_router(ubigeo.router, prefix="/api/v1", tags=["ubigeo"])
-app.include_router(products.router, prefix="/api/v1", tags=["products"])
 app.include_router(sales.router, prefix="/api/v1", tags=["sales"])
 app.include_router(voice.router, prefix="/api/v1", tags=["voice"])
 app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
@@ -179,6 +178,7 @@ app.include_router(conversions.router, prefix="/api/v1", tags=["conversions"])
 app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
 app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
 app.include_router(offline_router)          # /api/v1/health + /api/v1/products/catalog
+app.include_router(products.router, prefix="/api/v1", tags=["products"])
 app.include_router(verification_router)     # /v/{code}
 app.include_router(demo.router, prefix="/api/v1", tags=["demo"])
 app.include_router(billing_offline_router, prefix="/api/v1/billing/offline")
