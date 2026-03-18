@@ -132,7 +132,9 @@ const OfflineDB = (() => {
                 : `${apiBase}/products/catalog`;
 
             const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                headers: token
+                    ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                    : { 'Content-Type': 'application/json' }
             });
 
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
