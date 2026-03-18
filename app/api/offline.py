@@ -72,6 +72,10 @@ async def get_product_catalog(
     - Sin `since`: catálogo completo (primera carga)
     - Con `since`: solo cambios desde esa fecha (sync incremental)
     """
+    import traceback
+
+    logger.info(f"[Catalog] Entrando. user type={type(current_user)} store_id={getattr(current_user, 'store_id', 'NO ATTR')}")
+
     store_id = current_user.store_id
 
     if not store_id:
@@ -113,30 +117,32 @@ async def get_product_catalog(
 
         products = query.all()
 
+        logger.info(f"[Catalog] Query OK: {len(products)} productos para store {store_id}")
+
         # Serializar
         product_list = []
         for p in products:
-            product_list.append({
-                "id": p.id,
-                "name": p.name,
-                "barcode": getattr(p, 'barcode', None) or getattr(p, 'code', None),
-                "sale_price": float(p.sale_price) if p.sale_price else 0,
-                "purchase_price": float(getattr(p, 'purchase_price', 0) or 0),
-                "stock": float(p.stock) if p.stock else 0,
-                "unit": getattr(p, 'unit', 'unidad') or 'unidad',
-                "category": getattr(p, 'category', None),
-                "image_url": getattr(p, 'image_url', None),
-                "allow_fractional": getattr(p, 'allow_fractional', False),
-                "min_stock": getattr(p, 'min_stock_alert', 0) or 0,
-                "active": getattr(p, 'active', True),
-                "updated_at": p.updated_at.isoformat() if hasattr(p, 'updated_at') and p.updated_at else server_time
-            })
+            try:
+                product_list.append({
+                    "id": p.id,
+                    "name": p.name,
+                    "barcode": getattr(p, 'barcode', None) or getattr(p, 'code', None),
+                    "sale_price": float(p.sale_price) if p.sale_price else 0,
+                    "purchase_price": float(getattr(p, 'purchase_price', 0) or 0),
+                    "stock": float(p.stock) if p.stock else 0,
+                    "unit": getattr(p, 'unit', 'unidad') or 'unidad',
+                    "category": getattr(p, 'category', None),
+                    "image_url": getattr(p, 'image_url', None),
+                    "allow_fractional": getattr(p, 'allow_fractional', False),
+                    "min_stock": getattr(p, 'min_stock_alert', 0) or 0,
+                    "active": getattr(p, 'active', True),
+                    "updated_at": p.updated_at.isoformat() if hasattr(p, 'updated_at') and p.updated_at else server_time
+                })
+            except Exception as pe:
+                logger.error(f"[Catalog] Error serializando producto {getattr(p, 'id', '?')}: {pe}")
+                logger.error(traceback.format_exc())
 
-        logger.info(
-            f"[Catalog] Store {store_id}: {len(product_list)} productos"
-            f"{f' (desde {since})' if since else ' (completo)'}"
-            f", {len(deleted_ids)} eliminados"
-        )
+        logger.info(f"[Catalog] Store {store_id}: {len(product_list)} productos serializados")
 
         return {
             "products": product_list,
@@ -147,8 +153,11 @@ async def get_product_catalog(
             "is_full_sync": since is None
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"[Catalog] Error store {store_id}: {e}")
+        logger.error(f"[Catalog] ERROR store {store_id}: {e}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 
