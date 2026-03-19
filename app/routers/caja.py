@@ -496,7 +496,7 @@ async def cerrar_caja(
 
     efectivo_esperado = (
         float(sesion.efectivo_inicial or 0) +
-        totales["total_efectivo_ventas"] -
+        totales["tef"] -
         float(total_egresos or 0)
     )
     diferencia = req.efectivo_declarado - efectivo_esperado
@@ -535,12 +535,12 @@ async def cerrar_caja(
         "yape":     req.yape_declarado,
         "plin":     req.plin_declarado,
         "tarjeta":  req.tarjeta_declarado,
-        "tv":       totales["total_ventas"],
-        "tef":      totales["total_efectivo_ventas"],
-        "ty":       totales["total_yape"],
-        "tp":       totales["total_plin"],
-        "tt":       totales["total_tarjeta"],
-        "cv":       totales["cantidad_ventas"],
+        "tv":       totales["tv"],
+        "tef":      totales["tef"],
+        "ty":       totales["ty"],
+        "tp":       totales["tp"],
+        "tt":       totales["tt"],
+        "cv":       totales["cv"],
         "te":       float(total_egresos),
         "dif":      diferencia,
         "notas":    req.notas,
@@ -556,7 +556,7 @@ async def cerrar_caja(
         "diferencia": round(diferencia, 2),
         "efectivo_esperado": round(efectivo_esperado, 2),
         "efectivo_declarado": req.efectivo_declarado,
-        "total_ventas": totales["total_ventas"],
+        "total_ventas": totales["tv"],
         "message": (
             "Caja cerrada correctamente" if estado == "cerrada"
             else f"Caja cerrada con observación — diferencia S/{diferencia:.2f}"
