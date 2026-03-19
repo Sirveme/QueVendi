@@ -639,17 +639,15 @@ const OfflineSync = (() => {
             headerActions.parentNode.insertBefore(indicator, headerActions);
         }
 
-        // Inyectar badge de pendientes en el botón de cobrar
-        const checkoutBtn = document.getElementById('btn-checkout');
-        if (checkoutBtn) {
-            checkoutBtn.style.position = 'relative';
-            const badge = document.createElement('span');
-            badge.id = 'offline-pending-badge';
-            badge.className = 'pending-sales-badge';
-            badge.textContent = '0';
-            badge.style.pointerEvents = 'none';  // ← agregar
-            badge.title = 'Ventas pendientes de sincronizar';
-            checkoutBtn.appendChild(badge);
+        // Badge de ventas pendientes — encima de métodos de pago
+        const paymentRow = document.querySelector('.payment-methods');
+        if (paymentRow) {
+            const wrap = document.createElement('div');
+            wrap.id = 'offline-pending-wrap';
+            wrap.style.cssText = 'display:none;align-items:center;gap:5px;padding:4px 10px;margin-bottom:4px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:8px;cursor:pointer;font-size:11px;color:#f59e0b;font-weight:700';
+            wrap.onclick = () => OfflineSync.forceSyncNow();
+            wrap.innerHTML = `📤 <span id="offline-pending-badge">0</span> ventas pendientes de sincronizar`;
+            paymentRow.parentNode.insertBefore(wrap, paymentRow);
         }
 
         // Inyectar barra de progreso de sync
@@ -701,6 +699,10 @@ const OfflineSync = (() => {
                 badge.textContent = count;
                 badge.classList.toggle('show', count > 0);
             }
+
+            // Mostrar/ocultar wrap  ← agregar esto
+            const wrap = document.getElementById('offline-pending-wrap');
+            if (wrap) wrap.style.display = count > 0 ? 'flex' : 'none';
 
             // También actualizar título de la página
             if (count > 0) {
