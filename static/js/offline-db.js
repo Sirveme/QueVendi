@@ -293,13 +293,15 @@ const OfflineDB = (() => {
         async getPending() {
             _requireInit();
             const { store } = getStore('pending_sales', 'readonly');
-            return promisify(store.index('synced').getAll(IDBKeyRange.only(false)));
+            const all = await promisify(store.getAll());
+            return all.filter(s => !s.synced);
         },
 
         async getPendingCount() {
             _requireInit();
             const { store } = getStore('pending_sales', 'readonly');
-            return promisify(store.index('synced').count(IDBKeyRange.only(false)));
+            const all = await promisify(store.getAll());
+            return all.filter(s => !s.synced).length;
         },
 
         async markSynced(localId, serverSaleId) {
