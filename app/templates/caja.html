@@ -879,8 +879,10 @@ async function abrirCaja() {
     });
     const d = await r.json();
     if (r.ok && d.success) {
-      toast('✓ ' + d.message, 'ok');
-      await cargarEstado();
+        toast('✓ ' + d.message, 'ok');
+        btn.disabled = false;      // ← agregar
+        btn.textContent = '✓ Abrir Caja';  // ← agregar
+        await cargarEstado();
     } else {
       showAlert('alert-apertura', d.detail || 'Error al abrir caja');
       btn.disabled = false;
