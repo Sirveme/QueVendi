@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caja — QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:    #B91C1C;
+  --red2:   #991818;
+  --gold:   #D4A017;
+  --green:  #16A34A;
+  --blue:   #2563EB;
+  --orange: #EA580C;
+  --dark:   #0D0D0D;
+  --dark2:  #141414;
+  --dark3:  #1C1C1C;
+  --dark4:  #222222;
+  --border: #2A2A2A;
+  --text1:  #F0F0F0;
+  --text2:  #909090;
+  --text3:  #555555;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  background:var(--dark2);position:sticky;top:0;z-index:100;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-btn{background:none;border:1px solid var(--border);color:var(--text2);
+  padding:7px 14px;border-radius:7px;cursor:pointer;font-size:0.8rem;
+  font-family:'DM Sans',sans-serif;transition:all .2s}
+.back-btn:hover{border-color:var(--text2);color:var(--text1)}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  color:var(--text1);letter-spacing:2px}
+.page-title span{color:var(--red)}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-badge{font-size:0.75rem;color:var(--text2);
+  background:var(--dark3);border:1px solid var(--border);
+  padding:5px 12px;border-radius:20px}
+.btn-sm{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;transition:all .2s}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--text2);color:var(--text1)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:0;height:calc(100vh - 57px);overflow:hidden}
+.main-col{overflow-y:auto;padding:20px}
+.side-col{border-left:1px solid var(--border);overflow-y:auto;background:var(--dark2)}
+
+/* ── ESTADO INICIAL (sin caja abierta) ── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:60vh;text-align:center;gap:16px
+}
+.empty-icon{font-size:3rem;margin-bottom:8px}
+.empty-state h2{font-size:1.3rem;font-weight:700}
+.empty-state p{color:var(--text2);font-size:0.85rem;max-width:320px;line-height:1.6}
+
+/* ── APERTURA ── */
+.apertura-card{
+  max-width:480px;margin:0 auto;
+  background:var(--dark2);border:1px solid var(--border);border-radius:12px;overflow:hidden
+}
+.apertura-header{
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(185,28,28,.07) 0%,transparent 60%)
+}
+.apertura-header h2{font-size:1.1rem;font-weight:700;margin-bottom:2px}
+.apertura-header p{font-size:0.78rem;color:var(--text2)}
+.apertura-body{padding:24px}
+
+/* ── CAMPO ── */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.72rem;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--dark3);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;color:var(--text1);font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(185,28,28,.12)}
+.field input::placeholder{color:var(--text3)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── BOTONES ── */
+.btn-primary{width:100%;padding:12px;background:var(--red);border:none;border-radius:8px;
+  color:white;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;
+  cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(185,28,28,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-green{background:var(--green)}
+.btn-green:hover{background:#15803d}
+.btn-danger{background:#dc2626}
+.btn-danger:hover{background:#b91c1c}
+
+/* ── DASHBOARD DE CAJA ── */
+.caja-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:10px
+}
+.caja-titulo{display:flex;align-items:center;gap:10px}
+.caja-num{
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;
+  color:var(--red);letter-spacing:1px
+}
+.badge-open{
+  background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);
+  color:#4ade80;font-size:0.68rem;font-weight:700;padding:3px 10px;
+  border-radius:20px;text-transform:uppercase;letter-spacing:.5px
+}
+.badge-closed{
+  background:rgba(100,100,100,.15);border:1px solid var(--border);
+  color:var(--text2);font-size:0.68rem;font-weight:700;padding:3px 10px;
+  border-radius:20px
+}
+
+/* ── MÉTRICAS ── */
+.metricas{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.metrica{
+  background:var(--dark2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px
+}
+.metrica.highlight{border-color:rgba(185,28,28,.3);background:rgba(185,28,28,.05)}
+.metrica .label{font-size:0.68rem;color:var(--text2);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:4px}
+.metrica .valor{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
+  letter-spacing:1px;line-height:1}
+.metrica .sub{font-size:0.68rem;color:var(--text3);margin-top:2px}
+.metrica.highlight .valor{color:var(--gold)}
+.metrica .valor.pos{color:#4ade80}
+.metrica .valor.neg{color:#f87171}
+
+/* ── MÉTODOS DE PAGO ── */
+.metodos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.metodo-card{
+  background:var(--dark3);border:1px solid var(--border);border-radius:8px;
+  padding:10px 8px;text-align:center
+}
+.metodo-card .m-icon{font-size:1.1rem;margin-bottom:3px}
+.metodo-card .m-name{font-size:0.62rem;color:var(--text2);font-weight:600;text-transform:uppercase}
+.metodo-card .m-val{font-size:0.85rem;font-weight:700;color:var(--text1);margin-top:2px}
+
+/* ── SECCIÓN ── */
+.seccion{background:var(--dark2);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;margin-bottom:12px}
+.seccion-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  background:var(--dark3)
+}
+.seccion-header h3{font-size:0.78rem;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px}
+.seccion-body{padding:12px 16px}
+
+/* ── LISTA EGRESOS ── */
+.egreso-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem
+}
+.egreso-row:last-child{border-bottom:none}
+.egreso-info small{display:block;font-size:0.68rem;color:var(--text3);margin-top:1px}
+.egreso-monto{font-weight:700;color:#f87171}
+.tipo-badge{font-size:0.6rem;padding:2px 7px;border-radius:10px;font-weight:700;
+  text-transform:uppercase;margin-left:6px}
+.tipo-gasto{background:rgba(239,68,68,.15);color:#f87171}
+.tipo-retiro{background:rgba(234,179,8,.15);color:#fbbf24}
+.tipo-devolucion{background:rgba(59,130,246,.15);color:#60a5fa}
+
+/* ── ARQUEO ── */
+.arqueo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.arqueo-field label{font-size:0.7rem;color:var(--text2);font-weight:600;
+  display:block;margin-bottom:5px;text-transform:uppercase}
+.arqueo-field input{width:100%;background:var(--dark3);border:1px solid var(--border);
+  border-radius:7px;padding:9px 12px;color:var(--text1);font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;font-weight:700;outline:none;transition:border-color .2s}
+.arqueo-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,160,23,.15)}
+
+.diferencia-box{
+  border-radius:8px;padding:12px 16px;text-align:center;margin-bottom:12px;
+  transition:all .3s
+}
+.diferencia-box.ok{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25)}
+.diferencia-box.mal{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)}
+.diferencia-box .dif-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
+.diferencia-box .dif-valor{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px}
+.diferencia-box.ok .dif-valor{color:#4ade80}
+.diferencia-box.mal .dif-valor{color:#f87171}
+
+/* ── PANEL LATERAL ── */
+.side-section{padding:16px;border-bottom:1px solid var(--border)}
+.side-title{font-size:0.7rem;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+
+/* ── MODAL EGRESO ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:16px;display:none
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--dark2);border:1px solid var(--border);border-radius:12px;
+  width:100%;max-width:420px;overflow:hidden
+}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:1rem;font-weight:700}
+.modal-close{background:none;border:none;color:var(--text2);
+  font-size:1.2rem;cursor:pointer}
+.modal-body{padding:20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--text2);
+  padding:9px 18px;border-radius:7px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--dark2);border:1px solid var(--border);border-radius:8px;
+  padding:10px 20px;font-size:0.82rem;font-weight:600;
+  transition:transform .3s;z-index:2000;white-space:nowrap
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(22,163,74,.4);color:#4ade80}
+.toast.err{border-color:rgba(239,68,68,.4);color:#f87171}
+
+/* ── SPINNER ── */
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESUMEN FINAL ── */
+.resumen-final{background:var(--dark3);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;margin-bottom:12px}
+.rf-row{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 14px;border-bottom:1px solid var(--border);font-size:0.82rem}
+.rf-row:last-child{border-bottom:none}
+.rf-row .k{color:var(--text2)}
+.rf-row .v{font-weight:600}
+.rf-row.total{background:rgba(212,160,23,.06)}
+.rf-row.total .k{font-weight:700;color:var(--text1)}
+.rf-row.total .v{color:var(--gold);font-size:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+
+/* ── SELECTOR DE TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab-btn{padding:9px 18px;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:0.82rem;font-weight:600;transition:all .2s;margin-bottom:-1px}
+.tab-btn.active{color:var(--text1);border-bottom-color:var(--red)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .layout{grid-template-columns:1fr;height:auto}
+  .side-col{border-left:none;border-top:1px solid var(--border)}
+  .metricas{grid-template-columns:1fr 1fr}
+  .metodos-grid{grid-template-columns:repeat(2,1fr)}
+  .arqueo-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <button class="back-btn" onclick="history.back()">← Dashboard</button>
+    <div class="page-title">CAJA <span>PRO</span></div>
+  </div>
+  <div class="header-right">
+    <div class="user-badge" id="user-badge">Cargando...</div>
+    <button class="btn-sm btn-outline" onclick="window.location.reload()">↻ Actualizar</button>
+  </div>
+</div>
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="layout">
+
+  <!-- ══ COLUMNA PRINCIPAL ══ -->
+  <div class="main-col">
+
+    <!-- VISTA: SIN CAJA ABIERTA -->
+    <div id="vista-sin-caja">
+      <div class="empty-state">
+        <div class="empty-icon">🏪</div>
+        <h2>No hay caja abierta</h2>
+        <p>Abre una sesión de caja para registrar ventas y controlar el efectivo del turno.</p>
+        <button class="btn-primary" style="width:auto;padding:12px 32px;margin-top:8px"
+                onclick="mostrarApertura()">
+          + Abrir Caja
+        </button>
+      </div>
+
+      <!-- FORMULARIO DE APERTURA -->
+      <div class="apertura-card" id="form-apertura" style="display:none;margin-top:0">
+        <div class="apertura-header">
+          <h2>Apertura de Caja</h2>
+          <p>Define el fondo inicial y el tipo de caja</p>
+        </div>
+        <div class="apertura-body">
+          <div id="alert-apertura" style="display:none;background:rgba(185,28,28,.12);
+               border:1px solid rgba(185,28,28,.3);color:#fca5a5;padding:9px 13px;
+               border-radius:7px;font-size:0.8rem;margin-bottom:14px"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>N° de Caja</label>
+              <select id="ap-numero">
+                <option value="1">Caja 1</option>
+                <option value="2">Caja 2</option>
+                <option value="3">Caja 3</option>
+                <option value="4">Caja 4</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo</label>
+              <select id="ap-tipo">
+                <option value="venta">Venta (cobra)</option>
+                <option value="pedidos">Solo pedidos</option>
+                <option value="delivery">Delivery / Recojo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Efectivo inicial en caja (S/)</label>
+            <input type="number" id="ap-efectivo" value="0" min="0" step="0.50"
+                   placeholder="0.00" oninput="calcEfectivoInicial()">
+          </div>
+
+          <!-- Denominaciones rápidas -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+            <span style="font-size:0.7rem;color:var(--text2);align-self:center">Rápido:</span>
+            <button class="btn-sm btn-outline" onclick="addEfectivo(50)">+50</button>
+            <button class="btn-sm btn-outline" onclick="addEfectivo(100)">+100</button>
+            <button class="btn-sm btn-outline" onclick="addEfectivo(200)">+200</button>
+            <button class="btn-sm btn-outline" onclick="addEfectivo(500)">+500</button>
+          </div>
+
+          <div class="field">
+            <label>Notas (opcional)</label>
+            <input type="text" id="ap-notas" placeholder="Turno mañana, cajero Juan...">
+          </div>
+
+          <button class="btn-primary" onclick="abrirCaja()" id="btn-abrir">
+            ✓ Abrir Caja
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA: CAJA ABIERTA -->
+    <div id="vista-caja-abierta" style="display:none">
+
+      <!-- HEADER DE LA CAJA -->
+      <div class="caja-header">
+        <div class="caja-titulo">
+          <div class="caja-num" id="caja-titulo">CAJA 1</div>
+          <span class="badge-open">● Abierta</span>
+          <span id="caja-tipo-badge" style="font-size:0.7rem;color:var(--text2)"></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm btn-outline" onclick="registrarEgreso()">
+            ↓ Egreso
+          </button>
+          <button class="btn-sm" style="background:var(--green);color:white;border:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700"
+                  onclick="mostrarArqueo()">
+            ⬛ Cerrar Caja
+          </button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('resumen')">Resumen</button>
+        <button class="tab-btn" onclick="switchTab('egresos')">Egresos</button>
+        <button class="tab-btn" onclick="switchTab('arqueo')">Arqueo / Cierre</button>
+      </div>
+
+      <!-- TAB: RESUMEN -->
+      <div class="tab-panel active" id="tab-resumen">
+
+        <!-- Métricas principales -->
+        <div class="metricas">
+          <div class="metrica highlight">
+            <div class="label">Total ventas</div>
+            <div class="valor" id="m-total-ventas">S/ 0.00</div>
+            <div class="sub" id="m-cantidad-ventas">0 transacciones</div>
+          </div>
+          <div class="metrica">
+            <div class="label">Efectivo en caja</div>
+            <div class="valor" id="m-efectivo-caja">S/ 0.00</div>
+            <div class="sub" id="m-efectivo-sub">Inicial + ventas − egresos</div>
+          </div>
+          <div class="metrica">
+            <div class="label">Egresos del turno</div>
+            <div class="valor neg" id="m-egresos">S/ 0.00</div>
+            <div class="sub" id="m-egresos-sub">0 movimientos</div>
+          </div>
+          <div class="metrica">
+            <div class="label">Apertura</div>
+            <div class="valor" id="m-hora-apertura" style="font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:700">--:--</div>
+            <div class="sub" id="m-fecha-apertura">--</div>
+          </div>
+        </div>
+
+        <!-- Métodos de pago -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:700">Por método de pago</div>
+          <div class="metodos-grid">
+            <div class="metodo-card">
+              <div class="m-icon">💵</div>
+              <div class="m-name">Efectivo</div>
+              <div class="m-val" id="mp-efectivo">S/ 0</div>
+            </div>
+            <div class="metodo-card">
+              <div class="m-icon">📱</div>
+              <div class="m-name">Yape</div>
+              <div class="m-val" id="mp-yape">S/ 0</div>
+            </div>
+            <div class="metodo-card">
+              <div class="m-icon">💳</div>
+              <div class="m-name">Plin</div>
+              <div class="m-val" id="mp-plin">S/ 0</div>
+            </div>
+            <div class="metodo-card">
+              <div class="m-icon">🏦</div>
+              <div class="m-name">Tarjeta</div>
+              <div class="m-val" id="mp-tarjeta">S/ 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top productos -->
+        <div class="seccion">
+          <div class="seccion-header">
+            <h3>🔥 Top productos del turno</h3>
+          </div>
+          <div class="seccion-body" id="top-productos">
+            <div style="font-size:0.8rem;color:var(--text3);text-align:center;padding:8px">
+              Sin datos aún
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB: EGRESOS -->
+      <div class="tab-panel" id="tab-egresos">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn-sm" style="background:var(--orange);color:white;border:none;
+                  padding:8px 16px;border-radius:7px;cursor:pointer;
+                  font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700"
+                  onclick="registrarEgreso()">
+            + Registrar Egreso
+          </button>
+        </div>
+        <div class="seccion">
+          <div class="seccion-header">
+            <h3>Movimientos de egreso</h3>
+            <span id="total-egresos-label" style="font-size:0.8rem;color:#f87171;font-weight:700"></span>
+          </div>
+          <div class="seccion-body" id="lista-egresos">
+            <div style="font-size:0.8rem;color:var(--text3);text-align:center;padding:8px">
+              Sin egresos registrados
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ARQUEO / CIERRE -->
+      <div class="tab-panel" id="tab-arqueo">
+        <div class="seccion" style="margin-bottom:12px">
+          <div class="seccion-header"><h3>📊 Lo que dice el sistema</h3></div>
+          <div class="seccion-body">
+            <div class="resumen-final" id="resumen-sistema"></div>
+          </div>
+        </div>
+
+        <div class="seccion">
+          <div class="seccion-header"><h3>🔢 Lo que cuenta el cajero</h3></div>
+          <div class="seccion-body">
+            <div class="arqueo-grid">
+              <div class="arqueo-field">
+                <label>💵 Efectivo contado</label>
+                <input type="number" id="arq-efectivo" value="0" min="0" step="0.50"
+                       oninput="calcDiferencia()" placeholder="0.00">
+              </div>
+              <div class="arqueo-field">
+                <label>📱 Yape</label>
+                <input type="number" id="arq-yape" value="0" min="0" step="0.50"
+                       oninput="calcDiferencia()" placeholder="0.00">
+              </div>
+              <div class="arqueo-field">
+                <label>💳 Plin</label>
+                <input type="number" id="arq-plin" value="0" min="0" step="0.50"
+                       oninput="calcDiferencia()" placeholder="0.00">
+              </div>
+              <div class="arqueo-field">
+                <label>🏦 Tarjeta</label>
+                <input type="number" id="arq-tarjeta" value="0" min="0" step="0.50"
+                       oninput="calcDiferencia()" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="diferencia-box ok" id="diferencia-box">
+              <div class="dif-label">Diferencia en efectivo</div>
+              <div class="dif-valor" id="diferencia-valor">S/ 0.00</div>
+              <div style="font-size:0.72rem;color:var(--text2);margin-top:4px" id="diferencia-desc">
+                Sin diferencia ✓
+              </div>
+            </div>
+
+            <div class="field" style="margin-bottom:12px">
+              <label>Notas del cierre</label>
+              <input type="text" id="arq-notas" placeholder="Observaciones, incidencias...">
+            </div>
+
+            <button class="btn-primary btn-green" onclick="cerrarCaja()" id="btn-cerrar">
+              ⬛ Confirmar Cierre de Caja
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /vista-caja-abierta -->
+
+  </div><!-- /main-col -->
+
+  <!-- ══ COLUMNA LATERAL ══ -->
+  <div class="side-col">
+
+    <!-- INFO DEL TURNO -->
+    <div class="side-section" id="side-turno">
+      <div class="side-title">📋 Turno actual</div>
+      <div id="side-turno-info" style="font-size:0.78rem;color:var(--text2);line-height:1.8">
+        Sin caja abierta
+      </div>
+    </div>
+
+    <!-- VISTA DUEÑO: TODAS LAS CAJAS -->
+    <div class="side-section" id="side-todas-cajas" style="display:none">
+      <div class="side-title">🏪 Todas las cajas abiertas</div>
+      <div id="lista-todas-cajas"></div>
+    </div>
+
+    <!-- ACCIONES RÁPIDAS -->
+    <div class="side-section">
+      <div class="side-title">⚡ Acciones rápidas</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn-sm btn-outline" style="text-align:left;padding:9px 14px"
+                onclick="actualizarDatos()">↻ Actualizar datos</button>
+        <button class="btn-sm btn-outline" style="text-align:left;padding:9px 14px"
+                onclick="window.location.href='/home'">🛒 Ir al POS</button>
+        <button class="btn-sm btn-outline" style="text-align:left;padding:9px 14px"
+                onclick="window.location.href='/reports'">📊 Ver reportes</button>
+        <button class="btn-sm btn-outline" style="text-align:left;padding:9px 14px;display:none"
+                id="btn-abrir-side" onclick="mostrarApertura()">+ Abrir Caja</button>
+      </div>
+    </div>
+
+    <!-- HISTORIAL RÁPIDO -->
+    <div class="side-section">
+      <div class="side-title">📅 Últimas sesiones</div>
+      <div id="historial-rapido" style="font-size:0.75rem;color:var(--text2)">
+        Cargando...
+      </div>
+    </div>
+
+  </div><!-- /side-col -->
+
+</div><!-- /layout -->
+
+<!-- MODAL EGRESO -->
+<div class="modal-overlay" id="modal-egreso">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Registrar Egreso</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-egreso')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Tipo de egreso</label>
+        <select id="eg-tipo">
+          <option value="gasto">Gasto (compra urgente, luz, etc.)</option>
+          <option value="retiro">Retiro del dueño</option>
+          <option value="devolucion">Devolución a cliente</option>
+          <option value="cambio">Cambio / Vuelto faltante</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Monto (S/)</label>
+        <input type="number" id="eg-monto" min="0.10" step="0.50" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>Motivo <span style="color:var(--red)">*</span></label>
+        <input type="text" id="eg-motivo" placeholder="Ej: Compra de bolsas, pago de luz...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarModal('modal-egreso')">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:9px 20px" onclick="confirmarEgreso()">
+        Registrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONFIG Y ESTADO
+// ════════════════════════════════════════════════
+const API = '/api/v1/caja';
+let token = localStorage.getItem('access_token');
+let sesionActiva = null;
+let userInfo = null;
+let autoRefreshTimer = null;
+
+const headers = () => {
+  const h = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  return h;
+};
+
+// ════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ════════════════════════════════════════════════
+async function init() {
+  await cargarUserInfo();
+  await cargarEstado();
+  await cargarHistorialRapido();
+  iniciarAutoRefresh();
+}
+
+async function cargarUserInfo() {
+  try {
+    const r = await fetch('/api/v1/users/me', { headers: headers() });
+    if (r.ok) {
+      userInfo = await r.json();
+      document.getElementById('user-badge').textContent =
+        `${userInfo.full_name || userInfo.username} · ${userInfo.role}`;
+    }
+  } catch(e) {}
+}
+
+async function cargarEstado() {
+  try {
+    const r = await fetch(`${API}/activa`, { headers: headers() });
+    if (!r.ok) {
+      mostrarSinCaja();
+      cargarTodasCajas();
+      return;
+    }
+    const d = await r.json();
+    if (d.activa && d.sesion) {
+      sesionActiva = d.sesion;
+      mostrarCajaAbierta(d.sesion);
+    } else {
+      mostrarSinCaja();
+    }
+    cargarTodasCajas();
+  } catch(e) {
+    mostrarSinCaja();
+  }
+}
+
+async function cargarTodasCajas() {
+  try {
+    const r = await fetch(`${API}/todas`, { headers: headers() });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.cajas && d.cajas.length > 0) {
+      const box = document.getElementById('side-todas-cajas');
+      box.style.display = 'block';
+      renderTodasCajas(d.cajas);
+    }
+  } catch(e) {}
+}
+
+async function cargarHistorialRapido() {
+  try {
+    const r = await fetch(`${API}/historial?limite=5`, { headers: headers() });
+    if (!r.ok) return;
+    const d = await r.json();
+    const el = document.getElementById('historial-rapido');
+    if (!d.historial || d.historial.length === 0) {
+      el.textContent = 'Sin sesiones anteriores';
+      return;
+    }
+    el.innerHTML = d.historial.map(s => `
+      <div style="padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="font-weight:600;color:var(--text1)">
+          Caja ${s.caja_numero} — S/ ${fmt(s.total_ventas)}
+        </div>
+        <div style="color:var(--text3);font-size:0.68rem">
+          ${fmtFecha(s.fecha_cierre)} ·
+          <span class="${s.estado==='cerrada'?'':'badge-observada'}" style="color:${s.estado==='cerrada'?'#4ade80':'#fbbf24'}">
+            ${s.estado}
+          </span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function iniciarAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(() => {
+    if (sesionActiva) actualizarDatos();
+  }, 30000); // cada 30 segundos
+}
+
+// ════════════════════════════════════════════════
+// VISTAS
+// ════════════════════════════════════════════════
+function mostrarSinCaja() {
+  document.getElementById('vista-sin-caja').style.display = 'block';
+  document.getElementById('vista-caja-abierta').style.display = 'none';
+  document.getElementById('btn-abrir-side').style.display = 'block';
+  document.getElementById('side-turno-info').textContent = 'Sin caja abierta';
+  sesionActiva = null;
+}
+
+function mostrarApertura() {
+  const empty = document.querySelector('.empty-state');
+  const form = document.getElementById('form-apertura');
+  if (empty) empty.style.display = 'none';
+  form.style.display = 'block';
+  form.scrollIntoView({ behavior: 'smooth' });
+}
+
+function mostrarCajaAbierta(s) {
+  document.getElementById('vista-sin-caja').style.display = 'none';
+  document.getElementById('vista-caja-abierta').style.display = 'block';
+  document.getElementById('btn-abrir-side').style.display = 'none';
+
+  // Título
+  document.getElementById('caja-titulo').textContent = `CAJA ${s.caja_numero}`;
+  const tipos = { venta: 'Venta', pedidos: 'Solo pedidos', delivery: 'Delivery/Recojo' };
+  document.getElementById('caja-tipo-badge').textContent = tipos[s.tipo] || s.tipo;
+
+  // Métricas
+  document.getElementById('m-total-ventas').textContent = `S/ ${fmt(s.total_ventas)}`;
+  document.getElementById('m-cantidad-ventas').textContent = `${s.cantidad_ventas} transacciones`;
+  document.getElementById('m-efectivo-caja').textContent = `S/ ${fmt(s.efectivo_esperado)}`;
+  document.getElementById('m-egresos').textContent = `S/ ${fmt(s.total_egresos)}`;
+  document.getElementById('m-egresos-sub').textContent = `${(s.egresos||[]).length} movimientos`;
+
+  if (s.fecha_apertura) {
+    const d = new Date(s.fecha_apertura);
+    document.getElementById('m-hora-apertura').textContent =
+      d.toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('m-fecha-apertura').textContent =
+      d.toLocaleDateString('es-PE');
+  }
+
+  // Métodos de pago
+  document.getElementById('mp-efectivo').textContent = `S/ ${fmt(s.total_efectivo_ventas)}`;
+  document.getElementById('mp-yape').textContent    = `S/ ${fmt(s.total_yape)}`;
+  document.getElementById('mp-plin').textContent    = `S/ ${fmt(s.total_plin)}`;
+  document.getElementById('mp-tarjeta').textContent = `S/ ${fmt(s.total_tarjeta)}`;
+
+  // Egresos
+  renderEgresos(s.egresos || []);
+
+  // Resumen sistema para arqueo
+  renderResumenSistema(s);
+
+  // Panel lateral
+  document.getElementById('side-turno-info').innerHTML = `
+    <div><strong style="color:var(--text1)">Cajero:</strong> ${s.user_nombre_apertura}</div>
+    <div><strong style="color:var(--text1)">Apertura:</strong> ${fmtFecha(s.fecha_apertura)}</div>
+    <div><strong style="color:var(--text1)">Fondo inicial:</strong> S/ ${fmt(s.efectivo_inicial)}</div>
+    <div><strong style="color:var(--text1)">Sesión ID:</strong> #${s.id}</div>
+  `;
+
+  // Auto-rellenar arqueo
+  document.getElementById('arq-yape').value = fmt(s.total_yape);
+  document.getElementById('arq-plin').value = fmt(s.total_plin);
+  document.getElementById('arq-tarjeta').value = fmt(s.total_tarjeta);
+  document.getElementById('arq-efectivo').value = fmt(s.efectivo_esperado);
+  calcDiferencia();
+}
+
+function renderEgresos(egresos) {
+  const lista = document.getElementById('lista-egresos');
+  const total = document.getElementById('total-egresos-label');
+
+  if (!egresos || egresos.length === 0) {
+    lista.innerHTML = '<div style="font-size:0.8rem;color:var(--text3);text-align:center;padding:8px">Sin egresos registrados</div>';
+    total.textContent = '';
+    return;
+  }
+
+  const sum = egresos.reduce((a,e) => a + e.monto, 0);
+  total.textContent = `Total: S/ ${fmt(sum)}`;
+
+  lista.innerHTML = egresos.map(e => `
+    <div class="egreso-row">
+      <div class="egreso-info">
+        ${e.motivo}
+        <small>${e.user_nombre} · ${fmtFecha(e.fecha)}</small>
+      </div>
+      <div>
+        <span class="tipo-badge tipo-${e.tipo}">${e.tipo}</span>
+        <span class="egreso-monto" style="margin-left:8px">−S/ ${fmt(e.monto)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderResumenSistema(s) {
+  const ef_esp = s.efectivo_esperado || 0;
+  document.getElementById('resumen-sistema').innerHTML = `
+    <div class="rf-row"><span class="k">Fondo inicial</span><span class="v">S/ ${fmt(s.efectivo_inicial)}</span></div>
+    <div class="rf-row"><span class="k">Ventas efectivo</span><span class="v">+S/ ${fmt(s.total_efectivo_ventas)}</span></div>
+    <div class="rf-row"><span class="k">Egresos</span><span class="v" style="color:#f87171">−S/ ${fmt(s.total_egresos)}</span></div>
+    <div class="rf-row total"><span class="k">Efectivo esperado</span><span class="v">S/ ${fmt(ef_esp)}</span></div>
+    <div class="rf-row"><span class="k">Yape (sistema)</span><span class="v">S/ ${fmt(s.total_yape)}</span></div>
+    <div class="rf-row"><span class="k">Plin (sistema)</span><span class="v">S/ ${fmt(s.total_plin)}</span></div>
+    <div class="rf-row"><span class="k">Tarjeta (sistema)</span><span class="v">S/ ${fmt(s.total_tarjeta)}</span></div>
+    <div class="rf-row total"><span class="k">Total ventas</span><span class="v">S/ ${fmt(s.total_ventas)}</span></div>
+  `;
+}
+
+function renderTodasCajas(cajas) {
+  document.getElementById('lista-todas-cajas').innerHTML = cajas.map(c => `
+    <div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;
+                padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-weight:700;font-size:0.85rem">Caja ${c.caja_numero}</span>
+        <span style="font-size:0.7rem;color:#4ade80">● Abierta</span>
+      </div>
+      <div style="font-size:0.72rem;color:var(--text2);line-height:1.7">
+        <div>Cajero: ${c.user_nombre_apertura}</div>
+        <div>Ventas: <strong style="color:var(--text1)">S/ ${fmt(c.total_ventas)}</strong> (${c.cantidad_ventas} transac.)</div>
+        <div>Efectivo: <strong style="color:var(--gold)">S/ ${fmt(c.efectivo_esperado)}</strong></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════
+// ACCIONES
+// ════════════════════════════════════════════════
+function addEfectivo(monto) {
+  const input = document.getElementById('ap-efectivo');
+  input.value = (parseFloat(input.value) || 0) + monto;
+}
+function calcEfectivoInicial() {} // placeholder
+
+async function abrirCaja() {
+  const btn = document.getElementById('btn-abrir');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Abriendo...';
+
+  const payload = {
+    efectivo_inicial: parseFloat(document.getElementById('ap-efectivo').value) || 0,
+    caja_numero: parseInt(document.getElementById('ap-numero').value),
+    tipo: document.getElementById('ap-tipo').value,
+    notas: document.getElementById('ap-notas').value || null,
+  };
+
+  try {
+    const r = await fetch(`${API}/abrir`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      toast('✓ ' + d.message, 'ok');
+      await cargarEstado();
+    } else {
+      showAlert('alert-apertura', d.detail || 'Error al abrir caja');
+      btn.disabled = false;
+      btn.textContent = '✓ Abrir Caja';
+    }
+  } catch(e) {
+    showAlert('alert-apertura', 'Error de conexión');
+    btn.disabled = false;
+    btn.textContent = '✓ Abrir Caja';
+  }
+}
+
+function registrarEgreso() {
+  if (!sesionActiva) return;
+  document.getElementById('eg-monto').value = '';
+  document.getElementById('eg-motivo').value = '';
+  abrirModal('modal-egreso');
+}
+
+async function confirmarEgreso() {
+  const monto = parseFloat(document.getElementById('eg-monto').value);
+  const motivo = document.getElementById('eg-motivo').value.trim();
+  const tipo = document.getElementById('eg-tipo').value;
+
+  if (!monto || monto <= 0) return toast('Ingresa un monto válido', 'err');
+  if (!motivo) return toast('Ingresa el motivo del egreso', 'err');
+
+  try {
+    const r = await fetch(`${API}/${sesionActiva.id}/egreso`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ monto, motivo, tipo }),
+    });
+    const d = await r.json();
+    if (r.ok) {
+      cerrarModal('modal-egreso');
+      toast('✓ Egreso registrado', 'ok');
+      await actualizarDatos();
+    } else {
+      toast(d.detail || 'Error', 'err');
+    }
+  } catch(e) {
+    toast('Error de conexión', 'err');
+  }
+}
+
+function mostrarArqueo() {
+  switchTab('arqueo');
+  document.getElementById('tab-arqueo').scrollIntoView({ behavior: 'smooth' });
+}
+
+function calcDiferencia() {
+  if (!sesionActiva) return;
+  const declarado = parseFloat(document.getElementById('arq-efectivo').value) || 0;
+  const esperado = sesionActiva.efectivo_esperado || 0;
+  const dif = declarado - esperado;
+
+  const box = document.getElementById('diferencia-box');
+  const val = document.getElementById('diferencia-valor');
+  const desc = document.getElementById('diferencia-desc');
+
+  val.textContent = `S/ ${Math.abs(dif).toFixed(2)}`;
+
+  if (Math.abs(dif) <= 0.10) {
+    box.className = 'diferencia-box ok';
+    val.textContent = 'S/ 0.00';
+    desc.textContent = 'Sin diferencia ✓';
+  } else if (dif > 0) {
+    box.className = 'diferencia-box ok';
+    desc.textContent = `Sobrante de S/ ${dif.toFixed(2)}`;
+  } else {
+    box.className = 'diferencia-box mal';
+    desc.textContent = `Faltante de S/ ${Math.abs(dif).toFixed(2)} ⚠`;
+  }
+}
+
+async function cerrarCaja() {
+  if (!sesionActiva) return;
+  const dif = parseFloat(document.getElementById('arq-efectivo').value || 0) - (sesionActiva.efectivo_esperado || 0);
+  if (Math.abs(dif) > 10) {
+    if (!confirm(`Hay una diferencia de S/ ${Math.abs(dif).toFixed(2)}. ¿Confirmas el cierre?`)) return;
+  }
+
+  const btn = document.getElementById('btn-cerrar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Cerrando...';
+
+  try {
+    const r = await fetch(`${API}/${sesionActiva.id}/cerrar`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        efectivo_declarado: parseFloat(document.getElementById('arq-efectivo').value) || 0,
+        yape_declarado: parseFloat(document.getElementById('arq-yape').value) || 0,
+        plin_declarado: parseFloat(document.getElementById('arq-plin').value) || 0,
+        tarjeta_declarado: parseFloat(document.getElementById('arq-tarjeta').value) || 0,
+        notas: document.getElementById('arq-notas').value || null,
+      }),
+    });
+    const d = await r.json();
+    if (r.ok) {
+      toast('✓ ' + d.message, 'ok');
+      sesionActiva = null;
+      await cargarEstado();
+      await cargarHistorialRapido();
+    } else {
+      toast(d.detail || 'Error al cerrar', 'err');
+      btn.disabled = false;
+      btn.textContent = '⬛ Confirmar Cierre de Caja';
+    }
+  } catch(e) {
+    toast('Error de conexión', 'err');
+    btn.disabled = false;
+    btn.textContent = '⬛ Confirmar Cierre de Caja';
+  }
+}
+
+async function actualizarDatos() {
+  if (!sesionActiva) return;
+  try {
+    const r = await fetch(`${API}/${sesionActiva.id}/resumen`, { headers: headers() });
+    if (!r.ok) return;
+    const d = await r.json();
+    sesionActiva = d.sesion;
+    mostrarCajaAbierta(d.sesion);
+    renderTopProductos(d.top_productos);
+  } catch(e) {}
+}
+
+function renderTopProductos(prods) {
+  const el = document.getElementById('top-productos');
+  if (!prods || prods.length === 0) {
+    el.innerHTML = '<div style="font-size:0.8rem;color:var(--text3);text-align:center;padding:8px">Sin datos</div>';
+    return;
+  }
+  el.innerHTML = prods.map((p, i) => `
+    <div style="display:flex;justify-content:space-between;padding:7px 0;
+                border-bottom:1px solid var(--border);font-size:0.8rem">
+      <span>${i+1}. ${p.nombre}</span>
+      <span style="font-weight:700;color:var(--gold)">S/ ${fmt(p.total)}</span>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['resumen','egresos','arqueo'][i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach((p,i) => {
+    p.classList.toggle('active', ['resumen','egresos','arqueo'][i] === tab);
+  });
+  if (tab === 'arqueo' && sesionActiva) renderResumenSistema(sesionActiva);
+}
+
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+function fmt(n) { return parseFloat(n || 0).toFixed(2); }
+function fmtFecha(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('es-PE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function toast(msg, tipo = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${tipo} show`;
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// Iniciar
+init();
+</script>
+</body>
+</html>
