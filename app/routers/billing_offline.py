@@ -252,11 +252,11 @@ async def register_device(
     Registrar un dispositivo (celular/tablet/PC) y asignarle una serie.
     Solo owner/admin pueden registrar dispositivos.
     """
-    if current_user["role"] not in ["owner", "admin", "seller"]:
+    if current_user.role not in ["owner", "admin", "seller"]:
         raise HTTPException(403, "Solo el dueño, admin o vendedor puede registrar dispositivos")
 
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     # ── LÍMITE POR PLAN ──
     PLAN_LIMITS = {"demo": 2, "freemium": 2, "basico": 2, "crece": 3, "pro": 99}
@@ -272,7 +272,7 @@ async def register_device(
     ), {"sid": store_id}).scalar() or 0
 
     # ── LÍMITE POR ROL ── (seller: max 1 dispositivo)
-    role = current_user["role"]
+    role = current_user.role
     if role == "seller":
         seller_devices = db.execute(text("""
             SELECT COUNT(*) FROM billing_devices bd
@@ -335,11 +335,11 @@ async def reserve_correlative_block(
     Reservar un bloque de números correlativos para uso offline.
     El dispositivo guarda este rango en IndexedDB y lo usa sin internet.
     """
-    if current_user["role"] not in ["owner", "admin", "seller"]:
+    if current_user.role not in ["owner", "admin", "seller"]:
         raise HTTPException(403, "No autorizado")
 
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
     cantidad = min(req.cantidad, MAX_BLOCK_SIZE)
 
     # Verificar que el dispositivo está registrado con esta serie
@@ -396,7 +396,7 @@ async def sync_offline_comprobantes(
     Se llama cuando el dispositivo recupera internet.
     """
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     # Obtener config de facturación
     config = db.query(StoreBillingConfig).filter(
@@ -512,7 +512,7 @@ async def list_devices(
 ):
     """Listar dispositivos registrados de esta tienda"""
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     rows = db.execute(text("""
         SELECT d.device_id, d.device_name, d.serie, d.tipo, d.ultimo_numero,
@@ -543,11 +543,11 @@ async def revoke_device(
     Desactivar un dispositivo y anular sus bloques pendientes.
     Solo owner/admin pueden hacerlo.
     """
-    if current_user["role"] not in ["owner", "admin", "seller"]:
+    if current_user.role not in ["owner", "admin", "seller"]:
         raise HTTPException(403, "Solo el dueño, admin o vendedor puede desactivar dispositivos")
 
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     # Verificar que el dispositivo pertenece a esta tienda
     device = db.execute(text("""
@@ -572,7 +572,7 @@ async def revoke_device(
 
     db.commit()
 
-    logger.info(f"[OfflineBilling] 🚫 Dispositivo {device_id} (serie {device[2]}) desactivado por {current_user['role']}")
+    logger.info(f"[OfflineBilling] 🚫 Dispositivo {device_id} (serie {device[2]}) desactivado por {current_user.role}")
 
     return {
         "success": True,
@@ -590,7 +590,7 @@ async def get_block_status(
 ):
     """Ver estado de bloques de una serie"""
     _ensure_tables(db)
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     blocks = db.execute(text("""
         SELECT desde, hasta, usado_hasta, is_active, reserved_at, synced_at
@@ -609,6 +609,58 @@ async def get_block_status(
                 "sincronizado": b[5].isoformat() if b[5] else None
             } for b in blocks
         ]
+    }
+
+
+
+@router.get("/device/my-token")
+async def get_my_device(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Recuperar el dispositivo registrado para el usuario actual.
+    Se llama al login para restaurar device_token si se perdió localmente.
+    """
+    _ensure_tables(db)
+    store_id = current_user.store_id
+
+    # Buscar dispositivos activos de esta tienda
+    devices = db.execute(text("""
+        SELECT bd.device_id, bd.device_name, bd.serie, bd.tipo,
+               bd.is_active, bd.created_at,
+               COALESCE(
+                   (SELECT SUM(hasta - desde + 1 - usado)
+                    FROM billing_correlative_blocks
+                    WHERE device_id = bd.device_id
+                      AND store_id = bd.store_id
+                      AND is_active = TRUE), 0
+               ) as correlativos_restantes
+        FROM billing_devices bd
+        WHERE bd.store_id = :sid AND bd.is_active = TRUE
+        ORDER BY bd.created_at DESC
+    """), {"sid": store_id}).fetchall()
+
+    if not devices:
+        return {
+            "registered": False,
+            "message": "No hay dispositivos registrados. El dueño debe registrar este dispositivo."
+        }
+
+    device_list = []
+    for d in devices:
+        device_list.append({
+            "device_id":             d.device_id,
+            "device_name":           d.device_name,
+            "serie":                 d.serie,
+            "tipo":                  d.tipo,
+            "correlativos_restantes": int(d.correlativos_restantes or 0),
+        })
+
+    return {
+        "registered": True,
+        "devices":    device_list,
+        "total":      len(device_list)
     }
 
 
