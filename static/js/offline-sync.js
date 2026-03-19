@@ -108,6 +108,7 @@ const OfflineSync = (() => {
      * no si realmente hay internet). Hacemos ping real al servidor.
      */
     async function _checkConnection() {
+        if (_manualOffline) return false;
         try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), CONFIG.pingTimeout);
@@ -142,6 +143,7 @@ const OfflineSync = (() => {
                 _setOnline(false);
             }
             return false;
+            
         }
     }
 
@@ -811,6 +813,19 @@ const OfflineSync = (() => {
                 </div>
 
                 <div style="display: flex; gap: 8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 14px;border-top:1px solid rgba(255,255,255,0.05)">
+                    <span style="color:#94a3b8;font-size:13px">Modo sin internet</span>
+                    <label style="position:relative;width:44px;height:24px;cursor:pointer">
+                        <input type="checkbox" id="toggle-manual-offline"
+                            ${!status.online && OfflineSync._manualOffline ? 'checked' : ''}
+                            onchange="OfflineSync.toggleManualOffline(this.checked)"
+                            style="opacity:0;width:100%;height:100%;position:absolute;cursor:pointer;margin:0">
+                        <span style="position:absolute;inset:0;background:${!status.online && OfflineSync._manualOffline ? '#ef4444' : 'rgba(255,255,255,0.15)'};border-radius:12px;transition:background .2s"></span>
+                        <span style="position:absolute;top:2px;left:${!status.online && OfflineSync._manualOffline ? '22' : '2'}px;width:20px;height:20px;background:white;border-radius:50%;transition:left .2s"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
                     <button onclick="OfflineSync.forceSyncNow(); this.closest('#sync-status-modal').remove();" style="
                         flex: 1; padding: 12px; border: none; border-radius: 10px;
                         background: linear-gradient(135deg, #3b82f6, #1d4ed8);
@@ -930,6 +945,22 @@ const OfflineSync = (() => {
         console.log('[OfflineSync] Destruido');
     }
 
+    let _manualOffline = false;
+
+    function toggleManualOffline(forceOff) {
+        _manualOffline = forceOff;
+        if (forceOff) {
+            _setOnline(false);
+            _showToast('Modo sin internet activado — ventas se guardan localmente', 'warning');
+        } else {
+            _checkConnection(); // verifica si hay internet real
+            _showToast('Modo sin internet desactivado', 'info');
+        }
+        // Cerrar modal
+        const modal = document.getElementById('sync-status-modal');
+        if (modal) modal.remove();
+    }
+
     return {
         init,
         isOnline,
@@ -937,7 +968,9 @@ const OfflineSync = (() => {
         syncCatalog,
         forceSyncNow,
         onStatusChange,
-        destroy
+        destroy,
+        toggleManualOffline,
+        get _manualOffline() { return _manualOffline; }
     };
 
 })();
