@@ -647,6 +647,8 @@ const OfflineSync = (() => {
             badge.id = 'offline-pending-badge';
             badge.className = 'pending-sales-badge';
             badge.textContent = '0';
+            badge.style.pointerEvents = 'none';  // ← agregar
+            badge.title = 'Ventas pendientes de sincronizar';
             checkoutBtn.appendChild(badge);
         }
 
