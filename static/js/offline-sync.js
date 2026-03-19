@@ -748,6 +748,17 @@ const OfflineSync = (() => {
 
         } catch (e) {
             console.error('[OfflineSync] Error obteniendo estado:', e);
+            // Mostrar modal con datos básicos aunque falle getStatus
+            _showStatusModal({
+                online: _online,
+                emisor_name: 'QueVendi',
+                device_id: localStorage.getItem('device_id') || '—',
+                products_cached: 0,
+                last_product_sync: 'nunca',
+                pending_sales: 0,
+                synced_sales: 0,
+                error_sales: 0,
+            }, 'No disponible');
         }
     }
 
