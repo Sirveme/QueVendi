@@ -453,7 +453,7 @@ const OfflineSale = (() => {
         modal.id = 'offline-sale-success-modal';
         modal.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 10006;
+            background: rgba(0, 0, 0, 0.85); z-index: 999999;
             display: flex; align-items: center; justify-content: center;
             backdrop-filter: blur(4px); padding: 20px;
         `;
