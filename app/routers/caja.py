@@ -405,14 +405,15 @@ async def resumen_sesion(
     top_productos = []
     try:
         prods = db.execute(text("""
-            SELECT si.product_name, SUM(si.quantity) as qty, SUM(si.subtotal) as total
+            SELECT p.name, SUM(si.quantity) as qty, SUM(si.subtotal) as total
             FROM sale_items si
             JOIN sales s ON s.id = si.sale_id
-            WHERE s.store_id = :sid AND s.sale_date >= :desde AND s.is_active = TRUE
-            GROUP BY si.product_name
+            JOIN products p ON p.id = si.product_id
+            WHERE s.store_id = :sid AND s.sale_date >= :desde
+            GROUP BY p.name
             ORDER BY total DESC LIMIT 5
         """), {"sid": store_id, "desde": row.fecha_apertura}).fetchall()
-        top_productos = [{"nombre": p.product_name, "cantidad": float(p.qty), "total": float(p.total)} for p in prods]
+        top_productos = [{"nombre": p.name, "cantidad": float(p.qty), "total": float(p.total)} for p in prods]
     except Exception as e:
         logger.warning(f"[Caja] Top productos: {e}")
 
