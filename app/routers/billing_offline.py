@@ -627,19 +627,19 @@ async def get_my_device(
 
     # Buscar dispositivos activos de esta tienda
     devices = db.execute(text("""
-        SELECT bd.device_id, bd.device_name, bd.serie, bd.tipo,
-               bd.is_active, bd.created_at,
-               COALESCE(
-                   (SELECT SUM(hasta - usado_hasta)
-                    FROM billing_correlative_blocks
-                    WHERE device_id = bd.device_id
-                      AND store_id = bd.store_id
-                      AND is_active = TRUE), 0
-               ) as correlativos_restantes
-        FROM billing_devices bd
-        WHERE bd.store_id = :sid AND bd.is_active = TRUE
-        ORDER BY bd.created_at DESC
-    """), {"sid": store_id}).fetchall()
+    SELECT bd.device_id, bd.device_name, bd.serie, bd.tipo,
+           bd.is_active, bd.registered_at,
+           COALESCE(
+               (SELECT SUM(hasta - usado_hasta)
+                FROM billing_correlative_blocks
+                WHERE device_id = bd.device_id
+                  AND store_id = bd.store_id
+                  AND is_active = TRUE), 0
+           ) as correlativos_restantes
+    FROM billing_devices bd
+    WHERE bd.store_id = :sid AND bd.is_active = TRUE
+    ORDER BY bd.registered_at DESC
+"""), {"sid": store_id}).fetchall()
 
     if not devices:
         return {
