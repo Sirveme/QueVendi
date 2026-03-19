@@ -717,7 +717,7 @@ function iniciarAutoRefresh() {
   if (autoRefreshTimer) clearInterval(autoRefreshTimer);
   autoRefreshTimer = setInterval(() => {
     if (sesionActiva) actualizarDatos();
-  }, 30000); // cada 30 segundos
+  }, 120000); // ← 2 minutos en vez de 30 segundos
 }
 
 // ════════════════════════════════════════════════
