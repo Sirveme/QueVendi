@@ -630,7 +630,7 @@ async def get_my_device(
         SELECT bd.device_id, bd.device_name, bd.serie, bd.tipo,
                bd.is_active, bd.created_at,
                COALESCE(
-                   (SELECT SUM(hasta - desde + 1 - usado)
+                   (SELECT SUM(hasta - usado_hasta)
                     FROM billing_correlative_blocks
                     WHERE device_id = bd.device_id
                       AND store_id = bd.store_id
