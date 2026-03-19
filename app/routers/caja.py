@@ -261,12 +261,11 @@ async def caja_activa(
     store_id = current_user.store_id
 
     row = db.execute(text("""
-        SELECT * FROM caja_sesiones
-        WHERE store_id = :sid AND estado = 'abierta'
-          AND user_id_apertura = :uid
-        ORDER BY fecha_apertura DESC
-        LIMIT 1
-    """), {"sid": store_id, "uid": current_user.id}).fetchone()
+    SELECT * FROM caja_sesiones
+    WHERE store_id = :sid AND estado = 'abierta'
+    ORDER BY fecha_apertura DESC
+    LIMIT 1
+"""), {"sid": store_id}).fetchone()
 
     if not row:
         return {"activa": False, "sesion": None}
