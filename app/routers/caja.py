@@ -134,12 +134,11 @@ class CerrarCajaRequest(BaseModel):
 # HELPERS
 # ════════════════════════════════════════════════
 def _calcular_totales_sesion(db: Session, sesion_id: int, store_id: int, fecha_apertura):
-    """Recalcula totales de ventas desde la BD de sales."""
     try:
         result = db.execute(text("""
             SELECT
-                COUNT(*)                                        AS cantidad,
-                COALESCE(SUM(total), 0)                         AS total_ventas,
+                COUNT(*)                                         AS cantidad,
+                COALESCE(SUM(total), 0)                          AS total_ventas,
                 COALESCE(SUM(CASE WHEN payment_method = 'efectivo' THEN total ELSE 0 END), 0) AS efectivo,
                 COALESCE(SUM(CASE WHEN payment_method = 'yape'     THEN total ELSE 0 END), 0) AS yape,
                 COALESCE(SUM(CASE WHEN payment_method = 'plin'     THEN total ELSE 0 END), 0) AS plin,
@@ -147,24 +146,19 @@ def _calcular_totales_sesion(db: Session, sesion_id: int, store_id: int, fecha_a
             FROM sales
             WHERE store_id = :sid
               AND sale_date >= :desde
-              AND is_active = TRUE
         """), {"sid": store_id, "desde": fecha_apertura}).fetchone()
 
         return {
-            "cantidad_ventas":      int(result.cantidad or 0),
-            "total_ventas":         float(result.total_ventas or 0),
-            "total_efectivo_ventas":float(result.efectivo or 0),
-            "total_yape":           float(result.yape or 0),
-            "total_plin":           float(result.plin or 0),
-            "total_tarjeta":        float(result.tarjeta or 0),
+            "tv":  float(result.total_ventas or 0),
+            "tef": float(result.efectivo or 0),
+            "ty":  float(result.yape or 0),
+            "tp":  float(result.plin or 0),
+            "tt":  float(result.tarjeta or 0),
+            "cv":  int(result.cantidad or 0),
         }
     except Exception as e:
         logger.error(f"[Caja] Error calculando totales: {e}")
-        return {
-            "cantidad_ventas": 0, "total_ventas": 0,
-            "total_efectivo_ventas": 0, "total_yape": 0,
-            "total_plin": 0, "total_tarjeta": 0,
-        }
+        return {"tv": 0, "tef": 0, "ty": 0, "tp": 0, "tt": 0, "cv": 0}
 
 def _serializar_sesion(row, egresos=None) -> dict:
     d = dict(row._mapping)
