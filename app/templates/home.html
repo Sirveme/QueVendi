@@ -2539,6 +2539,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (agentResp && agentResp.ok) {
                     console.log('[Print] ✅ Impreso por Print Agent');
+                    mostrarTicketModal(comp);  // ← agregar esta línea
                     return;
                 }
 
