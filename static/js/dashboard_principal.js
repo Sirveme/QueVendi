@@ -75,6 +75,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── OFFLINE PWA ──
     const storeId = localStorage.getItem('store_id') || AppState.user?.store_id;
     const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
+    printf('[Offline] Store ID: %s, Store Name: %s', storeId, storeName);
+
     if (storeId) {
         try {
             await OfflineDB.init(storeId, storeName);
