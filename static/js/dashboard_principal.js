@@ -190,13 +190,14 @@ async function loadUserData() {
         const cachedUser = localStorage.getItem('user');
         if (cachedUser) {
             const user = JSON.parse(cachedUser);
-            setUserData(user);
+            if (user.store_name) setUserData(user); // ← solo si tiene store_name
         }
         
         const response = await fetchWithAuth(`${CONFIG.apiBase}/users/me`);
         if (response.ok) {
             const user = await response.json();
             localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('store_name', user.store_name || '');  // ← agregar
             setUserData(user);
         }
     } catch (error) {
