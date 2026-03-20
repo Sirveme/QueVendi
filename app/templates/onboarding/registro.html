@@ -1248,10 +1248,36 @@ async function activarCliente() {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const r = await fetch('/api/v1/stores/register-full', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
+      const r = await fetch('/api/v1/stores/register-full', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          ruc:             v('ruc'),
+          razon_social:    v('razon_social'),
+          nombre_comercial: v('nombre_comercial') || v('razon_social'),
+          direccion:       v('direccion'),
+          distrito:        v('distrito'),
+          provincia:       v('provincia'),
+          departamento:    v('departamento'),
+          telefono:        v('telefono'),
+          email:           v('email'),
+          giro:            v('giro'),
+          plan:            S.plan,
+          precio_mensual:  precioMensual(),
+          extra_usuarios:  S.extraUsuarios,
+          extra_anexos:    S.extraAnexos,
+          admin_nombre:    v('admin_nombre'),
+          admin_dni:       v('admin_dni'),
+          admin_pin:       v('admin_pin'),
+          vendedores:      obtenerVendedores(),
+          pago:            S.metodo ? {
+              metodo:        S.metodo,
+              nro_operacion: v('nro_operacion'),
+              monto:         60
+          } : null,
+          agente_dni:      S.agenteDni || null,
+      }),
+
     });
 
     const data = await r.json();
@@ -1278,6 +1304,28 @@ async function activarCliente() {
     btn.textContent = '✅ Activar cliente';
   }
 }
+
+function obtenerVendedores() {
+    const lista = [];
+    for (let i = 1; i <= S.cajeros; i++) {
+        lista.push({
+            full_name: document.getElementById(`vend_cajero_${i}_nombre`)?.value || '',
+            dni:       document.getElementById(`vend_cajero_${i}_dni`)?.value || '',
+            pin:       document.getElementById(`vend_cajero_${i}_pin`)?.value || '',
+            tipo:      'cajero'
+        });
+    }
+    for (let i = 1; i <= S.pedidos; i++) {
+        lista.push({
+            full_name: document.getElementById(`vend_pedidos_${i}_nombre`)?.value || '',
+            dni:       document.getElementById(`vend_pedidos_${i}_dni`)?.value || '',
+            pin:       document.getElementById(`vend_pedidos_${i}_pin`)?.value || '',
+            tipo:      'pedidos'
+        });
+    }
+    return lista.filter(v => v.dni);
+}
+
 
 function mostrarExito(data) {
   document.getElementById('wizardCard').querySelector('.step-panel.active').style.display = 'none';
