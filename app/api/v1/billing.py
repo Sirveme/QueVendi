@@ -20,6 +20,8 @@ from app.models.user import User
 from app.models.billing import StoreBillingConfig, Comprobante
 from app.services.billing_service import BillingService
 
+from app.models.store import Store
+
 router = APIRouter(prefix="/billing", tags=["billing"])
 
 
@@ -317,6 +319,8 @@ async def get_comprobante(
 
     if not comprobante:
         raise HTTPException(404, "Comprobante no encontrado")
+    
+    store = db.query(Store).filter(Store.id == current_user.store_id).first()
 
     return {
         "id": comprobante.id,
@@ -342,7 +346,14 @@ async def get_comprobante(
         "sunat_code": comprobante.sunat_response_code,
         "sunat_description": comprobante.sunat_response_description,
         "pdf_url": comprobante.pdf_url,
-        "xml_url": comprobante.xml_url
+        "xml_url": comprobante.xml_url,
+        "emisor": {
+            "ruc":              store.ruc              if store else '',
+            "razon_social":     store.business_name    if store else '',
+            "nombre_comercial": store.commercial_name  if store else '',
+            "direccion":        store.address          if store else '',
+            "telefono":         store.phone            if store else '',
+        },
     }
 
 
