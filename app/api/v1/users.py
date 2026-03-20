@@ -72,6 +72,7 @@ async def get_current_user_info(
         'store_name':      store.commercial_name if store else 'Mi Negocio',
         'store_ruc':       store.ruc if store else '',
         'store_phone':     store.phone if store else '',
+        'store_logo':      store.logo_url if store else None,
     }
 
 
