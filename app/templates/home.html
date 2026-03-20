@@ -2562,29 +2562,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 z-index:10010;display:flex;flex-direction:column;
                 align-items:center;justify-content:center;padding:16px;
             `;
-            modal.innerHTML = `
-                <div style="background:#1a1a2e;border-radius:12px;width:100%;max-width:400px;overflow:hidden">
-                    <div style="background:#13131e;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-                        <span style="color:#4ade80;font-weight:700;font-size:0.9rem">✅ Ticket emitido</span>
-                        <div style="display:flex;gap:8px">
-                            <button onclick="window.print()"
-                                style="background:#ff6b35;border:none;border-radius:6px;
-                                    padding:7px 14px;color:white;font-weight:700;
-                                    cursor:pointer;font-size:0.8rem">
-                                🖨 Imprimir
-                            </button>
-                            <button onclick="document.getElementById('ticket-preview-modal').remove()"
-                                style="background:#333;border:none;border-radius:6px;
-                                    padding:7px 12px;color:#aaa;cursor:pointer;font-size:0.8rem">
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                    <div style="max-height:75vh;overflow-y:auto;padding:16px;display:flex;justify-content:center">
-                        ${html}
-                    </div>
-                </div>
-            `;
+           const header = '<div style="background:#1a1a2e;border-radius:12px;width:100%;max-width:400px;overflow:hidden">'
+                + '<div style="background:#13131e;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">'
+                + '<span style="color:#4ade80;font-weight:700;font-size:0.9rem">✅ Ticket emitido</span>'
+                + '<div style="display:flex;gap:8px">'
+                + '<button onclick="window.print()" style="background:#ff6b35;border:none;border-radius:6px;padding:7px 14px;color:white;font-weight:700;cursor:pointer;font-size:0.8rem">🖨 Imprimir</button>'
+                + '<button onclick="document.getElementById(\'ticket-preview-modal\').remove()" style="background:#333;border:none;border-radius:6px;padding:7px 12px;color:#aaa;cursor:pointer;font-size:0.8rem">✕</button>'
+                + '</div></div>'
+                + '<div style="max-height:75vh;overflow-y:auto;padding:16px;display:flex;justify-content:center">';
+            const footer = '</div></div>';
+            modal.innerHTML = header + html + footer;
             document.body.appendChild(modal);
         }
 
