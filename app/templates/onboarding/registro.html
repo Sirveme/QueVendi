@@ -1370,8 +1370,7 @@ function mostrarExito(data) {
     const precio    = data.precio_mensual || precioMensual();
     const agente    = S.agenteNombre || 'tu asesor QueVendi';
 
-    const msg = encodeURIComponent(
-`¡Hola ${storeName}! 🎉
+    const msg = `¡Hola *${storeName}*! 🎉
 
 Tu sistema *QueVendi* ya está listo para usar.
 
@@ -1387,17 +1386,16 @@ Tu sistema *QueVendi* ya está listo para usar.
 3. ¡Listo para vender!
 
 *⚙️ Próximos pasos:*
-- Configura tu negocio (logo, dirección)
+- Configura tu negocio
 - Carga tu catálogo de productos
-- Configura tu Certificado Digital para emitir boletas reales
+- Configura tu Certificado Digital
 
-Cualquier consulta escríbeme. 💪
-*${agente}*`
-    );
+Cualquier consulta escríbeme 💪
+_${agente}_`;
 
-    const waUrl = tel
-      ? `https://wa.me/51${tel}?text=${msg}`
-      : `https://wa.me/?text=${msg}`;
+const waUrl = tel
+    ? `https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
     window.open(waUrl, '_blank');
   };
