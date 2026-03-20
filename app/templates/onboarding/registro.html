@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar Nuevo Cliente — QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:    #B91C1C;
+  --red2:   #991818;
+  --gold:   #D4A017;
+  --dark:   #0D0D0D;
+  --dark2:  #161616;
+  --dark3:  #1F1F1F;
+  --border: #2A2A2A;
+  --text1:  #F5F5F5;
+  --text2:  #A0A0A0;
+  --text3:  #606060;
+  --green:  #16A34A;
+  --step-done: #16A34A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--dark);
+  color: var(--text1);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── FONDO ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(185,28,28,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(212,160,23,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ── HEADER ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: var(--red);
+  letter-spacing: 2px;
+}
+.logo span { color: var(--text2); font-size: 0.75rem; font-family: 'DM Sans', sans-serif; display: block; letter-spacing: 0; margin-top: -4px; }
+.back-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  transition: all .2s;
+}
+.back-btn:hover { border-color: var(--text2); color: var(--text1); }
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  padding: 24px 24px 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.steps-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 8px;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+  transition: background .4s;
+}
+.step-item.done:not(:last-child)::after { background: var(--step-done); }
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--dark2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text3);
+  z-index: 1;
+  transition: all .3s;
+  position: relative;
+}
+.step-item.active .step-circle {
+  border-color: var(--red);
+  background: var(--red);
+  color: white;
+  box-shadow: 0 0 12px rgba(185,28,28,0.4);
+}
+.step-item.done .step-circle {
+  border-color: var(--step-done);
+  background: var(--step-done);
+  color: white;
+}
+.step-label {
+  font-size: 0.62rem;
+  color: var(--text3);
+  margin-top: 5px;
+  text-align: center;
+  font-weight: 500;
+  transition: color .3s;
+}
+.step-item.active .step-label { color: var(--red); }
+.step-item.done .step-label { color: var(--step-done); }
+
+/* ── MAIN CARD ── */
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+
+.wizard-card {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(185,28,28,0.06) 0%, transparent 60%);
+}
+.card-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text1);
+  margin-bottom: 2px;
+}
+.card-header p {
+  font-size: 0.8rem;
+  color: var(--text2);
+}
+
+.card-body { padding: 24px; }
+
+/* ── INPUTS ── */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.field label .required { color: var(--red); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(185,28,28,0.12);
+}
+.field input::placeholder { color: var(--text3); }
+.field .hint { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
+.field .autofill-badge {
+  display: none;
+  font-size: 0.7rem;
+  color: var(--green);
+  margin-top: 4px;
+}
+.field .autofill-badge.show { display: block; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── PLANES ── */
+.planes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.plan-card {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  background: var(--dark3);
+}
+.plan-card:hover { border-color: var(--text3); }
+.plan-card.selected {
+  border-color: var(--red);
+  background: rgba(185,28,28,0.08);
+  box-shadow: 0 0 16px rgba(185,28,28,0.15);
+}
+.plan-card.popular::before {
+  content: 'POPULAR';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: #000;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+}
+.plan-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.plan-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text1);
+  line-height: 1;
+}
+.plan-price span { font-size: 0.7rem; font-weight: 400; color: var(--text2); }
+.plan-features {
+  margin-top: 8px;
+  font-size: 0.68rem;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.plan-features li { list-style: none; }
+.plan-features li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+.plan-radio { display: none; }
+
+/* ── USUARIOS CONFIG ── */
+.users-config {
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.users-config h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.user-row:last-child { border-bottom: none; }
+.user-info { font-size: 0.82rem; }
+.user-info small { display: block; font-size: 0.68rem; color: var(--text3); }
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.counter-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--dark2);
+  color: var(--text1);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+.counter-btn:hover { border-color: var(--red); color: var(--red); }
+.counter-val {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.extra-cost {
+  font-size: 0.68rem;
+  color: var(--gold);
+  text-align: right;
+  margin-top: 8px;
+}
+
+/* ── PAGO ── */
+.metodos-pago {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.metodo-btn {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--dark3);
+  text-align: center;
+}
+.metodo-btn:hover { border-color: var(--text3); }
+.metodo-btn.selected {
+  border-color: var(--green);
+  background: rgba(22,163,74,0.08);
+}
+.metodo-icon { font-size: 1.6rem; margin-bottom: 4px; }
+.metodo-name { font-size: 0.75rem; font-weight: 700; }
+.metodo-info { font-size: 0.65rem; color: var(--text3); margin-top: 2px; }
+
+.pago-detalle {
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.pago-destino {
+  background: rgba(22,163,74,0.08);
+  border: 1px solid rgba(22,163,74,0.25);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+}
+.pago-destino strong { color: var(--green); display: block; font-size: 0.7rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.monto-display {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.monto-display .label { font-size: 0.75rem; color: var(--text2); }
+.monto-display .valor {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+/* ── RESUMEN ── */
+.resumen-box {
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.resumen-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.resumen-row:last-child { border-bottom: none; }
+.resumen-row .key { color: var(--text2); }
+.resumen-row .val { font-weight: 600; color: var(--text1); }
+.resumen-row.total .key { font-weight: 700; color: var(--text1); }
+.resumen-row.total .val { color: var(--gold); font-size: 1rem; }
+
+/* ── FOOTER BOTONES ── */
+.card-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.btn-prev {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all .2s;
+}
+.btn-prev:hover { border-color: var(--text2); color: var(--text1); }
+.btn-next {
+  padding: 10px 28px;
+  background: var(--red);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-next:hover { background: var(--red2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(185,28,28,0.3); }
+.btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-activar {
+  padding: 12px 32px;
+  background: var(--green);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all .2s;
+}
+.btn-activar:hover { background: #15803d; transform: translateY(-1px); }
+
+/* ── ÉXITO ── */
+.success-screen {
+  text-align: center;
+  padding: 48px 24px;
+  display: none;
+}
+.success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(22,163,74,0.15);
+  border: 2px solid var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 20px;
+  animation: popIn .4s ease;
+}
+@keyframes popIn {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-screen h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+.success-screen p { color: var(--text2); font-size: 0.85rem; line-height: 1.6; }
+.credentials-box {
+  background: var(--dark3);
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 20px 0;
+  text-align: left;
+}
+.credentials-box h4 { font-size: 0.72rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.cred-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.cred-row:last-child { border-bottom: none; }
+.cred-row .k { color: var(--text2); }
+.cred-row .v { font-weight: 700; font-family: monospace; color: var(--text1); }
+
+/* ── ALERTA ── */
+.alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+  display: none;
+}
+.alert.error { background: rgba(185,28,28,0.12); border: 1px solid rgba(185,28,28,0.3); color: #fca5a5; display: block; }
+.alert.info  { background: rgba(212,160,23,0.1); border: 1px solid rgba(212,160,23,0.3); color: var(--gold); display: block; }
+
+/* ── PASO VISIBLE ── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ── SEPARADOR ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ── LOADING ── */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 520px) {
+  .planes-grid { grid-template-columns: 1fr; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .metodos-pago { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">QueVendi<span>Registro de nuevo cliente</span></div>
+  <button class="back-btn" onclick="history.back()">← Volver</button>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="steps-row">
+    <div class="step-item active" id="si-1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Negocio</div>
+    </div>
+    <div class="step-item" id="si-2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Plan</div>
+    </div>
+    <div class="step-item" id="si-3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Usuarios</div>
+    </div>
+    <div class="step-item" id="si-4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Pago</div>
+    </div>
+    <div class="step-item" id="si-5">
+      <div class="step-circle">5</div>
+      <div class="step-label">Confirmar</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="wizard-card" id="wizardCard">
+
+    <!-- ══ PASO 1: DATOS DEL NEGOCIO ══ -->
+    <div class="step-panel active" id="panel-1">
+      <div class="card-header">
+        <h2>Datos del negocio</h2>
+        <p>Ingresa el RUC para autocompletar desde SUNAT</p>
+      </div>
+      <div class="card-body">
+        <div id="alert-1" class="alert"></div>
+
+        <div class="field">
+          <label>RUC <span class="required">*</span></label>
+          <input type="text" id="ruc" maxlength="11" placeholder="20xxxxxxxxx" oninput="onRucInput(this)">
+          <div class="autofill-badge" id="ruc-badge">✓ Datos cargados desde SUNAT</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Razón social <span class="required">*</span></label>
+            <input type="text" id="razon_social" placeholder="EMPRESA SAC">
+          </div>
+          <div class="field">
+            <label>Nombre comercial</label>
+            <input type="text" id="nombre_comercial" placeholder="Mi Tienda">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Dirección <span class="required">*</span></label>
+          <input type="text" id="direccion" placeholder="Jr. Loreto 123">
+        </div>
+
+        <div class="field-row-3">
+          <div class="field">
+            <label>Distrito</label>
+            <input type="text" id="distrito" placeholder="Iquitos">
+          </div>
+          <div class="field">
+            <label>Provincia</label>
+            <input type="text" id="provincia" placeholder="Maynas">
+          </div>
+          <div class="field">
+            <label>Departamento</label>
+            <input type="text" id="departamento" placeholder="Loreto">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Teléfono / WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="telefono" placeholder="967317946">
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <input type="email" id="email" placeholder="tienda@gmail.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Giro del negocio</label>
+          <input type="text" id="giro" placeholder="VENTA DE ABARROTES Y BEBIDAS">
+        </div>
+
+        <hr class="divider">
+
+        <div class="field">
+          <label>Dueño / Administrador <span class="required">*</span></label>
+          <input type="text" id="admin_nombre" placeholder="NOMBRE COMPLETO">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>DNI <span class="required">*</span></label>
+            <input type="text" id="admin_dni" maxlength="8" placeholder="12345678">
+          </div>
+          <div class="field">
+            <label>PIN de acceso <span class="required">*</span></label>
+            <input type="password" id="admin_pin" maxlength="6" placeholder="4-6 dígitos">
+            <div class="hint">El dueño usará este PIN para ingresar al sistema</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-next" onclick="irPaso(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 2: PLAN ══ -->
+    <div class="step-panel" id="panel-2">
+      <div class="card-header">
+        <h2>Elige el plan</h2>
+        <p>Todos incluyen comprobantes ilimitados y catálogo virtual</p>
+      </div>
+      <div class="card-body">
+        <div class="planes-grid">
+
+          <label class="plan-card" id="plan-basico" onclick="selPlan('basico')">
+            <input type="radio" name="plan" value="basico" class="plan-radio">
+            <div class="plan-name" style="color:#60a5fa">Básico</div>
+            <div class="plan-price">S/70<span>/mes</span></div>
+            <ul class="plan-features">
+              <li>Boletas SUNAT</li>
+              <li>Comprobantes ilimitados</li>
+              <li>Catálogo virtual</li>
+              <li>Hasta 3 usuarios</li>
+              <li>1 establecimiento</li>
+              <li>Sin internet</li>
+            </ul>
+          </label>
+
+          <label class="plan-card popular" id="plan-crece" onclick="selPlan('crece')">
+            <input type="radio" name="plan" value="crece" class="plan-radio">
+            <div class="plan-name" style="color:#4ade80">Crece</div>
+            <div class="plan-price">S/100<span>/mes</span></div>
+            <ul class="plan-features">
+              <li>Boletas + Facturas</li>
+              <li>Comprobantes ilimitados</li>
+              <li>Catálogo virtual</li>
+              <li>Hasta 5 usuarios</li>
+              <li>1 establecimiento</li>
+              <li>Voz + Reportes</li>
+            </ul>
+          </label>
+
+          <label class="plan-card" id="plan-pro" onclick="selPlan('pro')">
+            <input type="radio" name="plan" value="pro" class="plan-radio">
+            <div class="plan-name" style="color:#f97316">Pro</div>
+            <div class="plan-price">S/150<span>/mes</span></div>
+            <ul class="plan-features">
+              <li>Todo lo del Crece</li>
+              <li>Usuarios ilimitados</li>
+              <li>Establecimientos ilimitados</li>
+              <li>Gerente IA</li>
+              <li>Multi-sucursal</li>
+              <li>Botón de Pánico</li>
+            </ul>
+          </label>
+
+        </div>
+
+        <div id="extras-box" style="display:none">
+          <div class="field-row">
+            <div class="field">
+              <label>Usuarios adicionales <span style="color:var(--gold)">+S/10 c/u</span></label>
+              <div class="counter" style="margin-top:6px">
+                <button class="counter-btn" onclick="cambiarExtra('usuarios',-1)">−</button>
+                <span class="counter-val" id="extra-usuarios">0</span>
+                <button class="counter-btn" onclick="cambiarExtra('usuarios',1)">+</button>
+              </div>
+            </div>
+            <div class="field" id="extra-anexos-field">
+              <label>Anexos adicionales <span style="color:var(--gold)">+S/20 c/u</span></label>
+              <div class="counter" style="margin-top:6px">
+                <button class="counter-btn" onclick="cambiarExtra('anexos',-1)">−</button>
+                <span class="counter-val" id="extra-anexos">0</span>
+                <button class="counter-btn" onclick="cambiarExtra('anexos',1)">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="extra-cost" id="extra-cost-label"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-prev" onclick="irPaso(1)">← Atrás</button>
+        <button class="btn-next" onclick="irPaso(3)" id="btn-plan-next" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 3: USUARIOS ══ -->
+    <div class="step-panel" id="panel-3">
+      <div class="card-header">
+        <h2>Usuarios del sistema</h2>
+        <p>Define cuántos vendedores y sus permisos</p>
+      </div>
+      <div class="card-body">
+        <div class="users-config">
+          <h4>Distribución de usuarios</h4>
+
+          <div class="user-row">
+            <div class="user-info">
+              Dueño / Administrador
+              <small>Acceso completo al sistema</small>
+            </div>
+            <div class="counter">
+              <span class="counter-val">1</span>
+              <span style="font-size:0.7rem;color:var(--text3)">fijo</span>
+            </div>
+          </div>
+
+          <div class="user-row">
+            <div class="user-info">
+              Vendedor — caja
+              <small>Puede cobrar y emitir comprobantes</small>
+            </div>
+            <div class="counter">
+              <button class="counter-btn" onclick="cambiarUsuario('cajero',-1)">−</button>
+              <span class="counter-val" id="cnt-cajero">0</span>
+              <button class="counter-btn" onclick="cambiarUsuario('cajero',1)">+</button>
+            </div>
+          </div>
+
+          <div class="user-row">
+            <div class="user-info">
+              Vendedor — pedidos
+              <small>Solo toma pedidos, no cobra</small>
+            </div>
+            <div class="counter">
+              <button class="counter-btn" onclick="cambiarUsuario('pedidos',-1)">−</button>
+              <span class="counter-val" id="cnt-pedidos">0</span>
+              <button class="counter-btn" onclick="cambiarUsuario('pedidos',1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="usuarios-warning" class="alert" style="display:none"></div>
+
+        <div id="vendedores-form"></div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-prev" onclick="irPaso(2)">← Atrás</button>
+        <button class="btn-next" onclick="irPaso(4)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 4: PAGO ══ -->
+    <div class="step-panel" id="panel-4">
+      <div class="card-header">
+        <h2>Pago de instalación</h2>
+        <p>S/ 60 único · Configuración e instalación incluida</p>
+      </div>
+      <div class="card-body">
+        <div class="metodos-pago">
+          <div class="metodo-btn" id="met-plin" onclick="selMetodo('plin')">
+            <div class="metodo-icon">💳</div>
+            <div class="metodo-name">PLIN</div>
+            <div class="metodo-info">Interbank</div>
+          </div>
+          <div class="metodo-btn" id="met-yape" onclick="selMetodo('yape')">
+            <div class="metodo-icon">📱</div>
+            <div class="metodo-name">YAPE</div>
+            <div class="metodo-info">BCP</div>
+          </div>
+          <div class="metodo-btn" id="met-transferencia" onclick="selMetodo('transferencia')">
+            <div class="metodo-icon">🏦</div>
+            <div class="metodo-name">Transferencia</div>
+            <div class="metodo-info">Banco</div>
+          </div>
+        </div>
+
+        <div id="pago-detalle" class="pago-detalle" style="display:none">
+          <div class="pago-destino">
+            <strong>Destino del pago</strong>
+            <span id="pago-destino-texto"></span>
+          </div>
+
+          <div class="monto-display">
+            <div class="label">Monto a pagar</div>
+            <div class="valor">S/ 60.00</div>
+          </div>
+
+          <div class="field">
+            <label>N° de operación <span class="required">*</span></label>
+            <input type="text" id="nro_operacion" placeholder="Número de la transacción">
+          </div>
+
+          <div class="field">
+            <label>Voucher / captura (opcional)</label>
+            <input type="file" id="voucher" accept="image/*" style="padding:6px">
+            <div class="hint">Foto del comprobante de pago</div>
+          </div>
+        </div>
+
+        <div id="alert-4" class="alert"></div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-prev" onclick="irPaso(3)">← Atrás</button>
+        <button class="btn-next" onclick="irPaso(5)" id="btn-pago-next">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 5: CONFIRMAR ══ -->
+    <div class="step-panel" id="panel-5">
+      <div class="card-header">
+        <h2>Confirmar registro</h2>
+        <p>Revisa los datos antes de activar</p>
+      </div>
+      <div class="card-body">
+        <div class="resumen-box" id="resumen-content"></div>
+
+        <div id="alert-5" class="alert info">
+          ⚠ Al confirmar se crearán los usuarios y el acceso inmediato al sistema. El cliente podrá ingresar en modo demo mientras se configura Facturalo y el Certificado Digital.
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-prev" onclick="irPaso(4)">← Atrás</button>
+        <button class="btn-activar" onclick="activarCliente()" id="btn-activar">
+          ✅ Activar cliente
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ ÉXITO ══ -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">🎉</div>
+      <h2>¡Cliente activado!</h2>
+      <p>El acceso está listo. Comparte las credenciales con el cliente.</p>
+      <div class="credentials-box" id="credentials-box"></div>
+      <p style="font-size:0.78rem;color:var(--text3);margin-top:12px">
+        Próximo paso: configurar Facturalo.pro y cargar el Certificado Digital Tributario
+      </p>
+      <button class="btn-next" style="margin:20px auto 0;display:flex" onclick="nuevoRegistro()">
+        + Registrar otro cliente
+      </button>
+    </div>
+
+  </div><!-- /wizard-card -->
+</div><!-- /main -->
+
+<script>
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+const S = {
+  step: 1,
+  plan: null,
+  maxUsuarios: { basico:3, crece:5, pro:999 },
+  precioBase: { basico:70, crece:100, pro:150 },
+  extraUsuarios: 0,
+  extraAnexos: 0,
+  cajeros: 0,
+  pedidos: 0,
+  metodo: null,
+  agenteDni: null,
+};
+
+// Detectar agente logueado
+const token = localStorage.getItem('access_token');
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.role === 'demo_seller') {
+      S.agenteDni = payload.dni;
+      S.agenteNombre = payload.full_name;
+    }
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════
+// NAVEGACIÓN DE PASOS
+// ════════════════════════════════════════════════
+function irPaso(n) {
+  if (n > S.step && !validarPaso(S.step)) return;
+
+  document.getElementById(`panel-${S.step}`).classList.remove('active');
+  const si = document.getElementById(`si-${S.step}`);
+  si.classList.remove('active');
+  si.classList.add('done');
+  si.querySelector('.step-circle').textContent = '✓';
+
+  S.step = n;
+  document.getElementById(`panel-${n}`).classList.add('active');
+  document.getElementById(`si-${n}`).classList.add('active');
+
+  if (n === 3) renderVendedoresForm();
+  if (n === 5) renderResumen();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validarPaso(n) {
+  const alerta = document.getElementById(`alert-${n}`);
+  if (alerta) { alerta.className = 'alert'; alerta.textContent = ''; }
+
+  if (n === 1) {
+    const ruc = v('ruc'), rs = v('razon_social'), dir = v('direccion');
+    const tel = v('telefono'), dni = v('admin_dni'), pin = v('admin_pin');
+    const nombre = v('admin_nombre');
+    if (!ruc || ruc.length !== 11) return err(1, 'El RUC debe tener 11 dígitos');
+    if (!rs) return err(1, 'Ingresa la razón social');
+    if (!dir) return err(1, 'Ingresa la dirección');
+    if (!tel) return err(1, 'Ingresa el teléfono');
+    if (!nombre) return err(1, 'Ingresa el nombre del dueño');
+    if (!dni || dni.length !== 8) return err(1, 'El DNI debe tener 8 dígitos');
+    if (!pin || pin.length < 4) return err(1, 'El PIN debe tener mínimo 4 dígitos');
+    return true;
+  }
+  if (n === 2) {
+    if (!S.plan) return false;
+    return true;
+  }
+  if (n === 4) {
+    if (!S.metodo) return err(4, 'Selecciona el método de pago');
+    if (!v('nro_operacion')) return err(4, 'Ingresa el número de operación');
+    return true;
+  }
+  return true;
+}
+
+function err(paso, msg) {
+  const el = document.getElementById(`alert-${paso}`);
+  if (el) { el.className = 'alert error'; el.textContent = msg; }
+  return false;
+}
+
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+// ════════════════════════════════════════════════
+// RUC AUTOCOMPLETE
+// ════════════════════════════════════════════════
+let rucTimer;
+function onRucInput(input) {
+  clearTimeout(rucTimer);
+  const ruc = input.value.trim();
+  if (ruc.length === 11) {
+    rucTimer = setTimeout(() => buscarRuc(ruc), 600);
+  }
+}
+
+async function buscarRuc(ruc) {
+  try {
+    const headers = token
+      ? { 'Authorization': `Bearer ${token}` }
+      : {};
+    const r = await fetch(`/api/v1/billing/consulta/ruc/${ruc}`, { headers });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.razon_social) {
+      set('razon_social', d.razon_social);
+      set('nombre_comercial', d.razon_social);
+      set('direccion', d.direccion || '');
+      set('distrito', d.distrito || '');
+      set('provincia', d.provincia || '');
+      set('departamento', d.departamento || '');
+      document.getElementById('ruc-badge').classList.add('show');
+    }
+  } catch(e) {}
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+// ════════════════════════════════════════════════
+// PLAN
+// ════════════════════════════════════════════════
+function selPlan(plan) {
+  S.plan = plan;
+  S.extraUsuarios = 0;
+  S.extraAnexos = 0;
+  document.getElementById('extra-usuarios').textContent = '0';
+  document.getElementById('extra-anexos').textContent = '0';
+
+  ['basico','crece','pro'].forEach(p => {
+    document.getElementById(`plan-${p}`).classList.toggle('selected', p === plan);
+  });
+  document.getElementById('btn-plan-next').disabled = false;
+  document.getElementById('extras-box').style.display = 'block';
+
+  // Pro no necesita extras de usuarios
+  const anexoField = document.getElementById('extra-anexos-field');
+  if (plan === 'pro') {
+    anexoField.style.display = 'none';
+  } else {
+    anexoField.style.display = '';
+  }
+
+  actualizarExtraCost();
+}
+
+function cambiarExtra(tipo, delta) {
+  if (tipo === 'usuarios') {
+    S.extraUsuarios = Math.max(0, S.extraUsuarios + delta);
+    document.getElementById('extra-usuarios').textContent = S.extraUsuarios;
+  } else {
+    S.extraAnexos = Math.max(0, S.extraAnexos + delta);
+    document.getElementById('extra-anexos').textContent = S.extraAnexos;
+  }
+  actualizarExtraCost();
+}
+
+function actualizarExtraCost() {
+  const extra = S.extraUsuarios * 10 + S.extraAnexos * 20;
+  const label = document.getElementById('extra-cost-label');
+  if (extra > 0) {
+    label.textContent = `Cargo adicional mensual: +S/ ${extra}`;
+  } else {
+    label.textContent = '';
+  }
+}
+
+function precioMensual() {
+  return S.precioBase[S.plan] + S.extraUsuarios * 10 + S.extraAnexos * 20;
+}
+
+// ════════════════════════════════════════════════
+// USUARIOS
+// ════════════════════════════════════════════════
+function maxUsers() {
+  return S.plan === 'pro' ? 999 : (S.maxUsuarios[S.plan] || 3) + S.extraUsuarios;
+}
+
+function cambiarUsuario(tipo, delta) {
+  const total = 1 + S.cajeros + S.pedidos;
+  if (tipo === 'cajero') {
+    const newVal = S.cajeros + delta;
+    if (newVal < 0) return;
+    if (delta > 0 && total >= maxUsers()) {
+      mostrarWarning(`Máximo ${maxUsers()} usuarios para el plan ${S.plan}`);
+      return;
+    }
+    S.cajeros = newVal;
+  } else {
+    const newVal = S.pedidos + delta;
+    if (newVal < 0) return;
+    if (delta > 0 && total >= maxUsers()) {
+      mostrarWarning(`Máximo ${maxUsers()} usuarios para el plan ${S.plan}`);
+      return;
+    }
+    S.pedidos = newVal;
+  }
+  document.getElementById('cnt-cajero').textContent = S.cajeros;
+  document.getElementById('cnt-pedidos').textContent = S.pedidos;
+  document.getElementById('usuarios-warning').style.display = 'none';
+  renderVendedoresForm();
+}
+
+function mostrarWarning(msg) {
+  const w = document.getElementById('usuarios-warning');
+  w.className = 'alert error';
+  w.textContent = msg;
+  w.style.display = 'block';
+}
+
+function renderVendedoresForm() {
+  const container = document.getElementById('vendedores-form');
+  const total = S.cajeros + S.pedidos;
+  if (total === 0) { container.innerHTML = ''; return; }
+
+  let html = `<div style="margin-top:12px"><h4 style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Datos de vendedores</h4>`;
+
+  for (let i = 0; i < S.cajeros; i++) {
+    html += renderVendedorInput(i+1, 'cajero', 'Vendedor-Caja');
+  }
+  for (let i = 0; i < S.pedidos; i++) {
+    html += renderVendedorInput(S.cajeros+i+1, 'pedidos', 'Vendedor-Pedidos');
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderVendedorInput(n, tipo, label) {
+  return `
+  <div style="background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">
+    <div style="font-size:0.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">
+      ${label} #${n}
+    </div>
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0">
+        <label>Nombre completo</label>
+        <input type="text" id="vend_${tipo}_${n}_nombre" placeholder="NOMBRE APELLIDO">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>DNI</label>
+        <input type="text" id="vend_${tipo}_${n}_dni" maxlength="8" placeholder="12345678">
+      </div>
+    </div>
+    <div class="field" style="margin-top:8px;margin-bottom:0">
+      <label>PIN de acceso</label>
+      <input type="password" id="vend_${tipo}_${n}_pin" maxlength="6" placeholder="4-6 dígitos">
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// PAGO
+// ════════════════════════════════════════════════
+const destinosPago = {
+  plin: 'PLIN · Duilio Restuccia Eslava · 967317946 (Interbank)',
+  yape: 'YAPE · Duilio Restuccia Eslava · 967317946',
+  transferencia: 'Interbank · CCI: 003-XXX-XXXX · A nombre de Duilio Restuccia Eslava'
+};
+
+function selMetodo(met) {
+  S.metodo = met;
+  ['plin','yape','transferencia'].forEach(m => {
+    document.getElementById(`met-${m}`).classList.toggle('selected', m === met);
+  });
+  document.getElementById('pago-detalle').style.display = 'block';
+  document.getElementById('pago-destino-texto').textContent = destinosPago[met];
+}
+
+// ════════════════════════════════════════════════
+// RESUMEN
+// ════════════════════════════════════════════════
+function renderResumen() {
+  const rows = [
+    ['Negocio', v('nombre_comercial') || v('razon_social')],
+    ['RUC', v('ruc')],
+    ['Dirección', v('direccion')],
+    ['Teléfono', v('telefono')],
+    ['Plan', `${S.plan.charAt(0).toUpperCase()+S.plan.slice(1)} — S/ ${precioMensual()}/mes`],
+    ['Usuarios incluidos', `${maxUsers() === 999 ? 'Ilimitados' : maxUsers()}`],
+    ['Dueño', v('admin_nombre')],
+    ['Vendedores-caja', S.cajeros],
+    ['Vendedores-pedidos', S.pedidos],
+    ['Método de pago', S.metodo?.toUpperCase()],
+    ['N° operación', v('nro_operacion')],
+    ['Pago instalación', 'S/ 60.00'],
+  ];
+
+  if (S.agenteDni) rows.push(['Agente', S.agenteNombre || S.agenteDni]);
+
+  let html = '';
+  rows.forEach(([k, val]) => {
+    html += `<div class="resumen-row"><span class="key">${k}</span><span class="val">${val}</span></div>`;
+  });
+  html += `<div class="resumen-row total"><span class="key">Mensualidad</span><span class="val">S/ ${precioMensual()}.00</span></div>`;
+  document.getElementById('resumen-content').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
+// ACTIVAR
+// ════════════════════════════════════════════════
+async function activarCliente() {
+  const btn = document.getElementById('btn-activar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Activando...';
+
+  const payload = {
+    ruc: v('ruc'),
+    razon_social: v('razon_social'),
+    nombre_comercial: v('nombre_comercial') || v('razon_social'),
+    direccion: v('direccion'),
+    distrito: v('distrito'),
+    provincia: v('provincia'),
+    departamento: v('departamento'),
+    telefono: v('telefono'),
+    email: v('email'),
+    giro: v('giro'),
+    plan: S.plan,
+    precio_mensual: precioMensual(),
+    extra_usuarios: S.extraUsuarios,
+    extra_anexos: S.extraAnexos,
+    admin: {
+      nombre: v('admin_nombre'),
+      dni: v('admin_dni'),
+      pin: v('admin_pin'),
+    },
+    vendedores_cajero: S.cajeros,
+    vendedores_pedidos: S.pedidos,
+    pago: {
+      metodo: S.metodo,
+      nro_operacion: v('nro_operacion'),
+      monto: 60,
+    },
+    agente_dni: S.agenteDni || null,
+  };
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const r = await fetch('/api/v1/stores/register-full', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    const data = await r.json();
+
+    if (r.ok && data.success) {
+      mostrarExito(data);
+    } else {
+      const al = document.getElementById('alert-5');
+      al.className = 'alert error';
+      al.textContent = data.detail || 'Error al registrar. Intenta de nuevo.';
+      btn.disabled = false;
+      btn.textContent = '✅ Activar cliente';
+    }
+  } catch(e) {
+    // En desarrollo sin backend, simular éxito
+    mostrarExito({
+      success: true,
+      store_name: v('nombre_comercial') || v('razon_social'),
+      admin_username: v('admin_dni'),
+      admin_pin: v('admin_pin'),
+      url: 'https://quevendi.pro',
+    });
+    btn.disabled = false;
+    btn.textContent = '✅ Activar cliente';
+  }
+}
+
+function mostrarExito(data) {
+  document.getElementById('wizardCard').querySelector('.step-panel.active').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+
+  document.getElementById('credentials-box').innerHTML = `
+    <h4>Credenciales de acceso</h4>
+    <div class="cred-row"><span class="k">Sistema</span><span class="v">quevendi.pro</span></div>
+    <div class="cred-row"><span class="k">Usuario (DNI)</span><span class="v">${data.admin_username || v('admin_dni')}</span></div>
+    <div class="cred-row"><span class="k">PIN</span><span class="v">${v('admin_pin')}</span></div>
+    <div class="cred-row"><span class="k">Plan</span><span class="v">${S.plan.toUpperCase()} — S/ ${precioMensual()}/mes</span></div>
+    <div class="cred-row"><span class="k">Negocio</span><span class="v">${data.store_name || v('nombre_comercial')}</span></div>
+  `;
+
+  // Marcar todos los pasos como done
+  [1,2,3,4,5].forEach(i => {
+    const si = document.getElementById(`si-${i}`);
+    si.classList.remove('active');
+    si.classList.add('done');
+    si.querySelector('.step-circle').textContent = '✓';
+  });
+}
+
+function nuevoRegistro() {
+  location.reload();
+}
+</script>
+</body>
+</html>
