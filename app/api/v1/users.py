@@ -55,19 +55,23 @@ async def upload_avatar(
 
 @router.get("/me")
 async def get_current_user_info(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    """
-    Obtiene información del usuario actual
-    """
+    """Obtiene información del usuario actual incluyendo nombre del negocio."""
+    from app.models.store import Store
+    store = db.query(Store).filter(Store.id == current_user.store_id).first()
     return {
-        'id': current_user.id,
-        'dni': current_user.dni,
-        'full_name': current_user.full_name,
-        'username': current_user.username,
-        'role': current_user.role,
-        'avatar_url': current_user.avatar_url,
-        'store_id': current_user.store_id
+        'id':              current_user.id,
+        'dni':             current_user.dni,
+        'full_name':       current_user.full_name,
+        'username':        current_user.username,
+        'role':            current_user.role,
+        'avatar_url':      current_user.avatar_url,
+        'store_id':        current_user.store_id,
+        'store_name':      store.commercial_name if store else 'Mi Negocio',
+        'store_ruc':       store.ruc if store else '',
+        'store_phone':     store.phone if store else '',
     }
 
 
