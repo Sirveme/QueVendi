@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── OFFLINE PWA ──
     const storeId = localStorage.getItem('store_id') || AppState.user?.store_id;
     const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
-    alert("NOmbre de la tienda: " + storeName);
 
     if (storeId) {
         try {
