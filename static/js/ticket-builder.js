@@ -24,6 +24,7 @@ ruc:      sc.ruc      || em.ruc      || comp.emisor_ruc  || '',
 direccion:sc.direccion|| em.direccion|| comp.emisor_direccion    || '',
 telefono: sc.telefono || em.telefono || comp.emisor_telefono     || '',
 giro:     sc.giro     || '',
+logo_url: sc.logo || null,
 distrito: sc.distrito || '',
 provincia:sc.provincia|| '',
 departamento:     sc.departamento     || '',
@@ -76,6 +77,7 @@ tipo_igv: sc.tipo_igv || '20',
 descripcion: i.descripcion || i.product_name || '',
 cantidad:    parseFloat(i.cantidad    || i.quantity   || 1),
 precio:      parseFloat(i.precio_unitario || i.unit_price || 0),
+subtotal:    parseFloat(i.subtotal        || i.valor_venta || 0),
 subtotal:    parseFloat(i.subtotal    || 0),
 unidad:      i.unidad || i.unit || 'NIU',
     }));
@@ -83,9 +85,17 @@ unidad:      i.unidad || i.unit || 'NIU',
     const ubicacion = [cfg.distrito, cfg.provincia, cfg.departamento].filter(Boolean).join(' - ');
 
     // ── HEADER según estilo ───────────────────────────────────────────
+    const logoHtml = cfg.logo_url
+        ? `<img src="${cfg.logo_url}" style="width:54px;height:54px;object-fit:contain;border-radius:4px;display:block;margin:0 auto 4px">`
+        : '';
+    const logoLeft = cfg.logo_url
+        ? `<img src="${cfg.logo_url}" style="width:54px;height:54px;object-fit:contain;border:1px solid #eee;border-radius:4px;flex-shrink:0">`
+        : '';
+
     let headerHtml = '';
     if (cfg.header_style === 2) {
-headerHtml = `
+        headerHtml = `
+    ${logoHtml}
     ${cfg.giro ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_ruc}px;text-align:center;text-transform:uppercase">${cfg.giro}</div>` : ''}
     <div style="font-family:'${fNombre}',sans-serif;font-size:${cfg.size_nombre}px;font-weight:900;text-align:center;line-height:1.2;text-transform:uppercase">${cfg.nombre_comercial}</div>
     ${cfg.razon_social && cfg.razon_social !== cfg.nombre_comercial ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_razon}px;text-align:center;color:#555;font-style:italic">${cfg.razon_social}</div>` : ''}
@@ -93,19 +103,21 @@ headerHtml = `
     ${ubicacion ? `<div style="font-size:${cfg.size_ruc}px;text-align:center">${ubicacion}</div>` : ''}
     ${cfg.telefono ? `<div style="font-size:${cfg.size_ruc}px;text-align:center">CEL: ${cfg.telefono}</div>` : ''}`;
     } else if (cfg.header_style === 3) {
-headerHtml = `
+        headerHtml = `
     <div style="display:flex;gap:6px;align-items:flex-start">
-<div style="flex:1">
-    <div style="font-family:'${fNombre}',sans-serif;font-size:${cfg.size_nombre-2}px;font-weight:900;line-height:1.2;text-transform:uppercase">${cfg.nombre_comercial}</div>
-    ${cfg.razon_social && cfg.razon_social !== cfg.nombre_comercial ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_razon}px;color:#555;font-style:italic">${cfg.razon_social}</div>` : ''}
-    ${cfg.giro ? `<div style="font-size:${cfg.size_ruc}px;text-transform:uppercase">${cfg.giro}</div>` : ''}
-    <div style="font-size:${cfg.size_ruc}px">${cfg.direccion}</div>
-    ${ubicacion ? `<div style="font-size:${cfg.size_ruc}px">${ubicacion}</div>` : ''}
-    ${cfg.telefono ? `<div style="font-size:${cfg.size_ruc}px">CEL: ${cfg.telefono}</div>` : ''}
-</div>
+        ${logoLeft}
+        <div style="flex:1">
+            <div style="font-family:'${fNombre}',sans-serif;font-size:${cfg.size_nombre-2}px;font-weight:900;line-height:1.2;text-transform:uppercase">${cfg.nombre_comercial}</div>
+            ${cfg.razon_social && cfg.razon_social !== cfg.nombre_comercial ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_razon}px;color:#555;font-style:italic">${cfg.razon_social}</div>` : ''}
+            ${cfg.giro ? `<div style="font-size:${cfg.size_ruc}px;text-transform:uppercase">${cfg.giro}</div>` : ''}
+            <div style="font-size:${cfg.size_ruc}px">${cfg.direccion}</div>
+            ${ubicacion ? `<div style="font-size:${cfg.size_ruc}px">${ubicacion}</div>` : ''}
+            ${cfg.telefono ? `<div style="font-size:${cfg.size_ruc}px">CEL: ${cfg.telefono}</div>` : ''}
+        </div>
     </div>`;
     } else {
-headerHtml = `
+        headerHtml = `
+    ${logoHtml}
     <div style="font-family:'${fNombre}',sans-serif;font-size:${cfg.size_nombre}px;font-weight:900;text-align:center;line-height:1.2;text-transform:uppercase">${cfg.nombre_comercial}</div>
     ${cfg.razon_social && cfg.razon_social !== cfg.nombre_comercial ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_razon}px;text-align:center;color:#555;font-style:italic">${cfg.razon_social}</div>` : ''}
     ${cfg.giro ? `<div style="font-family:'${fRazon}',sans-serif;font-size:${cfg.size_ruc}px;text-align:center;text-transform:uppercase">${cfg.giro}</div>` : ''}
@@ -189,14 +201,17 @@ ${cfg.catalogo_activo && cfg.telefono ? `
 ${/* BOX 6: QR + VERIFICACIÓN */''}
 <div style="border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin:4px 0">
     <div style="display:flex;gap:6px;align-items:flex-start">
-<div style="width:54px;height:54px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:7px;color:#888;text-align:center;border-radius:2px">[QR]</div>
-<div style="flex:1;font-size:${cfg.size_items}px;line-height:1.5">
-    Representación impresa de la<br>
-    <strong>BOLETA DE VENTA ELECTRÓNICA</strong><br>
-    Verifique en:<br>
-    www.facturalo.pro/verificar<br>
-    www.sunat.gob.pe
-</div>
+        ${cfg.logo_url
+            ? `<img src="${cfg.logo_url}" style="width:54px;height:54px;object-fit:contain;border:1px solid #eee;border-radius:4px;flex-shrink:0">`
+            : `<div style="width:54px;height:54px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:7px;color:#888;text-align:center;border-radius:2px">[QR]</div>`
+        }
+        <div style="flex:1;font-size:${cfg.size_items}px;line-height:1.5">
+            Representación impresa de la<br>
+            <strong>BOLETA DE VENTA ELECTRÓNICA</strong><br>
+            Verifique en:<br>
+            www.facturalo.pro/verificar<br>
+            www.sunat.gob.pe
+        </div>
     </div>
 </div>
 
