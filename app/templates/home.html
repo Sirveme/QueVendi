@@ -2820,6 +2820,20 @@ document.addEventListener('DOMContentLoaded', function() {
         window.buildTicketHtmlDesdeComprobante = buildTicketHtmlDesdeComprobante;
     </script>
 
+     <script>
+        // Exponer función globalmente con delay para asegurar disponibilidad
+        setTimeout(function() {
+            if (typeof buildTicketHtmlDesdeComprobante === 'function') {
+                window.buildTicketHtmlDesdeComprobante = buildTicketHtmlDesdeComprobante;
+                console.log('[Ticket] ✅ buildTicketHtmlDesdeComprobante expuesta globalmente');
+            } else {
+                console.error('[Ticket] ❌ buildTicketHtmlDesdeComprobante no encontrada');
+            }
+        }, 500);
+    </script>
+
+
+
     <!-- Scripts de Fiados -->
     <script>
         // Variables para el modal de fiados
