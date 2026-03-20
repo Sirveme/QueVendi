@@ -2768,14 +2768,8 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
             <span style="color: #a78bfa; font-size: 15px; font-weight: 700; margin-left: 4px;">${numeroFormato || ''}</span>
         </div>
 
-        <div id="pdf-preview-container" style="flex: 1; min-height: 0; background: #0d0d1a; border-radius: 10px; overflow-y: auto; position: relative; margin-bottom: 10px; -webkit-overflow-scrolling: touch;">
-            <div id="pdf-preview-loader" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #64748b;">
-                <div style="text-align: center;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 6px; display: block;"></i>
-                    Cargando PDF...
-                </div>
-            </div>
-            <iframe id="pdf-preview-iframe" style="width: 100%; height: 800px; border: none; display: none;"></iframe>
+        <div id="ticket-html-container" style="flex:1;min-height:0;overflow-y:auto;display:flex;justify-content:center;padding:10px 0;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
+            <div id="ticket-html-content" style="font-size:1px">Cargando ticket...</div>
         </div>
 
         <div style="display: flex; gap: 6px;">
@@ -2824,39 +2818,37 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
 }
 
 async function _loadPdfPreview(comprobanteId, formato, numeroFormato) {
-    const loader = document.getElementById('pdf-preview-loader');
-    const iframe = document.getElementById('pdf-preview-iframe');
-    if (!iframe) return;
+    const container = document.getElementById('ticket-html-content');
+    if (!container) return;
+
+    container.innerHTML = '<div style="color:#64748b;text-align:center;padding:20px"><i class="fas fa-spinner fa-spin" style="font-size:24px;margin-bottom:8px;display:block"></i>Cargando ticket...</div>';
 
     try {
         const response = await fetchWithAuth(
-            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}/pdf?formato=${formato}`
+            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}`
         );
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-        }
-        const blob = await response.blob();
+        if (!response.ok) throw new Error(`Error ${response.status}`);
 
-        // Revocar URL anterior si existe
-        if (_comprobanteModalBlobUrl) {
-            window.URL.revokeObjectURL(_comprobanteModalBlobUrl);
-        }
-        _comprobanteModalBlobUrl = window.URL.createObjectURL(blob);
+        const comp = await response.json();
 
-        iframe.src = _comprobanteModalBlobUrl;
-        iframe.style.display = 'block';
-        if (loader) loader.style.display = 'none';
+        // buildTicketHtmlDesdeComprobante está definida en home.html
+        if (typeof buildTicketHtmlDesdeComprobante === 'function') {
+            container.innerHTML = buildTicketHtmlDesdeComprobante(comp);
+        } else {
+            // Fallback simple si no está disponible
+            container.innerHTML = `<div style="color:white;text-align:center;padding:20px">
+                <div style="font-size:18px;font-weight:700;margin-bottom:8px">${numeroFormato}</div>
+                <div style="color:#94a3b8">Ticket emitido correctamente</div>
+            </div>`;
+        }
     } catch (error) {
-        console.error('[PDF] Error preview:', error);
-        if (loader) {
-            loader.innerHTML = `
-                <div style="text-align: center; color: #ef4444;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
-                    No se pudo cargar el PDF<br>
-                    <small style="color: #64748b;">${error.message}</small>
-                </div>
-            `;
-        }
+        console.error('[Ticket] Error preview:', error);
+        container.innerHTML = `
+            <div style="text-align:center;color:#ef4444;padding:20px">
+                <i class="fas fa-exclamation-triangle" style="font-size:28px;margin-bottom:8px;display:block"></i>
+                No se pudo cargar el ticket<br>
+                <small style="color:#64748b">${error.message}</small>
+            </div>`;
     }
 }
 
