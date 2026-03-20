@@ -219,8 +219,9 @@ function setUserData(user) {
     document.getElementById('sidebar-username').textContent = user.full_name || 'Usuario';
     document.getElementById('sidebar-avatar').textContent = initial;
     
-    const storeName = localStorage.getItem('store_name') || 'Mi Bodega';
+    const storeName = user.store_name || localStorage.getItem('store_name') || 'Mi Negocio';
     document.getElementById('header-store').textContent = storeName;
+    localStorage.setItem('store_name', storeName); // actualizar localStorage
     document.getElementById('sidebar-store').textContent = storeName;
     
     if (AppState.isOwner) {
