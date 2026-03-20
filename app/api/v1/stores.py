@@ -12,6 +12,11 @@ from app.models.product import Product
 from app.core.security import hash_password
 from app.api.dependencies import get_current_user
 
+from typing import List
+import logging
+logger = logging.getLogger(__name__)
+
+
 router = APIRouter(prefix="/stores")
 
 class AdminUserCreate(BaseModel):
