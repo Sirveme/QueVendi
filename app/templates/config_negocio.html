@@ -1128,6 +1128,39 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                     <i class="fas fa-print"></i> Imprimir ticket de prueba con tus datos
                 </button>
             </div>
+
+            <!-- DESCARGA DEL PRINT AGENT -->
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-download"></i> Print Agent</div>
+                <p style="font-size:0.78rem;color:var(--text2);margin-bottom:12px;line-height:1.6">
+                    El Print Agent conecta tu impresora térmica con QueVendi.
+                    Instálalo en cada PC donde vayas a imprimir tickets.
+                </p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <a href="/static/downloads/QueVendi_Setup.zip"
+                       style="display:flex;align-items:center;justify-content:center;gap:7px;
+                              padding:10px;background:var(--orange);border:none;border-radius:8px;
+                              color:white;font-size:0.78rem;font-weight:700;cursor:pointer;
+                              text-decoration:none;transition:all .2s"
+                       onmouseover="this.style.opacity='.85'"
+                       onmouseout="this.style.opacity='1'">
+                        <i class="fas fa-box-open"></i> Setup Completo
+                    </a>
+                    <a href="/descargar"
+                       style="display:flex;align-items:center;justify-content:center;gap:7px;
+                              padding:10px;background:var(--bg3);border:1px solid var(--border2);
+                              border-radius:8px;color:var(--text2);font-size:0.78rem;font-weight:600;
+                              cursor:pointer;text-decoration:none;transition:all .2s"
+                       onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--text1)'"
+                       onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">
+                        <i class="fas fa-info-circle"></i> Instrucciones
+                    </a>
+                </div>
+                <div style="margin-top:10px;font-size:0.72rem;color:var(--text3);display:flex;align-items:center;gap:5px">
+                    <i class="fas fa-tag"></i> v1.0.0 · Solo Windows 10/11
+                </div>
+            </div>
+
         </div><!-- /tab-print -->
 
         <!-- ⑥  FACTURACIÓN -->
