@@ -832,7 +832,7 @@ const OfflineSync = (() => {
                     <span style="color:#94a3b8;font-size:13px">Modo sin internet</span>
                     <label style="position:relative;width:44px;height:24px;cursor:pointer">
                         <input type="checkbox" id="toggle-manual-offline"
-                            ${!status.online && OfflineSync._manualOffline ? 'checked' : ''}
+                            ${OfflineSync._manualOffline ? 'checked' : ''}
                             onchange="OfflineSync.toggleManualOffline(this.checked)"
                             style="opacity:0;width:100%;height:100%;position:absolute;cursor:pointer;margin:0">
                         <span style="position:absolute;inset:0;background:${!status.online && OfflineSync._manualOffline ? '#ef4444' : 'rgba(255,255,255,0.15)'};border-radius:12px;transition:background .2s"></span>
@@ -846,7 +846,7 @@ const OfflineSync = (() => {
                         background: linear-gradient(135deg, #3b82f6, #1d4ed8);
                         color: white; font-weight: 600; font-size: 14px; cursor: pointer;
                     ">
-                        🔄 Sincronizar ahora
+                        ${OfflineSync._manualOffline ? '⚠️ Desactiva modo offline primero' : '🔄 Sincronizar ahora'}
                     </button>
                     <button onclick="this.closest('#sync-status-modal').remove()" style="
                         padding: 12px 16px; border: none; border-radius: 10px;
@@ -917,11 +917,14 @@ const OfflineSync = (() => {
      * Forzar sincronización manual (botón del usuario)
      */
     async function forceSyncNow() {
+        if (_manualOffline) {
+            _showToast('⚠️ Desactiva el modo sin internet para sincronizar', 'warning');
+            return;
+        }
         if (!_online) {
             _showToast('🔴 Sin conexión. No se puede sincronizar.', 'error');
             return;
         }
-
         _showToast('🔄 Sincronizando...', 'info');
         await syncPendingSales();
         await syncCatalog();
