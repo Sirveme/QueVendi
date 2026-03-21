@@ -124,6 +124,9 @@ const OfflineSale = (() => {
                 printOfflineTicket(saleData, total, verificationCode, printType);
             }
 
+            // 5. Ocultar loader ANTES de mostrar modal
+            if (typeof hideLoader === 'function') hideLoader();
+
             // 5. Mostrar modal de éxito offline
             showOfflineSuccessModal(total, verificationCode, localId);
 
@@ -169,7 +172,10 @@ const OfflineSale = (() => {
             return { success: false, error: error.message };
 
         } finally {
-            if (typeof hideLoader === 'function') hideLoader();
+            // hideLoader ya se llamó antes del modal, esto es por si acaso
+            setTimeout(() => {
+                if (typeof hideLoader === 'function') hideLoader();
+            }, 350);
         }
     }
 
