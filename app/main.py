@@ -402,3 +402,12 @@ async def productos_page(request: Request):
 async def config_negocio_page(request: Request):
     return templates.TemplateResponse("config_negocio.html", {"request": request})
 
+
+
+# ========================================
+# RUTAS DE DESCARGA - PRINT AGENT
+# ========================================
+
+@app.get("/descargar", response_class=HTMLResponse)
+async def descargar_page(request: Request):
+    return templates.TemplateResponse("descargar.html", {"request": request})
