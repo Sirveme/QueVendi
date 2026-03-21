@@ -860,34 +860,126 @@ async function generateEmergencyCode() {
 function showPlanUpgrade() { showToast('Contacta a tu vendedor para mejorar de plan', 'ok2'); }
 
 async function loadUsers() {
+    const el = document.getElementById('userList');
+    if (!el) return;
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch('/api/v1/users/store-users', { headers:{ 'Authorization': `Bearer ${token}` } });
-        if (!resp.ok) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">No se pudieron cargar usuarios</div>'; return; }
-        const users = await resp.json();
-        const userList = Array.isArray(users) ? users : (users.users || []);
-        if (!userList.length) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Sin usuarios registrados</div>'; return; }
-        const roles = { owner:'👑 Dueño', admin:'🔧 Admin', seller:'🛒 Vendedor', cashier:'💰 Cajero' };
-        let html = '';
-        for (const u of userList) {
-            const active = u.is_active !== false;
-            html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;${!active?'opacity:0.5':''}">
-                <div><div style="font-size:0.78rem;font-weight:600">${_esc(u.full_name||u.username)}</div><div style="font-size:0.6rem;color:var(--text3)">${roles[u.role]||u.role} · DNI: ${u.dni||'-'}</div></div>
-                ${u.role!=='owner'?`<button onclick="toggleUser(${u.id},${active})" class="device-btn ${active?'device-btn-danger':''}" style="font-size:0.6rem">${active?'<i class="fas fa-ban"></i> Desactivar':'<i class="fas fa-check"></i> Activar'}</button>`:'<span style="font-size:0.6rem;color:var(--green)"><i class="fas fa-shield-halved"></i></span>'}
-            </div>`;
-        }
-        document.getElementById('userList').innerHTML = html;
-    } catch (e) { document.getElementById('userList').innerHTML = '<div style="color:var(--text3);font-size:0.72rem">Error cargando usuarios</div>'; }
+        const r = await fetch('/api/v1/users/store/list', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!r.ok) { el.innerHTML = '<div style="color:var(--text3);font-size:0.72rem;padding:8px">No se pudieron cargar usuarios</div>'; return; }
+        const data = await r.json();
+        const lista = data.usuarios || [];
+        if (!lista.length) { el.innerHTML = '<div style="color:var(--text3);font-size:0.72rem;padding:8px">Sin usuarios registrados</div>'; return; }
+        const rolLabel  = { owner:'👑 Dueño', admin:'🔧 Admin', seller:'🛒 Vendedor', cashier:'💰 Cajero' };
+        const tipoLabel = { cajero:'Cajero', pedidos:'Pedidos', admin:'Admin' };
+        el.innerHTML = lista.map(u => `
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:0.8rem;font-weight:700;color:var(--orange);flex-shrink:0">
+                    ${_esc(u.full_name[0])}
+                </div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-size:0.78rem;font-weight:700;
+                        ${!u.is_active ? 'opacity:0.4;text-decoration:line-through' : ''}">
+                        ${_esc(u.full_name)}
+                    </div>
+                    <div style="font-size:0.65rem;color:var(--text3)">
+                        DNI: ${u.dni} · ${rolLabel[u.role]||u.role} · ${tipoLabel[u.tipo]||u.tipo}
+                    </div>
+                </div>
+                <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:3px">
+                        <i class="fas fa-layer-group" style="color:var(--blue)"></i> ${u.block_size||100}
+                    </div>
+                    <div style="display:flex;gap:4px;justify-content:flex-end">
+                        <select onchange="cambiarBloque(${u.id}, this.value)"
+                            style="padding:2px 4px;background:var(--bg2);border:1px solid var(--border);
+                            border-radius:4px;color:var(--text3);font-size:0.6rem;font-family:var(--font)">
+                            <option value="50"  ${u.block_size==50?'selected':''}>50</option>
+                            <option value="100" ${u.block_size==100?'selected':''}>100</option>
+                            <option value="200" ${u.block_size==200?'selected':''}>200</option>
+                            <option value="500" ${u.block_size==500?'selected':''}>500</option>
+                        </select>
+                        ${u.role !== 'owner' ? `
+                        <button onclick="toggleUsuario(${u.id}, ${u.is_active})"
+                            style="padding:2px 6px;border:none;border-radius:4px;cursor:pointer;font-size:0.6rem;
+                            background:${u.is_active ? 'rgba(239,68,68,0.15)' : 'rgba(22,163,74,0.15)'};
+                            color:${u.is_active ? '#f87171' : '#4ade80'}">
+                            ${u.is_active ? 'Desactivar' : 'Activar'}
+                        </button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        el.innerHTML = '<div style="color:var(--text3);font-size:0.72rem;padding:8px">Error cargando usuarios</div>';
+    }
 }
 
-async function toggleUser(userId, currentlyActive) {
-    if (!confirm(`¿${currentlyActive?'Desactivar':'Activar'} este usuario?`)) return;
+function mostrarFormNuevoUsuario() {
+    const f = document.getElementById('form-nuevo-usuario');
+    if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function crearUsuario() {
+    const nombre = document.getElementById('nu-nombre')?.value.trim();
+    const dni    = document.getElementById('nu-dni')?.value.trim();
+    const pin    = document.getElementById('nu-pin')?.value.trim();
+    const tipo   = document.getElementById('nu-tipo')?.value;
+    const bloque = parseInt(document.getElementById('nu-bloque')?.value || '100');
+    const errEl  = document.getElementById('nu-error');
+
+    if (!nombre || !dni || !pin) { errEl.textContent='Completa todos los campos'; errEl.style.display='block'; return; }
+    if (dni.length !== 8 || !/^\d+$/.test(dni)) { errEl.textContent='DNI debe tener 8 dígitos'; errEl.style.display='block'; return; }
+    if (pin.length < 4) { errEl.textContent='PIN mínimo 4 dígitos'; errEl.style.display='block'; return; }
+    errEl.style.display = 'none';
+
+    const roleMap = { cajero:'seller', pedidos:'seller', admin:'admin' };
     try {
         const token = localStorage.getItem('access_token');
-        const resp = await fetch(`/api/v1/users/${userId}/${currentlyActive?'deactivate':'activate'}`, { method:'POST', headers:{ 'Authorization': `Bearer ${token}` } });
-        if (resp.ok) { showToast(`Usuario ${currentlyActive?'desactivado':'activado'}`, 'ok'); loadUsers(); loadDevices(); }
-        else { const data = await resp.json().catch(()=>({})); showToast(data.detail||'Error','err'); }
-    } catch (e) { showToast('Error de conexión','err'); }
+        const r = await fetch('/api/v1/users/store/create', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name:nombre, dni, pin, role:roleMap[tipo]||'seller', tipo, block_size:bloque })
+        });
+        const d = await r.json();
+        if (r.ok && d.success) {
+            document.getElementById('form-nuevo-usuario').style.display = 'none';
+            ['nu-nombre','nu-dni','nu-pin'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+            showToast('✓ Usuario creado: ' + d.full_name, 'ok');
+            loadUsers();
+        } else {
+            errEl.textContent = d.detail || 'Error al crear usuario';
+            errEl.style.display = 'block';
+        }
+    } catch(e) { errEl.textContent='Error de conexión'; errEl.style.display='block'; }
+}
+
+async function cambiarBloque(userId, bloque) {
+    try {
+        const token = localStorage.getItem('access_token');
+        const r = await fetch(`/api/v1/users/store/${userId}/block-size`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ block_size: parseInt(bloque) })
+        });
+        if (r.ok) showToast('✓ Bloque actualizado', 'ok');
+    } catch(e) {}
+}
+
+async function toggleUsuario(userId, isActive) {
+    if (isActive && !confirm('¿Desactivar este usuario?')) return;
+    try {
+        const token = localStorage.getItem('access_token');
+        const r = await fetch(`/api/v1/users/store/${userId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_active: !isActive })
+        });
+        if (r.ok) { showToast(isActive ? 'Usuario desactivado' : 'Usuario activado', 'ok'); loadUsers(); }
+    } catch(e) {}
 }
 
 // ════════════════════════════════════════════════

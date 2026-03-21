@@ -233,213 +233,64 @@ const OfflineSale = (() => {
      * Incluye URL de verificación y QR (a la URL, no fiscal).
      */
     function printOfflineTicket(saleData, total, verificationCode, printType) {
-        const verificationUrl = `${CONFIG.verificationBaseUrl}/${verificationCode}`;
-        const now = new Date(saleData.sale_date);
-        const fecha = now.toLocaleDateString('es-PE');
-        const hora = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+        // Construir un objeto comp compatible con buildTicketHtmlDesdeComprobante
+        const sc = JSON.parse(localStorage.getItem('store_config') || '{}');
+        const comp = {
+            tipo:             '03',
+            serie:            sc.serie_boleta || 'B001',
+            numero:           verificationCode,
+            numero_formato:   verificationCode,
+            fecha_emision:    saleData.sale_date || new Date().toISOString(),
+            total:            total,
+            igv:              0,
+            subtotal:         total,
+            payment_method:   saleData.payment_method || 'efectivo',
+            is_credit:        saleData.is_credit || false,
+            usuario_nombre:   localStorage.getItem('user_name') || 'vendedor',
+            sunat_description: verificationCode,
+            cliente: {
+                tipo_doc:  '0',
+                num_doc:   '00000000',
+                nombre:    saleData.customer_name || 'CLIENTE VARIOS',
+                direccion: null,
+            },
+            items: (saleData.items || []).map(i => ({
+                descripcion:    i.product_name || 'Producto',
+                cantidad:       i.quantity,
+                precio_unitario: i.unit_price,
+                valor_venta:    i.subtotal,
+                unidad:         i.unit || 'NIU',
+            })),
+            emisor: {
+                ruc:              sc.ruc              || localStorage.getItem('store_ruc') || '',
+                razon_social:     sc.razon_social     || localStorage.getItem('store_name') || '',
+                nombre_comercial: sc.nombre_comercial || localStorage.getItem('store_name') || '',
+                direccion:        sc.direccion        || '',
+                telefono:         sc.telefono         || '',
+            },
+        };
 
-        // Datos del emisor (desde localStorage o config)
-        const emisorRuc = localStorage.getItem('emisor_ruc') || CONFIG.emisor.ruc || '—';
-        const emisorNombre = localStorage.getItem('store_name') || CONFIG.emisor.nombre_comercial || 'MI BODEGA';
-        const emisorDireccion = localStorage.getItem('emisor_direccion') || CONFIG.emisor.direccion || '';
+        // 1. Intentar Print Agent (impresora térmica)
+        fetch('http://localhost:9638/print/ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comprobante_id: null, ...comp, offline: true }),
+            signal: AbortSignal.timeout(2000)
+        }).then(r => {
+            if (r.ok) console.log('[OfflineSale] ✅ Impreso por Print Agent');
+        }).catch(() => {
+            console.log('[OfflineSale] Sin Print Agent — ticket en modal');
+        });
 
-        // Items
-        const itemsHtml = saleData.items.map(item => {
-            const name = item.product_name || `Producto #${item.product_id}`;
-            const qty = item.quantity % 1 === 0 ? item.quantity : item.quantity.toFixed(3);
-            return `
-                <tr>
-                    <td style="text-align:left; padding: 2px 0;">${name}</td>
-                    <td style="text-align:center; padding: 2px 4px;">${qty}</td>
-                    <td style="text-align:right; padding: 2px 0;">S/. ${item.subtotal.toFixed(2)}</td>
-                </tr>
-            `;
-        }).join('');
-
-        // Método de pago
-        const metodoPago = {
-            'efectivo': 'EFECTIVO',
-            'yape': 'YAPE',
-            'plin': 'PLIN',
-            'tarjeta': 'TARJETA',
-            'fiado': 'FIADO'
-        }[saleData.payment_method] || saleData.payment_method.toUpperCase();
-
-        // QR usando API pública de Google Charts (funciona offline si ya se cacheó)
-        // Fallback: solo mostrar URL como texto
-        const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(verificationUrl)}&choe=UTF-8`;
-
-        const ticketHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Ticket Offline - ${verificationCode}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            width: ${CONFIG.ticketWidth};
-            padding: 5mm;
-            color: #000;
-        }
-        .header { text-align: center; margin-bottom: 8px; }
-        .store-name { font-size: 16px; font-weight: bold; }
-        .store-ruc { font-size: 11px; color: #333; }
-        .divider { border-top: 1px dashed #000; margin: 6px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        .total-row { font-weight: bold; font-size: 14px; }
-        .verification {
-            text-align: center;
-            margin: 10px 0;
-            padding: 8px;
-            border: 2px dashed #333;
-            border-radius: 4px;
-        }
-        .verification-title {
-            font-size: 10px;
-            color: #555;
-            margin-bottom: 6px;
-            line-height: 1.3;
-        }
-        .verification-code {
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            word-break: break-all;
-        }
-        .verification-url {
-            font-size: 9px;
-            color: #555;
-            margin-top: 4px;
-            word-break: break-all;
-        }
-        .qr-container {
-            text-align: center;
-            margin: 8px 0;
-        }
-        .qr-container img {
-            width: 120px;
-            height: 120px;
-        }
-        .offline-notice {
-            text-align: center;
-            font-size: 10px;
-            margin-top: 8px;
-            padding: 6px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            line-height: 1.4;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 10px;
-            color: #555;
-        }
-        @media print {
-            body { width: auto; padding: 0; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="store-name">${_escapeHtml(emisorNombre)}</div>
-        ${emisorRuc !== '—' ? `<div class="store-ruc">RUC: ${emisorRuc}</div>` : ''}
-        ${emisorDireccion ? `<div class="store-ruc">${_escapeHtml(emisorDireccion)}</div>` : ''}
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="text-align: center; font-size: 11px; font-weight: bold; margin: 4px 0;">
-        NOTA DE VENTA
-    </div>
-    <div style="text-align: center; font-size: 10px; color: #555;">
-        ${fecha} — ${hora}
-    </div>
-
-    <div class="divider"></div>
-
-    <table>
-        <thead>
-            <tr>
-                <th style="text-align:left; font-size:10px;">Producto</th>
-                <th style="text-align:center; font-size:10px;">Cant</th>
-                <th style="text-align:right; font-size:10px;">Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${itemsHtml}
-        </tbody>
-    </table>
-
-    <div class="divider"></div>
-
-    <table>
-        <tr class="total-row">
-            <td>TOTAL:</td>
-            <td style="text-align:right">S/. ${total.toFixed(2)}</td>
-        </tr>
-        <tr>
-            <td style="font-size:11px;">Pago:</td>
-            <td style="text-align:right; font-size:11px;">${metodoPago}</td>
-        </tr>
-        ${saleData.is_credit ? `
-        <tr>
-            <td style="font-size:11px;">Cliente:</td>
-            <td style="text-align:right; font-size:11px;">${_escapeHtml(saleData.customer_name || '—')}</td>
-        </tr>
-        ` : ''}
-    </table>
-
-    <div class="divider"></div>
-
-    <div class="verification">
-        <div class="verification-title">
-            Tu comprobante electrónico estará<br>
-            disponible en las próximas 24 horas:
-        </div>
-        <div class="verification-code">${verificationCode}</div>
-        <div class="verification-url">${verificationUrl}</div>
-    </div>
-
-    <div class="qr-container">
-        <img src="${qrUrl}"
-             alt="QR Verificación"
-             onerror="this.style.display='none'">
-    </div>
-
-    <div class="offline-notice">
-        NOTA DE VENTA — No es comprobante fiscal.<br>
-        Tu boleta/factura se emitirá automáticamente<br>
-        y podrás consultarla escaneando el QR<br>
-        o ingresando a la URL indicada.
-    </div>
-
-    <div class="footer">
-        ¡Gracias por su compra!<br>
-        Generado por QueVendi
-    </div>
-</body>
-</html>`;
-
-        // Abrir ventana de impresión
-        const printWindow = window.open('', '_blank', 'width=320,height=700');
-        if (!printWindow) {
-            _showToast('Permite popups para imprimir el ticket', 'warning');
-            return;
-        }
-
-        printWindow.document.write(ticketHtml);
-        printWindow.document.close();
-
+        // 2. Mostrar ticket HTML en el modal de éxito (reemplaza el código de verificación)
         setTimeout(() => {
-            try { printWindow.print(); } catch (e) { /* ignore */ }
-            setTimeout(() => {
-                try { printWindow.close(); } catch (e) { /* ignore */ }
-            }, 1000);
-        }, 300);
+            if (typeof window.buildTicketHtmlDesdeComprobante === 'function') {
+                const ticketContainer = document.getElementById('offline-ticket-preview');
+                if (ticketContainer) {
+                    ticketContainer.innerHTML = window.buildTicketHtmlDesdeComprobante(comp);
+                }
+            }
+        }, 100);
     }
 
     // ============================================
@@ -499,21 +350,15 @@ const OfflineSale = (() => {
                     </div>
                 </div>
 
-                <!-- Código verificación -->
-                <div style="
-                    background: rgba(255,255,255,0.05);
-                    border-radius: 10px; padding: 12px; margin-bottom: 16px;
+                <!-- Ticket preview -->
+                <div id="offline-ticket-preview" style="
+                    max-height:55vh;overflow-y:auto;
+                    background:#f5f5f5;border-radius:10px;
+                    padding:8px;margin-bottom:16px;
+                    display:flex;justify-content:center;
                 ">
-                    <div style="color: #64748b; font-size: 11px; margin-bottom: 4px;">
-                        Código de verificación
-                    </div>
-                    <div style="
-                        font-family: 'Space Grotesk', monospace;
-                        font-size: 16px; font-weight: 600;
-                        letter-spacing: 1px; color: #e2e8f0;
-                    ">${verificationCode}</div>
-                    <div style="color: #475569; font-size: 10px; margin-top: 4px;">
-                        ${verificationUrl}
+                    <div style="color:#94a3b8;font-size:12px;padding:16px">
+                        <span style="color:#f59e0b">⬡</span> ${verificationCode}
                     </div>
                 </div>
 
@@ -525,7 +370,7 @@ const OfflineSale = (() => {
                         font-size: 14px; cursor: pointer; display: flex;
                         align-items: center; justify-content: center; gap: 6px;
                     ">
-                        <i class="fas fa-print"></i> Imprimir ticket
+                        <i class="fas fa-print"></i> Reimprimir
                     </button>
                     <button onclick="
                             document.getElementById('offline-sale-success-modal').remove();
