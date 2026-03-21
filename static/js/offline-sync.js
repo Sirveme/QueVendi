@@ -267,7 +267,7 @@ const OfflineSync = (() => {
 
                 try {
                     // Verificar que el token sigue válido
-                    const token = sale.token || getAuthToken();
+                    const token = getAuthToken() || sale.token;
                     if (!token) {
                         await OfflineDB.sales.markError(sale.local_id, 'Sin token de autenticación');
                         errors++;
@@ -835,8 +835,8 @@ const OfflineSync = (() => {
                             ${OfflineSync._manualOffline ? 'checked' : ''}
                             onchange="OfflineSync.toggleManualOffline(this.checked)"
                             style="opacity:0;width:100%;height:100%;position:absolute;cursor:pointer;margin:0">
-                        <span style="position:absolute;inset:0;background:${!status.online && OfflineSync._manualOffline ? '#ef4444' : 'rgba(255,255,255,0.15)'};border-radius:12px;transition:background .2s"></span>
-                        <span style="position:absolute;top:2px;left:${!status.online && OfflineSync._manualOffline ? '22' : '2'}px;width:20px;height:20px;background:white;border-radius:50%;transition:left .2s"></span>
+                        <span style="position:absolute;inset:0;background:${OfflineSync._manualOffline ? '#ef4444' : 'rgba(255,255,255,0.15)'};border-radius:12px;transition:background .2s"></span>
+                        <span style="position:absolute;top:2px;left:${OfflineSync._manualOffline ? '22' : '2'}px;width:20px;height:20px;background:white;border-radius:50%;transition:left .2s"></span>
                     </label>
                 </div>
 
@@ -971,10 +971,11 @@ const OfflineSync = (() => {
             _setOnline(false);
             _showToast('Modo sin internet activado — ventas se guardan localmente', 'warning');
         } else {
-            _checkConnection(); // verifica si hay internet real
-            _showToast('Modo sin internet desactivado', 'info');
+            // Reset contadores antes de reconectar
+            _consecutiveFailures = 0;
+            _checkConnection();
+            _showToast('Verificando conexión...', 'info');
         }
-        // Cerrar modal
         const modal = document.getElementById('sync-status-modal');
         if (modal) modal.remove();
     }
