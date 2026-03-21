@@ -1217,10 +1217,77 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                 </div>
                 <div id="emergencyResult" style="display:none;margin-top:10px"></div>
             </div>
+            
             <div class="section-card">
-                <div class="section-title"><i class="fas fa-users"></i> Usuarios</div>
-                <div id="userList"><div style="color:var(--text3);font-size:0.72rem">Cargando...</div></div>
+                <div class="section-title">
+                    <i class="fas fa-users"></i> Usuarios del Negocio
+                    <button onclick="mostrarFormNuevoUsuario()" style="
+                        margin-left:auto;padding:5px 12px;background:var(--orange);
+                        border:none;border-radius:6px;color:white;font-size:0.7rem;
+                        font-weight:700;cursor:pointer;font-family:var(--font)">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+
+                <!-- FORM NUEVO USUARIO -->
+                <div id="form-nuevo-usuario" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text2);margin-bottom:10px">
+                        <i class="fas fa-user-plus"></i> Nuevo Usuario
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                        <div>
+                            <label style="font-size:0.65rem;color:var(--text3);display:block;margin-bottom:3px">Nombre completo</label>
+                            <input type="text" id="nu-nombre" placeholder="JUAN PEREZ GARCIA"
+                                style="width:100%;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.75rem;font-family:var(--font)">
+                        </div>
+                        <div>
+                            <label style="font-size:0.65rem;color:var(--text3);display:block;margin-bottom:3px">DNI</label>
+                            <input type="text" id="nu-dni" placeholder="12345678" maxlength="8"
+                                style="width:100%;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.75rem;font-family:var(--font)">
+                        </div>
+                        <div>
+                            <label style="font-size:0.65rem;color:var(--text3);display:block;margin-bottom:3px">PIN (4-6 dígitos)</label>
+                            <input type="password" id="nu-pin" placeholder="••••" maxlength="6"
+                                style="width:100%;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.75rem;font-family:var(--font)">
+                        </div>
+                        <div>
+                            <label style="font-size:0.65rem;color:var(--text3);display:block;margin-bottom:3px">Tipo</label>
+                            <select id="nu-tipo"
+                                style="width:100%;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.75rem;font-family:var(--font)">
+                                <option value="cajero">Vendedor-Cajero</option>
+                                <option value="pedidos">Vendedor-Pedidos</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                        <label style="font-size:0.65rem;color:var(--text3)">Correlativos offline:</label>
+                        <select id="nu-bloque" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.72rem;font-family:var(--font)">
+                            <option value="50">50</option>
+                            <option value="100" selected>100</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                        </select>
+                        <span style="font-size:0.62rem;color:var(--text3)">números para facturar sin internet</span>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button onclick="crearUsuario()" style="flex:1;padding:8px;background:var(--orange);border:none;border-radius:6px;color:white;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:var(--font)">
+                            <i class="fas fa-check"></i> Crear usuario
+                        </button>
+                        <button onclick="document.getElementById('form-nuevo-usuario').style.display='none'" style="padding:8px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:0.75rem;cursor:pointer;font-family:var(--font)">
+                            Cancelar
+                        </button>
+                    </div>
+                    <div id="nu-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:6px"></div>
+                </div>
+
+                <!-- LISTA DE USUARIOS -->
+                <div id="userList">
+                    <div style="color:var(--text3);font-size:0.72rem;padding:8px">Cargando...</div>
+                </div>
             </div>
+
+
         </div><!-- /tab-devices -->
 
     </div><!-- /form-area -->
@@ -1241,6 +1308,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
     </aside>
 
 </div><!-- /main -->
+
+
 
 <script src="/static/js/config_negocio_impresion.js?v=20260313d"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { updatePreview(); loadConfig(); });</script>
