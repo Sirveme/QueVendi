@@ -521,7 +521,14 @@ const OfflineSale = (() => {
                     ">
                         <i class="fas fa-print"></i> Imprimir ticket
                     </button>
-                    <button onclick="document.getElementById('offline-sale-success-modal').remove()" style="
+                    <button onclick="
+                            document.getElementById('offline-sale-success-modal').remove();
+                            if(typeof AppState !== 'undefined'){ AppState.cart=[]; AppState.paymentMethod='efectivo'; }
+                            if(typeof saveCart === 'function') saveCart();
+                            if(typeof renderCart === 'function') renderCart();
+                            if(typeof selectPaymentUI === 'function') selectPaymentUI('efectivo');
+                            if(typeof hideLoader === 'function') hideLoader();
+                        " style="
                         flex: 1; padding: 12px; border: none; border-radius: 10px;
                         background: linear-gradient(135deg, #f59e0b, #d97706);
                         color: white; font-size: 14px; font-weight: 600;
