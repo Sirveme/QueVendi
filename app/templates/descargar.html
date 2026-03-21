@@ -27,8 +27,6 @@ body{
   font-family:'DM Sans',sans-serif;min-height:100vh;
   overflow-x:hidden;
 }
-
-/* ── GRID BACKGROUND ── */
 body::before{
   content:'';position:fixed;inset:0;
   background-image:
@@ -36,8 +34,6 @@ body::before{
     linear-gradient(90deg, rgba(185,28,28,.04) 1px, transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0;
 }
-
-/* ── HEADER ── */
 .header{
   position:sticky;top:0;z-index:100;
   background:rgba(13,13,13,.95);
@@ -59,8 +55,6 @@ body::before{
   transition:all .2s;
 }
 .back-btn:hover{border-color:var(--text2);color:var(--text1)}
-
-/* ── HERO ── */
 .hero{
   position:relative;z-index:1;
   padding:72px 32px 48px;max-width:900px;margin:0 auto;text-align:center;
@@ -82,8 +76,6 @@ body::before{
   font-size:1rem;color:var(--text2);
   max-width:520px;margin:0 auto 32px;line-height:1.7;
 }
-
-/* ── DOWNLOAD CARD ── */
 .download-section{
   position:relative;z-index:1;
   max-width:900px;margin:0 auto;padding:0 32px 64px;
@@ -123,7 +115,6 @@ body::before{
 .file-item .fi-icon{color:var(--text3);font-size:0.85rem;flex-shrink:0}
 .file-item .fi-name{font-weight:600;color:var(--text1)}
 .file-item .fi-size{color:var(--text3);font-size:0.7rem;margin-top:1px}
-
 .btn-download{
   display:inline-flex;align-items:center;gap:10px;
   background:var(--red);border:none;border-radius:10px;
@@ -135,8 +126,6 @@ body::before{
   background:var(--red2);transform:translateY(-2px);
   box-shadow:0 8px 24px rgba(185,28,28,.3);
 }
-.btn-download i{font-size:1rem}
-
 .btn-secondary{
   display:inline-flex;align-items:center;gap:8px;
   background:none;border:1px solid var(--border);border-radius:10px;
@@ -145,8 +134,6 @@ body::before{
   text-decoration:none;transition:all .2s;margin-left:10px;
 }
 .btn-secondary:hover{border-color:var(--text2);color:var(--text1)}
-
-/* ── STEPS ── */
 .steps-title{
   font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
   letter-spacing:2px;margin-bottom:20px;color:var(--text1);
@@ -162,8 +149,6 @@ body::before{
 }
 .step-text{font-size:0.82rem;color:var(--text2);line-height:1.6}
 .step-text strong{color:var(--text1);display:block;margin-bottom:3px;font-size:0.85rem}
-
-/* ── REQUISITOS ── */
 .req-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:24px}
 .req-item{
   background:var(--dark4);border:1px solid var(--border);
@@ -173,13 +158,8 @@ body::before{
 .req-item i{color:var(--text3);font-size:0.9rem;flex-shrink:0}
 .req-item span{color:var(--text2)}
 .req-item strong{color:var(--text1)}
-
-/* ── FAQ ── */
 .faq{margin-top:8px}
-.faq-item{
-  border-bottom:1px solid var(--border);padding:14px 0;
-  cursor:pointer;
-}
+.faq-item{border-bottom:1px solid var(--border);padding:14px 0;cursor:pointer}
 .faq-item:last-child{border-bottom:none}
 .faq-q{
   display:flex;align-items:center;justify-content:space-between;
@@ -200,8 +180,16 @@ body::before{
   display:flex;align-items:center;justify-content:space-between;
   flex-wrap:wrap;gap:16px;
 }
-.soporte-info h3{font-size:1rem;font-weight:700;margin-bottom:4px}
-.soporte-info p{font-size:0.8rem;color:var(--text2)}
+.soporte-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(185,28,28,.15);border:1px solid rgba(185,28,28,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:#f87171;flex-shrink:0;
+}
+.soporte-left{display:flex;align-items:center;gap:14px}
+.soporte-info h3{font-size:1rem;font-weight:700;margin-bottom:3px}
+.soporte-info p{font-size:0.8rem;color:var(--text2);line-height:1.5}
+.soporte-info .promotor-nombre{color:var(--gold);font-weight:600}
 .btn-wa{
   display:inline-flex;align-items:center;gap:8px;
   background:#25D366;border:none;border-radius:9px;
@@ -210,8 +198,6 @@ body::before{
   text-decoration:none;transition:all .2s;
 }
 .btn-wa:hover{background:#1db954;transform:translateY(-1px)}
-
-/* ── TOAST ── */
 .toast{
   position:fixed;bottom:24px;left:50%;
   transform:translateX(-50%) translateY(60px);
@@ -222,25 +208,22 @@ body::before{
 }
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{border-color:rgba(22,163,74,.4);color:#4ade80}
-
 @media(max-width:600px){
   .header{padding:12px 16px}
   .hero{padding:48px 16px 32px}
   .download-section{padding:0 16px 48px}
-  .dc-header,.dc-body{padding:16px}
   .btn-secondary{margin-left:0;margin-top:8px}
+  .soporte{flex-direction:column}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <a href="/" class="logo">QUE<span>VENDI</span></a>
   <a href="/home" class="back-btn">← Volver al Dashboard</a>
 </header>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-badge">
     <i class="fas fa-print"></i> Print Agent
@@ -252,26 +235,24 @@ body::before{
   </p>
 </section>
 
-<!-- DESCARGAS -->
 <section class="download-section">
 
-  <!-- CARD PRINCIPAL: SETUP COMPLETO -->
+  <!-- CARD: SETUP COMPLETO -->
   <div class="download-card">
     <div class="dc-header">
       <div class="dc-title">
         <div class="dc-icon"><i class="fas fa-box-open"></i></div>
         <div>
           <div class="dc-name">Setup Completo QueVendi</div>
-          <div class="dc-meta">Incluye Print Agent + Fuentes de texto</div>
+          <div class="dc-meta">Print Agent + Fuentes de texto + Instalador</div>
         </div>
       </div>
       <div class="version-badge">v1.0.0</div>
     </div>
     <div class="dc-body">
       <div class="dc-desc">
-        Paquete todo-en-uno para configurar tu PC. Incluye el agente de impresión,
-        las fuentes necesarias para los tickets y el instalador automático.
-        Solo doble click — no necesitas conocimientos técnicos.
+        Paquete todo-en-uno. Incluye el agente de impresión, las fuentes para los tickets
+        y el instalador automático. Solo doble click — sin conocimientos técnicos.
       </div>
       <div class="dc-files">
         <div class="file-item">
@@ -291,25 +272,20 @@ body::before{
         <div class="file-item">
           <i class="fas fa-font fi-icon"></i>
           <div>
-            <div class="fi-name">gfonts/ (10 fuentes)</div>
+            <div class="fi-name">gfonts/ (8 fuentes)</div>
             <div class="fi-size">Bebas Neue, DM Sans, Oswald...</div>
           </div>
         </div>
       </div>
-      <a href="https://github.com/Sirveme/QueVendi/releases/download/v1.0.0/QueVendi_Setup.zip" class="btn-download" onclick="trackDownload('setup')">
+      <a href="https://github.com/Sirveme/QueVendi/releases/download/v1.0.0/QueVendi_Setup.zip"
+         class="btn-download" onclick="trackDownload('setup')">
         <i class="fas fa-download"></i>
         Descargar Setup Completo
       </a>
-    <!--
-      <a href="/static/downloads/QueVendiPrint.exe" class="btn-secondary" onclick="trackDownload('exe')">
-        <i class="fas fa-cog"></i>
-        Solo el .exe
-      </a>
-    -->
     </div>
   </div>
 
-  <!-- PASOS DE INSTALACIÓN -->
+  <!-- CARD: INSTRUCCIONES -->
   <div class="download-card">
     <div class="dc-header">
       <div class="dc-title">
@@ -326,41 +302,41 @@ body::before{
           <div class="step-num">01</div>
           <div class="step-text">
             <strong>Descarga el Setup</strong>
-            Haz click en el botón de descarga y guarda el archivo ZIP en tu PC.
+            Haz click en el botón y guarda el archivo ZIP en tu PC.
           </div>
         </div>
         <div class="step">
           <div class="step-num">02</div>
           <div class="step-text">
             <strong>Extrae y ejecuta</strong>
-            Descomprime el ZIP, luego doble click en <code style="color:#f87171;font-family:'DM Mono',monospace;font-size:0.8em">Instalar_QueVendi.bat</code>
+            Descomprime el ZIP y doble click en
+            <code style="color:#f87171;font-family:'DM Mono',monospace;font-size:0.8em">Instalar_QueVendi.bat</code>
           </div>
         </div>
         <div class="step">
           <div class="step-num">03</div>
           <div class="step-text">
             <strong>Listo para vender</strong>
-            El agente se inicia automáticamente. Conecta tu impresora y empieza a vender.
+            El agente se inicia solo. Conecta tu impresora y empieza.
           </div>
         </div>
         <div class="step">
           <div class="step-num">04</div>
           <div class="step-text">
             <strong>Inicio automático</strong>
-            El agente queda configurado para iniciar con Windows. No necesitas hacer nada más.
+            Queda configurado para iniciar con Windows. No necesitas hacer nada más.
           </div>
         </div>
       </div>
-
       <div style="background:rgba(212,160,23,.06);border:1px solid rgba(212,160,23,.15);border-radius:8px;padding:12px 16px;font-size:0.8rem;color:#fbbf24">
         <i class="fas fa-shield-alt" style="margin-right:6px"></i>
-        <strong>Windows puede mostrar una advertencia</strong> al ejecutar el .bat o el .exe.
+        <strong>Windows puede mostrar una advertencia.</strong>
         Haz click en <strong>"Más información → Ejecutar de todas formas"</strong>. Es seguro.
       </div>
     </div>
   </div>
 
-  <!-- REQUISITOS -->
+  <!-- CARD: REQUISITOS + FAQ -->
   <div class="download-card">
     <div class="dc-header">
       <div class="dc-title">
@@ -373,133 +349,115 @@ body::before{
     </div>
     <div class="dc-body">
       <div class="req-grid">
-        <div class="req-item">
-          <i class="fab fa-windows"></i>
-          <div><strong>Windows 10/11</strong><span> (64 bits)</span></div>
-        </div>
-        <div class="req-item">
-          <i class="fas fa-print"></i>
-          <div><strong>Impresora térmica</strong><span> 58mm u 80mm</span></div>
-        </div>
-        <div class="req-item">
-          <i class="fas fa-wifi"></i>
-          <div><strong>Internet</strong><span> para emitir comprobantes</span></div>
-        </div>
-        <div class="req-item">
-          <i class="fab fa-chrome"></i>
-          <div><strong>Chrome o Edge</strong><span> (recomendado)</span></div>
-        </div>
-        <div class="req-item">
-          <i class="fas fa-hdd"></i>
-          <div><strong>50 MB</strong><span> de espacio libre</span></div>
-        </div>
-        <div class="req-item">
-          <i class="fas fa-memory"></i>
-          <div><strong>4 GB RAM</strong><span> mínimo recomendado</span></div>
-        </div>
+        <div class="req-item"><i class="fab fa-windows"></i><div><strong>Windows 10/11</strong><span> 64 bits</span></div></div>
+        <div class="req-item"><i class="fas fa-print"></i><div><strong>Impresora térmica</strong><span> 58mm u 80mm</span></div></div>
+        <div class="req-item"><i class="fas fa-wifi"></i><div><strong>Internet</strong><span> para comprobantes</span></div></div>
+        <div class="req-item"><i class="fab fa-chrome"></i><div><strong>Chrome o Edge</strong><span> recomendado</span></div></div>
+        <div class="req-item"><i class="fas fa-hdd"></i><div><strong>50 MB</strong><span> de espacio libre</span></div></div>
+        <div class="req-item"><i class="fas fa-memory"></i><div><strong>4 GB RAM</strong><span> mínimo</span></div></div>
       </div>
-
-      <!-- FAQ -->
-      <div class="steps-title" style="margin-top:8px">Preguntas frecuentes</div>
+      <div class="steps-title">Preguntas frecuentes</div>
       <div class="faq">
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">
-            ¿Funciona sin impresora térmica?
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-a">
-            Sí. Sin impresora, el ticket se muestra en pantalla y puedes descargarlo como PDF
-            o compartirlo por WhatsApp. La impresora térmica es opcional.
-          </div>
+          <div class="faq-q">¿Funciona sin impresora térmica? <i class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">Sí. Sin impresora el ticket se muestra en pantalla y puedes descargarlo como PDF o compartirlo por WhatsApp. La impresora es opcional.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">
-            ¿Necesito instalar algo más?
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-a">
-            No. El Setup Completo incluye todo lo necesario: el agente, las fuentes y el instalador.
-            Solo necesitas tener instalado el driver de tu impresora (que normalmente ya viene con Windows).
-          </div>
+          <div class="faq-q">¿Necesito instalar algo más? <i class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">No. El Setup incluye todo. Solo necesitas el driver de tu impresora, que normalmente ya viene con Windows.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">
-            ¿Qué impresoras son compatibles?
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-a">
-            Cualquier impresora térmica compatible con ESC/POS: Epson TM series,
-            Star Micronics, Bixolon, Citizen CT, POS80, y la mayoría de genéricas chinas
-            de 58mm y 80mm disponibles en el mercado peruano.
-          </div>
+          <div class="faq-q">¿Qué impresoras son compatibles? <i class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">Cualquier térmica ESC/POS: Epson TM series, Star, Bixolon, Citizen CT, POS80 y la mayoría de genéricas de 58mm y 80mm del mercado peruano.</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">
-            ¿El agente funciona en segundo plano?
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-a">
-            Sí. El agente corre en segundo plano como un proceso pequeño (menos de 30 MB de RAM).
-            Se inicia automáticamente con Windows y no necesitas abrirlo manualmente.
-            Puedes verlo en la bandeja del sistema (esquina inferior derecha).
-          </div>
+          <div class="faq-q">¿El agente corre en segundo plano? <i class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">Sí, usa menos de 30 MB de RAM. Se inicia con Windows automáticamente. Lo ves en la bandeja del sistema (esquina inferior derecha).</div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">
-            ¿Funciona en Mac o Linux?
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-a">
-            El instalador .bat y el .exe son solo para Windows. Para Mac y Linux,
-            contacta a soporte — tenemos una versión Python que funciona en cualquier sistema.
-          </div>
+          <div class="faq-q">¿Funciona en Mac o Linux? <i class="fas fa-chevron-down"></i></div>
+          <div class="faq-a">El .bat y el .exe son solo Windows. Para Mac y Linux contáctanos — tenemos versión Python multiplataforma.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SOPORTE -->
+  <!-- SOPORTE DINÁMICO -->
   <div class="soporte">
-    <div class="soporte-info">
-      <h3>¿Necesitas ayuda con la instalación?</h3>
-      <p>Tu promotor QueVendi puede guiarte por WhatsApp o videollamada.</p>
+    <div class="soporte-left">
+      <div class="soporte-avatar"><i class="fas fa-headset"></i></div>
+      <div class="soporte-info">
+        <h3>¿Necesitas ayuda con la instalación?</h3>
+        <p id="soporte-desc">Cargando...</p>
+      </div>
     </div>
-    <a href="https://wa.me/51967317946?text=Hola,%20necesito%20ayuda%20para%20instalar%20el%20Print%20Agent%20de%20QueVendi"
-       target="_blank" class="btn-wa">
+    <a id="btn-soporte-wa" href="#" target="_blank" class="btn-wa">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
       </svg>
-      Contactar soporte
+      <span id="btn-wa-texto">Contactar soporte</span>
     </a>
   </div>
 
 </section>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ── PROMOTORES ────────────────────────────────────────────────────────────────
+// Para agregar un promotor: añade una entrada con su código, nombre y teléfono
+const PROMOTORES = {
+    'carlos': { nombre: 'Carlos Aspajo',  tel: '51967317946' }, // TODO: reemplazar con tel real de Carlos
+    'jose':   { nombre: 'José Rengifo',   tel: '51967317946' }, // TODO: reemplazar con tel real de José
+};
+const SOPORTE_DEFAULT = { nombre: 'Duilio — QueVendi', tel: '51967317946' };
+
+// ── DETECTAR PROMOTOR ─────────────────────────────────────────────────────────
+const ref = new URLSearchParams(window.location.search).get('ref') || '';
+const promotor = PROMOTORES[ref.toLowerCase()] || SOPORTE_DEFAULT;
+const esPromotor = !!PROMOTORES[ref.toLowerCase()];
+
+// ── ACTUALIZAR SECCIÓN SOPORTE ────────────────────────────────────────────────
+const msgWA = encodeURIComponent(
+    'Hola, necesito ayuda para instalar el Print Agent de QueVendi'
+);
+document.getElementById('btn-soporte-wa').href =
+    `https://wa.me/${promotor.tel}?text=${msgWA}`;
+
+if (esPromotor) {
+    document.getElementById('soporte-desc').innerHTML =
+        `Tu promotor <span class="promotor-nombre">${promotor.nombre}</span> puede guiarte por WhatsApp o videollamada.`;
+    document.getElementById('btn-wa-texto').textContent = `Escribir a ${promotor.nombre.split(' ')[0]}`;
+} else {
+    document.getElementById('soporte-desc').innerHTML =
+        `Nuestro equipo de soporte está disponible para guiarte en la instalación.`;
+    document.getElementById('btn-wa-texto').textContent = 'Contactar soporte';
+}
+
+// ── TRACKING ──────────────────────────────────────────────────────────────────
+function trackDownload(tipo) {
+    try {
+        fetch('/api/v1/registro/tracking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paso: 99, plan: tipo, ref: ref || 'directo' })
+        }).catch(() => {});
+    } catch(e) {}
+    showToast('Descarga iniciada');
+}
+
+// ── FAQ ───────────────────────────────────────────────────────────────────────
 function toggleFaq(el) {
     const wasOpen = el.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
     if (!wasOpen) el.classList.add('open');
 }
 
-function trackDownload(tipo) {
-    try {
-        fetch('/api/v1/registro/tracking', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paso: 99, plan: tipo, ref: 'descarga' })
-        }).catch(() => {});
-    } catch(e) {}
-    toast('⬇ Descarga iniciada', 'ok');
-}
-
-function toast(msg, tipo) {
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast ${tipo} show`;
+    t.textContent = '⬇ ' + msg;
+    t.className = 'toast ok show';
     setTimeout(() => t.className = 'toast', 3000);
 }
 </script>
