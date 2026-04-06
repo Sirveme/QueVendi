@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caja — QueVendi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --red:    #B91C1C;
@@ -24,7 +25,7 @@
   --text3:  #555555;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;min-height:100vh}
+body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;min-height:100vh}
 
 /* ── HEADER ── */
 .header{
@@ -35,9 +36,9 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .header-left{display:flex;align-items:center;gap:12px}
 .back-btn{background:none;border:1px solid var(--border);color:var(--text2);
   padding:7px 14px;border-radius:7px;cursor:pointer;font-size:0.8rem;
-  font-family:'DM Sans',sans-serif;transition:all .2s}
+  font-family:'Outfit',sans-serif;transition:all .2s}
 .back-btn:hover{border-color:var(--text2);color:var(--text1)}
-.page-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;
   color:var(--text1);letter-spacing:2px}
 .page-title span{color:var(--red)}
 .header-right{display:flex;align-items:center;gap:10px}
@@ -45,7 +46,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
   background:var(--dark3);border:1px solid var(--border);
   padding:5px 12px;border-radius:20px}
 .btn-sm{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;
-  font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;transition:all .2s}
+  font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:600;transition:all .2s}
 .btn-outline{background:none;border:1px solid var(--border);color:var(--text2)}
 .btn-outline:hover{border-color:var(--text2);color:var(--text1)}
 
@@ -81,7 +82,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .field label{display:block;font-size:0.72rem;font-weight:700;color:var(--text2);
   text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .field input,.field select{width:100%;background:var(--dark3);border:1px solid var(--border);
-  border-radius:8px;padding:10px 14px;color:var(--text1);font-family:'DM Sans',sans-serif;
+  border-radius:8px;padding:10px 14px;color:var(--text1);font-family:'Outfit',sans-serif;
   font-size:0.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
 .field input:focus,.field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(185,28,28,.12)}
 .field input::placeholder{color:var(--text3)}
@@ -89,7 +90,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 
 /* ── BOTONES ── */
 .btn-primary{width:100%;padding:12px;background:var(--red);border:none;border-radius:8px;
-  color:white;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;
+  color:white;font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;
   cursor:pointer;transition:all .2s}
 .btn-primary:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(185,28,28,.3)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -105,7 +106,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 }
 .caja-titulo{display:flex;align-items:center;gap:10px}
 .caja-num{
-  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;
+  font-family:'Space Grotesk',sans-serif;font-size:1.6rem;
   color:var(--red);letter-spacing:1px
 }
 .badge-open{
@@ -128,7 +129,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .metrica.highlight{border-color:rgba(185,28,28,.3);background:rgba(185,28,28,.05)}
 .metrica .label{font-size:0.68rem;color:var(--text2);text-transform:uppercase;
   letter-spacing:.5px;margin-bottom:4px}
-.metrica .valor{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
+.metrica .valor{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;
   letter-spacing:1px;line-height:1}
 .metrica .sub{font-size:0.68rem;color:var(--text3);margin-top:2px}
 .metrica.highlight .valor{color:var(--gold)}
@@ -176,7 +177,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .arqueo-field label{font-size:0.7rem;color:var(--text2);font-weight:600;
   display:block;margin-bottom:5px;text-transform:uppercase}
 .arqueo-field input{width:100%;background:var(--dark3);border:1px solid var(--border);
-  border-radius:7px;padding:9px 12px;color:var(--text1);font-family:'DM Sans',sans-serif;
+  border-radius:7px;padding:9px 12px;color:var(--text1);font-family:'Outfit',sans-serif;
   font-size:0.9rem;font-weight:700;outline:none;transition:border-color .2s}
 .arqueo-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,160,23,.15)}
 
@@ -187,7 +188,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .diferencia-box.ok{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25)}
 .diferencia-box.mal{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)}
 .diferencia-box .dif-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
-.diferencia-box .dif-valor{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px}
+.diferencia-box .dif-valor{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;letter-spacing:1px}
 .diferencia-box.ok .dif-valor{color:#4ade80}
 .diferencia-box.mal .dif-valor{color:#f87171}
 
@@ -217,7 +218,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
   display:flex;gap:8px;justify-content:flex-end}
 .btn-cancel{background:none;border:1px solid var(--border);color:var(--text2);
   padding:9px 18px;border-radius:7px;cursor:pointer;
-  font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600}
+  font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:600}
 
 /* ── TOAST ── */
 .toast{
@@ -245,12 +246,12 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 .rf-row .v{font-weight:600}
 .rf-row.total{background:rgba(212,160,23,.06)}
 .rf-row.total .k{font-weight:700;color:var(--text1)}
-.rf-row.total .v{color:var(--gold);font-size:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.rf-row.total .v{color:var(--gold);font-size:1rem;font-family:'Space Grotesk',sans-serif;letter-spacing:1px}
 
 /* ── SELECTOR DE TABS ── */
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
 .tab-btn{padding:9px 18px;background:none;border:none;border-bottom:2px solid transparent;
-  color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;
+  color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;
   font-size:0.82rem;font-weight:600;transition:all .2s;margin-bottom:-1px}
 .tab-btn.active{color:var(--text1);border-bottom-color:var(--red)}
 .tab-panel{display:none}
@@ -271,7 +272,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <button class="back-btn" onclick="history.back()">← Dashboard</button>
+    <button class="back-btn" onclick="window.location.href='/home'">← Dashboard</button>
     <div class="page-title">CAJA <span>PRO</span></div>
   </div>
   <div class="header-right">
@@ -309,24 +310,14 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
                border:1px solid rgba(185,28,28,.3);color:#fca5a5;padding:9px 13px;
                border-radius:7px;font-size:0.8rem;margin-bottom:14px"></div>
 
-          <div class="field-row">
-            <div class="field">
-              <label>N° de Caja</label>
-              <select id="ap-numero">
-                <option value="1">Caja 1</option>
-                <option value="2">Caja 2</option>
-                <option value="3">Caja 3</option>
-                <option value="4">Caja 4</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Tipo</label>
-              <select id="ap-tipo">
-                <option value="venta">Venta (cobra)</option>
-                <option value="pedidos">Solo pedidos</option>
-                <option value="delivery">Delivery / Recojo</option>
-              </select>
-            </div>
+          <div class="field">
+            <label>N° de Caja</label>
+            <select id="ap-numero">
+              <option value="1">Caja 1</option>
+              <option value="2">Caja 2</option>
+              <option value="3">Caja 3</option>
+              <option value="4">Caja 4</option>
+            </select>
           </div>
 
           <div class="field">
@@ -370,7 +361,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
           <button class="btn-sm btn-outline" onclick="registrarEgreso()">
             ↓ Egreso
           </button>
-          <button class="btn-sm" style="background:var(--green);color:white;border:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700"
+          <button class="btn-sm" style="background:var(--green);color:white;border:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:700"
                   onclick="mostrarArqueo()">
             ⬛ Cerrar Caja
           </button>
@@ -406,7 +397,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
           </div>
           <div class="metrica">
             <div class="label">Apertura</div>
-            <div class="valor" id="m-hora-apertura" style="font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:700">--:--</div>
+            <div class="valor" id="m-hora-apertura" style="font-size:1rem;font-family:'Outfit',sans-serif;font-weight:700">--:--</div>
             <div class="sub" id="m-fecha-apertura">--</div>
           </div>
         </div>
@@ -457,7 +448,7 @@ body{background:var(--dark);color:var(--text1);font-family:'DM Sans',sans-serif;
         <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
           <button class="btn-sm" style="background:var(--orange);color:white;border:none;
                   padding:8px 16px;border-radius:7px;cursor:pointer;
-                  font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700"
+                  font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:700"
                   onclick="registrarEgreso()">
             + Registrar Egreso
           </button>
@@ -665,6 +656,9 @@ async function cargarEstado() {
     if (d.activa && d.sesion) {
       sesionActiva = d.sesion;
       mostrarCajaAbierta(d.sesion);
+    } else if (d.apertura_requerida === false) {
+      // Auto-abrir caja para negocios familiares
+      await autoAbrirCaja();
     } else {
       mostrarSinCaja();
     }
@@ -859,6 +853,24 @@ function addEfectivo(monto) {
 }
 function calcEfectivoInicial() {} // placeholder
 
+async function autoAbrirCaja() {
+  try {
+    const r = await fetch(`${API}/abrir`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ efectivo_inicial: 0, caja_numero: 1, tipo: 'venta', notas: 'Apertura automática' }),
+    });
+    if (r.ok) {
+      toast('Caja abierta automáticamente', 'ok');
+      await cargarEstado();
+    } else {
+      mostrarSinCaja();
+    }
+  } catch(e) {
+    mostrarSinCaja();
+  }
+}
+
 async function abrirCaja() {
   const btn = document.getElementById('btn-abrir');
   btn.disabled = true;
@@ -867,7 +879,7 @@ async function abrirCaja() {
   const payload = {
     efectivo_inicial: parseFloat(document.getElementById('ap-efectivo').value) || 0,
     caja_numero: parseInt(document.getElementById('ap-numero').value),
-    tipo: document.getElementById('ap-tipo').value,
+    tipo: 'venta',
     notas: document.getElementById('ap-notas').value || null,
   };
 

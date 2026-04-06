@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ store_name }} — Carta Virtual</title>
+<link rel="manifest" href="/static/carta/manifest.json">
+<meta name="theme-color" content="#00C853">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="{{ store_name }}">
+<link rel="icon" href="/static/carta/icon-192.png">
+<link rel="apple-touch-icon" href="/static/carta/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--verde:#00C853;--verde-oscuro:#00962E;--fondo:#F0F4F0;--card:#fff;--texto:#1A1A2E;--texto-s:#6B7280;--texto-ss:#94A3B8;--borde:#E5E7EB;--sombra:0 2px 12px rgba(0,0,0,.08);--radius:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));padding:28px 16px 50px;text-align:center;position:relative}
+.hdr-wave{position:absolute;bottom:-1px;left:0;width:100%}
+.hdr-logo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.2);margin:0 auto 10px;display:block;background:#fff}
+.hdr-logo-ph{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:#fff;font-size:2rem;font-weight:800;border:3px solid rgba(255,255,255,.5)}
+.hdr-name{font-size:1.35rem;font-weight:800;color:#fff;margin-bottom:3px}
+.hdr-addr{font-size:.8rem;color:rgba(255,255,255,.8);margin-bottom:8px}
+.hdr-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:#fff;font-size:.7rem;font-weight:700;padding:4px 12px;border-radius:20px;backdrop-filter:blur(4px)}
+.hdr-dot{width:7px;height:7px;background:#A5FF90;border-radius:50%;animation:breathe 2s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hdr-hours{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:6px}
+
+/* SEARCH */
+.srch{position:sticky;top:0;z-index:100;background:var(--fondo);padding:12px 16px;transition:box-shadow .3s}
+.srch.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.srch-wrap{position:relative}
+.srch-input{width:100%;padding:12px 44px 12px 44px;border:2px solid var(--borde);border-radius:50px;font-size:.9rem;font-family:inherit;background:var(--card);outline:none;transition:border .2s}
+.srch-input:focus{border-color:var(--verde)}
+.srch-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--verde);font-size:1rem}
+.btn-mic{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--verde);font-size:1.2rem;cursor:pointer;padding:6px;border-radius:50%;transition:all .2s}
+.btn-mic.escuchando{color:#ef4444;animation:pulse-mic .6s infinite}
+@keyframes pulse-mic{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.3)}}
+
+/* TABS */
+.tabs{display:flex;gap:7px;padding:0 16px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 16px;border-radius:20px;border:1.5px solid var(--borde);background:var(--card);color:var(--texto-s);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.active{background:var(--verde);color:#fff;border-color:var(--verde)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 14px 120px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius);padding:16px 12px;box-shadow:var(--sombra);transition:transform .15s;animation:fadeUp .4s ease both;cursor:pointer;position:relative;overflow:hidden}
+.card:active{transform:scale(.97)}
+.card-emoji{width:72px;height:72px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 10px}
+.card-name{font-size:.84rem;font-weight:700;color:var(--texto);line-height:1.3;margin-bottom:4px;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.2em}
+.card-price{font-size:1.1rem;font-weight:800;color:var(--verde);text-align:center}
+.card-cat{font-size:.68rem;color:var(--texto-ss);text-align:center;margin-top:2px}
+.card-stock{font-size:.65rem;text-align:center;margin-top:3px;padding:2px 8px;border-radius:10px;display:inline-block}
+.card-stock.low{background:#FEF3C7;color:#D97706}
+.card-stock.out{background:#FEE2E2;color:#DC2626}
+.card-out-overlay{position:absolute;inset:0;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);pointer-events:none}
+.card-out-label{background:#DC2626;color:#fff;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 16px;color:var(--texto-ss);grid-column:1/-1}
+.empty-icon{font-size:2.5rem;margin-bottom:8px}
+
+/* MODAL DETALLE */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 20px 20px;transform:translateY(100%);transition:transform .3s ease;text-align:center}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-emoji{width:100px;height:100px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 14px}
+.modal-name{font-size:1.2rem;font-weight:800;margin-bottom:4px}
+.modal-price{font-size:1.6rem;font-weight:800;color:var(--verde);margin-bottom:8px}
+.modal-meta{font-size:.82rem;color:var(--texto-s);margin-bottom:18px}
+.modal-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px}
+.modal-btn-pedir{background:var(--verde);color:#fff}
+.modal-btn-cerrar{background:#F3F4F6;color:var(--texto-s)}
+
+/* CHAT */
+.fab-chat{position:fixed;bottom:20px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--verde);border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(0,200,83,.4);z-index:50;display:flex;align-items:center;justify-content:center;animation:fab-pulse 4s ease-in-out infinite}
+@keyframes fab-pulse{0%,80%,100%{transform:scale(1)}85%{transform:scale(1.1)}90%{transform:scale(1)}}
+.chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none}
+.chat-overlay.open{display:block}
+.chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:400px;height:70vh;background:var(--card);border-radius:20px 20px 0 0;z-index:301;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease}
+.chat-panel.open{transform:translateY(0)}
+.chat-hdr{background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));padding:16px;border-radius:20px 20px 0 0;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-hdr-logo{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.8rem;flex-shrink:0}
+.chat-hdr-info{flex:1;color:#fff}
+.chat-hdr-name{font-size:.9rem;font-weight:700}
+.chat-hdr-status{font-size:.7rem;color:rgba(255,255,255,.8)}
+.chat-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.3rem;cursor:pointer}
+.chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.85rem;line-height:1.5;word-break:break-word}
+.chat-msg.bot{background:#E8F5E9;color:var(--texto);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:var(--verde);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input-area{padding:10px 12px;border-top:1px solid var(--borde);display:flex;gap:8px;flex-shrink:0;align-items:center}
+.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--borde);border-radius:24px;font-size:.85rem;font-family:inherit;outline:none}
+.chat-input:focus{border-color:var(--verde)}
+.chat-send{width:38px;height:38px;border-radius:50%;background:var(--verde);border:none;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* INSTALL BANNER */
+.install{position:fixed;bottom:0;left:0;right:0;background:var(--verde);padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:25;transform:translateY(100%);transition:transform .3s}
+.install.show{transform:translateY(0)}
+.install-text{flex:1;color:#fff;font-size:.82rem;font-weight:600}
+.install-btn{background:#fff;color:var(--verde);border:none;padding:9px 18px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+.install-x{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;padding:4px}
+
+/* FOOTER */
+.footer{text-align:center;padding:20px 16px;color:var(--texto-ss);font-size:.72rem}
+.footer a{color:var(--verde);text-decoration:none;font-weight:600}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--texto-ss);font-size:.85rem;grid-column:1/-1}
+
+@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr);max-width:860px;margin:0 auto}.hdr,.srch,.tabs,.footer{max-width:860px;margin-left:auto;margin-right:auto}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo-ph" id="store-logo">QV</div>
+  <div class="hdr-name" id="store-name">{{ store_name }}</div>
+  <div class="hdr-addr" id="store-addr">Cargando...</div>
+  <div class="hdr-badge"><span class="hdr-dot"></span> Abierto</div>
+  <div class="hdr-hours">Lun–Sáb 8am–10pm · Dom 9am–8pm</div>
+  <svg class="hdr-wave" viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:30px"><path d="M0,25 C360,50 1080,0 1440,25 L1440,50 L0,50 Z" fill="#F0F4F0"/></svg>
+</div>
+
+<!-- SEARCH -->
+<div class="srch" id="srch-bar">
+  <div class="srch-wrap">
+    <span class="srch-icon">🔍</span>
+    <input type="text" class="srch-input" id="search-input" placeholder="Buscar productos..." oninput="filtrar()">
+    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">🎤</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="cat-tabs">
+  <button class="tab active" onclick="filtrarCategoria('Todos',this)">Todos</button>
+</div>
+
+<!-- GRID -->
+<div class="grid" id="grid">
+  <div class="loading">Cargando productos...</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Powered by <a href="https://quevendi.pro" target="_blank">QueVendi.pro</a></p>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-overlay" id="modal-detalle" onclick="if(event.target===this)cerrarDetalle()">
+  <div class="modal-box">
+    <div class="modal-emoji" id="md-emoji"></div>
+    <div class="modal-name" id="md-name"></div>
+    <div class="modal-price" id="md-price"></div>
+    <div class="modal-meta" id="md-meta"></div>
+    <button class="modal-btn modal-btn-pedir" id="md-pedir" onclick="pedirProducto()">✋ Agregar al pedido</button>
+    <button class="modal-btn modal-btn-cerrar" onclick="cerrarDetalle()">Cerrar</button>
+  </div>
+</div>
+
+<!-- FAB CHAT -->
+<button class="fab-chat" id="fab-chat" onclick="toggleChat()">💬</button>
+
+<!-- CHAT PANEL -->
+<div class="chat-overlay" id="chat-overlay" onclick="toggleChat()"></div>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-hdr">
+    <div class="chat-hdr-logo" id="chat-logo">QV</div>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-name" id="chat-name">{{ store_name }}</div>
+      <div class="chat-hdr-status">● En línea</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu pedido..." onkeydown="if(event.key==='Enter')enviarChat()">
+    <button class="chat-send" onclick="enviarChat()">➤</button>
+  </div>
+</div>
+
+<!-- INSTALL -->
+<div class="install" id="install-banner">
+  <div class="install-text">📲 Instala nuestra carta en tu celular</div>
+  <button class="install-btn" id="install-btn">Instalar</button>
+  <button class="install-x" id="install-x" onclick="cerrarInstall()">✕</button>
+</div>
+
+<script>
+const TELEFONO = '{{ telefono }}';
+const STORE_NAME = '{{ store_name }}';
+const API = '/api/public/carta/' + TELEFONO;
+let allProducts = [];
+let categoriaActual = 'Todos';
+let searchTerm = '';
+let productoSeleccionado = null;
+let chatAbierto = false;
+
+const EMOJIS = {
+  'Abarrotes':'🛒','Bebidas':'🥤','Frutas':'🍎','Verduras':'🥦',
+  'Carnes':'🥩','Lacteos':'🥛','Lácteos':'🥛','Panaderia':'🍞','Panadería':'🍞',
+  'Limpieza':'🧹','Ferreteria':'🔧','Ferretería':'🔧','Farmacia':'💊',
+  'Snacks':'🍿','Golosinas':'🍬','Licores':'🍺','Cuidado Personal':'🧴',
+  'Mascotas':'🐶','Otros':'📦','default':'📦'
+};
+function getEmoji(cat) { return EMOJIS[cat] || EMOJIS['default']; }
+function getFP() { return btoa(navigator.userAgent.slice(0,40) + screen.width + screen.height).slice(0,64); }
+
+// ── SCROLL SHADOW ──
+window.addEventListener('scroll', () => {
+  document.getElementById('srch-bar').classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ── CARGAR INFO ──
+async function cargarInfo() {
+  try {
+    const r = await fetch(API + '/info');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('store-name').textContent = d.nombre;
+    document.getElementById('chat-name').textContent = d.nombre;
+    const parts = [d.direccion, d.distrito].filter(Boolean);
+    document.getElementById('store-addr').textContent = parts.join(' — ') || d.telefono;
+    if (d.logo) {
+      const el = document.getElementById('store-logo');
+      const img = document.createElement('img');
+      img.src = d.logo; img.alt = d.nombre; img.className = 'hdr-logo';
+      el.replaceWith(img);
+    } else {
+      const initials = d.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+      document.getElementById('store-logo').textContent = initials;
+      document.getElementById('chat-logo').textContent = initials;
+    }
+  } catch(e) { document.getElementById('store-addr').textContent = ''; }
+}
+
+// ── CARGAR PRODUCTOS ──
+async function cargarProductos() {
+  try {
+    const r = await fetch(API + '/productos');
+    if (!r.ok) return;
+    const d = await r.json();
+    allProducts = [];
+    const cats = new Set();
+    for (const [cat, prods] of Object.entries(d.categorias)) {
+      cats.add(cat);
+      prods.forEach(p => allProducts.push(p));
+    }
+    const tabs = document.getElementById('cat-tabs');
+    tabs.innerHTML = '<button class="tab active" onclick="filtrarCategoria(\'Todos\',this)">Todos</button>';
+    [...cats].sort().forEach(c => {
+      tabs.innerHTML += `<button class="tab" onclick="filtrarCategoria('${c.replace(/'/g,"\\'")}',this)">${getEmoji(c)} ${c}</button>`;
+    });
+    renderProducts();
+  } catch(e) {
+    document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon">😕</div><p>No se pudieron cargar los productos</p></div>';
+  }
+}
+
+function renderProducts() {
+  const grid = document.getElementById('grid');
+  let filtered = allProducts;
+  if (categoriaActual !== 'Todos') filtered = filtered.filter(p => p.category === categoriaActual);
+  if (searchTerm) { const q = searchTerm.toLowerCase(); filtered = filtered.filter(p => p.name.toLowerCase().includes(q)); }
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron productos</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map((p, i) => {
+    const agotado = p.stock <= 0;
+    const bajo = !agotado && p.stock > 0 && p.stock < 10;
+    return `<div class="card" style="animation-delay:${i*40}ms" onclick="${agotado ? '' : `abrirDetalle(${p.id})`}">
+      <div class="card-emoji">${getEmoji(p.category)}</div>
+      <div class="card-name">${p.name}</div>
+      <div class="card-price">S/ ${p.price.toFixed(2)}</div>
+      <div class="card-cat">${p.category || ''}</div>
+      ${bajo ? `<div class="card-stock low">Quedan ${p.stock}</div>` : ''}
+      ${agotado ? `<div class="card-out-overlay"><span class="card-out-label">Agotado</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filtrar() {
+  searchTerm = document.getElementById('search-input').value.trim();
+  renderProducts();
+}
+function filtrarCategoria(cat, btn) {
+  categoriaActual = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderProducts();
+}
+
+// ── MODAL DETALLE ──
+function abrirDetalle(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  productoSeleccionado = p;
+  document.getElementById('md-emoji').textContent = getEmoji(p.category);
+  document.getElementById('md-name').textContent = p.name;
+  document.getElementById('md-price').textContent = `S/ ${p.price.toFixed(2)}`;
+  document.getElementById('md-meta').textContent = `${p.category || 'General'} · ${p.stock > 0 ? 'Stock disponible: ' + p.stock + ' unidades' : 'Disponible'}`;
+  document.getElementById('modal-detalle').classList.add('open');
+}
+function cerrarDetalle() {
+  document.getElementById('modal-detalle').classList.remove('open');
+  productoSeleccionado = null;
+}
+function pedirProducto() {
+  if (!productoSeleccionado) return;
+  cerrarDetalle();
+  // Abrir chat con mensaje pre-escrito
+  if (!chatAbierto) toggleChat();
+  const input = document.getElementById('chat-input');
+  input.value = `Hola, quiero pedir: ${productoSeleccionado.name} — S/ ${productoSeleccionado.price.toFixed(2)}`;
+  input.focus();
+}
+
+// ── CHAT ──
+function toggleChat() {
+  chatAbierto = !chatAbierto;
+  document.getElementById('chat-overlay').classList.toggle('open', chatAbierto);
+  document.getElementById('chat-panel').classList.toggle('open', chatAbierto);
+  if (chatAbierto) {
+    const body = document.getElementById('chat-body');
+    if (body.children.length === 0) {
+      addChatMsg('bot', `👋 ¡Hola! Soy el asistente de <b>${STORE_NAME}</b>.\n¿Qué deseas pedir hoy? Escríbeme los productos y te confirmo disponibilidad. 😊`);
+    }
+    document.getElementById('chat-input').focus();
+  }
+}
+
+function addChatMsg(type, text) {
+  const body = document.getElementById('chat-body');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${type}`;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  // Persist
+  const msgs = JSON.parse(localStorage.getItem('chat_' + TELEFONO) || '[]');
+  msgs.push({ type, text, ts: Date.now() });
+  localStorage.setItem('chat_' + TELEFONO, JSON.stringify(msgs));
+}
+
+function loadChatHistory() {
+  const msgs = JSON.parse(localStorage.getItem('chat_' + TELEFONO) || '[]');
+  msgs.forEach(m => {
+    const div = document.createElement('div');
+    div.className = `chat-msg ${m.type}`;
+    div.innerHTML = m.text.replace(/\n/g, '<br>');
+    document.getElementById('chat-body').appendChild(div);
+  });
+}
+
+async function enviarChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addChatMsg('user', msg);
+
+  try {
+    const r = await fetch(API + '/pedido-chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ device_fingerprint: getFP(), mensaje: msg })
+    });
+    if (r.ok) {
+      const d = await r.json();
+      setTimeout(() => addChatMsg('bot', d.respuesta), 600);
+    }
+  } catch(e) {
+    setTimeout(() => addChatMsg('bot', '⚠️ Sin conexión. Intenta de nuevo.'), 400);
+  }
+}
+
+// ── VOZ ──
+let recognition = null;
+const btnMic = document.getElementById('btn-mic');
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'es-PE';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    const texto = e.results[0][0].transcript;
+    document.getElementById('search-input').value = texto;
+    filtrar();
+  };
+  recognition.onstart = () => btnMic.classList.add('escuchando');
+  recognition.onend = () => btnMic.classList.remove('escuchando');
+} else {
+  btnMic.style.display = 'none';
+}
+function toggleVoice() {
+  if (!recognition) return;
+  if (btnMic.classList.contains('escuchando')) { recognition.stop(); }
+  else { recognition.start(); }
+}
+
+// ── VISITA ──
+function registrarVisita() {
+  fetch(API + '/visita', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ device_fingerprint: getFP(), installed_pwa: window.matchMedia('(display-mode: standalone)').matches })
+  }).catch(() => {});
+}
+
+// ── PWA INSTALL ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('carta_install_dismissed')) {
+    setTimeout(() => document.getElementById('install-banner').classList.add('show'), 8000);
+  }
+});
+document.getElementById('install-btn')?.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+function cerrarInstall() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('carta_install_dismissed', 'true');
+}
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/carta/sw.js').catch(() => {});
+}
+
+// ── INIT ──
+cargarInfo();
+cargarProductos();
+registrarVisita();
+loadChatHistory();
+</script>
+</body>
+</html>

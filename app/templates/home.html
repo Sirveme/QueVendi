@@ -380,6 +380,8 @@
         }
     }
     </style>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="theme-darkpro">
 
@@ -2573,6 +2575,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const footer = '</div></div>';
             modal.innerHTML = header + html + footer;
             document.body.appendChild(modal);
+            if (typeof renderTicketQRCodes === 'function') renderTicketQRCodes();
         }
 
     </script>
