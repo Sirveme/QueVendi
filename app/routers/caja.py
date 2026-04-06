@@ -101,9 +101,14 @@ CREATE INDEX IF NOT EXISTS idx_caja_sesiones_estado ON caja_sesiones(estado);
 CREATE INDEX IF NOT EXISTS idx_caja_egresos_sesion ON caja_egresos(sesion_id);
 """
 
+MIGRATION_STORE_CONFIG_SQL = """
+ALTER TABLE store_config ADD COLUMN IF NOT EXISTS caja_apertura_requerida BOOLEAN DEFAULT TRUE;
+"""
+
 def _ensure_tables(db: Session):
     try:
         db.execute(text(MIGRATION_SQL))
+        db.execute(text(MIGRATION_STORE_CONFIG_SQL))
         db.commit()
     except Exception as e:
         db.rollback()
@@ -187,6 +192,18 @@ def _serializar_sesion(row, egresos=None) -> dict:
 
     return d
 
+def _apertura_requerida(db: Session, store_id: int) -> bool:
+    """Consultar si la tienda requiere apertura de caja."""
+    try:
+        row = db.execute(text(
+            "SELECT caja_apertura_requerida FROM store_config WHERE store_id = :sid"
+        ), {"sid": store_id}).fetchone()
+        if row and row[0] is not None:
+            return bool(row[0])
+    except Exception:
+        pass
+    return True  # default: requerida
+
 # ════════════════════════════════════════════════
 # ENDPOINTS
 # ════════════════════════════════════════════════
@@ -261,8 +278,10 @@ async def caja_activa(
     LIMIT 1
 """), {"sid": store_id}).fetchone()
 
+    apertura_requerida = _apertura_requerida(db, store_id)
+
     if not row:
-        return {"activa": False, "sesion": None}
+        return {"activa": False, "sesion": None, "apertura_requerida": apertura_requerida}
 
     # Recalcular totales en tiempo real
     totales = _calcular_totales_sesion(db, row.id, store_id, row.fecha_apertura)
@@ -296,7 +315,7 @@ async def caja_activa(
 
     # Re-fetch para datos actualizados
     row = db.execute(text("SELECT * FROM caja_sesiones WHERE id = :id"), {"id": row.id}).fetchone()
-    return {"activa": True, "sesion": _serializar_sesion(row, egresos_list)}
+    return {"activa": True, "sesion": _serializar_sesion(row, egresos_list), "apertura_requerida": apertura_requerida}
 
 
 @router.get("/todas")

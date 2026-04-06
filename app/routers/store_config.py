@@ -116,6 +116,8 @@ class StoreConfigRequest(BaseModel):
     papel_ancho:     Optional[int] = 80
     printer_name:    Optional[str] = ''
     catalogo_activo: Optional[bool] = False
+    # ── Caja ──
+    caja_apertura_requerida: Optional[bool] = True
 
 
 # ================================================================
