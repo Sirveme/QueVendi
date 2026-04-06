@@ -193,14 +193,15 @@ const OfflineSale = (() => {
 
         // Datos de fiado si aplica
         let customerData = null;
-        if (paymentMethod === 'fiado') {
+        if (paymentMethod === 'fiado' && typeof datosClienteFiado !== 'undefined' && datosClienteFiado) {
             customerData = {
-                nombre: document.getElementById('modal-fiado-nombre')?.value.trim() || null,
-                telefono: document.getElementById('modal-fiado-telefono')?.value.trim() || null,
-                direccion: document.getElementById('modal-fiado-direccion')?.value.trim() || null,
-                dni: document.getElementById('modal-fiado-dni')?.value.trim() || null,
-                dias: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7,
-                referencia: document.getElementById('modal-fiado-referencia')?.value.trim() || null
+                nombre: datosClienteFiado.nombre || null,
+                telefono: datosClienteFiado.telefono || null,
+                lugar: datosClienteFiado.lugar || null,
+                dni: datosClienteFiado.dni || null,
+                dias: datosClienteFiado.dias || 30,
+                referencia_persona: datosClienteFiado.referencia_persona || null,
+                notas: datosClienteFiado.notas || null
             };
         }
 
@@ -288,6 +289,7 @@ const OfflineSale = (() => {
                 const ticketContainer = document.getElementById('offline-ticket-preview');
                 if (ticketContainer) {
                     ticketContainer.innerHTML = window.buildTicketHtmlDesdeComprobante(comp);
+                    if (typeof window.renderTicketQRCodes === 'function') window.renderTicketQRCodes();
                 }
             }
         }, 100);

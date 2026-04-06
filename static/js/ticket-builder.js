@@ -15,6 +15,51 @@
  *   efectivo | yape | plin | tarjeta | fiado
  */
 
+/**
+ * Convierte un monto numérico a texto en español.
+ * Rango: 0 a 9,999.99 → "CIEN CON 50/100 SOLES"
+ */
+function numeroALetras(monto) {
+    const unidades = ['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE'];
+    const especiales = ['DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE'];
+    const decenas = ['','DIEZ','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+    const centenas = ['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+
+    function convertirGrupo(n) {
+        if (n === 0) return '';
+        if (n === 100) return 'CIEN';
+        let texto = '';
+        const c = Math.floor(n / 100);
+        const r = n % 100;
+        if (c > 0) texto = centenas[c] + ' ';
+        if (r === 0) return texto.trim();
+        if (r < 10) return (texto + unidades[r]).trim();
+        if (r < 16) return (texto + especiales[r - 10]).trim();
+        if (r < 20) return (texto + 'DIECI' + unidades[r - 10]).trim();
+        const d = Math.floor(r / 10);
+        const u = r % 10;
+        if (d === 2 && u > 0) return (texto + 'VEINTI' + unidades[u]).trim();
+        if (u === 0) return (texto + decenas[d]).trim();
+        return (texto + decenas[d] + ' Y ' + unidades[u]).trim();
+    }
+
+    const entero = Math.floor(Math.abs(monto));
+    const decimales = Math.round((Math.abs(monto) - entero) * 100);
+
+    if (entero === 0) return `CERO CON ${String(decimales).padStart(2,'0')}/100 SOLES`;
+
+    let texto = '';
+    const miles = Math.floor(entero / 1000);
+    const resto = entero % 1000;
+
+    if (miles === 1) texto = 'MIL ';
+    else if (miles > 1) texto = convertirGrupo(miles) + ' MIL ';
+
+    if (resto > 0) texto += convertirGrupo(resto);
+
+    return `${texto.trim()} CON ${String(decimales).padStart(2,'0')}/100 SOLES`;
+}
+
 function buildTicketHtmlDesdeComprobante(comp) {
 
     const sc = JSON.parse(localStorage.getItem('store_config') || '{}');
@@ -114,10 +159,10 @@ function buildTicketHtmlDesdeComprobante(comp) {
 
     // ── Logo helpers ──────────────────────────────────────────────────────────
     const logoCenter = cfg.logo_url
-        ? `<div style="text-align:center;margin-bottom:4px"><img src="${cfg.logo_url}" style="width:52px;height:52px;object-fit:contain;border-radius:4px"></div>`
+        ? `<div style="text-align:center;margin-bottom:4px"><img src="${cfg.logo_url}" style="max-height:60px;max-width:160px;object-fit:contain;border-radius:4px"></div>`
         : '';
     const logoLeft = cfg.logo_url
-        ? `<img src="${cfg.logo_url}" style="width:52px;height:52px;object-fit:contain;border:1px solid #eee;border-radius:4px;flex-shrink:0">`
+        ? `<img src="${cfg.logo_url}" style="max-height:60px;max-width:80px;object-fit:contain;border:1px solid #eee;border-radius:4px;flex-shrink:0">`
         : '';
 
     // ── HEADER según estilo ───────────────────────────────────────────────────
@@ -213,7 +258,9 @@ function buildTicketHtmlDesdeComprobante(comp) {
         + '<div style="border:2px solid #222;border-radius:4px;padding:5px 6px;margin:4px 0">'
         + `<div style="display:flex;justify-content:space-between;font-family:'${fTotal}',sans-serif;font-size:${cfg.size_total}px;font-weight:900">`
         + `<span>TOTAL S/</span><span>${total.toFixed(2)}</span>`
-        + '</div></div>'
+        + '</div>'
+        + `<div style="font-size:${cfg.size_items - 1}px;font-style:italic;text-align:center;color:#444;margin-top:2px">Son: ${numeroALetras(total)}</div>`
+        + '</div>'
 
         // MÉTODO DE PAGO informativo
         + `<div style="font-size:${cfg.size_items}px;margin:3px 0">Método de pago: <strong>${metodoPago}</strong></div>`
@@ -230,11 +277,12 @@ function buildTicketHtmlDesdeComprobante(comp) {
         // BOX 6: QR + VERIFICACIÓN + CÓDIGO INTERNO
         + '<div style="border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin:4px 0">'
         + '<div style="display:flex;gap:6px;align-items:flex-start">'
-        + '<div style="width:54px;height:54px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:7px;color:#888;text-align:center;border-radius:2px">[QR]</div>'
+        + `<div id="ticket-qr-${comp.id || 0}" class="ticket-qr-container" data-qr-url="${comp.sunat_hash ? 'https://facturalo.pro/verificar/' + comp.sunat_hash : 'https://www.sunat.gob.pe/ol-ti-itconsultaunificada/'}" style="width:100px;height:100px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:2px;overflow:hidden"></div>`
         + `<div style="flex:1;font-size:${cfg.size_items}px;line-height:1.5">`
         + `Representación impresa de la<br><strong>${tipo}</strong><br>`
         + 'Verifique en:<br>www.facturalo.pro/verificar<br>www.sunat.gob.pe'
-        + (codigoInterno ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Interno: ${codigoInterno}</span>` : '')
+        + (codigoInterno ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Interno: ${codigoInterno}</span>` : (comp.id === 0 ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Código: PENDIENTE</span>` : ''))
+        + `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Hash SUNAT: ${comp.sunat_hash || '[se genera al emitir]'}</span>`
         + '</div></div></div>'
 
         // AMAZONIA
@@ -267,4 +315,25 @@ function buildTicketHtmlDesdeComprobante(comp) {
         + '</div>';
 }
 
+/**
+ * Genera los QR reales en los contenedores del ticket.
+ * Llamar DESPUÉS de insertar el HTML del ticket en el DOM.
+ */
+function renderTicketQRCodes() {
+    if (typeof QRCode === 'undefined') return;
+    document.querySelectorAll('.ticket-qr-container').forEach(container => {
+        const url = container.dataset.qrUrl;
+        if (!url || container.dataset.qrRendered) return;
+        container.innerHTML = '';
+        new QRCode(container, {
+            text: url,
+            width: 100,
+            height: 100,
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        container.dataset.qrRendered = 'true';
+    });
+}
+
 window.buildTicketHtmlDesdeComprobante = buildTicketHtmlDesdeComprobante;
+window.renderTicketQRCodes = renderTicketQRCodes;

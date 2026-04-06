@@ -55,7 +55,9 @@ const AppState = {
     emergencyProgress: 0,
     pendingVoiceQuantity: 1,
     speechEnabled: true,
-    pendingVariants: []
+    pendingVariants: [],
+    cajaActiva: null,
+    cajaAperturaRequerida: true
 };
 
 
@@ -101,6 +103,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderRecentProducts();
     await loadDailySales();
     
+    // Verificar estado de caja
+    await verificarEstadoCaja();
+
     // Verificar plan PRO
     checkProStatus();
     
@@ -2241,14 +2246,8 @@ function selectPayment(method, event) {
     selectPaymentUI(method);
 
     if (method === 'fiado') {
-        const modal = document.getElementById('modal-fiado-overlay');
-        if (modal) {
-            modal.style.display = 'flex';
-            actualizarResumenFiado();
-            setTimeout(() => {
-                document.getElementById('modal-fiado-nombre')?.focus();
-            }, 150);
-        }
+        const total = typeof getCartTotal === 'function' ? getCartTotal() : 0;
+        abrirModalFiado(total);
     }
 }
 
@@ -2287,110 +2286,49 @@ function selectPaymentUI(method) {
     AppState.paymentMethod = method;
 }
 
-function cerrarModalFiado() {
-    const modal = document.getElementById('modal-fiado-overlay');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-
-    // Limpiar campos
-    ['modal-fiado-nombre', 'modal-fiado-telefono', 'modal-fiado-direccion'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-
-    // Restaurar a efectivo (FIX: era 'cash')
-    selectPayment('efectivo');
-
-    console.log('[Fiado] Modal cerrado');
-}
-
-function confirmarDatosFiado() {
-    // Validar campos
-    const clientName = document.getElementById('modal-fiado-nombre')?.value.trim();
-    const clientPhone = document.getElementById('modal-fiado-telefono')?.value.trim();
-    const clientAddress = document.getElementById('modal-fiado-direccion')?.value.trim();
-    
-    if (!clientName) {
-        showToast('Ingresa el nombre del cliente', 'warning');
-        document.getElementById('modal-fiado-nombre')?.focus();
-        return;
-    }
-    
-    if (!clientPhone) {
-        showToast('Ingresa el teléfono del cliente', 'warning');
-        document.getElementById('modal-fiado-telefono')?.focus();
-        return;
-    }
-    
-    if (!clientAddress) {
-        showToast('Ingresa la dirección del cliente', 'warning');
-        document.getElementById('modal-fiado-direccion')?.focus();
-        return;
-    }
-    
-    // Cerrar modal
-    const modal = document.getElementById('modal-fiado-overlay');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-
-    showToast('Datos confirmados. Ahora presiona Cobrar', 'success');
-    
-    // Procesar venta
-    processSale();
-}
+// cerrarModalFiado y confirmarDatosFiado están definidos en dashboard_principal.html (inline script)
 
 
 // ============================================
 // NUEVA FUNCIÓN: Registrar fiado con todos los datos
 // ============================================
 
-async function registrarFiadoDespuesDeVentaMejorado(saleId, total) {
+async function registrarFiadoDespuesDeVentaMejorado(saleId, total, customerData) {
     console.log('[Fiado] Registrando fiado para venta:', saleId);
-    
-    // Obtener datos del modal
-    const customerData = {
-        name: document.getElementById('modal-fiado-nombre')?.value.trim(),
-        phone: document.getElementById('modal-fiado-telefono')?.value.trim(),
-        address: document.getElementById('modal-fiado-direccion')?.value.trim(),
-        dni: document.getElementById('modal-fiado-dni')?.value.trim(),
-        credit_days: document.getElementById('modal-fiado-dias')?.value || '7',
-        reference: document.getElementById('modal-fiado-referencia')?.value.trim(),
-        notes: document.getElementById('modal-fiado-notas')?.value.trim()
-    };
-    
-    console.log('[Fiado] Datos del cliente:', customerData);
-    
+
+    // Usar datosClienteFiado capturados antes de cerrar el modal
+    const datos = customerData || datosClienteFiado || {};
+    console.log('[Fiado] Datos del cliente:', datos);
+
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/fiados/registrar`, {
             method: 'POST',
             body: JSON.stringify({
-                customer_name: customerData.name,
-                customer_phone: customerData.phone,
-                customer_address: customerData.address,
-                customer_dni: customerData.dni || null,
+                customer_name: datos.nombre,
+                customer_phone: datos.telefono,
+                customer_dni: datos.dni || null,
+                customer_lugar: datos.lugar || null,
+                customer_referencia_persona: datos.referencia_persona || null,
                 sale_id: saleId,
                 total_amount: parseFloat(total),
-                credit_days: parseInt(customerData.credit_days),
-                reference_number: customerData.reference || null,
-                notes: customerData.notes || null
+                credit_days: parseInt(datos.dias) || 30,
+                notes: datos.notas || null
             })
         });
-        
+
         if (response.ok) {
             const credit = await response.json();
             console.log('[Fiado] ✅ Registrado correctamente:', credit);
-            
-            showToast(`Fiado registrado: ${customerData.name} - S/. ${total}`, 'success');
-            speak(`Fiado de ${total} soles registrado para ${customerData.name}. Vence en ${customerData.credit_days} días`);
-            
+
+            showToast(`Fiado registrado: ${datos.nombre} - S/. ${total}`, 'success');
+            speak(`Fiado de ${total} soles registrado para ${datos.nombre}. Vence en ${datos.dias} días`);
+
             return credit;
         } else {
             const error = await response.json();
             throw new Error(error.detail || 'Error al registrar fiado');
         }
-        
+
     } catch (error) {
         console.error('[Fiado] Error:', error);
         showToast(`Error: ${error.message}`, 'error');
@@ -2410,19 +2348,15 @@ async function processSale() {
     
     // Para fiado, verificar que los datos ya fueron capturados
     if (AppState.paymentMethod === 'fiado') {
-        const clientName = document.getElementById('modal-fiado-nombre')?.value.trim();
-        const clientPhone = document.getElementById('modal-fiado-telefono')?.value.trim();
-        const clientAddress = document.getElementById('modal-fiado-direccion')?.value.trim();
-        
         // Si el modal está visible, significa que aún no confirmaron
         const modal = document.getElementById('modal-fiado-overlay');
         if (modal && modal.style.display !== 'none') {
             showToast('Completa los datos del cliente y presiona Confirmar', 'warning');
             return;
         }
-        
-        // Validar que los datos existen (ya fueron confirmados)
-        if (!clientName || !clientPhone || !clientAddress) {
+
+        // Validar que los datos existen (ya fueron confirmados via datosClienteFiado)
+        if (!datosClienteFiado || !datosClienteFiado.nombre || !datosClienteFiado.telefono || !datosClienteFiado.lugar) {
             showToast('Error: Datos de fiado incompletos', 'error');
             selectPayment('fiado'); // Reabrir modal
             return;
@@ -2448,11 +2382,17 @@ async function processSale() {
 // Reemplazar TODA la función
 
 async function executeSale(total, printType = 'none') {
+    // Verificar caja abierta si es requerida
+    if (AppState.cajaAperturaRequerida && !AppState.cajaActiva) {
+        showToast('Debes abrir la caja antes de vender. Ve a Caja desde el menú.', 'error');
+        return;
+    }
+
     // ✅ CAPTURAR método de pago ANTES de que se resetee
     window._lastSalePayment = {
         method: AppState.paymentMethod,
         isCredit: AppState.paymentMethod === 'fiado',
-        creditDays: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7
+        creditDays: datosClienteFiado?.dias || 30
     };
     console.log('[executeSale] Pago guardado:', window._lastSalePayment);
 
@@ -2460,13 +2400,15 @@ async function executeSale(total, printType = 'none') {
 
     try {
         let customerData = null;
-        if (AppState.paymentMethod === 'fiado') {
+        if (AppState.paymentMethod === 'fiado' && datosClienteFiado) {
             customerData = {
-                nombre: document.getElementById('modal-fiado-nombre')?.value.trim(),
-                telefono: document.getElementById('modal-fiado-telefono')?.value.trim(),
-                direccion: document.getElementById('modal-fiado-direccion')?.value.trim(),
-                referencia: document.getElementById('modal-fiado-referencia')?.value.trim() || '',
-                dias: parseInt(document.getElementById('modal-fiado-dias')?.value) || 7
+                nombre: datosClienteFiado.nombre,
+                telefono: datosClienteFiado.telefono,
+                dni: datosClienteFiado.dni || '',
+                lugar: datosClienteFiado.lugar,
+                referencia_persona: datosClienteFiado.referencia_persona || '',
+                dias: datosClienteFiado.dias || 30,
+                notas: datosClienteFiado.notas || ''
             };
         }
 
@@ -2516,16 +2458,9 @@ async function executeSale(total, printType = 'none') {
             saveCart();
             renderCart();
 
-            const modalFiado = document.getElementById('modal-fiado-overlay');
-            if (modalFiado) {
-                modalFiado.style.display = 'none';
-                document.getElementById('modal-fiado-nombre').value = '';
-                document.getElementById('modal-fiado-telefono').value = '';
-                document.getElementById('modal-fiado-direccion').value = '';
-                document.getElementById('modal-fiado-referencia').value = '';
-                document.getElementById('modal-fiado-dias').value = '';
-                selectPayment('efectivo');
-            }
+            // Limpiar datos de fiado
+            if (typeof cerrarModalFiado === 'function') cerrarModalFiado();
+            datosClienteFiado = null;
 
             const btnCobrar = document.getElementById('btn-checkout');
             if (btnCobrar) btnCobrar.style.display = 'flex';
@@ -2772,13 +2707,17 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
             <div id="ticket-html-content" style="font-size:1px">Cargando ticket...</div>
         </div>
 
-        <div style="display: flex; gap: 6px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button id="btn-modal-download"
-                style="flex: 1; padding: 10px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                <i class="fas fa-download"></i> Descargar
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i class="fas fa-file-pdf"></i> PDF SUNAT
+            </button>
+            <button id="btn-modal-download-ticket"
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i class="fas fa-receipt"></i> Ticket IMG
             </button>
             <button id="btn-modal-share"
-                style="flex: 1; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
                 <i class="fab fa-whatsapp"></i> Compartir
             </button>
             <button id="btn-modal-close"
@@ -2809,6 +2748,9 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
     modal.querySelector('#btn-modal-download').onclick = () => {
         _downloadComprobantePdf(comprobanteId, numeroFormato, formato);
     };
+    modal.querySelector('#btn-modal-download-ticket').onclick = () => {
+        _downloadTicketAsImage(numeroFormato);
+    };
     modal.querySelector('#btn-modal-share').onclick = () => {
         _shareComprobantePdf(comprobanteId, numeroFormato, formato);
     };
@@ -2834,6 +2776,7 @@ async function _loadPdfPreview(comprobanteId, formato, numeroFormato) {
         // buildTicketHtmlDesdeComprobante está definida en home.html
         if (typeof buildTicketHtmlDesdeComprobante === 'function') {
             container.innerHTML = buildTicketHtmlDesdeComprobante(comp);
+            if (typeof renderTicketQRCodes === 'function') renderTicketQRCodes();
         } else {
             // Fallback simple si no está disponible
             container.innerHTML = `<div style="color:white;text-align:center;padding:20px">
@@ -2898,6 +2841,56 @@ async function _shareComprobantePdf(comprobanteId, numeroFormato, formato) {
             console.error('[PDF] Error compartir:', error);
             showToast('Error al compartir', 'error');
         }
+    }
+}
+
+async function _downloadTicketAsImage(numeroFormato) {
+    const container = document.getElementById('ticket-html-content');
+    if (!container || !container.firstElementChild) {
+        showToast('No hay ticket para descargar', 'warning');
+        return;
+    }
+    try {
+        showToast('Generando imagen...', 'info');
+        const ticketEl = container.firstElementChild;
+        // Usar canvas nativo: clonar el ticket en un iframe oculto y capturarlo
+        const canvas = document.createElement('canvas');
+        const scale = 2;
+        canvas.width = ticketEl.offsetWidth * scale;
+        canvas.height = ticketEl.offsetHeight * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+        // Serializar HTML a SVG foreignObject
+        const data = new XMLSerializer().serializeToString(ticketEl);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ticketEl.offsetWidth}" height="${ticketEl.offsetHeight}">
+            <foreignObject width="100%" height="100%">
+                <div xmlns="http://www.w3.org/1999/xhtml">${data}</div>
+            </foreignObject>
+        </svg>`;
+        const img = new Image();
+        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            canvas.toBlob(function(pngBlob) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(pngBlob);
+                a.download = (numeroFormato || 'ticket') + '.png';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                showToast('Ticket descargado', 'success');
+            }, 'image/png');
+        };
+        img.onerror = function() {
+            URL.revokeObjectURL(url);
+            showToast('Error al generar imagen. Usa captura de pantalla.', 'error');
+        };
+        img.src = url;
+    } catch (error) {
+        console.error('[Ticket] Error imagen:', error);
+        showToast('Error al generar imagen', 'error');
     }
 }
 
@@ -4368,7 +4361,7 @@ function showPurchaseForm() { showToast('Registro de compras: próximamente', 'i
 function showInventory() { showToast('Inventario: próximamente', 'info'); }
 function showProfits() { showToast('Ganancias: próximamente', 'info'); }
 function showFiados() { showToast('Fiados: próximamente', 'info'); }
-function showCashFlow() { showToast('Flujo de caja: próximamente', 'info'); }
+function showCashFlow() { window.location.href = '/caja'; }
 function showTopProducts() { showToast('Top ventas: próximamente', 'info'); }
 function showSlowProducts() { showToast('Sin rotación: próximamente', 'info'); }
 function showComboSuggestions() { showToast('Combos: próximamente', 'info'); }
@@ -4384,6 +4377,22 @@ function showUsers() { showToast('Usuarios: próximamente', 'info'); }
 function showVoiceConfig() { showToast('Config voz: próximamente', 'info'); }
 function showPrinterConfig() { showToast('Impresora: próximamente', 'info'); }
 function showPlanBilling() { showToast('Plan: próximamente', 'info'); }
+
+// ============================================
+// VERIFICACIÓN DE CAJA
+// ============================================
+async function verificarEstadoCaja() {
+    try {
+        const r = await fetchWithAuth(`${CONFIG.apiBase}/caja/activa`);
+        if (!r.ok) return;
+        const d = await r.json();
+        AppState.cajaActiva = d.activa ? d.sesion : null;
+        AppState.cajaAperturaRequerida = d.apertura_requerida !== false;
+        console.log('[Caja] Estado:', d.activa ? 'abierta' : 'cerrada', '| Requerida:', AppState.cajaAperturaRequerida);
+    } catch(e) {
+        console.warn('[Caja] No se pudo verificar:', e);
+    }
+}
 
 // ============================================
 // EVENT LISTENERS
@@ -4538,6 +4547,12 @@ function showConfirmModal(total, paymentMethod, onConfirm) {
                         <span>Factura</span>
                     </button>
                 </div>
+                <div id="ticket-preview-toggle" style="margin:10px 0 0;text-align:center">
+                    <button onclick="toggleTicketPreview()" style="background:none;border:1px solid rgba(255,255,255,.15);color:#94a3b8;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.78rem;font-family:inherit">
+                        <i class="fas fa-eye"></i> Ver preview del ticket
+                    </button>
+                </div>
+                <div id="ticket-preview-area" style="display:none;max-height:320px;overflow-y:auto;margin:8px 0 0;border-radius:8px;background:#fff;padding:6px;text-align:center"></div>
                 <button class="confirm-cancel-btn" onclick="closeConfirmModal()">
                     <i class="fas fa-arrow-left"></i> Cancelar
                 </button>
@@ -4581,7 +4596,68 @@ function closeConfirmModal() {
     const modal = document.getElementById('confirm-modal');
     if (modal) {
         modal.classList.remove('open');
+        const previewArea = document.getElementById('ticket-preview-area');
+        if (previewArea) previewArea.style.display = 'none';
+        const actionsContainer = modal.querySelector('.confirm-modal-actions');
+        if (actionsContainer) { actionsContainer.style.maxHeight = ''; actionsContainer.style.overflow = ''; }
+        const toggleBtn = document.querySelector('#ticket-preview-toggle button');
+        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Ver preview del ticket';
     }
+}
+
+function toggleTicketPreview() {
+    const area = document.getElementById('ticket-preview-area');
+    if (!area) return;
+    const toggleBtn = document.querySelector('#ticket-preview-toggle button');
+    const actionsContainer = document.querySelector('.confirm-modal-actions');
+
+    if (area.style.display !== 'none') {
+        area.style.display = 'none';
+        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Ver preview del ticket';
+        if (actionsContainer) { actionsContainer.style.maxHeight = ''; actionsContainer.style.overflow = ''; }
+        return;
+    }
+    if (typeof buildTicketHtmlDesdeComprobante !== 'function') {
+        area.innerHTML = '<div style="padding:12px;color:#888;font-size:.85rem">Preview no disponible</div>';
+        area.style.display = 'block';
+        return;
+    }
+    // Construir comp preview con datos del carrito actual
+    const sc = JSON.parse(localStorage.getItem('store_config') || '{}');
+    const previewComp = {
+        id: 0,
+        tipo: '03',
+        serie: sc.serie_boleta || 'B001',
+        numero: '--------',
+        numero_formato: `${sc.serie_boleta || 'B001'}-XXXXXXXX`,
+        fecha_emision: new Date().toISOString(),
+        items: AppState.cart.map(item => ({
+            descripcion: item.name,
+            cantidad: parseFloat(item.quantity),
+            precio_unitario: parseFloat(item.price),
+            valor_venta: parseFloat(item.price) * parseFloat(item.quantity),
+            unidad: 'NIU'
+        })),
+        total: getCartTotal(),
+        subtotal: getCartTotal(),
+        igv: 0,
+        payment_method: AppState.paymentMethod,
+        is_credit: AppState.paymentMethod === 'fiado',
+        cliente: datosClienteFiado ? {
+            tipo_doc: datosClienteFiado.dni ? '1' : '0',
+            num_doc: datosClienteFiado.dni || '00000000',
+            nombre: datosClienteFiado.nombre,
+            direccion: datosClienteFiado.lugar || ''
+        } : { tipo_doc: '0', num_doc: '00000000', nombre: 'CLIENTE VARIOS' },
+        emisor: {},
+        sunat_description: '',
+        usuario_nombre: localStorage.getItem('user_name') || 'vendedor'
+    };
+    area.innerHTML = buildTicketHtmlDesdeComprobante(previewComp);
+    area.style.display = 'block';
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar preview';
+    if (actionsContainer) { actionsContainer.style.maxHeight = '0'; actionsContainer.style.overflow = 'hidden'; }
+    if (typeof renderTicketQRCodes === 'function') renderTicketQRCodes();
 }
 
 // ============================================
