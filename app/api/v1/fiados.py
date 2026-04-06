@@ -33,15 +33,15 @@ class PagoCreate(BaseModel):
     notes: Optional[str] = None
 
 class FiadoRegistrarFromSale(BaseModel):
-    """Schema para registrar fiado desde el POS (dashboard_principal.js)"""
+    """Schema para registrar fiado desde el POS (dashboard_principal)"""
     customer_name: str
     customer_phone: Optional[str] = None
-    customer_address: Optional[str] = None
     customer_dni: Optional[str] = None
+    customer_lugar: Optional[str] = None
+    customer_referencia_persona: Optional[str] = None
     sale_id: int
     total_amount: float
-    credit_days: int = 7
-    reference_number: Optional[str] = None
+    credit_days: int = 30
     notes: Optional[str] = None
 
 # ============================================
@@ -99,7 +99,7 @@ def registrar_fiado(
             "amount": data.total_amount,
             "due_date": due_date.date(),
             "sale_id": data.sale_id,
-            "notes": f"{data.customer_name} | Tel: {data.customer_phone or 'N/A'} | {data.notes or ''}"
+            "notes": f"{data.customer_name} | Tel: {data.customer_phone or 'N/A'} | DNI: {data.customer_dni or 'N/A'} | Lugar: {data.customer_lugar or 'N/A'} | Ref: {data.customer_referencia_persona or 'N/A'} | {data.notes or ''}"
         })
         db.commit()
         row = result.fetchone()

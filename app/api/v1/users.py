@@ -113,6 +113,18 @@ async def get_current_user_info(
 ):
     """Obtiene información del usuario actual incluyendo nombre del negocio."""
     store = db.query(Store).filter(Store.id == current_user.store_id).first()
+
+    # Logo: prioridad store_config.logo (base64 real) sobre store.logo_url (placeholder)
+    store_logo = None
+    if store:
+        try:
+            row = db.execute(text(
+                "SELECT logo FROM store_config WHERE store_id = :sid"
+            ), {"sid": store.id}).fetchone()
+            store_logo = (row[0] if row and row[0] else None) or store.logo_url
+        except Exception:
+            store_logo = store.logo_url
+
     return {
         'id':          current_user.id,
         'dni':         current_user.dni,
@@ -124,7 +136,7 @@ async def get_current_user_info(
         'store_name':  store.commercial_name if store else 'Mi Negocio',
         'store_ruc':   store.ruc             if store else '',
         'store_phone': store.phone           if store else '',
-        'store_logo':  store.logo_url        if store else None,
+        'store_logo':  store_logo,
     }
 
 

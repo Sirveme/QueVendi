@@ -345,8 +345,11 @@ async def get_comprobante(
         "status": comprobante.status,
         "sunat_code": comprobante.sunat_response_code,
         "sunat_description": comprobante.sunat_response_description,
+        "sunat_hash": comprobante.sunat_hash,
         "pdf_url": comprobante.pdf_url,
         "xml_url": comprobante.xml_url,
+        "payment_method": comprobante.sale.payment_method if comprobante.sale else "efectivo",
+        "is_credit": comprobante.sale.is_credit if comprobante.sale else False,
         "emisor": {
             "ruc":              store.ruc              if store else '',
             "razon_social":     store.business_name    if store else '',
