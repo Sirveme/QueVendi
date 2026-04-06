@@ -33,6 +33,7 @@ from app.routers.store_config import router as store_config_router
 from app.routers.user_management import router as user_mgmt_router
 
 from app.routers.caja import router as caja_router
+from app.routers.carta_virtual import router as carta_router
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -188,6 +189,7 @@ app.include_router(store_config_router, prefix="/api/v1/store")
 app.include_router(user_mgmt_router, prefix="/api/v1/users")
 app.include_router(lite.router)
 app.include_router(caja_router, prefix="/api/v1", tags=["caja"])
+app.include_router(carta_router, tags=["carta_virtual"])  # Rutas públicas sin auth
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -411,3 +413,12 @@ async def config_negocio_page(request: Request):
 @app.get("/descargar", response_class=HTMLResponse)
 async def descargar_page(request: Request):
     return templates.TemplateResponse("descargar.html", {"request": request})
+
+
+@app.get("/{telefono}")
+async def redirect_carta(telefono: str):
+    """Redirect quevendi.pro/967317946 → /carta/967317946"""
+    if telefono.isdigit() and len(telefono) == 9:
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=f"/carta/{telefono}", status_code=302)
+    raise HTTPException(status_code=404)
