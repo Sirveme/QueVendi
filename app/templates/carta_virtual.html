@@ -993,7 +993,7 @@ function startPolling() {
   if (pollingId) return;
   pollingId = setInterval(() => {
     if (cliente && document.visibilityState === 'visible') cargarMisPedidos();
-  }, 10000);
+  }, 20000);
 }
 
 // ── TOAST ──
