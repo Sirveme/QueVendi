@@ -1059,7 +1059,7 @@ async def emitir_comprobante_pedido(
         "fecha_emision": ahora.strftime("%Y-%m-%d"),
         "hora_emision": ahora.strftime("%H:%M:%S"),
         "moneda": "PEN",
-        "forma_pago": "Contado",
+        "forma_pago": "Gratuito" if tipo_pedido == "gratuito" else "Contado",
         "tipo_operacion": tipo_operacion,
         "cliente": {
             "tipo_documento": "0",
