@@ -1095,6 +1095,8 @@ async def emitir_comprobante_pedido(
                     "X-API-Secret": config.facturalo_secret,
                 },
             )
+            logger.info(f"[Carta-Boleta] Status: {response.status_code}")
+            logger.info(f"[Carta-Boleta] Response: {response.text}")
             try:
                 data = response.json()
             except Exception:
