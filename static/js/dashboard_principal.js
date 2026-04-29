@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── PEDIDOS DE LA CARTA (badge sidebar) ──
     pollPedidosCarta();
-    setInterval(pollPedidosCarta, 30000);
+    setInterval(pollPedidosCarta, 60000);
 
     console.log('[Dashboard] ✅ Sistema cargado correctamente');
 
