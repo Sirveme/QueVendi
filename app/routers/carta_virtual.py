@@ -1064,7 +1064,7 @@ async def emitir_comprobante_pedido(
         "cliente": {
             "tipo_documento": "0",
             "numero_documento": "00000000",
-            "nombre": "CLIENTE VARIOS",
+            "razon_social": "CLIENTE VARIOS",
         },
         "items": [item],
         "enviar_email": False,
