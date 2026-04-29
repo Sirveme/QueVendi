@@ -176,10 +176,12 @@ async def carta_info(telefono: str, db: Session = Depends(get_db)):
     modo_gratuito = False
     modo_gratuito_limite = 1
     modo_gratuito_mensaje = "🎉 ¡Producto de cortesía en nuestra inauguración!"
+    delivery_contraentrega = False
     try:
         row = db.execute(text(
             "SELECT direccion, distrito, provincia, departamento, giro, slogan, "
-            "modo_gratuito, modo_gratuito_limite, modo_gratuito_mensaje "
+            "modo_gratuito, modo_gratuito_limite, modo_gratuito_mensaje, "
+            "delivery_pago_contraentrega "
             "FROM store_config WHERE store_id = :sid"
         ), {"sid": store.id}).fetchone()
         if row:
@@ -197,6 +199,8 @@ async def carta_info(telefono: str, db: Session = Depends(get_db)):
                 modo_gratuito_limite = int(row[7])
             if row[8]:
                 modo_gratuito_mensaje = row[8]
+            if row[9] is not None:
+                delivery_contraentrega = bool(row[9])
     except Exception:
         pass
 
@@ -212,6 +216,7 @@ async def carta_info(telefono: str, db: Session = Depends(get_db)):
         "modo_gratuito": modo_gratuito,
         "modo_gratuito_limite": modo_gratuito_limite,
         "modo_gratuito_mensaje": modo_gratuito_mensaje,
+        "delivery_contraentrega": delivery_contraentrega,
     }
 
 
@@ -705,7 +710,7 @@ async def listar_pedidos_panel(
             SELECT id, cliente_nombre, cliente_celular, producto_id, producto_nombre,
                    cantidad, estado, tipo, created_at, confirmado_at,
                    EXTRACT(EPOCH FROM (NOW() - created_at))/60 AS minutos_esperando,
-                   tipo_entrega, direccion, metodo_pago
+                   tipo_entrega, direccion, metodo_pago, comprobante_numero
             FROM carta_pedidos
             WHERE store_id = :sid
               AND (
@@ -734,6 +739,7 @@ async def listar_pedidos_panel(
         "tipo_entrega": r[11],
         "direccion": r[12],
         "metodo_pago": r[13],
+        "comprobante_numero": r[14],
     } for r in rows]
     return {"pedidos": pedidos}
 
@@ -855,7 +861,8 @@ async def get_config_gratuito(
         raise HTTPException(403, "Solo el dueño puede ver esta configuración")
     try:
         row = db.execute(text("""
-            SELECT modo_gratuito, modo_gratuito_limite, modo_gratuito_mensaje
+            SELECT modo_gratuito, modo_gratuito_limite, modo_gratuito_mensaje,
+                   delivery_pago_contraentrega
             FROM store_config WHERE store_id = :sid
         """), {"sid": current_user.store_id}).fetchone()
     except Exception:
@@ -865,12 +872,51 @@ async def get_config_gratuito(
             "modo_gratuito": False,
             "modo_gratuito_limite": 1,
             "modo_gratuito_mensaje": "🎉 ¡Producto de cortesía en nuestra inauguración!",
+            "delivery_pago_contraentrega": False,
         }
     return {
         "modo_gratuito": bool(row[0]) if row[0] is not None else False,
         "modo_gratuito_limite": int(row[1]) if row[1] is not None else 1,
         "modo_gratuito_mensaje": row[2] or "🎉 ¡Producto de cortesía en nuestra inauguración!",
+        "delivery_pago_contraentrega": bool(row[3]) if row[3] is not None else False,
     }
+
+
+# ─── Configuración delivery ───
+class ConfigDeliveryRequest(BaseModel):
+    delivery_pago_contraentrega: bool
+
+
+@router.put("/api/v1/carta/config/delivery")
+async def set_config_delivery(
+    data: ConfigDeliveryRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "owner":
+        raise HTTPException(403, "Solo el dueño puede modificar esta configuración")
+    try:
+        existing = db.execute(text(
+            "SELECT id FROM store_config WHERE store_id = :sid"
+        ), {"sid": current_user.store_id}).fetchone()
+        if existing:
+            db.execute(text("""
+                UPDATE store_config
+                SET delivery_pago_contraentrega = :val,
+                    updated_at = NOW()
+                WHERE store_id = :sid
+            """), {"val": data.delivery_pago_contraentrega, "sid": current_user.store_id})
+        else:
+            db.execute(text("""
+                INSERT INTO store_config (store_id, delivery_pago_contraentrega)
+                VALUES (:sid, :val)
+            """), {"sid": current_user.store_id, "val": data.delivery_pago_contraentrega})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(500, f"Error guardando configuración: {e}")
+
+    return {"ok": True, "delivery_pago_contraentrega": data.delivery_pago_contraentrega}
 
 
 class ConfigGratuitoRequest(BaseModel):
@@ -929,3 +975,163 @@ async def set_config_gratuito(
         "modo_gratuito_limite": data.modo_gratuito_limite,
         "modo_gratuito_mensaje": data.modo_gratuito_mensaje,
     }
+
+
+# ════════════════════════════════════════════════
+# COMPROBANTE SUNAT — Pedidos de carta
+# ════════════════════════════════════════════════
+# Llama directamente a facturalo.pro porque BillingService.emitir_comprobante
+# requiere un sale_id real (carta_pedidos no genera ventas en la tabla sales).
+
+@router.post("/api/v1/carta/pedidos/{pedido_id}/emitir-comprobante")
+async def emitir_comprobante_pedido(
+    pedido_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    import httpx
+    from datetime import datetime, timezone, timedelta
+    from app.models.billing import StoreBillingConfig
+
+    TZ_PERU = timezone(timedelta(hours=-5))
+
+    pedido = db.execute(text("""
+        SELECT id, producto_id, producto_nombre, cantidad, tipo, estado,
+               cliente_nombre, cliente_celular, comprobante_numero
+        FROM carta_pedidos
+        WHERE id = :pid AND store_id = :sid
+    """), {"pid": pedido_id, "sid": current_user.store_id}).fetchone()
+    if not pedido:
+        raise HTTPException(404, "Pedido no encontrado")
+    if pedido[8]:
+        raise HTTPException(400, f"El pedido ya tiene comprobante: {pedido[8]}")
+    if pedido[5] not in ("confirmado", "listo"):
+        raise HTTPException(400, f"No se puede emitir desde estado '{pedido[5]}'")
+
+    prod = db.query(Product).filter(
+        Product.id == pedido[1],
+        Product.store_id == current_user.store_id,
+    ).first()
+    if not prod:
+        raise HTTPException(400, "Producto no existe")
+
+    config = db.query(StoreBillingConfig).filter(
+        StoreBillingConfig.store_id == current_user.store_id,
+        StoreBillingConfig.is_active == True
+    ).first()
+    if not config or not config.facturalo_token:
+        raise HTTPException(400, "Facturación no configurada")
+
+    cantidad = int(pedido[3])
+    sale_price = float(prod.sale_price or 0)
+    tipo_pedido = pedido[4]
+    serie = config.serie_boleta
+    ahora = datetime.now(TZ_PERU)
+
+    if tipo_pedido == "gratuito":
+        item = {
+            "descripcion": pedido[2],
+            "cantidad": cantidad,
+            "unidad_medida": "NIU",
+            "valor_unitario": round(sale_price, 2),
+            "precio_unitario": 0.00,
+            "descuento": round(sale_price * cantidad, 2),
+            "tipo_afectacion_igv": config.tipo_afectacion_igv,
+        }
+        leyenda = "TRANSFERENCIA GRATUITA"
+        tipo_operacion = "0111"
+        observaciones = "TRANSFERENCIA GRATUITA - Cortesía de inauguración"
+    else:
+        item = {
+            "descripcion": pedido[2],
+            "cantidad": cantidad,
+            "unidad_medida": "NIU",
+            "precio_unitario": round(sale_price, 2),
+            "tipo_afectacion_igv": config.tipo_afectacion_igv,
+        }
+        leyenda = None
+        tipo_operacion = "0101"
+        observaciones = f"Pedido de carta virtual #{pedido_id}"
+
+    payload = {
+        "tipo_comprobante": "03",
+        "serie": serie,
+        "fecha_emision": ahora.strftime("%Y-%m-%d"),
+        "hora_emision": ahora.strftime("%H:%M:%S"),
+        "moneda": "PEN",
+        "forma_pago": "Contado",
+        "tipo_operacion": tipo_operacion,
+        "cliente": {
+            "tipo_documento": "0",
+            "numero_documento": "00000000",
+            "razon_social": pedido[6] or "CLIENTE VARIOS",
+            "direccion": None,
+            "email": None,
+        },
+        "items": [item],
+        "enviar_email": False,
+        "referencia_externa": f"QUEVENDI-CARTA-PEDIDO-{pedido_id}",
+        "observaciones": observaciones,
+    }
+    if leyenda:
+        payload["leyenda"] = leyenda
+
+    api_url = f"{config.facturalo_url}/comprobantes"
+    logger.info(f"[Carta-Boleta] pedido={pedido_id} tipo={tipo_pedido} → {api_url}")
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                api_url,
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": config.facturalo_token,
+                    "X-API-Secret": config.facturalo_secret,
+                },
+            )
+            try:
+                data = response.json()
+            except Exception:
+                raise HTTPException(502, f"Facturalo.pro respondió formato inválido (HTTP {response.status_code})")
+
+            if response.status_code in (200, 201) and data.get("exito"):
+                comp = data.get("comprobante", {}) or {}
+                archivos = data.get("archivos", {}) or {}
+                numero_formato = comp.get("numero_formato") or f"{serie}-{str(comp.get('numero', 0)).zfill(8)}"
+                pdf_url = archivos.get("pdf_url")
+
+                db.execute(text("""
+                    UPDATE carta_pedidos
+                    SET comprobante_id = :cid, comprobante_numero = :cnum
+                    WHERE id = :pid
+                """), {
+                    "cid": comp.get("id"),
+                    "cnum": numero_formato,
+                    "pid": pedido_id,
+                })
+                if comp.get("numero"):
+                    config.ultimo_numero_boleta = int(comp["numero"])
+                db.commit()
+
+                return {
+                    "ok": True,
+                    "comprobante_numero": numero_formato,
+                    "pdf_url": pdf_url,
+                }
+
+            error_msg = (
+                data.get("mensaje")
+                or data.get("error")
+                or (data.get("detail") if isinstance(data.get("detail"), str) else None)
+                or f"Error HTTP {response.status_code}"
+            )
+            logger.error(f"[Carta-Boleta] facturalo rechazó: {data}")
+            raise HTTPException(400, error_msg)
+
+    except HTTPException:
+        raise
+    except httpx.TimeoutException:
+        raise HTTPException(502, "Timeout conectando a facturalo.pro")
+    except httpx.RequestError as e:
+        raise HTTPException(502, f"Error de conexión con facturalo.pro: {e}")
