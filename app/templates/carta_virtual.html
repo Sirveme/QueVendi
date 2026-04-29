@@ -295,6 +295,7 @@ let chatAbierto = false;
 let modoGratuito = false;
 let modoGratuitoLimite = 1;
 let modoGratuitoMensaje = '';
+let cartaInfo = {};
 let cliente = null; // { celular, nombre }
 let misPedidos = [];
 let mpListVisible = false;
@@ -347,6 +348,7 @@ async function cargarInfo() {
     modoGratuito = !!d.modo_gratuito;
     modoGratuitoLimite = d.modo_gratuito_limite || 1;
     modoGratuitoMensaje = d.modo_gratuito_mensaje || '';
+    cartaInfo = d;
     if (ADMIN_MODE) document.getElementById('btn-qr').classList.add('show');
   } catch(e) { document.getElementById('store-addr').textContent = ''; }
 }
@@ -617,23 +619,7 @@ function procesarCantidadSeleccionada(producto, cantidad) {
   pedidoActual.cantidadEnCurso = cantidad;
   pedidoActual.esperando = null;
 
-  const esRopa = (producto.category || '').toLowerCase() === 'ropa';
-  if (esRopa) pasoMetodoPago(producto);
-  else pasoEntrega();
-}
-
-// ── PASO EXTRA (Ropa): MÉTODO DE PAGO ──
-function pasoMetodoPago(producto) {
-  pedidoActual.paso = 4;
-  addChatMsgText('bot', '¿Cómo deseas pagar? 💳');
-  mostrarBotonesRapidos([
-    { label: '💛 Yape/Plin',         value: 'yape' },
-    { label: '🏦 Transferencia',     value: 'transferencia' },
-    { label: '💵 Efectivo al recoger', value: 'efectivo' },
-  ], (val) => {
-    pedidoActual.metodoPagoEnCurso = val;
-    pasoEntrega();
-  });
+  pasoEntrega();
 }
 
 // ── PASO 3: RECOJO O DELIVERY ──
@@ -646,7 +632,7 @@ function pasoEntrega() {
   ], (val) => {
     pedidoActual.tipo = val;
     if (val === 'delivery') pasoDireccion();
-    else finalizarItemEnCurso();
+    else continuarTrasEntrega();
   });
 }
 
@@ -656,6 +642,33 @@ function pasoDireccion() {
   pedidoActual.esperando = 'direccion';
   addChatMsgText('bot', '¿Cuál es tu dirección de entrega? 📍');
   document.getElementById('chat-input').focus();
+}
+
+// ── ¿Necesita pagar? Si sí, mostrar método de pago; si no, finalizar ──
+function continuarTrasEntrega() {
+  const p = pedidoActual.productoEnCurso;
+  const esRopa = (p && (p.category || '').toLowerCase() === 'ropa');
+  const usaPago = esRopa || !modoGratuito;
+  if (usaPago) pasoMetodoPago(p);
+  else finalizarItemEnCurso();
+}
+
+// ── MÉTODO DE PAGO ──
+// Efectivo solo si: tipo_entrega === 'recojo' OR cartaInfo.delivery_contraentrega === true
+function pasoMetodoPago(producto) {
+  pedidoActual.paso = 4;
+  addChatMsgText('bot', '¿Cómo deseas pagar? 💳');
+  const opciones = [
+    { label: '💛 Yape/Plin',     value: 'yape' },
+    { label: '🏦 Transferencia', value: 'transferencia' },
+  ];
+  if (pedidoActual.tipo === 'recojo' || cartaInfo.delivery_contraentrega === true) {
+    opciones.push({ label: '💵 Efectivo al recoger', value: 'efectivo' });
+  }
+  mostrarBotonesRapidos(opciones, (val) => {
+    pedidoActual.metodoPagoEnCurso = val;
+    finalizarItemEnCurso();
+  });
 }
 
 // ── REGISTRA EL ITEM EN EL BACKEND ──
@@ -805,7 +818,7 @@ async function enviarChat() {
   if (pedidoActual && pedidoActual.esperando === 'direccion') {
     pedidoActual.direccion = msg;
     pedidoActual.esperando = null;
-    finalizarItemEnCurso();
+    continuarTrasEntrega();
     return;
   }
 

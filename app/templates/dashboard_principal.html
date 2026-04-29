@@ -59,6 +59,58 @@
         white-space: nowrap;
         font-size: 12px;
     }
+
+    /* ─── Accesos rápidos (Mi Carta / Pedidos / QR) ─── */
+    .quick-access-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 10px 16px 0;
+    }
+    .quick-btn {
+        position: relative;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 10px 6px;
+        color: #e2e8f0;
+        font-family: inherit;
+        font-size: .72rem;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: background .18s, transform .18s, box-shadow .18s;
+    }
+    .quick-btn i {
+        font-size: 24px;
+        color: #00C853;
+    }
+    .quick-btn:hover {
+        background: rgba(255, 255, 255, 0.11);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    }
+    .quick-badge {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        background: #ef4444;
+        color: #fff;
+        font-size: .68rem;
+        font-weight: 700;
+        border-radius: 999px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .quick-badge.show { display: inline-flex; }
     </style>
 </head>
 <body>
@@ -274,6 +326,23 @@
                 </button>
             </div>
         </header>
+
+        <!-- ACCESOS RÁPIDOS -->
+        <section class="quick-access-row">
+            <button class="quick-btn" onclick="abrirCartaVirtual()">
+                <i class="fas fa-store"></i>
+                <span>Mi Carta</span>
+            </button>
+            <button class="quick-btn" onclick="window.location.href='/pedidos'">
+                <i class="fas fa-bell"></i>
+                <span>Pedidos</span>
+                <span class="quick-badge" id="home-pedidos-badge">0</span>
+            </button>
+            <button class="quick-btn" onclick="abrirQRCarta()">
+                <i class="fas fa-qrcode"></i>
+                <span>QR Carta</span>
+            </button>
+        </section>
 
         <!-- BUSCADOR -->
         <section class="search-section">

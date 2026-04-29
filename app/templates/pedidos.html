@@ -85,6 +85,13 @@ body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;m
 .pedido-tipo{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase;display:inline-block;margin-bottom:6px;letter-spacing:.4px}
 .tipo-gratuito{background:rgba(245,158,11,.18);color:#FBBF24;border:1px solid rgba(245,158,11,.3)}
 
+/* COMPROBANTE */
+.pedido-comprobante{margin-top:8px;display:flex}
+.btn-emitir{flex:1;padding:8px 10px;border:none;border-radius:7px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;background:var(--blue);color:#fff;transition:transform .15s,opacity .15s}
+.btn-emitir:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn-emitir:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.comprobante-emitido{flex:1;text-align:center;padding:8px 10px;border-radius:7px;background:rgba(22,163,74,.15);color:#4ade80;border:1px solid rgba(22,163,74,.35);font-size:.78rem;font-weight:700;letter-spacing:.3px}
+
 /* SIDE PANEL */
 .side-section{margin-bottom:20px}
 .side-title{font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
@@ -205,6 +212,25 @@ body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;m
       </div>
     </div>
 
+    <!-- CONFIG DELIVERY (solo owner) -->
+    <div class="side-section" id="cfg-delivery-section" style="display:none">
+      <div class="side-title">🛵 Delivery</div>
+      <div class="side-card">
+        <div class="cfg-toggle-row">
+          <span>Pago contra entrega</span>
+          <div class="switch">
+            <input type="checkbox" id="cfg-delivery-contraentrega">
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="cfg-row" style="font-size:.72rem;color:var(--text2);margin-bottom:10px">
+          El cliente puede pagar en efectivo al recibir
+        </div>
+        <button class="btn-save" id="btn-save-delivery" onclick="guardarConfigDelivery()">Guardar</button>
+        <div class="cfg-msg" id="cfg-delivery-msg"></div>
+      </div>
+    </div>
+
     <!-- ESTADÍSTICAS DEL DÍA -->
     <div class="side-section">
       <div class="side-title">📊 Hoy</div>
@@ -288,6 +314,7 @@ async function cargarUsuario() {
       document.getElementById('user-badge').textContent = (user.full_name || user.username || '') + ' · ' + (user.role || '');
       if (user.role === 'owner') {
         document.getElementById('cfg-section').style.display = 'block';
+        document.getElementById('cfg-delivery-section').style.display = 'block';
         document.getElementById('modo-toggle-wrap').classList.add('show');
         cargarConfigGratuito();
       }
@@ -344,6 +371,14 @@ function renderCard(p) {
   } else if (p.estado === 'confirmado') {
     actions = `<button class="btn-act btn-listo" onclick="accionPedido(${p.id},'listo',this)">🎉 Listo para entregar</button>`;
   }
+  let comprobante = '';
+  if (p.estado === 'confirmado' || p.estado === 'listo') {
+    if (p.comprobante_numero) {
+      comprobante = `<div class="pedido-comprobante"><div class="comprobante-emitido">✅ ${esc(p.comprobante_numero)}</div></div>`;
+    } else {
+      comprobante = `<div class="pedido-comprobante"><button class="btn-emitir" onclick="emitirComprobante(${p.id}, this)">🧾 Emitir boleta</button></div>`;
+    }
+  }
   const wa = `https://wa.me/51${p.cliente_celular}`;
   return `
     <div class="pedido" data-id="${p.id}">
@@ -357,7 +392,26 @@ function renderCard(p) {
       </div>
       <div class="pedido-prod"><span class="pedido-prod-q">${p.cantidad}×</span> ${esc(p.producto_nombre)}</div>
       ${actions ? `<div class="pedido-actions">${actions}</div>` : ''}
+      ${comprobante}
     </div>`;
+}
+
+async function emitirComprobante(pedidoId, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo…'; }
+  try {
+    const r = await fetchAuth(`/api/v1/carta/pedidos/${pedidoId}/emitir-comprobante`, { method: 'POST' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      alert(d.detail || 'Error al emitir comprobante');
+      if (btn) { btn.disabled = false; btn.textContent = '🧾 Emitir boleta'; }
+      return;
+    }
+    alert(`✅ ${d.comprobante_numero}`);
+    cargarPedidos();
+  } catch(e) {
+    alert('Sin conexión');
+    if (btn) { btn.disabled = false; btn.textContent = '🧾 Emitir boleta'; }
+  }
 }
 
 async function cargarPedidos() {
@@ -416,7 +470,29 @@ async function cargarConfigGratuito() {
     document.getElementById('modo-toggle').checked = !!d.modo_gratuito;
     document.getElementById('cfg-limite').value = d.modo_gratuito_limite || 1;
     document.getElementById('cfg-mensaje').value = d.modo_gratuito_mensaje || '';
+    document.getElementById('cfg-delivery-contraentrega').checked = !!d.delivery_pago_contraentrega;
   } catch(e){}
+}
+
+async function guardarConfigDelivery() {
+  const btn = document.getElementById('btn-save-delivery');
+  const msg = document.getElementById('cfg-delivery-msg');
+  const body = {
+    delivery_pago_contraentrega: document.getElementById('cfg-delivery-contraentrega').checked,
+  };
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  msg.textContent = ''; msg.className = 'cfg-msg';
+  try {
+    const r = await fetchAuth('/api/v1/carta/config/delivery', { method: 'PUT', body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { msg.textContent = d.detail || 'Error al guardar'; msg.className = 'cfg-msg err'; return; }
+    msg.textContent = '✓ Guardado'; msg.className = 'cfg-msg ok';
+    setTimeout(() => { msg.textContent = ''; }, 2500);
+  } catch(e) {
+    msg.textContent = 'Sin conexión'; msg.className = 'cfg-msg err';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar';
+  }
 }
 
 async function guardarConfigGratuito() {
