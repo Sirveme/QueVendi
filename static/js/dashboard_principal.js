@@ -123,7 +123,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Seleccionar método de pago por defecto
     selectPaymentUI('efectivo');
-    
+
+    // ── PEDIDOS DE LA CARTA (badge sidebar) ──
+    pollPedidosCarta();
+    setInterval(pollPedidosCarta, 30000);
+
     console.log('[Dashboard] ✅ Sistema cargado correctamente');
 
 
@@ -219,18 +223,20 @@ function setUserData(user) {
     if (lsStoreId) AppState.user.store_id = parseInt(lsStoreId);
 
     AppState.isOwner = user.role === 'owner';
-    
+    AppState.storeTelefono = user.store_phone || localStorage.getItem('store_phone') || '';
+    if (user.store_phone) localStorage.setItem('store_phone', user.store_phone);
+
     const initial = user.full_name ? user.full_name[0].toUpperCase() : 'U';
-    
+
     document.getElementById('header-username').textContent = user.full_name || 'Usuario';
     document.getElementById('sidebar-username').textContent = user.full_name || 'Usuario';
     document.getElementById('sidebar-avatar').textContent = initial;
-    
+
     const storeName = user.store_name || localStorage.getItem('store_name') || 'Mi Negocio';
     document.getElementById('header-store').textContent = storeName;
     localStorage.setItem('store_name', storeName); // actualizar localStorage
     document.getElementById('sidebar-store').textContent = storeName;
-    
+
     if (AppState.isOwner) {
         document.body.classList.add('is-owner');
     }
@@ -4389,9 +4395,49 @@ async function verificarEstadoCaja() {
         AppState.cajaActiva = d.activa ? d.sesion : null;
         AppState.cajaAperturaRequerida = d.apertura_requerida !== false;
         console.log('[Caja] Estado:', d.activa ? 'abierta' : 'cerrada', '| Requerida:', AppState.cajaAperturaRequerida);
+        actualizarBadgeCaja();
     } catch(e) {
         console.warn('[Caja] No se pudo verificar:', e);
     }
+}
+
+function actualizarBadgeCaja() {
+    const badge = document.getElementById('caja-estado-badge');
+    if (!badge) return;
+    const abierta = !!AppState.cajaActiva;
+    badge.textContent = abierta ? 'Abierta' : 'Cerrada';
+    badge.className = 'nav-badge ' + (abierta ? 'success' : 'danger');
+}
+
+// ============================================
+// CARTA VIRTUAL — accesos rápidos desde sidebar
+// ============================================
+function abrirCartaVirtual() {
+    const tel = AppState.storeTelefono || localStorage.getItem('store_phone') || '';
+    if (!tel) {
+        if (typeof showToast === 'function') {
+            showToast('Configura el teléfono del negocio primero', 'warning');
+        } else {
+            alert('Configura el teléfono del negocio primero');
+        }
+        return;
+    }
+    window.open(`/carta/${tel}`, '_blank');
+    if (typeof toggleSidebar === 'function') toggleSidebar();
+}
+
+function abrirQRCarta() {
+    const tel = AppState.storeTelefono || localStorage.getItem('store_phone') || '';
+    if (!tel) {
+        if (typeof showToast === 'function') {
+            showToast('Configura el teléfono del negocio primero', 'warning');
+        } else {
+            alert('Configura el teléfono del negocio primero');
+        }
+        return;
+    }
+    window.open(`/carta/${tel}/qr`, '_blank');
+    if (typeof toggleSidebar === 'function') toggleSidebar();
 }
 
 // ============================================
@@ -5285,4 +5331,37 @@ function selectPaymentV2(method, iconClass, label, btnElement) {
     
     // 4. Cerrar popup (excepto si es fiado, que abre su propio modal)
     closePaymentPopup();
+}
+
+
+// ============================================
+// PEDIDOS DE LA CARTA — polling para badge sidebar
+// ============================================
+let _lastPedidosPendientes = parseInt(localStorage.getItem('lastPedidosPendientes') || '0', 10);
+
+async function pollPedidosCarta() {
+    try {
+        const r = await fetchWithAuth(`${CONFIG.apiBase}/carta/pedidos/pendientes`);
+        if (!r.ok) return;
+        const d = await r.json();
+        const pendientes = (d.pedidos || []).filter(p => p.estado === 'pendiente').length;
+        const badge = document.getElementById('pedidos-count');
+        if (badge) {
+            badge.textContent = pendientes;
+            badge.style.display = pendientes > 0 ? '' : 'none';
+        }
+        if (pendientes > _lastPedidosPendientes && _lastPedidosPendientes > 0) {
+            const nuevos = pendientes - _lastPedidosPendientes;
+            const msg = `📋 Tienes ${nuevos} pedido${nuevos > 1 ? 's' : ''} nuevo${nuevos > 1 ? 's' : ''}`;
+            if (typeof showToast === 'function') {
+                showToast(msg, 'info');
+            } else {
+                console.log(msg);
+            }
+        }
+        _lastPedidosPendientes = pendientes;
+        localStorage.setItem('lastPedidosPendientes', String(pendientes));
+    } catch (e) {
+        // silencioso — el polling sigue
+    }
 }
