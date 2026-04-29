@@ -321,6 +321,12 @@ async def reports_page(request: Request):
     return templates.TemplateResponse("reports.html", {"request": request})
 
 
+@app.get("/pedidos", response_class=HTMLResponse)
+async def pedidos_page(request: Request):
+    """Panel de pedidos de la carta virtual"""
+    return templates.TemplateResponse("pedidos.html", {"request": request})
+
+
 @app.get("/users/add", response_class=HTMLResponse)
 async def add_user_page(request: Request):
     """Agregar usuarios"""
