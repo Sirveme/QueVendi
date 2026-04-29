@@ -5350,6 +5350,11 @@ async function pollPedidosCarta() {
             badge.textContent = pendientes;
             badge.style.display = pendientes > 0 ? '' : 'none';
         }
+        const homeBadge = document.getElementById('home-pedidos-badge');
+        if (homeBadge) {
+            homeBadge.textContent = pendientes;
+            homeBadge.classList.toggle('show', pendientes > 0);
+        }
         if (pendientes > _lastPedidosPendientes && _lastPedidosPendientes > 0) {
             const nuevos = pendientes - _lastPedidosPendientes;
             const msg = `📋 Tienes ${nuevos} pedido${nuevos > 1 ? 's' : ''} nuevo${nuevos > 1 ? 's' : ''}`;
