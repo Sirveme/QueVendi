@@ -1035,10 +1035,7 @@ async def emitir_comprobante_pedido(
             "unidad_medida": "NIU",
             "valor_unitario": round(sale_price, 2),
             "precio_unitario": round(sale_price, 2),
-            "descuento": {
-                "monto": round(sale_price, 2),
-                "porcentaje": 100,
-            },
+            "descuento": round(sale_price, 2),
             "tipo_afectacion_igv": config.tipo_afectacion_igv,
         }
         leyenda = [{"codigo": "2001", "valor": "TRANSFERENCIA GRATUITA"}]
