@@ -1107,10 +1107,9 @@ async def emitir_comprobante_pedido(
 
                 db.execute(text("""
                     UPDATE carta_pedidos
-                    SET comprobante_id = :cid, comprobante_numero = :cnum
+                    SET comprobante_numero = :cnum
                     WHERE id = :pid
                 """), {
-                    "cid": comp.get("id"),
                     "cnum": numero_formato,
                     "pid": pedido_id,
                 })
