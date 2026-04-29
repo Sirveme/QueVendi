@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos — QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#B91C1C;--red2:#991818;--gold:#D4A017;--green:#16A34A;--green2:#15803d;
+  --blue:#2563EB;--orange:#EA580C;--amber:#F59E0B;
+  --dark:#0D0D0D;--dark2:#141414;--dark3:#1C1C1C;--dark4:#222222;
+  --border:#2A2A2A;--text1:#F0F0F0;--text2:#909090;--text3:#555555;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;min-height:100vh}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;
+  border-bottom:1px solid var(--border);background:var(--dark2);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
+.header-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.back-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:7px 14px;
+  border-radius:7px;cursor:pointer;font-size:.8rem;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.back-btn:hover{border-color:var(--text2);color:var(--text1)}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;color:var(--text1);letter-spacing:1.5px}
+.page-title span{color:var(--red)}
+.badge-pending{background:var(--red);color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:14px;display:inline-flex;align-items:center;gap:4px;animation:pulse 1.4s ease-in-out infinite}
+.badge-pending.zero{background:var(--dark3);border:1px solid var(--border);color:var(--text2);animation:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.user-badge{font-size:.75rem;color:var(--text2);background:var(--dark3);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* TOGGLE MODO GRATUITO HEADER */
+.modo-toggle{display:none;align-items:center;gap:8px;background:var(--dark3);border:1px solid var(--border);border-radius:24px;padding:5px 14px}
+.modo-toggle.show{display:inline-flex}
+.modo-toggle label{font-size:.75rem;color:var(--text2);cursor:pointer}
+.switch{position:relative;width:38px;height:20px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#444;border-radius:20px;cursor:pointer;transition:.3s}
+.slider::before{content:'';position:absolute;height:14px;width:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.switch input:checked+.slider{background:var(--green)}
+.switch input:checked+.slider::before{transform:translateX(18px)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:0;height:calc(100vh - 57px);overflow:hidden}
+.main-col{overflow-y:auto;padding:18px}
+.side-col{border-left:1px solid var(--border);overflow-y:auto;background:var(--dark2);padding:18px}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:100%}
+.col{background:var(--dark2);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.col-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.col-title{font-size:.85rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.col-count{background:var(--dark4);color:var(--text1);font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:12px;min-width:28px;text-align:center}
+.col[data-state="pendiente"] .col-title{color:var(--amber)}
+.col[data-state="confirmado"] .col-title{color:var(--blue)}
+.col[data-state="listo"] .col-title{color:var(--green)}
+.col-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.col-empty{color:var(--text3);text-align:center;padding:20px;font-size:.78rem}
+
+/* CARDS */
+.pedido{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.pedido-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.pedido-cliente{font-weight:700;font-size:.88rem;color:var(--text1);line-height:1.3}
+.pedido-cel{font-size:.74rem;color:var(--text2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:2px}
+.pedido-cel:hover{color:var(--green)}
+.pedido-tiempo{font-size:.7rem;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.pedido-tiempo.urgent{color:var(--amber)}
+.pedido-tiempo.critical{color:var(--red)}
+.pedido-prod{font-size:.82rem;color:var(--text1);margin-bottom:10px;padding:8px 10px;background:var(--dark4);border-radius:6px}
+.pedido-prod-q{color:var(--gold);font-weight:700}
+.pedido-actions{display:flex;gap:6px}
+.btn-act{flex:1;padding:8px 10px;border:none;border-radius:7px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,opacity .15s;color:#fff}
+.btn-act:hover{transform:translateY(-1px)}
+.btn-act:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-confirmar{background:var(--green)}
+.btn-confirmar:hover{background:var(--green2)}
+.btn-rechazar{background:#52525b}
+.btn-rechazar:hover{background:#3f3f46}
+.btn-listo{background:var(--blue)}
+.btn-listo:hover{background:#1d4ed8}
+.pedido-tipo{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase;display:inline-block;margin-bottom:6px;letter-spacing:.4px}
+.tipo-gratuito{background:rgba(245,158,11,.18);color:#FBBF24;border:1px solid rgba(245,158,11,.3)}
+
+/* SIDE PANEL */
+.side-section{margin-bottom:20px}
+.side-title{font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.side-card{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:14px}
+.cfg-row{margin-bottom:12px}
+.cfg-row label{display:block;font-size:.72rem;color:var(--text2);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.cfg-row input[type="number"],.cfg-row input[type="text"]{width:100%;background:var(--dark4);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text1);font-size:.85rem;font-family:inherit;outline:none}
+.cfg-row input:focus{border-color:var(--green)}
+.cfg-toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cfg-toggle-row span{font-size:.85rem;font-weight:700}
+.btn-save{width:100%;background:var(--green);color:#fff;border:none;padding:10px;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.85rem;transition:background .2s}
+.btn-save:hover{background:var(--green2)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+.cfg-msg{font-size:.72rem;margin-top:8px;text-align:center;min-height:1em}
+.cfg-msg.ok{color:#4ade80}
+.cfg-msg.err{color:#f87171}
+
+/* STATS */
+.stat{display:flex;justify-content:space-between;padding:8px 12px;border-radius:7px;margin-bottom:6px;background:var(--dark4)}
+.stat-label{font-size:.78rem;color:var(--text2)}
+.stat-val{font-size:.95rem;font-weight:800;color:var(--text1);font-family:'Space Grotesk',sans-serif}
+.stat-top{padding:10px 12px;background:var(--dark4);border-radius:7px;border-left:3px solid var(--gold)}
+.stat-top-lab{font-size:.66rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+.stat-top-val{font-size:.85rem;font-weight:700;color:var(--gold)}
+
+/* LOADING / EMPTY */
+.loading{text-align:center;padding:40px;color:var(--text3);font-size:.85rem}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr;height:auto}
+  .side-col{border-left:none;border-top:1px solid var(--border)}
+  .kanban{height:auto}
+  .col-body{max-height:55vh}
+}
+@media(max-width:700px){
+  .kanban{grid-template-columns:1fr}
+  .page-title{font-size:1rem}
+  .header{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="/dashboard" class="back-btn">← Dashboard</a>
+    <h1 class="page-title">📋 PEDIDOS DE LA <span>CARTA</span></h1>
+    <span class="badge-pending zero" id="badge-pending">0 nuevos</span>
+  </div>
+  <div class="header-right">
+    <div class="modo-toggle" id="modo-toggle-wrap">
+      <label for="modo-toggle">Modo gratuito</label>
+      <div class="switch">
+        <input type="checkbox" id="modo-toggle" onchange="toggleModoGratuitoHeader()">
+        <span class="slider"></span>
+      </div>
+    </div>
+    <span class="user-badge" id="user-badge">Cargando...</span>
+  </div>
+</header>
+
+<div class="layout">
+  <main class="main-col">
+    <div class="kanban">
+      <section class="col" data-state="pendiente">
+        <div class="col-header">
+          <span class="col-title">⏳ Nuevos</span>
+          <span class="col-count" id="count-pendiente">0</span>
+        </div>
+        <div class="col-body" id="col-pendiente">
+          <div class="loading">Cargando…</div>
+        </div>
+      </section>
+      <section class="col" data-state="confirmado">
+        <div class="col-header">
+          <span class="col-title">✅ Confirmados</span>
+          <span class="col-count" id="count-confirmado">0</span>
+        </div>
+        <div class="col-body" id="col-confirmado">
+          <div class="col-empty">—</div>
+        </div>
+      </section>
+      <section class="col" data-state="listo">
+        <div class="col-header">
+          <span class="col-title">🎉 Listos</span>
+          <span class="col-count" id="count-listo">0</span>
+        </div>
+        <div class="col-body" id="col-listo">
+          <div class="col-empty">—</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="side-col">
+    <!-- CONFIG MODO GRATUITO (solo owner) -->
+    <div class="side-section" id="cfg-section" style="display:none">
+      <div class="side-title">⚙️ Modo cortesía</div>
+      <div class="side-card">
+        <div class="cfg-toggle-row">
+          <span>Activar</span>
+          <div class="switch">
+            <input type="checkbox" id="cfg-modo">
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="cfg-row">
+          <label>Límite por persona</label>
+          <input type="number" id="cfg-limite" min="1" max="5" value="1">
+        </div>
+        <div class="cfg-row">
+          <label>Mensaje de bienvenida</label>
+          <input type="text" id="cfg-mensaje" maxlength="300" placeholder="🎉 ¡Producto de cortesía!">
+        </div>
+        <button class="btn-save" id="btn-save-cfg" onclick="guardarConfigGratuito()">Guardar</button>
+        <div class="cfg-msg" id="cfg-msg"></div>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS DEL DÍA -->
+    <div class="side-section">
+      <div class="side-title">📊 Hoy</div>
+      <div class="side-card">
+        <div class="stat">
+          <span class="stat-label">Recibidos</span>
+          <span class="stat-val" id="st-total">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Confirmados</span>
+          <span class="stat-val" id="st-conf">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Listos</span>
+          <span class="stat-val" id="st-listo">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Rechazados</span>
+          <span class="stat-val" id="st-rech">—</span>
+        </div>
+        <div style="margin-top:10px" class="stat-top">
+          <div class="stat-top-lab">Producto más pedido (7 días)</div>
+          <div class="stat-top-val" id="st-top">—</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// ── AUTH ──
+function getAuthToken() {
+  return localStorage.getItem('access_token');
+}
+async function fetchAuth(url, options = {}) {
+  const token = getAuthToken();
+  if (!token) { window.location.href = '/auth/login'; throw new Error('No auth'); }
+  const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(options.headers||{}) };
+  const r = await fetch(url, { ...options, headers });
+  if (r.status === 401) { localStorage.clear(); window.location.href = '/auth/login'; }
+  return r;
+}
+
+// ── ESTADO ──
+let pedidos = [];
+let user = null;
+let lastPendientes = 0;
+let pollTimer = null;
+const ORIG_TITLE = document.title;
+
+// ── BEEP NOTIFICACIÓN (Web Audio) ──
+let audioCtx = null;
+function playBeep() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+    o.start(); o.stop(audioCtx.currentTime + 0.42);
+    setTimeout(() => {
+      const o2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
+      o2.connect(g2); g2.connect(audioCtx.destination);
+      o2.type = 'sine'; o2.frequency.value = 1175;
+      g2.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.02);
+      g2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+      o2.start(); o2.stop(audioCtx.currentTime + 0.37);
+    }, 200);
+  } catch(e){}
+}
+
+// ── USUARIO ──
+async function cargarUsuario() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('user') || 'null');
+    if (stored) {
+      user = stored;
+      document.getElementById('user-badge').textContent = (user.full_name || user.username || '') + ' · ' + (user.role || '');
+      if (user.role === 'owner') {
+        document.getElementById('cfg-section').style.display = 'block';
+        document.getElementById('modo-toggle-wrap').classList.add('show');
+        cargarConfigGratuito();
+      }
+    }
+  } catch(e){}
+}
+
+// ── CARGAR PEDIDOS ──
+function tiempoTexto(min) {
+  if (min < 1) return 'Recién';
+  if (min < 60) return `Hace ${Math.round(min)} min`;
+  const h = Math.floor(min / 60);
+  return `Hace ${h}h ${Math.round(min % 60)}m`;
+}
+function tiempoClass(min) {
+  if (min >= 30) return 'critical';
+  if (min >= 15) return 'urgent';
+  return '';
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderPedidos() {
+  const cols = { pendiente: [], confirmado: [], listo: [] };
+  for (const p of pedidos) if (cols[p.estado]) cols[p.estado].push(p);
+  for (const estado of Object.keys(cols)) {
+    const cont = document.getElementById('col-' + estado);
+    document.getElementById('count-' + estado).textContent = cols[estado].length;
+    if (!cols[estado].length) {
+      cont.innerHTML = '<div class="col-empty">—</div>';
+      continue;
+    }
+    cont.innerHTML = cols[estado].map(p => renderCard(p)).join('');
+  }
+  // badge header
+  const pendCount = cols.pendiente.length;
+  const badge = document.getElementById('badge-pending');
+  badge.textContent = pendCount + ' nuevo' + (pendCount === 1 ? '' : 's');
+  badge.classList.toggle('zero', pendCount === 0);
+  // tab title
+  document.title = pendCount > 0 ? `(${pendCount}) ${ORIG_TITLE}` : ORIG_TITLE;
+}
+
+function renderCard(p) {
+  const min = p.minutos_esperando || 0;
+  const tipoBadge = p.tipo === 'gratuito'
+    ? '<span class="pedido-tipo tipo-gratuito">🎁 Cortesía</span>' : '';
+  let actions = '';
+  if (p.estado === 'pendiente') {
+    actions = `
+      <button class="btn-act btn-confirmar" onclick="accionPedido(${p.id},'confirmar',this)">✅ Confirmar</button>
+      <button class="btn-act btn-rechazar" onclick="accionPedido(${p.id},'rechazar',this)">❌ Rechazar</button>`;
+  } else if (p.estado === 'confirmado') {
+    actions = `<button class="btn-act btn-listo" onclick="accionPedido(${p.id},'listo',this)">🎉 Listo para entregar</button>`;
+  }
+  const wa = `https://wa.me/51${p.cliente_celular}`;
+  return `
+    <div class="pedido" data-id="${p.id}">
+      ${tipoBadge}
+      <div class="pedido-head">
+        <div>
+          <div class="pedido-cliente">${esc(p.cliente_nombre)}</div>
+          <a href="${wa}" target="_blank" rel="noopener" class="pedido-cel">📱 ${esc(p.cliente_celular)}</a>
+        </div>
+        <div class="pedido-tiempo ${tiempoClass(min)}">⏱ ${tiempoTexto(min)}</div>
+      </div>
+      <div class="pedido-prod"><span class="pedido-prod-q">${p.cantidad}×</span> ${esc(p.producto_nombre)}</div>
+      ${actions ? `<div class="pedido-actions">${actions}</div>` : ''}
+    </div>`;
+}
+
+async function cargarPedidos() {
+  try {
+    const r = await fetchAuth('/api/v1/carta/pedidos/pendientes');
+    if (!r.ok) return;
+    const d = await r.json();
+    pedidos = d.pedidos || [];
+    const pendCount = pedidos.filter(p => p.estado === 'pendiente').length;
+    if (pendCount > lastPendientes && lastPendientes > 0) playBeep();
+    lastPendientes = pendCount;
+    renderPedidos();
+  } catch(e){}
+}
+
+// ── ACCIONES ──
+async function accionPedido(id, accion, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const r = await fetchAuth(`/api/v1/carta/pedidos/${id}/${accion}`, { method: 'POST' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      alert(d.detail || 'Error al procesar el pedido');
+      if (btn) btn.disabled = false;
+      return;
+    }
+    await cargarPedidos();
+    cargarStats();
+  } catch(e) {
+    alert('Sin conexión');
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ── STATS ──
+async function cargarStats() {
+  try {
+    const r = await fetchAuth('/api/v1/carta/pedidos/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('st-total').textContent = d.total_hoy ?? 0;
+    document.getElementById('st-conf').textContent = d.confirmados_hoy ?? 0;
+    document.getElementById('st-listo').textContent = d.listos_hoy ?? 0;
+    document.getElementById('st-rech').textContent = d.rechazados_hoy ?? 0;
+    document.getElementById('st-top').textContent = d.producto_top || '—';
+  } catch(e){}
+}
+
+// ── CONFIG GRATUITO ──
+async function cargarConfigGratuito() {
+  try {
+    const r = await fetchAuth('/api/v1/carta/config/gratuito');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('cfg-modo').checked = !!d.modo_gratuito;
+    document.getElementById('modo-toggle').checked = !!d.modo_gratuito;
+    document.getElementById('cfg-limite').value = d.modo_gratuito_limite || 1;
+    document.getElementById('cfg-mensaje').value = d.modo_gratuito_mensaje || '';
+  } catch(e){}
+}
+
+async function guardarConfigGratuito() {
+  const btn = document.getElementById('btn-save-cfg');
+  const msg = document.getElementById('cfg-msg');
+  const body = {
+    modo_gratuito: document.getElementById('cfg-modo').checked,
+    modo_gratuito_limite: parseInt(document.getElementById('cfg-limite').value, 10) || 1,
+    modo_gratuito_mensaje: document.getElementById('cfg-mensaje').value.trim() || null,
+  };
+  if (body.modo_gratuito_limite < 1 || body.modo_gratuito_limite > 5) {
+    msg.textContent = 'Límite debe estar entre 1 y 5'; msg.className = 'cfg-msg err'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  msg.textContent = ''; msg.className = 'cfg-msg';
+  try {
+    const r = await fetchAuth('/api/v1/carta/config/gratuito', { method: 'PUT', body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { msg.textContent = d.detail || 'Error al guardar'; msg.className = 'cfg-msg err'; return; }
+    document.getElementById('modo-toggle').checked = body.modo_gratuito;
+    msg.textContent = '✓ Guardado'; msg.className = 'cfg-msg ok';
+    setTimeout(() => { msg.textContent = ''; }, 2500);
+  } catch(e) {
+    msg.textContent = 'Sin conexión'; msg.className = 'cfg-msg err';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar';
+  }
+}
+
+async function toggleModoGratuitoHeader() {
+  const checked = document.getElementById('modo-toggle').checked;
+  document.getElementById('cfg-modo').checked = checked;
+  await guardarConfigGratuito();
+}
+
+// ── INIT ──
+function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible') {
+      cargarPedidos();
+    }
+  }, 8000);
+}
+
+(async function init() {
+  await cargarUsuario();
+  await cargarPedidos();
+  cargarStats();
+  startPolling();
+  setInterval(cargarStats, 60000);
+  // Reset tab title cuando vuelve foco
+  window.addEventListener('focus', () => { document.title = ORIG_TITLE; });
+})();
+</script>
+</body>
+</html>

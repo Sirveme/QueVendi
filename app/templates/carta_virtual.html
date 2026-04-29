@@ -116,12 +116,78 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
 
 @media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr);max-width:860px;margin:0 auto}.hdr,.srch,.tabs,.footer{max-width:860px;margin-left:auto;margin-right:auto}}
+
+/* MODAL IDENTIFICACIÓN */
+.id-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.id-modal.open{display:flex}
+.id-box{background:#fff;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;text-align:center;animation:fadeUp .3s ease}
+.id-emoji{font-size:3rem;margin-bottom:8px}
+.id-title{font-size:1.2rem;font-weight:800;margin-bottom:6px}
+.id-sub{font-size:.85rem;color:var(--texto-s);margin-bottom:18px;line-height:1.4}
+.id-input{width:100%;padding:13px 14px;border:1.5px solid var(--borde);border-radius:12px;font-size:.95rem;font-family:inherit;margin-bottom:10px;outline:none}
+.id-input:focus{border-color:var(--verde)}
+.id-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--verde);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
+.id-btn:disabled{background:#9CA3AF;cursor:not-allowed}
+.id-error{color:#DC2626;font-size:.78rem;margin-top:4px;min-height:1em}
+
+/* BOTÓN PEDIR GRATIS */
+.modal-btn-gratis{background:linear-gradient(135deg,#00C853,#00962E);color:#fff;font-weight:800;box-shadow:0 4px 16px rgba(0,200,83,.3)}
+.modal-btn-gratis:disabled{background:#9CA3AF;box-shadow:none;cursor:not-allowed}
+
+/* MIS PEDIDOS */
+.mis-pedidos{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:40;padding:0 14px 12px;max-height:35vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;display:none}
+.mis-pedidos.show{display:block;transform:translateY(0)}
+.mp-toggle{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:var(--verde);color:#fff;border:none;padding:6px 18px;border-radius:14px 14px 0 0;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 -2px 8px rgba(0,0,0,.08);white-space:nowrap}
+.mp-list{display:none;flex-direction:column;gap:6px;margin-top:10px}
+.mp-list.open{display:flex}
+.mp-item{background:#F9FAFB;border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;gap:8px}
+.mp-item-name{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-item-state{font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap}
+.mp-state-pendiente{background:#FEF3C7;color:#D97706}
+.mp-state-confirmado{background:#DBEAFE;color:#1D4ED8}
+.mp-state-listo{background:#D1FAE5;color:#047857}
+.mp-state-cancelado{background:#FEE2E2;color:#DC2626}
+
+/* TOAST */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-130%);background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:24px;font-size:.85rem;z-index:500;transition:transform .3s;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center;font-weight:600}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* QR BUTTON ADMIN */
+.btn-qr{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);z-index:10}
+.btn-qr.show{display:flex}
+.btn-qr:hover{background:rgba(255,255,255,.4)}
+
+/* CHAT — CARDS DE PRODUCTO */
+.chat-prod-card{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--borde);border-radius:12px;padding:8px 10px;margin-bottom:6px}
+.chat-prod-emoji{width:42px;height:42px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.chat-prod-info{flex:1;min-width:0}
+.chat-prod-name{font-size:.85rem;font-weight:700;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-prod-price{font-size:.85rem;font-weight:800;color:var(--verde);margin-top:1px}
+.chat-prod-meta{font-size:.7rem;color:var(--texto-s);margin-top:1px}
+
+/* CHAT — BOTONES RÁPIDOS */
+.chat-quick{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:90%;animation:fadeUp .25s ease}
+.chat-quick-btn{background:var(--card);border:1.5px solid var(--verde);color:var(--verde);border-radius:18px;padding:7px 14px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-align:left}
+.chat-quick-btn:hover{background:var(--verde);color:#fff}
+.chat-quick-btn:active{transform:scale(.96)}
+.chat-quick-btn.danger{border-color:#EF4444;color:#EF4444}
+.chat-quick-btn.danger:hover{background:#EF4444;color:#fff}
+.chat-quick-btn.muted{border-color:var(--borde);color:var(--texto-s)}
+.chat-quick-btn.muted:hover{background:var(--texto-s);color:#fff}
+.chat-quick.disabled .chat-quick-btn{opacity:.5;pointer-events:none}
+
+/* CHAT — RESUMEN FINAL */
+.chat-resumen{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:10px 12px;margin-top:4px}
+.chat-resumen-title{font-size:.8rem;font-weight:800;color:#047857;margin-bottom:6px}
+.chat-resumen-line{font-size:.78rem;color:var(--texto);line-height:1.5}
+.chat-resumen-line strong{color:var(--texto)}
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="hdr">
+  <button class="btn-qr" id="btn-qr" onclick="abrirQR()" title="Compartir QR">📱</button>
   <div class="hdr-logo-ph" id="store-logo">QV</div>
   <div class="hdr-name" id="store-name">{{ store_name }}</div>
   <div class="hdr-addr" id="store-addr">Cargando...</div>
@@ -166,6 +232,28 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
   </div>
 </div>
 
+<!-- MODAL IDENTIFICACIÓN -->
+<div class="id-modal" id="id-modal" onclick="if(event.target===this)cerrarIdModal()">
+  <div class="id-box">
+    <div class="id-emoji">🎉</div>
+    <div class="id-title">¡Bienvenido/a!</div>
+    <div class="id-sub" id="id-sub">Para tu pedido de cortesía necesitamos tus datos:</div>
+    <input type="text" class="id-input" id="id-nombre" placeholder="Tu nombre completo" autocomplete="name">
+    <input type="tel" class="id-input" id="id-celular" placeholder="Tu número de celular (9 dígitos)" inputmode="numeric" maxlength="9" autocomplete="tel">
+    <div class="id-error" id="id-error"></div>
+    <button class="id-btn" id="id-btn" onclick="enviarIdentificacion()">Continuar →</button>
+  </div>
+</div>
+
+<!-- MIS PEDIDOS -->
+<div class="mis-pedidos" id="mis-pedidos">
+  <button class="mp-toggle" onclick="toggleMisPedidos()" id="mp-toggle">📋 Mis pedidos (0) ▴</button>
+  <div class="mp-list" id="mp-list"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <!-- FAB CHAT -->
 <button class="fab-chat" id="fab-chat" onclick="toggleChat()">💬</button>
 
@@ -198,18 +286,29 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
 const TELEFONO = '{{ telefono }}';
 const STORE_NAME = '{{ store_name }}';
 const API = '/api/public/carta/' + TELEFONO;
+const ADMIN_MODE = new URLSearchParams(location.search).get('admin') === '1';
 let allProducts = [];
 let categoriaActual = 'Todos';
 let searchTerm = '';
 let productoSeleccionado = null;
 let chatAbierto = false;
+let modoGratuito = false;
+let modoGratuitoLimite = 1;
+let modoGratuitoMensaje = '';
+let cliente = null; // { celular, nombre }
+let misPedidos = [];
+let mpListVisible = false;
+let pollingId = null;
+let toastTimer = null;
 
 const EMOJIS = {
-  'Abarrotes':'🛒','Bebidas':'🥤','Frutas':'🍎','Verduras':'🥦',
-  'Carnes':'🥩','Lacteos':'🥛','Lácteos':'🥛','Panaderia':'🍞','Panadería':'🍞',
+  'Bebidas':'🥤','Licores':'🍾','Ropa':'👕',
+  'Abarrotes':'🛒','Frutas':'🍎','Verduras':'🥦',
+  'Carnes':'🥩','Lacteos':'🥛','Lácteos':'🥛',
+  'Panaderia':'🍞','Panadería':'🍞',
   'Limpieza':'🧹','Ferreteria':'🔧','Ferretería':'🔧','Farmacia':'💊',
-  'Snacks':'🍿','Golosinas':'🍬','Licores':'🍺','Cuidado Personal':'🧴',
-  'Mascotas':'🐶','Otros':'📦','default':'📦'
+  'Snacks':'🍿','Golosinas':'🍬','Cuidado Personal':'🧴',
+  'Mascotas':'🐾','Otros':'📦','default':'📦'
 };
 function getEmoji(cat) { return EMOJIS[cat] || EMOJIS['default']; }
 function getFP() { return btoa(navigator.userAgent.slice(0,40) + screen.width + screen.height).slice(0,64); }
@@ -234,11 +333,21 @@ async function cargarInfo() {
       const img = document.createElement('img');
       img.src = d.logo; img.alt = d.nombre; img.className = 'hdr-logo';
       el.replaceWith(img);
+      // Favicon dinámico con el logo del negocio
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+      link.href = d.logo;
     } else {
       const initials = d.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
       document.getElementById('store-logo').textContent = initials;
       document.getElementById('chat-logo').textContent = initials;
     }
+    // Title dinámico
+    document.title = `${d.nombre} — Carta Virtual`;
+    modoGratuito = !!d.modo_gratuito;
+    modoGratuitoLimite = d.modo_gratuito_limite || 1;
+    modoGratuitoMensaje = d.modo_gratuito_mensaje || '';
+    if (ADMIN_MODE) document.getElementById('btn-qr').classList.add('show');
   } catch(e) { document.getElementById('store-addr').textContent = ''; }
 }
 
@@ -308,23 +417,62 @@ function abrirDetalle(id) {
   document.getElementById('md-name').textContent = p.name;
   document.getElementById('md-price').textContent = `S/ ${p.price.toFixed(2)}`;
   document.getElementById('md-meta').textContent = `${p.category || 'General'} · ${p.stock > 0 ? 'Stock disponible: ' + p.stock + ' unidades' : 'Disponible'}`;
+  const btn = document.getElementById('md-pedir');
+  if (modoGratuito && p.stock > 0) {
+    btn.textContent = '🎁 Pedir gratis';
+    btn.className = 'modal-btn modal-btn-gratis';
+    btn.onclick = pedirGratis;
+  } else {
+    btn.textContent = '✋ Agregar al pedido';
+    btn.className = 'modal-btn modal-btn-pedir';
+    btn.onclick = pedirProducto;
+  }
   document.getElementById('modal-detalle').classList.add('open');
 }
 function cerrarDetalle() {
   document.getElementById('modal-detalle').classList.remove('open');
   productoSeleccionado = null;
 }
-function pedirProducto() {
-  if (!productoSeleccionado) return;
-  cerrarDetalle();
-  // Abrir chat con mensaje pre-escrito
-  if (!chatAbierto) toggleChat();
-  const input = document.getElementById('chat-input');
-  input.value = `Hola, quiero pedir: ${productoSeleccionado.name} — S/ ${productoSeleccionado.price.toFixed(2)}`;
-  input.focus();
+// ── ESTADO DEL PEDIDO EN CHAT ──
+let pedidoActual = null;     // {productos:[], tipo, direccion, productoEnCurso, paso, esperando, metodoPagoEnCurso}
+let pedidoPendienteParaIdent = null;
+let _chatTextoEscapado = (s) => String(s == null ? '' : s)
+  .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function nuevoPedido() {
+  pedidoActual = {
+    productos: [],
+    tipo: null,
+    direccion: null,
+    productoEnCurso: null,
+    cantidadEnCurso: null,
+    metodoPagoEnCurso: null,
+    paso: 0,
+    esperando: null,  // null | 'cantidad' | 'direccion'
+  };
 }
 
-// ── CHAT ──
+// ── PUNTO DE ENTRADA DESDE EL MODAL DETALLE ──
+function agregarAlPedido(producto) {
+  cerrarDetalle();
+  if (!cliente) {
+    pedidoPendienteParaIdent = producto;
+    abrirIdModal('Necesitamos tu nombre y celular para continuar:');
+    return;
+  }
+  abrirChatConProducto(producto);
+}
+// Aliases para compatibilidad con onclick antiguos
+function pedirProducto() {
+  if (!productoSeleccionado) return;
+  agregarAlPedido(productoSeleccionado);
+}
+function pedirGratis() {
+  if (!productoSeleccionado) return;
+  agregarAlPedido(productoSeleccionado);
+}
+
+// ── CHAT — TOGGLE ──
 function toggleChat() {
   chatAbierto = !chatAbierto;
   document.getElementById('chat-overlay').classList.toggle('open', chatAbierto);
@@ -332,55 +480,343 @@ function toggleChat() {
   if (chatAbierto) {
     const body = document.getElementById('chat-body');
     if (body.children.length === 0) {
-      addChatMsg('bot', `👋 ¡Hola! Soy el asistente de <b>${STORE_NAME}</b>.\n¿Qué deseas pedir hoy? Escríbeme los productos y te confirmo disponibilidad. 😊`);
+      addChatMsgHTML('bot', `👋 ¡Hola! Soy el asistente de <b>${_chatTextoEscapado(STORE_NAME)}</b>.<br>Toca un producto para pedirlo o escríbeme su nombre. 😊`);
     }
     document.getElementById('chat-input').focus();
   }
 }
 
-function addChatMsg(type, text) {
+// ── MENSAJES ──
+function addChatMsgText(type, text) {
   const body = document.getElementById('chat-body');
   const div = document.createElement('div');
   div.className = `chat-msg ${type}`;
-  div.innerHTML = text.replace(/\n/g, '<br>');
+  div.innerHTML = _chatTextoEscapado(text).replace(/\n/g, '<br>');
   body.appendChild(div);
   body.scrollTop = body.scrollHeight;
-  // Persist
-  const msgs = JSON.parse(localStorage.getItem('chat_' + TELEFONO) || '[]');
-  msgs.push({ type, text, ts: Date.now() });
-  localStorage.setItem('chat_' + TELEFONO, JSON.stringify(msgs));
+}
+function addChatMsgHTML(type, html) {
+  const body = document.getElementById('chat-body');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${type}`;
+  div.innerHTML = html;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+// Compat: si código antiguo usa addChatMsg, lo respetamos
+function addChatMsg(type, text) {
+  // Mantiene comportamiento previo: trata \n como <br>, sin escapar HTML
+  const body = document.getElementById('chat-body');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${type}`;
+  div.innerHTML = String(text || '').replace(/\n/g, '<br>');
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
 }
 
-function loadChatHistory() {
-  const msgs = JSON.parse(localStorage.getItem('chat_' + TELEFONO) || '[]');
-  msgs.forEach(m => {
-    const div = document.createElement('div');
-    div.className = `chat-msg ${m.type}`;
-    div.innerHTML = m.text.replace(/\n/g, '<br>');
-    document.getElementById('chat-body').appendChild(div);
+// Botones rápidos (se eliminan al elegir uno)
+function mostrarBotonesRapidos(opciones, callback, opts = {}) {
+  const body = document.getElementById('chat-body');
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-quick';
+  opciones.forEach(opcion => {
+    const label = (typeof opcion === 'string') ? opcion : opcion.label;
+    const value = (typeof opcion === 'string') ? opcion : opcion.value;
+    const cls = (typeof opcion === 'object' && opcion.cls) ? opcion.cls : '';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-quick-btn ' + cls;
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      wrap.classList.add('disabled');
+      addChatMsgText('user', label);
+      callback(value);
+    });
+    wrap.appendChild(btn);
+  });
+  body.appendChild(wrap);
+  body.scrollTop = body.scrollHeight;
+  return wrap;
+}
+
+// Card de producto dentro del chat
+function cardProductoHTML(p) {
+  return `
+    <div class="chat-prod-card">
+      <div class="chat-prod-emoji">${getEmoji(p.category)}</div>
+      <div class="chat-prod-info">
+        <div class="chat-prod-name">${_chatTextoEscapado(p.name)}</div>
+        <div class="chat-prod-price">S/ ${p.price.toFixed(2)}</div>
+        <div class="chat-prod-meta">${_chatTextoEscapado(p.category || '')}</div>
+      </div>
+    </div>`;
+}
+
+// ── INICIO DEL FLUJO CON UN PRODUCTO ──
+function abrirChatConProducto(producto) {
+  if (!chatAbierto) toggleChat();
+  if (!pedidoActual) nuevoPedido();
+  pedidoActual.productoEnCurso = producto;
+
+  const esRopa = (producto.category || '').toLowerCase() === 'ropa';
+
+  if (esRopa && modoGratuito) {
+    addChatMsgHTML('bot',
+      cardProductoHTML(producto) +
+      `<div>👗 Los productos de Ropa tienen precio normal. Este cuesta <b>S/ ${producto.sale_price ? producto.sale_price.toFixed(2) : producto.price.toFixed(2)}</b>. ¿Deseas pedirlo?</div>`
+    );
+    mostrarBotonesRapidos([
+      { label: '✅ Sí, lo compro', value: 'si' },
+      { label: '❌ No, gracias', value: 'no', cls: 'muted' },
+    ], (v) => {
+      if (v === 'si') pasoCantidad(producto);
+      else cancelarPedidoEnCurso();
+    });
+    return;
+  }
+
+  // Flujo normal (gratuito si modoGratuito y no Ropa, o pago en otros casos)
+  addChatMsgHTML('bot',
+    cardProductoHTML(producto) +
+    '<div>¿Cuántas unidades deseas? 👇</div>'
+  );
+  pasoCantidad(producto);
+}
+
+function cancelarPedidoEnCurso() {
+  pedidoActual = null;
+  addChatMsgText('bot', 'Cancelado. Cuando quieras, vuelve a tocar un producto. 😊');
+}
+
+// ── PASO 2: CANTIDAD ──
+function pasoCantidad(producto) {
+  pedidoActual.paso = 1;
+  pedidoActual.esperando = null;
+  mostrarBotonesRapidos(['1', '2', '3', 'Otra cantidad'], (val) => {
+    if (val === 'Otra cantidad') {
+      addChatMsgText('bot', '¿Cuántas unidades? Escribe el número.');
+      pedidoActual.esperando = 'cantidad';
+      document.getElementById('chat-input').focus();
+    } else {
+      procesarCantidadSeleccionada(producto, parseInt(val, 10));
+    }
   });
 }
 
+function procesarCantidadSeleccionada(producto, cantidad) {
+  if (!cantidad || cantidad < 1) {
+    addChatMsgText('bot', 'Cantidad inválida. Probemos otra vez.');
+    pasoCantidad(producto);
+    return;
+  }
+  if (producto.stock != null && cantidad > producto.stock) {
+    addChatMsgText('bot', `Solo tenemos ${producto.stock} disponibles. Elige menos cantidad.`);
+    pasoCantidad(producto);
+    return;
+  }
+  pedidoActual.cantidadEnCurso = cantidad;
+  pedidoActual.esperando = null;
+
+  const esRopa = (producto.category || '').toLowerCase() === 'ropa';
+  if (esRopa) pasoMetodoPago(producto);
+  else pasoEntrega();
+}
+
+// ── PASO EXTRA (Ropa): MÉTODO DE PAGO ──
+function pasoMetodoPago(producto) {
+  pedidoActual.paso = 4;
+  addChatMsgText('bot', '¿Cómo deseas pagar? 💳');
+  mostrarBotonesRapidos([
+    { label: '💛 Yape/Plin',         value: 'yape' },
+    { label: '🏦 Transferencia',     value: 'transferencia' },
+    { label: '💵 Efectivo al recoger', value: 'efectivo' },
+  ], (val) => {
+    pedidoActual.metodoPagoEnCurso = val;
+    pasoEntrega();
+  });
+}
+
+// ── PASO 3: RECOJO O DELIVERY ──
+function pasoEntrega() {
+  pedidoActual.paso = 2;
+  addChatMsgText('bot', '¿Es para Recojo o Delivery?');
+  mostrarBotonesRapidos([
+    { label: '🏪 Recogeré en tienda', value: 'recojo' },
+    { label: '🛵 Delivery',           value: 'delivery' },
+  ], (val) => {
+    pedidoActual.tipo = val;
+    if (val === 'delivery') pasoDireccion();
+    else finalizarItemEnCurso();
+  });
+}
+
+// ── PASO 4b: DIRECCIÓN (delivery) ──
+function pasoDireccion() {
+  pedidoActual.paso = 3;
+  pedidoActual.esperando = 'direccion';
+  addChatMsgText('bot', '¿Cuál es tu dirección de entrega? 📍');
+  document.getElementById('chat-input').focus();
+}
+
+// ── REGISTRA EL ITEM EN EL BACKEND ──
+async function finalizarItemEnCurso() {
+  const p = pedidoActual.productoEnCurso;
+  const cant = pedidoActual.cantidadEnCurso;
+  const esRopa = (p.category || '').toLowerCase() === 'ropa';
+  const usaPago = esRopa || !modoGratuito;
+
+  const url = usaPago ? `${API}/pedir-pago` : `${API}/pedir-gratis`;
+  const body = {
+    celular: cliente.celular,
+    nombre: cliente.nombre,
+    producto_id: p.id,
+    cantidad: cant,
+    tipo_entrega: pedidoActual.tipo,
+    direccion: pedidoActual.direccion,
+    device_fingerprint: getFP(),
+  };
+  if (usaPago) body.metodo_pago = pedidoActual.metodoPagoEnCurso;
+
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!d.ok) {
+      addChatMsgText('bot', `⚠️ ${d.mensaje || 'No se pudo registrar el pedido.'}`);
+      return;
+    }
+    pedidoActual.productos.push({
+      producto: p,
+      cantidad: cant,
+      metodo_pago: pedidoActual.metodoPagoEnCurso,
+      tipo: usaPago ? 'pago' : 'gratuito',
+    });
+    addChatMsgText('bot', '✅ ¡Pedido registrado!');
+    cargarMisPedidos();
+    pasoAlgoMas();
+  } catch(e) {
+    addChatMsgText('bot', '⚠️ Sin conexión. Intenta de nuevo.');
+  }
+}
+
+// ── PASO 5: ¿ALGO MÁS? ──
+function pasoAlgoMas() {
+  pedidoActual.paso = 5;
+  pedidoActual.productoEnCurso = null;
+  pedidoActual.cantidadEnCurso = null;
+  pedidoActual.metodoPagoEnCurso = null;
+  pedidoActual.esperando = null;
+  addChatMsgText('bot', '¿Deseas agregar algo más?');
+  mostrarBotonesRapidos([
+    { label: '🛒 Sí, ver carta',   value: 'si' },
+    { label: '✅ No, eso es todo', value: 'no', cls: 'muted' },
+  ], (val) => {
+    if (val === 'si') {
+      addChatMsgText('bot', '¡Sigue navegando! Toca otro producto cuando estés listo.');
+      toggleChat();
+    } else {
+      mostrarResumen();
+    }
+  });
+}
+
+// ── RESUMEN FINAL ──
+function mostrarResumen() {
+  if (!pedidoActual || pedidoActual.productos.length === 0) {
+    addChatMsgText('bot', '¡Gracias por visitarnos! 😊');
+    pedidoActual = null;
+    return;
+  }
+  const lineas = pedidoActual.productos.map(it => {
+    const precio = it.producto.price.toFixed(2);
+    const subtotal = (it.producto.price * it.cantidad).toFixed(2);
+    return `<div class="chat-resumen-line">• ${it.cantidad} × ${_chatTextoEscapado(it.producto.name)} — S/ ${subtotal}</div>`;
+  }).join('');
+  const total = pedidoActual.productos.reduce((s, it) => s + (it.producto.price * it.cantidad), 0);
+  const tipo = pedidoActual.tipo === 'delivery'
+    ? `🛵 Delivery${pedidoActual.direccion ? ' a: ' + _chatTextoEscapado(pedidoActual.direccion) : ''}`
+    : '🏪 Recojo en tienda';
+  let pagoLine = '';
+  const tienePago = pedidoActual.productos.some(it => it.tipo === 'pago');
+  if (tienePago) {
+    const metodos = [...new Set(pedidoActual.productos.filter(it => it.tipo === 'pago' && it.metodo_pago).map(it => it.metodo_pago))];
+    if (metodos.length) {
+      const lbl = { yape: '💛 Yape/Plin', transferencia: '🏦 Transferencia', efectivo: '💵 Efectivo al recoger' };
+      pagoLine = `<div class="chat-resumen-line"><strong>Pago:</strong> ${metodos.map(m => lbl[m] || m).join(', ')}</div>`;
+    }
+  }
+  addChatMsgHTML('bot', `
+    <div class="chat-resumen">
+      <div class="chat-resumen-title">🎉 Resumen de tu pedido</div>
+      ${lineas}
+      <div class="chat-resumen-line" style="margin-top:6px"><strong>Total:</strong> S/ ${total.toFixed(2)}</div>
+      <div class="chat-resumen-line"><strong>Entrega:</strong> ${tipo}</div>
+      ${pagoLine}
+    </div>
+  `);
+  addChatMsgText('bot', '¡Gracias por tu compra! Te contactamos pronto al ' + cliente.celular + '. 😊');
+  pedidoActual = null;
+}
+
+// ── BUSCAR PRODUCTO POR TEXTO LIBRE ──
+function buscarProductoEnChat(texto) {
+  const q = texto.toLowerCase();
+  const coincidencias = allProducts.filter(p => p.name.toLowerCase().includes(q));
+  if (coincidencias.length === 0) {
+    addChatMsgText('bot', 'No encontré ese producto. ¿Puedes ser más específico?');
+    return;
+  }
+  if (coincidencias.length === 1) {
+    abrirChatConProducto(coincidencias[0]);
+    return;
+  }
+  // Múltiples coincidencias
+  addChatMsgText('bot', 'Encontré varios productos. ¿Cuál deseas?');
+  mostrarBotonesRapidos(
+    coincidencias.slice(0, 6).map(p => ({
+      label: `${p.name} — S/ ${p.price.toFixed(2)}`,
+      value: String(p.id),
+    })),
+    (val) => {
+      const prod = coincidencias.find(p => String(p.id) === val);
+      if (prod) abrirChatConProducto(prod);
+    }
+  );
+}
+
+// ── INPUT DE TEXTO ──
 async function enviarChat() {
   const input = document.getElementById('chat-input');
   const msg = input.value.trim();
   if (!msg) return;
   input.value = '';
-  addChatMsg('user', msg);
+  addChatMsgText('user', msg);
 
-  try {
-    const r = await fetch(API + '/pedido-chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ device_fingerprint: getFP(), mensaje: msg })
-    });
-    if (r.ok) {
-      const d = await r.json();
-      setTimeout(() => addChatMsg('bot', d.respuesta), 600);
-    }
-  } catch(e) {
-    setTimeout(() => addChatMsg('bot', '⚠️ Sin conexión. Intenta de nuevo.'), 400);
+  // Si hay un pedido en curso esperando un input específico
+  if (pedidoActual && pedidoActual.esperando === 'cantidad') {
+    const m = msg.match(/\d+/);
+    const cant = m ? parseInt(m[0], 10) : 0;
+    procesarCantidadSeleccionada(pedidoActual.productoEnCurso, cant);
+    return;
   }
+  if (pedidoActual && pedidoActual.esperando === 'direccion') {
+    pedidoActual.direccion = msg;
+    pedidoActual.esperando = null;
+    finalizarItemEnCurso();
+    return;
+  }
+
+  // Si no hay cliente identificado, pedirle que toque un producto (más simple)
+  if (!cliente) {
+    addChatMsgText('bot', 'Para hacer un pedido toca un producto del catálogo. 😊');
+    return;
+  }
+
+  // Búsqueda libre por nombre
+  buscarProductoEnChat(msg);
 }
 
 // ── VOZ ──
@@ -443,11 +879,131 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/static/carta/sw.js').catch(() => {});
 }
 
+// ── IDENTIFICACIÓN CLIENTE ──
+function loadCliente() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('cliente_' + TELEFONO) || 'null');
+    if (stored && stored.celular && stored.nombre) cliente = stored;
+  } catch(e) {}
+}
+
+function abrirIdModal(submensaje) {
+  document.getElementById('id-sub').textContent = submensaje || 'Para tu pedido de cortesía necesitamos tus datos:';
+  document.getElementById('id-error').textContent = '';
+  document.getElementById('id-modal').classList.add('open');
+  setTimeout(() => document.getElementById('id-nombre').focus(), 100);
+}
+function cerrarIdModal() {
+  document.getElementById('id-modal').classList.remove('open');
+}
+
+async function enviarIdentificacion() {
+  const nombre = document.getElementById('id-nombre').value.trim();
+  const celular = document.getElementById('id-celular').value.trim().replace(/\D/g, '');
+  const err = document.getElementById('id-error');
+  err.textContent = '';
+  if (nombre.length < 2) { err.textContent = 'Ingresa tu nombre completo'; return; }
+  if (celular.length !== 9) { err.textContent = 'Celular debe tener 9 dígitos'; return; }
+  const btn = document.getElementById('id-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try {
+    const r = await fetch(API + '/identificar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ celular, nombre, device_fingerprint: getFP() })
+    });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    cliente = { celular: d.celular, nombre: d.nombre };
+    localStorage.setItem('cliente_' + TELEFONO, JSON.stringify(cliente));
+    cerrarIdModal();
+    cargarMisPedidos();
+    if (pedidoPendienteParaIdent) {
+      const p = pedidoPendienteParaIdent;
+      pedidoPendienteParaIdent = null;
+      abrirChatConProducto(p);
+    }
+  } catch(e) {
+    err.textContent = 'No se pudo registrar. Intenta de nuevo.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Continuar →';
+  }
+}
+
+// ── MIS PEDIDOS ──
+async function cargarMisPedidos() {
+  if (!cliente) return;
+  try {
+    const r = await fetch(API + '/mis-pedidos/' + cliente.celular);
+    if (!r.ok) return;
+    const d = await r.json();
+    misPedidos = d.pedidos || [];
+    renderMisPedidos();
+  } catch(e) {}
+}
+
+function renderMisPedidos() {
+  const cont = document.getElementById('mis-pedidos');
+  const list = document.getElementById('mp-list');
+  const toggle = document.getElementById('mp-toggle');
+  if (!misPedidos.length) {
+    cont.classList.remove('show');
+    return;
+  }
+  cont.classList.add('show');
+  toggle.textContent = `📋 Mis pedidos (${misPedidos.length}) ${mpListVisible ? '▾' : '▴'}`;
+  list.classList.toggle('open', mpListVisible);
+  const stateMap = {
+    pendiente:  { emoji: '⏳', label: 'Pendiente',  cls: 'mp-state-pendiente' },
+    confirmado: { emoji: '✅', label: 'Confirmado', cls: 'mp-state-confirmado' },
+    listo:      { emoji: '🎉', label: 'Listo',      cls: 'mp-state-listo' },
+    cancelado:  { emoji: '❌', label: 'Cancelado',  cls: 'mp-state-cancelado' },
+  };
+  const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  list.innerHTML = misPedidos.map(p => {
+    const s = stateMap[p.estado] || stateMap.pendiente;
+    return `<div class="mp-item">
+      <span class="mp-item-name">${p.cantidad} × ${esc(p.producto_nombre)}</span>
+      <span class="mp-item-state ${s.cls}">${s.emoji} ${s.label}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleMisPedidos() {
+  mpListVisible = !mpListVisible;
+  renderMisPedidos();
+}
+
+function startPolling() {
+  if (pollingId) return;
+  pollingId = setInterval(() => {
+    if (cliente && document.visibilityState === 'visible') cargarMisPedidos();
+  }, 10000);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── QR (admin) ──
+function abrirQR() {
+  window.open('/carta/' + TELEFONO + '/qr', '_blank');
+}
+
 // ── INIT ──
+loadCliente();
 cargarInfo();
 cargarProductos();
 registrarVisita();
-loadChatHistory();
+if (cliente) cargarMisPedidos();
+startPolling();
 </script>
 </body>
 </html>

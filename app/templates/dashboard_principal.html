@@ -153,18 +153,9 @@
                         <span>Stock bajo</span>
                         <span class="nav-badge warning" id="low-stock-count">0</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showExpiring()">
-                        <i class="fas fa-clock"></i>
-                        <span>Por vencer</span>
-                        <span class="nav-badge danger" id="expiring-count">0</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showPurchaseForm()">
-                        <i class="fas fa-truck"></i>
-                        <span>Registrar compra</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showInventory()">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Inventario</span>
+                    <a href="#" class="nav-item" id="link-carta-virtual" onclick="abrirCartaVirtual();return false;">
+                        <i class="fas fa-store"></i>
+                        <span>Carta Virtual</span>
                     </a>
                 </nav>
             </div>
@@ -176,11 +167,7 @@
                         <i class="fas fa-chart-bar"></i>
                         <span>Ventas del día</span>
                     </a>
-                    <a href="#" class="nav-item" onclick="showProfits()">
-                        <i class="fas fa-coins"></i>
-                        <span>Ganancias y márgenes</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showFiados()">
+                    <a href="/cobrar-fiados" class="nav-item">
                         <i class="fas fa-hand-holding-usd"></i>
                         <span>Fiados pendientes</span>
                         <span class="nav-badge warning" id="fiados-count">0</span>
@@ -188,11 +175,7 @@
                     <a href="/caja" class="nav-item">
                         <i class="fas fa-cash-register"></i>
                         <span>Caja</span>
-                    </a>
-                    <a href="#" class="nav-item owner-only" onclick="editDailyGoal()">
-                        <i class="fas fa-bullseye"></i>
-                        <span>Meta diaria</span>
-                        <i class="fas fa-cog nav-config"></i>
+                        <span class="nav-badge danger" id="caja-estado-badge">Cerrada</span>
                     </a>
                 </nav>
             </div>
@@ -200,53 +183,21 @@
             <!-- COMERCIAL -->
             <div class="category-content" id="cat-comercial">
                 <nav class="sidebar-nav">
-                    <a href="#" class="nav-item" onclick="showTopProducts()">
-                        <i class="fas fa-fire"></i>
-                        <span>Top ventas</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showSlowProducts()">
-                        <i class="fas fa-snowflake"></i>
-                        <span>Sin rotación</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showComboSuggestions()">
-                        <i class="fas fa-gift"></i>
-                        <span>Sugerencias de combos</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showFrequentClients()">
-                        <i class="fas fa-users"></i>
-                        <span>Clientes frecuentes</span>
-                    </a>
-                    <a href="#" class="nav-item owner-only" onclick="showPromotions()">
-                        <i class="fas fa-tags"></i>
-                        <span>Promociones</span>
+                    <a href="/pedidos" class="nav-item">
+                        <i class="fas fa-bell"></i>
+                        <span>Pedidos carta</span>
+                        <span class="nav-badge danger" id="pedidos-count">0</span>
                     </a>
                 </nav>
             </div>
             
             <!-- SEGURIDAD -->
             <div class="category-content" id="cat-seguridad">
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-item" onclick="showReportIncident()">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span>Reportar amenaza</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showMyReports()">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Mis reportes</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showBodeguerosNetwork()">
-                        <i class="fas fa-store-alt"></i>
-                        <span>Red de bodegueros</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showEmergencyContacts()">
-                        <i class="fas fa-phone-alt"></i>
-                        <span>Contactos emergencia</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="showSecurityGuide()">
-                        <i class="fas fa-book"></i>
-                        <span>Guía antiextorsión</span>
-                    </a>
-                </nav>
+                <div class="coming-soon-msg">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>Módulo de seguridad<br>
+                    <small>Próximamente</small></p>
+                </div>
             </div>
             
             <!-- CONFIGURACIÓN -->
@@ -274,9 +225,9 @@
                         <span>Descargar Print Agent</span>
                     </a>
 
-                    <a href="#" class="nav-item owner-only" onclick="showPlanBilling()">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Plan y facturación</span>
+                    <a href="#" class="nav-item owner-only" onclick="abrirQRCarta();return false;">
+                        <i class="fas fa-qrcode"></i>
+                        <span>QR de mi carta</span>
                     </a>
                     <a href="#" class="nav-item" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
