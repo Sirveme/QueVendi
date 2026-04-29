@@ -397,6 +397,11 @@ function renderCard(p) {
 }
 
 async function emitirComprobante(pedidoId, btn) {
+  console.log('emitiendo pedido id:', pedidoId, 'tipo:', typeof pedidoId);
+  if (pedidoId == null || isNaN(parseInt(pedidoId, 10))) {
+    alert('ID de pedido inválido: ' + pedidoId);
+    return;
+  }
   if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo…'; }
   try {
     const r = await fetchAuth(`/api/v1/carta/pedidos/${pedidoId}/emitir-comprobante`, { method: 'POST' });
