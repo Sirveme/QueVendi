@@ -1028,17 +1028,19 @@ async def emitir_comprobante_pedido(
     serie = config.serie_boleta
     ahora = datetime.now(TZ_PERU)
 
-    total_descuentos = 0.00
     if tipo_pedido == "gratuito":
         item = {
             "descripcion": pedido[2],
             "cantidad": cantidad,
             "unidad_medida": "NIU",
             "valor_unitario": round(sale_price, 2),
-            "precio_unitario": 0.00,
+            "precio_unitario": round(sale_price, 2),
+            "descuento": {
+                "monto": round(sale_price, 2),
+                "porcentaje": 100,
+            },
             "tipo_afectacion_igv": config.tipo_afectacion_igv,
         }
-        total_descuentos = round(sale_price * cantidad, 2)
         leyenda = [{"codigo": "2001", "valor": "TRANSFERENCIA GRATUITA"}]
         tipo_operacion = "0111"
         observaciones = "TRANSFERENCIA GRATUITA - Cortesía de inauguración"
@@ -1076,8 +1078,6 @@ async def emitir_comprobante_pedido(
     }
     if leyenda:
         payload["leyenda"] = leyenda
-    if total_descuentos > 0:
-        payload["total_descuentos"] = total_descuentos
 
     api_url = f"{config.facturalo_url}/comprobantes"
     import json
