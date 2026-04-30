@@ -286,6 +286,9 @@ const Login = {
                     localStorage.removeItem('remembered_dni');
                 }
                 
+                // Limpiar datos del negocio anterior (forzar recarga fresca)
+                ['store_config','store_id','store_name','store_phone','store','storeData','storeInfo','store_logo'].forEach(k => localStorage.removeItem(k));
+
                 // Guardar token y datos
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('user', JSON.stringify(data.user));
