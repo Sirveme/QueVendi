@@ -4377,7 +4377,109 @@ function showProfile() { showToast('Perfil: próximamente', 'info'); }
 function showUsers() { showToast('Usuarios: próximamente', 'info'); }
 function showVoiceConfig() { showToast('Config voz: próximamente', 'info'); }
 function showPrinterConfig() { showToast('Impresora: próximamente', 'info'); }
-function showPlanBilling() { showToast('Plan: próximamente', 'info'); }
+// ============================================
+// PLAN / SUSCRIPCIÓN QueVendi
+// ============================================
+const TABLA_DESCUENTOS = {
+    1: 0, 2: 4, 3: 5, 4: 7, 5: 8, 6: 10,
+    7: 12, 8: 14, 9: 16, 10: 17, 11: 18, 12: 17
+};
+const PRECIO_BASE = 70;
+
+function showPlanBilling() {
+    const modal = document.getElementById('modal-suscripcion');
+    if (!modal) { showToast('Modal de plan no disponible', 'error'); return; }
+    modal.style.display = 'flex';
+    const slider = document.getElementById('slider-meses');
+    if (slider) slider.value = 1;
+    actualizarCalculoSuscripcion(1);
+    // Reset método de pago
+    document.querySelectorAll('.btn-metodo-pago').forEach(b => {
+        b.style.background = '#f5f5f5';
+        b.style.color = '';
+    });
+    document.getElementById('datos-pago-yape').style.display = 'none';
+    document.getElementById('datos-pago-transferencia').style.display = 'none';
+}
+
+function cerrarModalSuscripcion() {
+    const modal = document.getElementById('modal-suscripcion');
+    if (modal) modal.style.display = 'none';
+}
+
+function actualizarCalculoSuscripcion(meses) {
+    meses = parseInt(meses);
+    const descPct = TABLA_DESCUENTOS[meses] || 0;
+    const normal = PRECIO_BASE * meses;
+    const total = Math.round(normal * (1 - descPct / 100));
+    const ahorro = normal - total;
+
+    document.getElementById('txt-meses').textContent = meses;
+    document.getElementById('txt-normal').textContent = `S/ ${normal.toFixed(2)}`;
+    document.getElementById('txt-descuento').textContent = `${descPct}% (-S/${ahorro.toFixed(2)})`;
+    document.getElementById('txt-total').textContent = `S/ ${total.toFixed(2)}`;
+    document.getElementById('btn-total').textContent = total.toFixed(2);
+    document.getElementById('txt-ahorro').textContent =
+        ahorro > 0 ? `🎉 ¡Ahorras S/ ${ahorro.toFixed(2)}!` : '';
+}
+
+function seleccionarMetodoPago(metodo, btn) {
+    document.querySelectorAll('.btn-metodo-pago').forEach(b => {
+        b.style.background = '#f5f5f5';
+        b.style.color = '';
+    });
+    btn.style.background = '#667eea';
+    btn.style.color = '#fff';
+
+    document.getElementById('datos-pago-yape').style.display =
+        metodo === 'yape' ? 'block' : 'none';
+    document.getElementById('datos-pago-transferencia').style.display =
+        metodo === 'transferencia' ? 'block' : 'none';
+}
+
+async function procesarPagoSuscripcion() {
+    const btn = document.getElementById('btn-pagar-suscripcion');
+    const meses = parseInt(document.getElementById('slider-meses').value);
+    const descPct = TABLA_DESCUENTOS[meses] || 0;
+    const total = Math.round(PRECIO_BASE * meses * (1 - descPct / 100));
+
+    // Verificar método de pago seleccionado
+    const yapeVisible = document.getElementById('datos-pago-yape').style.display !== 'none';
+    const transVisible = document.getElementById('datos-pago-transferencia').style.display !== 'none';
+
+    if (!yapeVisible && !transVisible) {
+        alert('Selecciona un método de pago');
+        return;
+    }
+
+    const nroOp = yapeVisible
+        ? document.getElementById('nro-op-yape').value
+        : document.getElementById('nro-op-transferencia').value;
+
+    if (!nroOp.trim()) {
+        alert('Ingresa el número de operación');
+        return;
+    }
+
+    // Simular validación (por ahora; integración con PagoOK va en el siguiente sprint)
+    btn.textContent = '⏳ VALIDANDO...';
+    btn.disabled = true;
+
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Por ahora: siempre aprobado
+    btn.textContent = '✅ ¡PAGO CONFIRMADO!';
+    btn.style.background = '#10b981';
+
+    showToast(`✅ Suscripción activada por ${meses} meses. ¡Gracias!`, 'success');
+
+    setTimeout(() => {
+        cerrarModalSuscripcion();
+        btn.innerHTML = `Pagar S/ <span id="btn-total">${total.toFixed(2)}</span>`;
+        btn.style.background = 'linear-gradient(135deg,#667eea,#764ba2)';
+        btn.disabled = false;
+    }, 3000);
+}
 
 // ============================================
 // VERIFICACIÓN DE CAJA
