@@ -497,6 +497,8 @@ const ADMIN_MODE = new URLSearchParams(location.search).get('admin') === '1';
 let allProducts = [];
 let categoriaActual = 'Todos';
 let searchTerm = '';
+let _searchPrevCat = null;
+let _searchPrevBtn = null;
 let productoSeleccionado = null;
 let chatAbierto = true; // chat siempre visible en el nuevo layout
 let modoGratuito = false;
@@ -617,13 +619,42 @@ function renderProducts() {
 }
 
 function filtrar() {
-  searchTerm = document.getElementById('search-input').value.trim();
+  const texto = document.getElementById('search-input').value.trim();
+
+  if (texto.length > 0) {
+    // Al iniciar una búsqueda, recordar el tab actual (si no es "Todos") para restaurarlo después
+    if (_searchPrevCat === null && categoriaActual !== 'Todos') {
+      _searchPrevCat = categoriaActual;
+      _searchPrevBtn = document.querySelector('#cat-tabs .tab.active');
+    }
+    // Forzar tab "Todos" mientras el usuario busca, para filtrar sobre TODOS los productos
+    if (categoriaActual !== 'Todos') {
+      categoriaActual = 'Todos';
+      document.querySelectorAll('#cat-tabs .tab').forEach(t => t.classList.remove('active'));
+      const todosBtn = document.querySelector('#cat-tabs .tab');
+      if (todosBtn) todosBtn.classList.add('active');
+    }
+  } else if (_searchPrevCat !== null) {
+    // Buscador vacío: volver al tab que estaba antes
+    categoriaActual = _searchPrevCat;
+    document.querySelectorAll('#cat-tabs .tab').forEach(t => t.classList.remove('active'));
+    if (_searchPrevBtn && _searchPrevBtn.isConnected) {
+      _searchPrevBtn.classList.add('active');
+    }
+    _searchPrevCat = null;
+    _searchPrevBtn = null;
+  }
+
+  searchTerm = texto;
   renderProducts();
 }
 function filtrarCategoria(cat, btn) {
   categoriaActual = cat;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  // Si el usuario elige un tab manualmente, descartar la restauración pendiente del buscador
+  _searchPrevCat = null;
+  _searchPrevBtn = null;
   renderProducts();
 }
 
