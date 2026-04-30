@@ -25,9 +25,12 @@ print(f"📡 URL (sanitizada): {database_url.split('@')[0]}@***")
 # ========================================
 engine = create_engine(
     database_url,
-    pool_size=10,
-    max_overflow=20,
+    pool_size=5,
+    max_overflow=10,
     pool_pre_ping=True,
+    pool_recycle=300,
+    pool_timeout=30,
+    connect_args={"connect_timeout": 10},
     echo=False
 )
 
