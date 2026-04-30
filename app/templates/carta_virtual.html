@@ -1241,7 +1241,7 @@ function startPolling() {
   if (pollingId) return;
   pollingId = setInterval(() => {
     if (cliente && document.visibilityState === 'visible') cargarMisPedidos();
-  }, 20000);
+  }, 30000);
 }
 
 // ── TOAST ──
