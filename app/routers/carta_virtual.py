@@ -15,7 +15,7 @@ Registrar en main.py:
   app.include_router(carta_router)
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -57,6 +57,7 @@ DO $$ BEGIN
     ALTER TABLE carta_pedidos ADD COLUMN IF NOT EXISTS tipo_entrega VARCHAR(20);
     ALTER TABLE carta_pedidos ADD COLUMN IF NOT EXISTS direccion VARCHAR(300);
     ALTER TABLE carta_pedidos ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(20);
+    ALTER TABLE carta_pedidos ADD COLUMN IF NOT EXISTS comprobante_pdf_url VARCHAR(500);
   END IF;
 END $$;
 
@@ -1004,7 +1005,7 @@ async def emitir_comprobante_pedido(
     if not pedido:
         raise HTTPException(404, "Pedido no encontrado")
     if pedido[8]:
-        raise HTTPException(400, f"El pedido ya tiene comprobante: {pedido[8]}")
+        raise HTTPException(400, f"Boleta ya emitida: {pedido[8]}")
     if pedido[5] not in ("confirmado", "listo"):
         raise HTTPException(400, f"No se puede emitir desde estado '{pedido[5]}'")
 
@@ -1105,10 +1106,12 @@ async def emitir_comprobante_pedido(
 
                 db.execute(text("""
                     UPDATE carta_pedidos
-                    SET comprobante_numero = :cnum
+                    SET comprobante_numero = :cnum,
+                        comprobante_pdf_url = :purl
                     WHERE id = :pid
                 """), {
                     "cnum": numero_formato,
+                    "purl": pdf_url,
                     "pid": pedido_id,
                 })
                 if comp.get("numero"):
@@ -1134,5 +1137,66 @@ async def emitir_comprobante_pedido(
         raise
     except httpx.TimeoutException:
         raise HTTPException(502, "Timeout conectando a facturalo.pro")
+    except httpx.RequestError as e:
+        raise HTTPException(502, f"Error de conexión con facturalo.pro: {e}")
+
+
+@router.get("/api/v1/carta/pedidos/{pedido_id}/pdf")
+async def proxy_pdf_pedido(
+    pedido_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Proxy del PDF del comprobante en Facturalo.pro.
+
+    Descarga el PDF con auth de la tienda y lo sirve al navegador,
+    evitando exponer credenciales o requerir headers en el cliente.
+    """
+    import httpx
+    from app.models.billing import StoreBillingConfig
+
+    row = db.execute(text("""
+        SELECT comprobante_numero, comprobante_pdf_url
+        FROM carta_pedidos
+        WHERE id = :pid AND store_id = :sid
+    """), {"pid": pedido_id, "sid": current_user.store_id}).fetchone()
+    if not row:
+        raise HTTPException(404, "Pedido no encontrado")
+    if not row[0] or not row[1]:
+        raise HTTPException(404, "El pedido no tiene comprobante emitido")
+
+    numero_formato = row[0]
+    pdf_url = row[1]
+
+    config = db.query(StoreBillingConfig).filter(
+        StoreBillingConfig.store_id == current_user.store_id,
+        StoreBillingConfig.is_active == True,
+    ).first()
+    if not config or not config.facturalo_token:
+        raise HTTPException(400, "Facturación no configurada")
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                pdf_url,
+                headers={
+                    "X-API-Key": config.facturalo_token,
+                    "X-API-Secret": config.facturalo_secret,
+                },
+            )
+        if response.status_code != 200:
+            logger.error(f"[Carta-PDF] facturalo respondió {response.status_code}: {response.text[:200]}")
+            raise HTTPException(502, "Error al obtener PDF de facturalo.pro")
+
+        filename = f"{numero_formato}.pdf"
+        return Response(
+            content=response.content,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'inline; filename="{filename}"'},
+        )
+    except HTTPException:
+        raise
+    except httpx.TimeoutException:
+        raise HTTPException(502, "Timeout descargando PDF")
     except httpx.RequestError as e:
         raise HTTPException(502, f"Error de conexión con facturalo.pro: {e}")
