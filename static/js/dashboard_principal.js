@@ -2758,7 +2758,7 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
         _downloadTicketAsImage(numeroFormato);
     };
     modal.querySelector('#btn-modal-share').onclick = () => {
-        _shareComprobantePdf(comprobanteId, numeroFormato, formato);
+        _shareComprobante(numeroFormato);
     };
     modal.querySelector('#btn-modal-close').onclick = () => {
         closeComprobanteModal();
@@ -2823,81 +2823,76 @@ async function _downloadComprobantePdf(comprobanteId, numeroFormato, formato) {
     }
 }
 
-async function _shareComprobantePdf(comprobanteId, numeroFormato, formato) {
-    try {
-        const response = await fetchWithAuth(
-            `${CONFIG.apiBase}/billing/comprobante/${comprobanteId}/pdf?formato=${formato || 'A4'}`
-        );
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-        const blob = await response.blob();
-        const file = new File([blob], (numeroFormato || 'comprobante') + '.pdf', { type: 'application/pdf' });
+async function _shareComprobante(numeroFormato) {
+  try {
+    // Generar el PNG con html2canvas (mismo que Ticket IMG)
+    const el = document.querySelector('#ticket-html-content > *');
+    if (!el) { showToast('No hay ticket', 'error'); return; }
 
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                title: `Comprobante ${numeroFormato}`,
-                files: [file]
-            });
-        } else {
-            // Fallback: descargar
-            showToast('Compartir no disponible. Descargando...', 'info');
-            _downloadComprobantePdf(comprobanteId, numeroFormato);
-        }
-    } catch (error) {
-        if (error.name !== 'AbortError') {
-            console.error('[PDF] Error compartir:', error);
-            showToast('Error al compartir', 'error');
-        }
-    }
+    showToast('Preparando para compartir...', 'info');
+
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: el.offsetWidth,
+      windowWidth: el.offsetWidth
+    });
+
+    canvas.toBlob(async (blob) => {
+      const file = new File(
+        [blob],
+        `${numeroFormato || 'ticket'}.png`,
+        { type: 'image/png' }
+      );
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Ticket ${numeroFormato}`
+        });
+      } else {
+        // Fallback: descargar la imagen
+        const link = document.createElement('a');
+        link.download = file.name;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        showToast('✅ Imagen descargada', 'success');
+      }
+    }, 'image/png');
+
+  } catch(err) {
+    console.error('Share error:', err);
+    showToast('Error al compartir', 'error');
+  }
 }
 
-async function _downloadTicketAsImage(numeroFormato) {
-    const container = document.getElementById('ticket-html-content');
-    if (!container || !container.firstElementChild) {
-        showToast('No hay ticket para descargar', 'warning');
-        return;
-    }
-    try {
-        showToast('Generando imagen...', 'info');
-        const ticketEl = container.firstElementChild;
-        // Usar canvas nativo: clonar el ticket en un iframe oculto y capturarlo
-        const canvas = document.createElement('canvas');
-        const scale = 2;
-        canvas.width = ticketEl.offsetWidth * scale;
-        canvas.height = ticketEl.offsetHeight * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.scale(scale, scale);
-        // Serializar HTML a SVG foreignObject
-        const data = new XMLSerializer().serializeToString(ticketEl);
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ticketEl.offsetWidth}" height="${ticketEl.offsetHeight}">
-            <foreignObject width="100%" height="100%">
-                <div xmlns="http://www.w3.org/1999/xhtml">${data}</div>
-            </foreignObject>
-        </svg>`;
-        const img = new Image();
-        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-            URL.revokeObjectURL(url);
-            canvas.toBlob(function(pngBlob) {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(pngBlob);
-                a.download = (numeroFormato || 'ticket') + '.png';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                showToast('Ticket descargado', 'success');
-            }, 'image/png');
-        };
-        img.onerror = function() {
-            URL.revokeObjectURL(url);
-            showToast('Error al generar imagen. Usa captura de pantalla.', 'error');
-        };
-        img.src = url;
-    } catch (error) {
-        console.error('[Ticket] Error imagen:', error);
-        showToast('Error al generar imagen', 'error');
-    }
+async function _downloadTicketAsImage(numeroFormato = '') {
+  const el = document.querySelector('#ticket-html-content > *');
+  if (!el) { showToast('No hay ticket para capturar', 'error'); return; }
+
+  showToast('Generando imagen...', 'info');
+
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: el.offsetWidth,
+      windowWidth: el.offsetWidth
+    });
+
+    const link = document.createElement('a');
+    link.download = `${numeroFormato || 'ticket-' + Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ Imagen descargada', 'success');
+  } catch(err) {
+    console.error('html2canvas error:', err);
+    showToast('Error al generar imagen', 'error');
+  }
 }
 
 function closeComprobanteModal() {
