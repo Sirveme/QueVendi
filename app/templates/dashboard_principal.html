@@ -275,6 +275,11 @@
                         <span>Impresora</span>
                     </a>
 
+                    <a href="#" class="nav-item owner-only" onclick="showPlanBilling();return false;">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Plan y facturación</span>
+                    </a>
+
                     <a href="/descargar" class="nav-item">
                         <i class="fas fa-download"></i>
                         <span>Descargar Print Agent</span>
@@ -690,31 +695,90 @@
     <div id="modal-dias-credito-overlay" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-title">¿Cuántos días de crédito?</div>
-            
+
             <div class="modal-options">
                 1 = 7 días<br>
                 2 = 15 días<br>
                 3 = 30 días
             </div>
-            
+
             <div class="modal-input-group">
-                <input 
-                    type="number" 
-                    id="modal-dias-input" 
-                    class="modal-input" 
+                <input
+                    type="number"
+                    id="modal-dias-input"
+                    class="modal-input"
                     placeholder="Ingrese 1, 2, 3 o días personalizados"
                     min="1"
                     max="365"
                     autofocus
                 >
             </div>
-            
+
             <div class="modal-buttons">
                 <button class="modal-btn modal-btn-secondary" onclick="cerrarModalDias()">
                     Cancelar
                 </button>
                 <button class="modal-btn modal-btn-primary" onclick="confirmarDias()">
                     Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Plan / Suscripción QueVendi -->
+    <div id="modal-suscripcion" class="modal-suscripcion-overlay">
+        <div class="modal-suscripcion-box">
+            <div class="modal-suscripcion-header">
+                <h3>💳 Plan QueVendi</h3>
+                <button class="modal-suscripcion-close" onclick="cerrarModalSuscripcion()" aria-label="Cerrar">✕</button>
+            </div>
+            <div class="modal-suscripcion-body">
+                <div class="plan-actual">
+                    <span class="plan-badge">Plan Básico</span>
+                    <span class="plan-precio">S/ 70 / mes</span>
+                </div>
+
+                <div class="susc-section">
+                    <label class="susc-label" for="slider-meses">¿Cuántos meses deseas pagar?</label>
+                    <input type="range" id="slider-meses" min="1" max="12" value="1" oninput="actualizarCalculoSuscripcion(this.value)">
+                    <div class="susc-marks">
+                        <span>1 mes</span>
+                        <span>6 meses</span>
+                        <span>12 meses</span>
+                    </div>
+                </div>
+
+                <div class="susc-resumen">
+                    <div class="susc-row"><span>Meses:</span><strong id="txt-meses">1</strong></div>
+                    <div class="susc-row"><span>Precio normal:</span><strong id="txt-normal">S/ 70.00</strong></div>
+                    <div class="susc-row"><span>Descuento:</span><strong id="txt-descuento">0%</strong></div>
+                    <div class="susc-row susc-total"><span>TOTAL:</span><strong id="txt-total">S/ 70.00</strong></div>
+                    <div class="susc-ahorro" id="txt-ahorro"></div>
+                </div>
+
+                <div class="susc-section">
+                    <label class="susc-label">Método de pago:</label>
+                    <div class="susc-metodos">
+                        <button type="button" class="btn-metodo-pago" onclick="seleccionarMetodoPago('yape', this)">💛 Yape/Plin</button>
+                        <button type="button" class="btn-metodo-pago" onclick="seleccionarMetodoPago('transferencia', this)">🏦 Transferencia</button>
+                    </div>
+
+                    <div id="datos-pago-yape" class="susc-datos-pago" style="display:none">
+                        <div class="susc-num">957 150 243</div>
+                        <div class="susc-titular">Yape/Plin a nombre de Peru Sistemas Pro</div>
+                        <input type="text" id="nro-op-yape" class="susc-input" placeholder="Nº de operación Yape/Plin" autocomplete="off">
+                    </div>
+
+                    <div id="datos-pago-transferencia" class="susc-datos-pago" style="display:none">
+                        <div class="susc-num">BCP — Cuenta Corriente</div>
+                        <div class="susc-cta">191-XXXXXXXXXX-0-XX</div>
+                        <div class="susc-titular">Peru Sistemas Pro E.I.R.L.</div>
+                        <input type="text" id="nro-op-transferencia" class="susc-input" placeholder="Nº de operación / referencia" autocomplete="off">
+                    </div>
+                </div>
+
+                <button id="btn-pagar-suscripcion" class="btn-pagar-suscripcion" onclick="procesarPagoSuscripcion()">
+                    Pagar S/ <span id="btn-total">70.00</span>
                 </button>
             </div>
         </div>
@@ -727,6 +791,35 @@
     border-color: #667eea !important;
     transform: translateY(-2px);
 }
+
+/* === Modal de Plan / Suscripción QueVendi === */
+.modal-suscripcion-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:10010;align-items:center;justify-content:center;padding:20px}
+.modal-suscripcion-box{background:#fff;color:#0D0D0D;border-radius:16px;width:100%;max-width:440px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal-suscripcion-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #eee}
+.modal-suscripcion-header h3{margin:0;font-size:1.05rem;font-weight:700;color:#111}
+.modal-suscripcion-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;padding:4px 8px}
+.modal-suscripcion-body{padding:16px 20px 20px}
+.plan-actual{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#667eea22,#764ba222);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.plan-badge{background:#667eea;color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+.plan-precio{font-size:18px;font-weight:700;color:#667eea}
+.susc-section{margin-bottom:16px}
+.susc-label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:8px}
+#slider-meses{width:100%;accent-color:#667eea}
+.susc-marks{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px}
+.susc-resumen{background:#f9fafb;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px}
+.susc-row{display:flex;justify-content:space-between;padding:4px 0}
+.susc-row.susc-total{border-top:1px solid #e5e7eb;padding-top:8px;margin-top:4px;font-size:15px;font-weight:700;color:#111}
+.susc-row.susc-total strong{color:#667eea}
+.susc-ahorro{color:#15803d;font-size:12px;font-weight:700;text-align:right;margin-top:4px;min-height:16px}
+.susc-metodos{display:flex;gap:8px;margin-bottom:10px}
+.btn-metodo-pago{flex:1;padding:10px;border:1.5px solid #667eea;border-radius:10px;background:#f5f5f5;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.susc-datos-pago{background:#fef3c7;border-radius:10px;padding:12px 14px;margin-top:10px}
+.susc-num{font-size:16px;font-weight:800;color:#111;letter-spacing:.5px}
+.susc-cta{font-size:14px;font-weight:700;color:#1d4ed8;margin:4px 0}
+.susc-titular{font-size:12px;color:#555;margin-bottom:8px}
+.susc-input{width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;margin-top:6px;box-sizing:border-box}
+.btn-pagar-suscripcion{width:100%;padding:14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-pagar-suscripcion:disabled{cursor:not-allowed;opacity:.9}
 </style>
 
 
