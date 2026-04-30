@@ -98,6 +98,9 @@ body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;m
 .modal-comprobante-box h3{font-size:1.1rem;color:#16A34A;margin-bottom:14px;font-weight:700}
 .modal-comprobante-box .comp-numero{font-size:24px;font-weight:800;color:#16A34A;font-family:'Space Grotesk',sans-serif;margin-bottom:6px;letter-spacing:1px}
 .modal-comprobante-box .comp-sub{font-size:.82rem;color:#666;margin-bottom:22px}
+.modal-comprobante-box .comp-badge{display:inline-block;padding:6px 14px;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.5px;margin:0 0 14px}
+.modal-comprobante-box .comp-badge-free{background:#dcfce7;color:#15803d;text-transform:uppercase}
+.modal-comprobante-box .comp-badge-pago{background:#dbeafe;color:#1d4ed8;text-transform:capitalize}
 .modal-comprobante-box .comp-btns{display:flex;gap:10px;justify-content:center}
 .modal-comprobante-box .btn-pdf{flex:1;background:#2563EB;color:#fff;padding:12px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.85rem;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .modal-comprobante-box .btn-pdf:hover{background:#1d4ed8}
@@ -419,7 +422,15 @@ async function emitirComprobante(pedidoId, btn) {
     const r = await fetchAuth(`/api/v1/carta/pedidos/${pedidoId}/emitir-comprobante`, { method: 'POST' });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) {
-      alert(d.detail || 'Error al emitir comprobante');
+      const detail = d.detail || '';
+      // Si el backend reporta que ya hay boleta emitida, mostrar el modal en vez del alert
+      const match = detail.match(/B\d{3}-\d{8}|F\d{3}-\d{8}/);
+      if (match) {
+        mostrarModalComprobante(match[0], null);
+        if (btn) { btn.disabled = false; btn.textContent = '🧾 Emitir boleta'; }
+        return;
+      }
+      alert(detail || 'Error al emitir comprobante');
       if (btn) { btn.disabled = false; btn.textContent = '🧾 Emitir boleta'; }
       return;
     }
@@ -454,11 +465,21 @@ async function abrirPdfPedido(pedidoId, btn) {
 function mostrarModalComprobante(numero, pedidoId) {
   const safeNumero = String(numero || '').replace(/[<>"']/g, '');
   const safePid = parseInt(pedidoId, 10);
+  const ped = Number.isFinite(safePid) ? pedidos.find(p => p.id === safePid) : null;
+  let badge = '';
+  if (ped) {
+    if (ped.tipo === 'gratuito') {
+      badge = `<p class="comp-badge comp-badge-free">CORTESÍA GRATUITA</p>`;
+    } else if (ped.tipo === 'pago') {
+      badge = `<p class="comp-badge comp-badge-pago">${esc(ped.metodo_pago || 'Pagado')}</p>`;
+    }
+  }
   const html = `
     <div class="modal-comprobante-overlay" onclick="this.remove()">
       <div class="modal-comprobante-box" onclick="event.stopPropagation()">
         <h3>✅ Boleta emitida</h3>
         <p class="comp-numero">${safeNumero}</p>
+        ${badge}
         <p class="comp-sub">Aceptada por SUNAT</p>
         <div class="comp-btns">
           ${Number.isFinite(safePid) ? `<button onclick="abrirPdfPedido(${safePid}, this)" class="btn-pdf">📄 Ver PDF</button>` : ''}
