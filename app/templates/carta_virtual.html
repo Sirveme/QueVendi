@@ -13,129 +13,312 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--verde:#00C853;--verde-oscuro:#00962E;--fondo:#F0F4F0;--card:#fff;--texto:#1A1A2E;--texto-s:#6B7280;--texto-ss:#94A3B8;--borde:#E5E7EB;--sombra:0 2px 12px rgba(0,0,0,.08);--radius:16px}
+:root{--verde:#00C853;--verde-oscuro:#00796B;--verde-claro:#F0FFF4;--fondo:#F8FFF9;--card:#fff;--texto:#1A1A2E;--texto-s:#6B7280;--texto-ss:#94A3B8;--borde:#E5E7EB;--sombra:0 2px 8px rgba(0,0,0,.07);--radius:14px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-webkit-font-smoothing:antialiased}
 
-/* HEADER */
-.hdr{background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));padding:28px 16px 50px;text-align:center;position:relative}
-.hdr-wave{position:absolute;bottom:-1px;left:0;width:100%}
-.hdr-logo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.2);margin:0 auto 10px;display:block;background:#fff}
-.hdr-logo-ph{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:#fff;font-size:2rem;font-weight:800;border:3px solid rgba(255,255,255,.5)}
-.hdr-name{font-size:1.35rem;font-weight:800;color:#fff;margin-bottom:3px}
-.hdr-addr{font-size:.8rem;color:rgba(255,255,255,.8);margin-bottom:8px}
-.hdr-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:#fff;font-size:.7rem;font-weight:700;padding:4px 12px;border-radius:20px;backdrop-filter:blur(4px)}
-.hdr-dot{width:7px;height:7px;background:#A5FF90;border-radius:50%;animation:breathe 2s ease-in-out infinite}
-@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hdr-hours{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:6px}
+/* LAYOUT FIJO — único scroll en .galeria-productos */
+.carta-layout{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
-/* SEARCH */
-.srch{position:sticky;top:0;z-index:100;background:var(--fondo);padding:12px 16px;transition:box-shadow .3s}
-.srch.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.1)}
-.srch-wrap{position:relative}
-.srch-input{width:100%;padding:12px 44px 12px 44px;border:2px solid var(--borde);border-radius:50px;font-size:.9rem;font-family:inherit;background:var(--card);outline:none;transition:border .2s}
-.srch-input:focus{border-color:var(--verde)}
-.srch-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--verde);font-size:1rem}
-.btn-mic{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--verde);font-size:1.2rem;cursor:pointer;padding:6px;border-radius:50%;transition:all .2s}
-.btn-mic.escuchando{color:#ef4444;animation:pulse-mic .6s infinite}
-@keyframes pulse-mic{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.3)}}
+/* HEADER COMPACTO — alto impacto, mínima altura */
+.carta-header{
+  background:linear-gradient(135deg,#00C853 0%,#00796B 100%);
+  padding:10px 16px;display:flex;align-items:center;gap:12px;
+  min-height:64px;max-height:72px;position:relative;overflow:hidden;flex-shrink:0
+}
+.carta-header::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.08) 50%,transparent 70%);
+  animation:shimmer 4s infinite;pointer-events:none
+}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.header-logo{
+  width:48px;height:48px;border-radius:50%;object-fit:cover;
+  border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.18);background:#fff;flex-shrink:0;z-index:1
+}
+.header-logo-ph{
+  width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.22);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1rem;
+  border:2px solid rgba(255,255,255,.5);flex-shrink:0;z-index:1
+}
+.header-info{flex:1;min-width:0;z-index:1}
+.header-nombre{color:#fff;font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-dir{color:rgba(255,255,255,.7);font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.header-status{display:flex;flex-direction:column;align-items:flex-end;gap:3px;z-index:1;flex-shrink:0}
+.badge-abierto{
+  background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:6px;
+  font-size:11px;color:#00FF6A;font-weight:700
+}
+.dot-abierto{
+  width:8px;height:8px;border-radius:50%;background:#00FF6A;
+  box-shadow:0 0 6px #00FF6A;animation:breathe 2s ease-in-out infinite
+}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.header-horario{font-size:10px;color:rgba(255,255,255,.6);text-align:right;white-space:nowrap}
 
-/* TABS */
-.tabs{display:flex;gap:7px;padding:0 16px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.btn-qr{
+  position:absolute;top:8px;right:60px;background:rgba(255,255,255,.22);
+  border:1px solid rgba(255,255,255,.4);color:#fff;width:32px;height:32px;
+  border-radius:50%;font-size:.95rem;cursor:pointer;display:none;
+  align-items:center;justify-content:center;backdrop-filter:blur(4px);z-index:5
+}
+.btn-qr.show{display:flex}
+
+/* BUSCADOR + MICRÓFONO */
+.buscador-wrap{
+  background:#fff;padding:8px 12px;flex-shrink:0;
+  box-shadow:0 2px 12px rgba(0,200,83,.15);z-index:5
+}
+.buscador-inner{
+  display:flex;align-items:center;background:var(--verde-claro);
+  border:1.5px solid var(--verde);border-radius:50px;padding:0 8px 0 14px;gap:8px;height:42px;
+  transition:box-shadow .2s
+}
+.buscador-inner:focus-within{box-shadow:0 0 0 3px rgba(0,200,83,.25)}
+.buscador-icon{color:var(--verde);font-size:.95rem;flex-shrink:0}
+.buscador-input{flex:1;border:none;background:transparent;font-size:14px;color:var(--texto);outline:none;font-family:inherit;min-width:0}
+.btn-mic{
+  width:34px;height:34px;border-radius:50%;background:var(--verde);
+  border:none;color:#fff;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0
+}
+.btn-mic.escuchando{background:#e53935;animation:pulse-mic .8s ease-in-out infinite;box-shadow:0 0 0 4px rgba(229,57,53,.3)}
+@keyframes pulse-mic{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* TABS — sticky-scroll horizontal */
+.tabs{
+  display:flex;gap:7px;padding:8px 12px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  background:#fff;flex-shrink:0;border-bottom:1px solid #F0F0F0
+}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:7px 16px;border-radius:20px;border:1.5px solid var(--borde);background:var(--card);color:var(--texto-s);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab{
+  flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--borde);
+  background:#fff;color:var(--texto-s);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;white-space:nowrap;font-family:inherit
+}
 .tab.active{background:var(--verde);color:#fff;border-color:var(--verde)}
 
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 14px 120px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.card{background:var(--card);border-radius:var(--radius);padding:16px 12px;box-shadow:var(--sombra);transition:transform .15s;animation:fadeUp .4s ease both;cursor:pointer;position:relative;overflow:hidden}
-.card:active{transform:scale(.97)}
-.card-emoji{width:72px;height:72px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 10px}
-.card-name{font-size:.84rem;font-weight:700;color:var(--texto);line-height:1.3;margin-bottom:4px;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.2em}
-.card-price{font-size:1.1rem;font-weight:800;color:var(--verde);text-align:center}
-.card-cat{font-size:.68rem;color:var(--texto-ss);text-align:center;margin-top:2px}
-.card-stock{font-size:.65rem;text-align:center;margin-top:3px;padding:2px 8px;border-radius:10px;display:inline-block}
-.card-stock.low{background:#FEF3C7;color:#D97706}
+/* GALERÍA DE PRODUCTOS — único scroll */
+.galeria-productos{
+  flex:1;overflow-y:auto;padding:10px;background:var(--fondo);
+  scrollbar-width:none;-ms-overflow-style:none
+}
+.galeria-productos::-webkit-scrollbar{display:none}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@keyframes fadeUpCard{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:#fff;border-radius:14px;padding:10px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+  box-shadow:var(--sombra);border:1.5px solid transparent;transition:all .18s ease;
+  position:relative;overflow:hidden;animation:fadeUpCard .3s ease both
+}
+.card:active{transform:scale(.95);border-color:var(--verde)}
+.card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,200,83,.08) 0%,transparent 60%);
+  opacity:0;transition:opacity .2s;pointer-events:none
+}
+.card:hover::after{opacity:1}
+.card-emoji{
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,#E8F5E9,#C8E6C9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;box-shadow:0 2px 6px rgba(0,150,60,.15);flex-shrink:0
+}
+.card-name{
+  font-size:11px;font-weight:600;color:var(--texto);text-align:center;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:2.4em
+}
+.card-price{font-size:14px;font-weight:800;color:var(--verde)}
+.card-cat{font-size:9px;color:var(--texto-ss);text-align:center}
+.card-stock{font-size:9px;text-align:center;padding:1px 6px;border-radius:10px;display:inline-block}
+.card-stock.low{background:#FFF3E0;color:#E65100}
 .card-stock.out{background:#FEE2E2;color:#DC2626}
-.card-out-overlay{position:absolute;inset:0;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);pointer-events:none}
-.card-out-label{background:#DC2626;color:#fff;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700}
+.card-out-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;pointer-events:none
+}
+.card-out-label{background:#DC2626;color:#fff;padding:3px 12px;border-radius:18px;font-size:10px;font-weight:700}
 
-/* EMPTY */
 .empty{text-align:center;padding:48px 16px;color:var(--texto-ss);grid-column:1/-1}
-.empty-icon{font-size:2.5rem;margin-bottom:8px}
+.empty-icon{font-size:2.2rem;margin-bottom:6px}
+.loading{text-align:center;padding:32px;color:var(--texto-ss);font-size:.85rem;grid-column:1/-1}
 
-/* MODAL DETALLE */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+/* CHAT — fijo abajo, diseño messenger */
+.chat-section{
+  background:#fff;border-top:1.5px solid #E8F5E9;
+  display:flex;flex-direction:column;height:200px;flex-shrink:0
+}
+.chat-hdr{
+  background:linear-gradient(90deg,var(--verde),var(--verde-oscuro));
+  padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0
+}
+.chat-hdr-logo{
+  width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.7rem;flex-shrink:0
+}
+.chat-hdr-info{flex:1;color:#fff;min-width:0}
+.chat-hdr-name{font-size:13px;font-weight:700;color:#fff;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-online-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:breathe 2s infinite;flex-shrink:0}
+.chat-online-text{font-size:10px;color:rgba(255,255,255,.85);font-weight:600}
+
+.chat-body{
+  flex:1;overflow-y:auto;padding:8px 12px;
+  display:flex;flex-direction:column;gap:6px;
+  scrollbar-width:none
+}
+.chat-body::-webkit-scrollbar{display:none}
+
+.chat-msg{font-size:13px;line-height:1.45;word-break:break-word;padding:8px 12px;max-width:85%}
+.chat-msg.bot{
+  background:var(--verde-claro);border:1px solid #C8E6C9;
+  border-radius:0 12px 12px 12px;color:var(--texto);align-self:flex-start
+}
+.chat-msg.user{
+  background:var(--verde);color:#fff;
+  border-radius:12px 0 12px 12px;align-self:flex-end;max-width:75%
+}
+
+.chat-input-area{
+  padding:6px 10px;display:flex;gap:8px;align-items:center;
+  border-top:1px solid #F0F0F0;flex-shrink:0
+}
+.chat-input{
+  flex:1;border:1.5px solid #E0E0E0;border-radius:20px;padding:7px 14px;
+  font-size:13px;outline:none;font-family:inherit
+}
+.chat-input:focus{border-color:var(--verde)}
+.chat-send{
+  width:36px;height:36px;border-radius:50%;background:var(--verde);
+  border:none;color:#fff;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+
+/* Burbujas de productos dentro del chat */
+.chat-prod-card{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--borde);border-radius:12px;padding:8px 10px;margin-bottom:6px}
+.chat-prod-emoji{width:38px;height:38px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.chat-prod-info{flex:1;min-width:0}
+.chat-prod-name{font-size:12px;font-weight:700;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-prod-price{font-size:13px;font-weight:800;color:var(--verde);margin-top:1px}
+.chat-prod-meta{font-size:10px;color:var(--texto-s);margin-top:1px}
+
+/* Botones rápidos del bot */
+.chat-quick{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:90%}
+.chat-quick-btn{
+  background:#fff;border:1.5px solid var(--verde);color:var(--verde);
+  border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all .15s
+}
+.chat-quick-btn:active{background:var(--verde);color:#fff}
+.chat-quick-btn.danger{border-color:#EF4444;color:#EF4444}
+.chat-quick-btn.muted{border-color:var(--borde);color:var(--texto-s)}
+.chat-quick.disabled .chat-quick-btn{opacity:.5;pointer-events:none}
+
+.chat-resumen{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:10px 12px;margin-top:4px}
+.chat-resumen-title{font-size:12px;font-weight:800;color:#047857;margin-bottom:6px}
+.chat-resumen-line{font-size:12px;color:var(--texto);line-height:1.5}
+
+/* BANNER PWA — fijo abajo, festivo */
+.banner-pwa{
+  background:linear-gradient(90deg,#1a1a2e,#2d1b69);color:#fff;
+  padding:10px 16px;display:none;align-items:center;justify-content:space-between;
+  flex-shrink:0;cursor:pointer;gap:8px
+}
+.banner-pwa.show{display:flex}
+.banner-pwa-texto{font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.banner-pwa-texto-strong{color:#00FF6A;flex-shrink:0}
+.banner-pwa-btn{
+  background:var(--verde);color:#fff;border:none;border-radius:20px;
+  padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0
+}
+.banner-pwa-x{
+  background:none;border:none;color:rgba(255,255,255,.7);font-size:1rem;
+  cursor:pointer;padding:0 4px;flex-shrink:0
+}
+
+/* MODAL DETALLE PRODUCTO */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal-box{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:28px 20px 20px;transform:translateY(100%);transition:transform .3s ease;text-align:center}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s ease;text-align:center}
 .modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-emoji{width:100px;height:100px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 14px}
-.modal-name{font-size:1.2rem;font-weight:800;margin-bottom:4px}
-.modal-price{font-size:1.6rem;font-weight:800;color:var(--verde);margin-bottom:8px}
-.modal-meta{font-size:.82rem;color:var(--texto-s);margin-bottom:18px}
-.modal-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px}
+.modal-emoji{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#E8F5E9,#C8E6C9);display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:0 auto 12px}
+.modal-name{font-size:1.15rem;font-weight:800;margin-bottom:4px}
+.modal-price{font-size:1.5rem;font-weight:800;color:var(--verde);margin-bottom:6px}
+.modal-meta{font-size:.8rem;color:var(--texto-s);margin-bottom:16px}
+.modal-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px}
 .modal-btn-pedir{background:var(--verde);color:#fff}
 .modal-btn-cerrar{background:#F3F4F6;color:var(--texto-s)}
-
-/* CHAT */
-.fab-chat{position:fixed;bottom:20px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--verde);border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(0,200,83,.4);z-index:50;display:flex;align-items:center;justify-content:center;animation:fab-pulse 4s ease-in-out infinite}
-@keyframes fab-pulse{0%,80%,100%{transform:scale(1)}85%{transform:scale(1.1)}90%{transform:scale(1)}}
-.chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none}
-.chat-overlay.open{display:block}
-.chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:400px;height:70vh;background:var(--card);border-radius:20px 20px 0 0;z-index:301;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease}
-.chat-panel.open{transform:translateY(0)}
-.chat-hdr{background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));padding:16px;border-radius:20px 20px 0 0;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.chat-hdr-logo{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.8rem;flex-shrink:0}
-.chat-hdr-info{flex:1;color:#fff}
-.chat-hdr-name{font-size:.9rem;font-weight:700}
-.chat-hdr-status{font-size:.7rem;color:rgba(255,255,255,.8)}
-.chat-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.3rem;cursor:pointer}
-.chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
-.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.85rem;line-height:1.5;word-break:break-word}
-.chat-msg.bot{background:#E8F5E9;color:var(--texto);align-self:flex-start;border-bottom-left-radius:4px}
-.chat-msg.user{background:var(--verde);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.chat-input-area{padding:10px 12px;border-top:1px solid var(--borde);display:flex;gap:8px;flex-shrink:0;align-items:center}
-.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--borde);border-radius:24px;font-size:.85rem;font-family:inherit;outline:none}
-.chat-input:focus{border-color:var(--verde)}
-.chat-send{width:38px;height:38px;border-radius:50%;background:var(--verde);border:none;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
-/* INSTALL BANNER */
-.install{position:fixed;bottom:0;left:0;right:0;background:var(--verde);padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:25;transform:translateY(100%);transition:transform .3s}
-.install.show{transform:translateY(0)}
-.install-text{flex:1;color:#fff;font-size:.82rem;font-weight:600}
-.install-btn{background:#fff;color:var(--verde);border:none;padding:9px 18px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
-.install-x{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;padding:4px}
-
-/* FOOTER */
-.footer{text-align:center;padding:20px 16px;color:var(--texto-ss);font-size:.72rem}
-.footer a{color:var(--verde);text-decoration:none;font-weight:600}
-
-/* LOADING */
-.loading{text-align:center;padding:40px;color:var(--texto-ss);font-size:.85rem;grid-column:1/-1}
-
-@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr);max-width:860px;margin:0 auto}.hdr,.srch,.tabs,.footer{max-width:860px;margin-left:auto;margin-right:auto}}
+.modal-btn-gratis{background:linear-gradient(135deg,#00C853,#00962E);color:#fff;font-weight:800;box-shadow:0 4px 16px rgba(0,200,83,.3)}
+.modal-btn-gratis:disabled{background:#9CA3AF;box-shadow:none;cursor:not-allowed}
 
 /* MODAL IDENTIFICACIÓN */
 .id-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .id-modal.open{display:flex}
-.id-box{background:#fff;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;text-align:center;animation:fadeUp .3s ease}
-.id-emoji{font-size:3rem;margin-bottom:8px}
-.id-title{font-size:1.2rem;font-weight:800;margin-bottom:6px}
-.id-sub{font-size:.85rem;color:var(--texto-s);margin-bottom:18px;line-height:1.4}
-.id-input{width:100%;padding:13px 14px;border:1.5px solid var(--borde);border-radius:12px;font-size:.95rem;font-family:inherit;margin-bottom:10px;outline:none}
+.id-box{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:380px;text-align:center}
+.id-emoji{font-size:2.6rem;margin-bottom:6px}
+.id-title{font-size:1.15rem;font-weight:800;margin-bottom:4px}
+.id-sub{font-size:.82rem;color:var(--texto-s);margin-bottom:16px;line-height:1.4}
+.id-input{width:100%;padding:12px 14px;border:1.5px solid var(--borde);border-radius:12px;font-size:.92rem;font-family:inherit;margin-bottom:9px;outline:none}
 .id-input:focus{border-color:var(--verde)}
-.id-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--verde);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
+.id-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--verde);color:#fff;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
 .id-btn:disabled{background:#9CA3AF;cursor:not-allowed}
-.id-error{color:#DC2626;font-size:.78rem;margin-top:4px;min-height:1em}
+.id-error{color:#DC2626;font-size:.76rem;margin-top:4px;min-height:1em}
 
-/* BOTÓN PEDIR GRATIS */
-.modal-btn-gratis{background:linear-gradient(135deg,#00C853,#00962E);color:#fff;font-weight:800;box-shadow:0 4px 16px rgba(0,200,83,.3)}
-.modal-btn-gratis:disabled{background:#9CA3AF;box-shadow:none;cursor:not-allowed}
+/* MODAL CONFIRMACIÓN — slide-up amplio */
+.modal-confirmacion-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal-confirmacion-overlay.open{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-confirmacion-box{
+  background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;padding:18px 20px 36px;
+  animation:slideUp .3s cubic-bezier(0.34,1.56,0.64,1)
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:#E0E0E0;border-radius:2px;margin:0 auto 14px}
+.modal-titulo{font-size:17px;font-weight:800;color:var(--texto);text-align:center;margin-bottom:14px}
+.resumen-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.resumen-table td{padding:6px 4px;font-size:13px}
+.resumen-table .col-nombre{color:#333}
+.resumen-table .col-cant{color:#666;text-align:center}
+.resumen-table .col-precio{color:#666;text-align:right}
+.resumen-table .col-total{color:var(--verde);font-weight:700;text-align:right}
+.resumen-total-row td{border-top:1.5px solid #E8F5E9;padding-top:8px;font-weight:700;font-size:14px}
+.modal-field{width:100%;border:1.5px solid var(--borde);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:10px;outline:none;font-family:inherit}
+.modal-field:focus{border-color:var(--verde)}
+.hora-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.hora-row input[type="time"]{flex:1;border:1.5px solid var(--borde);border-radius:10px;padding:8px 12px;font-size:14px;font-family:inherit}
+.ya-mismo-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--verde);cursor:pointer}
+.pago-titulo{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 10px}
+.pago-opciones{display:flex;flex-direction:column;gap:8px}
+.pago-opcion{border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s}
+.pago-opcion.selected{border-color:var(--verde);background:var(--verde-claro)}
+.pago-opcion-header{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.pago-opcion-body{display:none;margin-top:10px}
+.pago-opcion.selected .pago-opcion-body{display:block}
+.pago-numero-yape{font-size:18px;font-weight:800;color:#6B21A8;text-align:center;margin-bottom:8px;letter-spacing:.04em}
+.pago-nro-op{display:flex;gap:8px;align-items:center}
+.pago-nro-op input{flex:1;border:1.5px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit}
+.btn-validar-op{background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-confirmar-pedido{
+  width:100%;background:linear-gradient(135deg,#00C853,#00796B);color:#fff;
+  border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
+  letter-spacing:.03em;cursor:pointer;margin-top:18px;font-family:inherit;
+  box-shadow:0 4px 18px rgba(0,200,83,.35);transition:all .2s
+}
+.btn-confirmar-pedido:active{transform:scale(.98);box-shadow:0 2px 10px rgba(0,200,83,.3)}
+.btn-cancelar-pedido{
+  width:100%;background:transparent;border:none;color:#999;
+  font-size:13px;padding:11px;cursor:pointer;text-align:center;font-family:inherit
+}
 
-/* MIS PEDIDOS */
-.mis-pedidos{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:40;padding:0 14px 12px;max-height:35vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;display:none}
+/* MIS PEDIDOS — sticky desde abajo, sobre la chat-section */
+.mis-pedidos{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:90;padding:0 14px 12px;max-height:35vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;display:none}
 .mis-pedidos.show{display:block;transform:translateY(0)}
 .mp-toggle{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:var(--verde);color:#fff;border:none;padding:6px 18px;border-radius:14px 14px 0 0;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 -2px 8px rgba(0,0,0,.08);white-space:nowrap}
 .mp-list{display:none;flex-direction:column;gap:6px;margin-top:10px}
@@ -152,72 +335,78 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
 .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-130%);background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:24px;font-size:.85rem;z-index:500;transition:transform .3s;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:90vw;text-align:center;font-weight:600}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
-/* QR BUTTON ADMIN */
-.btn-qr{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);z-index:10}
-.btn-qr.show{display:flex}
-.btn-qr:hover{background:rgba(255,255,255,.4)}
-
-/* CHAT — CARDS DE PRODUCTO */
-.chat-prod-card{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--borde);border-radius:12px;padding:8px 10px;margin-bottom:6px}
-.chat-prod-emoji{width:42px;height:42px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.chat-prod-info{flex:1;min-width:0}
-.chat-prod-name{font-size:.85rem;font-weight:700;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chat-prod-price{font-size:.85rem;font-weight:800;color:var(--verde);margin-top:1px}
-.chat-prod-meta{font-size:.7rem;color:var(--texto-s);margin-top:1px}
-
-/* CHAT — BOTONES RÁPIDOS */
-.chat-quick{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:90%;animation:fadeUp .25s ease}
-.chat-quick-btn{background:var(--card);border:1.5px solid var(--verde);color:var(--verde);border-radius:18px;padding:7px 14px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-align:left}
-.chat-quick-btn:hover{background:var(--verde);color:#fff}
-.chat-quick-btn:active{transform:scale(.96)}
-.chat-quick-btn.danger{border-color:#EF4444;color:#EF4444}
-.chat-quick-btn.danger:hover{background:#EF4444;color:#fff}
-.chat-quick-btn.muted{border-color:var(--borde);color:var(--texto-s)}
-.chat-quick-btn.muted:hover{background:var(--texto-s);color:#fff}
-.chat-quick.disabled .chat-quick-btn{opacity:.5;pointer-events:none}
-
-/* CHAT — RESUMEN FINAL */
-.chat-resumen{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:10px 12px;margin-top:4px}
-.chat-resumen-title{font-size:.8rem;font-weight:800;color:#047857;margin-bottom:6px}
-.chat-resumen-line{font-size:.78rem;color:var(--texto);line-height:1.5}
-.chat-resumen-line strong{color:var(--texto)}
+/* RESPONSIVE — pantallas medianas/grandes */
+@media(min-width:480px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:768px){
+  .carta-layout{max-width:680px;margin:0 auto;border-left:1px solid var(--borde);border-right:1px solid var(--borde)}
+  .grid{grid-template-columns:repeat(5,1fr)}
+}
+@media(min-height:740px){.chat-section{height:220px}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="hdr">
-  <button class="btn-qr" id="btn-qr" onclick="abrirQR()" title="Compartir QR">📱</button>
-  <div class="hdr-logo-ph" id="store-logo">QV</div>
-  <div class="hdr-name" id="store-name">{{ store_name }}</div>
-  <div class="hdr-addr" id="store-addr">Cargando...</div>
-  <div class="hdr-badge"><span class="hdr-dot"></span> Abierto</div>
-  <div class="hdr-hours">Lun–Sáb 8am–10pm · Dom 9am–8pm</div>
-  <svg class="hdr-wave" viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:30px"><path d="M0,25 C360,50 1080,0 1440,25 L1440,50 L0,50 Z" fill="#F0F4F0"/></svg>
-</div>
+<div class="carta-layout">
 
-<!-- SEARCH -->
-<div class="srch" id="srch-bar">
-  <div class="srch-wrap">
-    <span class="srch-icon">🔍</span>
-    <input type="text" class="srch-input" id="search-input" placeholder="Buscar productos..." oninput="filtrar()">
-    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">🎤</button>
+  <!-- HEADER COMPACTO -->
+  <header class="carta-header">
+    <button class="btn-qr" id="btn-qr" onclick="abrirQR()" title="Compartir QR">📱</button>
+    <div class="header-logo-ph" id="store-logo">QV</div>
+    <div class="header-info">
+      <h1 class="header-nombre" id="store-name">{{ store_name }}</h1>
+      <p class="header-dir" id="store-addr">Cargando…</p>
+    </div>
+    <div class="header-status">
+      <div class="badge-abierto"><span class="dot-abierto"></span>Abierto</div>
+      <div class="header-horario">Lun–Sáb 8am–10pm</div>
+    </div>
+  </header>
+
+  <!-- BUSCADOR + MICRÓFONO -->
+  <div class="buscador-wrap" id="srch-bar">
+    <div class="buscador-inner">
+      <span class="buscador-icon">🔍</span>
+      <input type="text" class="buscador-input" id="search-input" placeholder="Buscar productos…" oninput="filtrar()">
+      <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">🎤</button>
+    </div>
   </div>
-</div>
 
-<!-- TABS -->
-<div class="tabs" id="cat-tabs">
-  <button class="tab active" onclick="filtrarCategoria('Todos',this)">Todos</button>
-</div>
+  <!-- TABS CATEGORÍAS -->
+  <div class="tabs" id="cat-tabs">
+    <button class="tab active" onclick="filtrarCategoria('Todos',this)">Todos</button>
+  </div>
 
-<!-- GRID -->
-<div class="grid" id="grid">
-  <div class="loading">Cargando productos...</div>
-</div>
+  <!-- GALERÍA DE PRODUCTOS — único scroll -->
+  <div class="galeria-productos">
+    <div class="grid" id="grid">
+      <div class="loading">Cargando productos…</div>
+    </div>
+  </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <p>Powered by <a href="https://quevendi.pro" target="_blank">QueVendi.pro</a></p>
+  <!-- CHAT FIJO -->
+  <section class="chat-section">
+    <div class="chat-hdr">
+      <div class="chat-hdr-logo" id="chat-logo">QV</div>
+      <div class="chat-hdr-info">
+        <div class="chat-hdr-name" id="chat-name">{{ store_name }}</div>
+      </div>
+      <div class="chat-online-dot"></div>
+      <span class="chat-online-text">En línea</span>
+    </div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu pedido…" onkeydown="if(event.key==='Enter')enviarChat()">
+      <button class="chat-send" onclick="enviarChat()">➤</button>
+    </div>
+  </section>
+
+  <!-- BANNER PWA -->
+  <div class="banner-pwa" id="install-banner" onclick="instalarPWAClick(event)">
+    <div class="banner-pwa-texto">📲 <span class="banner-pwa-texto-strong">INSTALA GRATIS</span> — Accede sin buscar la URL</div>
+    <button class="banner-pwa-btn" id="install-btn">Instalar</button>
+    <button class="banner-pwa-x" id="install-x" onclick="event.stopPropagation();cerrarInstall()">✕</button>
+  </div>
+
 </div>
 
 <!-- MODAL DETALLE -->
@@ -237,11 +426,57 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
   <div class="id-box">
     <div class="id-emoji">🎉</div>
     <div class="id-title">¡Bienvenido/a!</div>
-    <div class="id-sub" id="id-sub">Para tu pedido de cortesía necesitamos tus datos:</div>
+    <div class="id-sub" id="id-sub">Para tu pedido necesitamos tus datos:</div>
     <input type="text" class="id-input" id="id-nombre" placeholder="Tu nombre completo" autocomplete="name">
     <input type="tel" class="id-input" id="id-celular" placeholder="Tu número de celular (9 dígitos)" inputmode="numeric" maxlength="9" autocomplete="tel">
     <div class="id-error" id="id-error"></div>
     <button class="id-btn" id="id-btn" onclick="enviarIdentificacion()">Continuar →</button>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN (slide-up) -->
+<div class="modal-confirmacion-overlay" id="modal-confirmacion" onclick="if(event.target===this)cerrarModalConfirmacion()">
+  <div class="modal-confirmacion-box">
+    <div class="modal-handle"></div>
+    <h2 class="modal-titulo">CONFIRMA TU PEDIDO</h2>
+    <table class="resumen-table" id="resumen-items"></table>
+
+    <div id="campos-delivery" style="display:none">
+      <input class="modal-field" id="modal-direccion" placeholder="📍 Escribe tu dirección">
+      <input class="modal-field" id="modal-referencia" placeholder="🏠 Referencia (ej: casa azul, frente al parque)">
+      <div class="hora-row">
+        <input type="time" id="modal-hora">
+        <label class="ya-mismo-label">
+          <input type="checkbox" id="modal-ya-mismo" onchange="toggleYaMismo(this)"> ¡Ya mismo!
+        </label>
+      </div>
+    </div>
+
+    <div class="pago-titulo">Método de pago</div>
+    <div class="pago-opciones">
+      <div class="pago-opcion" onclick="seleccionarPago('yape', this)">
+        <div class="pago-opcion-header"><span>💛</span> Yape / Plin</div>
+        <div class="pago-opcion-body">
+          <div class="pago-numero-yape" id="yape-numero"></div>
+          <div class="pago-nro-op">
+            <input type="text" id="nro-operacion" placeholder="N° de operación" inputmode="numeric">
+            <button class="btn-validar-op" onclick="validarOperacion()">Validar ✓</button>
+          </div>
+        </div>
+      </div>
+      <div class="pago-opcion" onclick="seleccionarPago('transferencia', this)">
+        <div class="pago-opcion-header"><span>🏦</span> Transferencia bancaria</div>
+        <div class="pago-opcion-body">
+          <input class="modal-field" placeholder="N° de operación" id="nro-transferencia" inputmode="numeric">
+        </div>
+      </div>
+      <div class="pago-opcion" id="opcion-efectivo" onclick="seleccionarPago('efectivo', this)">
+        <div class="pago-opcion-header"><span>💵</span> Efectivo al recoger</div>
+      </div>
+    </div>
+
+    <button class="btn-confirmar-pedido" onclick="confirmarPedidoFinal()">CONFIRMAR MI PEDIDO</button>
+    <button class="btn-cancelar-pedido" onclick="cerrarModalConfirmacion()">CANCELAR</button>
   </div>
 </div>
 
@@ -254,34 +489,6 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);m
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- FAB CHAT -->
-<button class="fab-chat" id="fab-chat" onclick="toggleChat()">💬</button>
-
-<!-- CHAT PANEL -->
-<div class="chat-overlay" id="chat-overlay" onclick="toggleChat()"></div>
-<div class="chat-panel" id="chat-panel">
-  <div class="chat-hdr">
-    <div class="chat-hdr-logo" id="chat-logo">QV</div>
-    <div class="chat-hdr-info">
-      <div class="chat-hdr-name" id="chat-name">{{ store_name }}</div>
-      <div class="chat-hdr-status">● En línea</div>
-    </div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
-  </div>
-  <div class="chat-body" id="chat-body"></div>
-  <div class="chat-input-area">
-    <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu pedido..." onkeydown="if(event.key==='Enter')enviarChat()">
-    <button class="chat-send" onclick="enviarChat()">➤</button>
-  </div>
-</div>
-
-<!-- INSTALL -->
-<div class="install" id="install-banner">
-  <div class="install-text">📲 Instala nuestra carta en tu celular</div>
-  <button class="install-btn" id="install-btn">Instalar</button>
-  <button class="install-x" id="install-x" onclick="cerrarInstall()">✕</button>
-</div>
-
 <script>
 const TELEFONO = '{{ telefono }}';
 const STORE_NAME = '{{ store_name }}';
@@ -291,7 +498,7 @@ let allProducts = [];
 let categoriaActual = 'Todos';
 let searchTerm = '';
 let productoSeleccionado = null;
-let chatAbierto = false;
+let chatAbierto = true; // chat siempre visible en el nuevo layout
 let modoGratuito = false;
 let modoGratuitoLimite = 1;
 let modoGratuitoMensaje = '';
@@ -314,11 +521,6 @@ const EMOJIS = {
 function getEmoji(cat) { return EMOJIS[cat] || EMOJIS['default']; }
 function getFP() { return btoa(navigator.userAgent.slice(0,40) + screen.width + screen.height).slice(0,64); }
 
-// ── SCROLL SHADOW ──
-window.addEventListener('scroll', () => {
-  document.getElementById('srch-bar').classList.toggle('scrolled', window.scrollY > 80);
-});
-
 // ── CARGAR INFO ──
 async function cargarInfo() {
   try {
@@ -332,9 +534,8 @@ async function cargarInfo() {
     if (d.logo) {
       const el = document.getElementById('store-logo');
       const img = document.createElement('img');
-      img.src = d.logo; img.alt = d.nombre; img.className = 'hdr-logo';
+      img.src = d.logo; img.alt = d.nombre; img.className = 'header-logo'; img.id = 'store-logo';
       el.replaceWith(img);
-      // Favicon dinámico con el logo del negocio
       let link = document.querySelector("link[rel~='icon']");
       if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
       link.href = d.logo;
@@ -343,7 +544,6 @@ async function cargarInfo() {
       document.getElementById('store-logo').textContent = initials;
       document.getElementById('chat-logo').textContent = initials;
     }
-    // Title dinámico
     document.title = `${d.nombre} — Carta Virtual`;
     modoGratuito = !!d.modo_gratuito;
     modoGratuitoLimite = d.modo_gratuito_limite || 1;
@@ -388,7 +588,7 @@ function renderProducts() {
   grid.innerHTML = filtered.map((p, i) => {
     const agotado = p.stock <= 0;
     const bajo = !agotado && p.stock > 0 && p.stock < 10;
-    return `<div class="card" style="animation-delay:${i*40}ms" onclick="${agotado ? '' : `abrirDetalle(${p.id})`}">
+    return `<div class="card" style="animation-delay:${i*35}ms" onclick="${agotado ? '' : `abrirDetalle(${p.id})`}">
       <div class="card-emoji">${getEmoji(p.category)}</div>
       <div class="card-name">${p.name}</div>
       <div class="card-price">S/ ${p.price.toFixed(2)}</div>
@@ -435,8 +635,9 @@ function cerrarDetalle() {
   document.getElementById('modal-detalle').classList.remove('open');
   productoSeleccionado = null;
 }
+
 // ── ESTADO DEL PEDIDO EN CHAT ──
-let pedidoActual = null;     // {productos:[], tipo, direccion, productoEnCurso, paso, esperando, metodoPagoEnCurso}
+let pedidoActual = null;
 let pedidoPendienteParaIdent = null;
 let _chatTextoEscapado = (s) => String(s == null ? '' : s)
   .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -450,11 +651,10 @@ function nuevoPedido() {
     cantidadEnCurso: null,
     metodoPagoEnCurso: null,
     paso: 0,
-    esperando: null,  // null | 'cantidad' | 'direccion'
+    esperando: null,
   };
 }
 
-// ── PUNTO DE ENTRADA DESDE EL MODAL DETALLE ──
 function agregarAlPedido(producto) {
   cerrarDetalle();
   if (!cliente) {
@@ -464,7 +664,6 @@ function agregarAlPedido(producto) {
   }
   abrirChatConProducto(producto);
 }
-// Aliases para compatibilidad con onclick antiguos
 function pedirProducto() {
   if (!productoSeleccionado) return;
   agregarAlPedido(productoSeleccionado);
@@ -474,17 +673,14 @@ function pedirGratis() {
   agregarAlPedido(productoSeleccionado);
 }
 
-// ── CHAT — TOGGLE ──
+// ── CHAT — siempre visible (no toggle) ──
 function toggleChat() {
-  chatAbierto = !chatAbierto;
-  document.getElementById('chat-overlay').classList.toggle('open', chatAbierto);
-  document.getElementById('chat-panel').classList.toggle('open', chatAbierto);
-  if (chatAbierto) {
-    const body = document.getElementById('chat-body');
-    if (body.children.length === 0) {
-      addChatMsgHTML('bot', `👋 ¡Hola! Soy el asistente de <b>${_chatTextoEscapado(STORE_NAME)}</b>.<br>Toca un producto para pedirlo o escríbeme su nombre. 😊`);
-    }
-    document.getElementById('chat-input').focus();
+  // Compatibilidad con flujo previo: el chat ahora es fijo abajo,
+  // así que esta función solo se asegura de que haya saludo inicial.
+  chatAbierto = true;
+  const body = document.getElementById('chat-body');
+  if (body && body.children.length === 0) {
+    addChatMsgHTML('bot', `👋 ¡Hola! Soy el asistente de <b>${_chatTextoEscapado(STORE_NAME)}</b>.<br>Toca un producto para pedirlo o escríbeme su nombre. 😊`);
   }
 }
 
@@ -505,9 +701,7 @@ function addChatMsgHTML(type, html) {
   body.appendChild(div);
   body.scrollTop = body.scrollHeight;
 }
-// Compat: si código antiguo usa addChatMsg, lo respetamos
 function addChatMsg(type, text) {
-  // Mantiene comportamiento previo: trata \n como <br>, sin escapar HTML
   const body = document.getElementById('chat-body');
   const div = document.createElement('div');
   div.className = `chat-msg ${type}`;
@@ -516,7 +710,6 @@ function addChatMsg(type, text) {
   body.scrollTop = body.scrollHeight;
 }
 
-// Botones rápidos (se eliminan al elegir uno)
 function mostrarBotonesRapidos(opciones, callback, opts = {}) {
   const body = document.getElementById('chat-body');
   const wrap = document.createElement('div');
@@ -541,7 +734,6 @@ function mostrarBotonesRapidos(opciones, callback, opts = {}) {
   return wrap;
 }
 
-// Card de producto dentro del chat
 function cardProductoHTML(p) {
   return `
     <div class="chat-prod-card">
@@ -554,7 +746,6 @@ function cardProductoHTML(p) {
     </div>`;
 }
 
-// ── INICIO DEL FLUJO CON UN PRODUCTO ──
 function abrirChatConProducto(producto) {
   if (!chatAbierto) toggleChat();
   if (!pedidoActual) nuevoPedido();
@@ -577,7 +768,6 @@ function abrirChatConProducto(producto) {
     return;
   }
 
-  // Flujo normal (gratuito si modoGratuito y no Ropa, o pago en otros casos)
   addChatMsgHTML('bot',
     cardProductoHTML(producto) +
     '<div>¿Cuántas unidades deseas? 👇</div>'
@@ -590,7 +780,6 @@ function cancelarPedidoEnCurso() {
   addChatMsgText('bot', 'Cancelado. Cuando quieras, vuelve a tocar un producto. 😊');
 }
 
-// ── PASO 2: CANTIDAD ──
 function pasoCantidad(producto) {
   pedidoActual.paso = 1;
   pedidoActual.esperando = null;
@@ -618,11 +807,9 @@ function procesarCantidadSeleccionada(producto, cantidad) {
   }
   pedidoActual.cantidadEnCurso = cantidad;
   pedidoActual.esperando = null;
-
   pasoEntrega();
 }
 
-// ── PASO 3: RECOJO O DELIVERY ──
 function pasoEntrega() {
   pedidoActual.paso = 2;
   addChatMsgText('bot', '¿Es para Recojo o Delivery?');
@@ -636,7 +823,6 @@ function pasoEntrega() {
   });
 }
 
-// ── PASO 4b: DIRECCIÓN (delivery) ──
 function pasoDireccion() {
   pedidoActual.paso = 3;
   pedidoActual.esperando = 'direccion';
@@ -644,7 +830,6 @@ function pasoDireccion() {
   document.getElementById('chat-input').focus();
 }
 
-// ── ¿Necesita pagar? Si sí, mostrar método de pago; si no, finalizar ──
 function continuarTrasEntrega() {
   const p = pedidoActual.productoEnCurso;
   const esRopa = (p && (p.category || '').toLowerCase() === 'ropa');
@@ -653,8 +838,6 @@ function continuarTrasEntrega() {
   else finalizarItemEnCurso();
 }
 
-// ── MÉTODO DE PAGO ──
-// Efectivo solo si: tipo_entrega === 'recojo' OR cartaInfo.delivery_contraentrega === true
 function pasoMetodoPago(producto) {
   pedidoActual.paso = 4;
   addChatMsgText('bot', '¿Cómo deseas pagar? 💳');
@@ -671,7 +854,6 @@ function pasoMetodoPago(producto) {
   });
 }
 
-// ── REGISTRA EL ITEM EN EL BACKEND ──
 async function finalizarItemEnCurso() {
   const p = pedidoActual.productoEnCurso;
   const cant = pedidoActual.cantidadEnCurso;
@@ -715,7 +897,6 @@ async function finalizarItemEnCurso() {
   }
 }
 
-// ── PASO 5: ¿ALGO MÁS? ──
 function pasoAlgoMas() {
   pedidoActual.paso = 5;
   pedidoActual.productoEnCurso = null;
@@ -729,14 +910,12 @@ function pasoAlgoMas() {
   ], (val) => {
     if (val === 'si') {
       addChatMsgText('bot', '¡Sigue navegando! Toca otro producto cuando estés listo.');
-      toggleChat();
     } else {
       mostrarResumen();
     }
   });
 }
 
-// ── RESUMEN FINAL ──
 function mostrarResumen() {
   if (!pedidoActual || pedidoActual.productos.length === 0) {
     addChatMsgText('bot', '¡Gracias por visitarnos! 😊');
@@ -744,7 +923,6 @@ function mostrarResumen() {
     return;
   }
   const lineas = pedidoActual.productos.map(it => {
-    const precio = it.producto.price.toFixed(2);
     const subtotal = (it.producto.price * it.cantidad).toFixed(2);
     return `<div class="chat-resumen-line">• ${it.cantidad} × ${_chatTextoEscapado(it.producto.name)} — S/ ${subtotal}</div>`;
   }).join('');
@@ -774,7 +952,6 @@ function mostrarResumen() {
   pedidoActual = null;
 }
 
-// ── BUSCAR PRODUCTO POR TEXTO LIBRE ──
 function buscarProductoEnChat(texto) {
   const q = texto.toLowerCase();
   const coincidencias = allProducts.filter(p => p.name.toLowerCase().includes(q));
@@ -786,7 +963,6 @@ function buscarProductoEnChat(texto) {
     abrirChatConProducto(coincidencias[0]);
     return;
   }
-  // Múltiples coincidencias
   addChatMsgText('bot', 'Encontré varios productos. ¿Cuál deseas?');
   mostrarBotonesRapidos(
     coincidencias.slice(0, 6).map(p => ({
@@ -800,7 +976,6 @@ function buscarProductoEnChat(texto) {
   );
 }
 
-// ── INPUT DE TEXTO ──
 async function enviarChat() {
   const input = document.getElementById('chat-input');
   const msg = input.value.trim();
@@ -808,7 +983,6 @@ async function enviarChat() {
   input.value = '';
   addChatMsgText('user', msg);
 
-  // Si hay un pedido en curso esperando un input específico
   if (pedidoActual && pedidoActual.esperando === 'cantidad') {
     const m = msg.match(/\d+/);
     const cant = m ? parseInt(m[0], 10) : 0;
@@ -822,14 +996,69 @@ async function enviarChat() {
     return;
   }
 
-  // Si no hay cliente identificado, pedirle que toque un producto (más simple)
   if (!cliente) {
     addChatMsgText('bot', 'Para hacer un pedido toca un producto del catálogo. 😊');
     return;
   }
 
-  // Búsqueda libre por nombre
   buscarProductoEnChat(msg);
+}
+
+// ── MODAL CONFIRMACIÓN (disponible para futuro flujo) ──
+function mostrarModalConfirmacion() {
+  if (!pedidoActual || !pedidoActual.productos.length) return;
+  const items = pedidoActual.productos;
+  let html = '';
+  let total = 0;
+  items.forEach(item => {
+    const precio = item.producto.price || item.producto.sale_price || 0;
+    const subtotal = precio * item.cantidad;
+    total += subtotal;
+    html += `<tr>
+      <td class="col-nombre">${_chatTextoEscapado(item.producto.name)}</td>
+      <td class="col-cant">${item.cantidad}u</td>
+      <td class="col-precio">S/${precio.toFixed(2)}</td>
+      <td class="col-total">S/${subtotal.toFixed(2)}</td>
+    </tr>`;
+  });
+  html += `<tr class="resumen-total-row">
+    <td colspan="3">TOTAL</td>
+    <td class="col-total">S/${total.toFixed(2)}</td>
+  </tr>`;
+  document.getElementById('resumen-items').innerHTML = html;
+
+  const esDelivery = pedidoActual.tipo === 'delivery';
+  document.getElementById('campos-delivery').style.display = esDelivery ? 'block' : 'none';
+  document.getElementById('opcion-efectivo').style.display =
+    (!esDelivery || cartaInfo.delivery_contraentrega) ? 'block' : 'none';
+  document.getElementById('yape-numero').textContent = cartaInfo.telefono || '';
+
+  document.getElementById('modal-confirmacion').classList.add('open');
+}
+function cerrarModalConfirmacion() {
+  document.getElementById('modal-confirmacion').classList.remove('open');
+}
+function toggleYaMismo(cb) {
+  const hora = document.getElementById('modal-hora');
+  hora.disabled = cb.checked;
+  if (cb.checked) {
+    const now = new Date();
+    hora.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  }
+}
+function seleccionarPago(metodo, el) {
+  document.querySelectorAll('.pago-opcion').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (pedidoActual) pedidoActual.metodoPagoEnCurso = metodo;
+}
+function validarOperacion() {
+  const v = document.getElementById('nro-operacion').value.trim();
+  if (!v) { showToast('Ingresa el N° de operación'); return; }
+  showToast('✓ Operación registrada');
+}
+async function confirmarPedidoFinal() {
+  cerrarModalConfirmacion();
+  showToast('🎉 ¡Pedido confirmado!');
 }
 
 // ── VOZ ──
@@ -875,13 +1104,15 @@ window.addEventListener('beforeinstallprompt', e => {
     setTimeout(() => document.getElementById('install-banner').classList.add('show'), 8000);
   }
 });
-document.getElementById('install-btn')?.addEventListener('click', async () => {
+async function instalarPWAClick(e) {
+  if (e && e.target && e.target.id === 'install-x') return;
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
   deferredPrompt = null;
   document.getElementById('install-banner').classList.remove('show');
-});
+}
+document.getElementById('install-btn')?.addEventListener('click', instalarPWAClick);
 function cerrarInstall() {
   document.getElementById('install-banner').classList.remove('show');
   localStorage.setItem('carta_install_dismissed', 'true');
@@ -901,7 +1132,7 @@ function loadCliente() {
 }
 
 function abrirIdModal(submensaje) {
-  document.getElementById('id-sub').textContent = submensaje || 'Para tu pedido de cortesía necesitamos tus datos:';
+  document.getElementById('id-sub').textContent = submensaje || 'Para tu pedido necesitamos tus datos:';
   document.getElementById('id-error').textContent = '';
   document.getElementById('id-modal').classList.add('open');
   setTimeout(() => document.getElementById('id-nombre').focus(), 100);
@@ -919,7 +1150,7 @@ async function enviarIdentificacion() {
   if (celular.length !== 9) { err.textContent = 'Celular debe tener 9 dígitos'; return; }
   const btn = document.getElementById('id-btn');
   btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  btn.textContent = 'Enviando…';
   try {
     const r = await fetch(API + '/identificar', {
       method: 'POST',
@@ -1017,6 +1248,8 @@ cargarProductos();
 registrarVisita();
 if (cliente) cargarMisPedidos();
 startPolling();
+// Saludo inicial en el chat fijo
+setTimeout(toggleChat, 300);
 </script>
 </body>
 </html>
