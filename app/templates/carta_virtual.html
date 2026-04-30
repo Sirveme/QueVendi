@@ -530,18 +530,35 @@ async function cargarInfo() {
     document.getElementById('store-name').textContent = d.nombre;
     document.getElementById('chat-name').textContent = d.nombre;
     const parts = [d.direccion, d.distrito].filter(Boolean);
-    document.getElementById('store-addr').textContent = parts.join(' — ') || d.telefono;
+    const dirText = parts.join(' — ') || d.telefono || '';
+    const dirEl = document.querySelector('.header-dir') || document.getElementById('store-addr');
+    if (dirEl) dirEl.textContent = dirText;
+
     if (d.logo) {
-      const el = document.getElementById('store-logo');
-      const img = document.createElement('img');
-      img.src = d.logo; img.alt = d.nombre; img.className = 'header-logo'; img.id = 'store-logo';
-      el.replaceWith(img);
+      let logoImg = document.querySelector('img.header-logo');
+      if (!logoImg) {
+        const ph = document.getElementById('store-logo');
+        if (ph && ph.tagName !== 'IMG') {
+          logoImg = document.createElement('img');
+          logoImg.className = 'header-logo';
+          logoImg.id = 'store-logo';
+          logoImg.alt = d.nombre || '';
+          ph.replaceWith(logoImg);
+        } else {
+          logoImg = ph;
+        }
+      }
+      if (logoImg) {
+        logoImg.src = d.logo;
+        logoImg.alt = d.nombre || '';
+      }
       let link = document.querySelector("link[rel~='icon']");
       if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
       link.href = d.logo;
     } else {
-      const initials = d.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      document.getElementById('store-logo').textContent = initials;
+      const initials = (d.nombre || '').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'QV';
+      const ph = document.getElementById('store-logo');
+      if (ph && ph.tagName !== 'IMG') ph.textContent = initials;
       document.getElementById('chat-logo').textContent = initials;
     }
     document.title = `${d.nombre} — Carta Virtual`;
@@ -911,7 +928,7 @@ function pasoAlgoMas() {
     if (val === 'si') {
       addChatMsgText('bot', '¡Sigue navegando! Toca otro producto cuando estés listo.');
     } else {
-      mostrarResumen();
+      mostrarModalConfirmacion();
     }
   });
 }
@@ -1248,8 +1265,8 @@ cargarProductos();
 registrarVisita();
 if (cliente) cargarMisPedidos();
 startPolling();
-// Saludo inicial en el chat fijo
-setTimeout(toggleChat, 300);
+// Saludo inicial en el chat fijo — solo si el cliente ya está identificado
+if (cliente) setTimeout(toggleChat, 300);
 </script>
 </body>
 </html>

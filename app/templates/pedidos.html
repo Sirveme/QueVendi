@@ -423,7 +423,7 @@ async function emitirComprobante(pedidoId, btn) {
       if (btn) { btn.disabled = false; btn.textContent = '🧾 Emitir boleta'; }
       return;
     }
-    mostrarModalComprobante(d.comprobante_numero, d.pdf_url);
+    mostrarModalComprobante(d.comprobante_numero, pedidoId);
     cargarPedidos();
   } catch(e) {
     alert('Sin conexión');
@@ -431,9 +431,29 @@ async function emitirComprobante(pedidoId, btn) {
   }
 }
 
-function mostrarModalComprobante(numero, pdfUrl) {
+async function abrirPdfPedido(pedidoId, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Abriendo…'; }
+  try {
+    const r = await fetchAuth(`/api/v1/carta/pedidos/${pedidoId}/pdf`);
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      alert(d.detail || 'No se pudo abrir el PDF');
+      return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch(e) {
+    alert('Sin conexión');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📄 Ver PDF'; }
+  }
+}
+
+function mostrarModalComprobante(numero, pedidoId) {
   const safeNumero = String(numero || '').replace(/[<>"']/g, '');
-  const safePdf = pdfUrl ? String(pdfUrl).replace(/"/g, '&quot;') : null;
+  const safePid = parseInt(pedidoId, 10);
   const html = `
     <div class="modal-comprobante-overlay" onclick="this.remove()">
       <div class="modal-comprobante-box" onclick="event.stopPropagation()">
@@ -441,7 +461,7 @@ function mostrarModalComprobante(numero, pdfUrl) {
         <p class="comp-numero">${safeNumero}</p>
         <p class="comp-sub">Aceptada por SUNAT</p>
         <div class="comp-btns">
-          ${safePdf ? `<a href="${safePdf}" target="_blank" rel="noopener" class="btn-pdf">📄 Ver PDF</a>` : ''}
+          ${Number.isFinite(safePid) ? `<button onclick="abrirPdfPedido(${safePid}, this)" class="btn-pdf">📄 Ver PDF</button>` : ''}
           <button onclick="this.closest('.modal-comprobante-overlay').remove()" class="btn-cerrar">Cerrar</button>
         </div>
       </div>
