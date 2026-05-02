@@ -32,7 +32,7 @@ ENDPOINTS NUEVOS (Fase 2):
   POST   /v2/import              → Importar catálogo V2
   DELETE /v2/catalog/{nicho}     → Eliminar catálogo
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, any_, desc
@@ -47,6 +47,7 @@ from app.models.product import Product
 from app.models.store import Store
 from app.services.product_service import ProductService
 from app.services.catalog_service import CatalogService
+from app.services.upload_service import upload_service
 
 
 router = APIRouter(prefix="/products")
@@ -500,6 +501,70 @@ async def restore_product(
     db.commit()
 
     return {"success": True, "message": "Producto restaurado correctamente"}
+
+
+# ══════════════════════════════════════════════════════════════
+# IMAGEN DE PRODUCTO (subida / eliminación)
+# ══════════════════════════════════════════════════════════════
+
+@router.post("/v2/{product_id}/imagen")
+async def upload_product_image_endpoint(
+    product_id: int,
+    imagen: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_owner)
+):
+    """
+    Sube la imagen de un producto.
+
+    - Form-data: campo `imagen`
+    - Solo jpg/jpeg/png/webp, máximo 2MB
+    - Redimensiona a 800x800 manteniendo aspecto
+    - Guarda en /static/uploads/products/{store_id}/
+    - Sobrescribe imagen previa (con timestamp para evitar caché)
+    """
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.store_id == current_user.store_id
+    ).first()
+    if not product:
+        raise HTTPException(404, detail="Producto no encontrado")
+
+    result = await upload_service.upload_product_image(
+        file=imagen,
+        product_id=product.id,
+        store_id=current_user.store_id
+    )
+
+    product.image_url = result["url"]
+    db.commit()
+
+    return {
+        "ok": True,
+        "image_url": result["url"],
+        "size": result["size"]
+    }
+
+
+@router.delete("/v2/{product_id}/imagen")
+async def delete_product_image_endpoint(
+    product_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_owner)
+):
+    """Quita la imagen de un producto (borra archivo y limpia image_url)."""
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.store_id == current_user.store_id
+    ).first()
+    if not product:
+        raise HTTPException(404, detail="Producto no encontrado")
+
+    upload_service.delete_product_image(product.image_url)
+    product.image_url = None
+    db.commit()
+
+    return {"ok": True}
 
 
 @router.get("/{product_id}")
