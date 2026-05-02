@@ -24,6 +24,7 @@ const ProductsApp = (() => {
         aliases: [],
         tags: [],
         editingId: null,
+        imagenSeleccionada: null,
     };
 
     const API = '/api/v1/products/v2';
@@ -343,6 +344,7 @@ const ProductsApp = (() => {
         state.tags = [];
         renderChips('aliasesList', state.aliases);
         renderChips('tagsList', state.tags);
+        resetImageUI();
 
         $$('.tab')[0].click();
         openModal('modalProduct');
@@ -375,6 +377,13 @@ const ProductsApp = (() => {
             state.tags = [...(p.tags || [])];
             renderChips('aliasesList', state.aliases);
             renderChips('tagsList', state.tags);
+
+            // Imagen actual del producto
+            resetImageUI();
+            if (p.image_url) {
+                showImagePreview(p.image_url);
+                $('#btn-quitar-imagen').style.display = 'inline-flex';
+            }
 
             if (p.mayoreo) {
                 $('#prodMayoreoQty').value = p.mayoreo.cantidad_min || '';
@@ -689,6 +698,160 @@ const ProductsApp = (() => {
     }
 
     // ══════════════════════════════════════════════
+    // IMAGEN DE PRODUCTO
+    // ══════════════════════════════════════════════
+    function resetImageUI() {
+        state.imagenSeleccionada = null;
+        const preview = $('#img-preview');
+        const placeholder = $('#img-placeholder');
+        const btnSubir = $('#btn-subir-imagen');
+        const btnQuitar = $('#btn-quitar-imagen');
+        const status = $('#img-upload-status');
+        const input = $('#input-imagen');
+        if (preview) { preview.src = ''; preview.style.display = 'none'; }
+        if (placeholder) placeholder.style.display = 'flex';
+        if (btnSubir) {
+            btnSubir.style.display = 'none';
+            btnSubir.disabled = false;
+            btnSubir.textContent = '☁️ Subir';
+        }
+        if (btnQuitar) btnQuitar.style.display = 'none';
+        if (status) { status.textContent = ''; status.style.color = '#666'; }
+        if (input) input.value = '';
+    }
+
+    function showImagePreview(src) {
+        const preview = $('#img-preview');
+        const placeholder = $('#img-placeholder');
+        if (preview) { preview.src = src; preview.style.display = 'block'; }
+        if (placeholder) placeholder.style.display = 'none';
+    }
+
+    function previsualizarImagen(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('La imagen no puede superar 2MB', 'error');
+            input.value = '';
+            return;
+        }
+
+        state.imagenSeleccionada = file;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            showImagePreview(e.target.result);
+            $('#btn-subir-imagen').style.display = 'inline-flex';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function subirImagenProducto() {
+        if (!state.imagenSeleccionada) return;
+        if (!state.editingId) {
+            showToast('Guarda primero el producto antes de subir su imagen', 'info');
+            return;
+        }
+
+        const btn = $('#btn-subir-imagen');
+        const status = $('#img-upload-status');
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Subiendo...';
+        status.textContent = '';
+
+        const formData = new FormData();
+        formData.append('imagen', state.imagenSeleccionada);
+
+        try {
+            const token = localStorage.getItem('token') || '';
+            const res = await fetch(
+                `/api/v1/products/${state.editingId}/imagen`,
+                {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                }
+            );
+            const data = await res.json();
+
+            if (res.ok && data.ok) {
+                status.textContent = '✅ Imagen subida correctamente';
+                status.style.color = '#10b981';
+                btn.textContent = '✅ Subida';
+                $('#btn-quitar-imagen').style.display = 'inline-flex';
+                showImagePreview(data.image_url);
+                state.imagenSeleccionada = null;
+                actualizarImagenEnGrid(state.editingId, data.image_url);
+            } else {
+                status.textContent = '❌ ' + (data.detail || 'Error al subir');
+                status.style.color = '#e53935';
+                btn.disabled = false;
+                btn.textContent = '☁️ Subir';
+            }
+        } catch (err) {
+            status.textContent = '❌ Error de conexión';
+            status.style.color = '#e53935';
+            btn.disabled = false;
+            btn.textContent = '☁️ Subir';
+        }
+    }
+
+    async function quitarImagenProducto() {
+        if (!state.editingId) {
+            // Aún no se ha guardado: solo limpiar UI
+            resetImageUI();
+            return;
+        }
+
+        const status = $('#img-upload-status');
+        try {
+            const token = localStorage.getItem('token') || '';
+            const res = await fetch(
+                `/api/v1/products/${state.editingId}/imagen`,
+                {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.ok) {
+                resetImageUI();
+                actualizarImagenEnGrid(state.editingId, null);
+                if (status) {
+                    status.textContent = '🗑️ Imagen eliminada';
+                    status.style.color = '#666';
+                }
+            } else {
+                showToast(data.detail || 'No se pudo quitar la imagen', 'error');
+            }
+        } catch (err) {
+            showToast('Error de conexión', 'error');
+        }
+    }
+
+    function actualizarImagenEnGrid(productoId, imageUrl) {
+        // Card en /productos
+        const card = document.querySelector(`.product-card[data-id="${productoId}"]`);
+        if (card) {
+            const wrap = card.querySelector('.pc-img');
+            if (wrap) {
+                if (imageUrl) {
+                    wrap.innerHTML = `<img src="${esc(imageUrl)}" alt="" loading="lazy">`;
+                } else {
+                    // Buscar producto en state para ícono por categoría
+                    const p = state.products.find(x => x.id === productoId);
+                    wrap.innerHTML = categoryIcon(p ? p.category : '');
+                }
+            }
+        }
+        // Sincronizar state local
+        const p = state.products.find(x => x.id === productoId);
+        if (p) p.image_url = imageUrl;
+    }
+
+    // ══════════════════════════════════════════════
     // MODAL HELPERS
     // ══════════════════════════════════════════════
     function openModal(id) {
@@ -699,6 +862,9 @@ const ProductsApp = (() => {
     function closeModal(id) {
         $(`#${id}`).classList.remove('active');
         document.body.style.overflow = '';
+        if (id === 'modalProduct') {
+            resetImageUI();
+        }
     }
 
     function closeFab() {
@@ -783,6 +949,9 @@ const ProductsApp = (() => {
         importCatalog,
         removeChip,
         closeModal,
+        previsualizarImagen,
+        subirImagenProducto,
+        quitarImagenProducto,
     };
 
 })();
