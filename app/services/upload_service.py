@@ -1,14 +1,148 @@
 """
-Servicio para manejo de archivos (imágenes de perfil, productos, etc)
+Servicio para manejo de archivos (imágenes de perfil, productos, etc).
+
+- Avatares de usuario → filesystem local (clase UploadService).
+- Imágenes de productos → Google Cloud Storage (funciones de módulo).
 """
 import os
 import time
 import uuid
 import glob
+import io
+import json
+import logging
 from typing import Optional
 from fastapi import UploadFile, HTTPException, status
 from PIL import Image
-import io
+
+from app.core.config import settings
+
+logger = logging.getLogger(__name__)
+
+
+# ════════════════════════════════════════════════════════════════
+# GOOGLE CLOUD STORAGE — imágenes de productos
+# ════════════════════════════════════════════════════════════════
+# El bucket no es público (política de la organización).
+# QueVendi actúa como proxy autenticado: subimos a GCS y el blob_name
+# se sirve via /api/v1/products/imagen/{store_id}/{filename}.
+
+_gcs_client_cache = None
+
+
+def get_gcs_client():
+    """
+    Cliente GCS singleton. Carga credenciales desde:
+      1) GCS_CREDENTIALS_JSON (env var con el JSON inline) — para Railway.
+      2) GCS_CREDENTIALS_FILE (path al .json) — para desarrollo local.
+    """
+    global _gcs_client_cache
+    if _gcs_client_cache is not None:
+        return _gcs_client_cache
+
+    from google.cloud import storage
+    from google.oauth2 import service_account
+
+    creds_json = settings.GCS_CREDENTIALS_JSON or os.environ.get("GCS_CREDENTIALS_JSON")
+    if creds_json:
+        creds_dict = json.loads(creds_json)
+        credentials = service_account.Credentials.from_service_account_info(creds_dict)
+    else:
+        credentials = service_account.Credentials.from_service_account_file(
+            settings.GCS_CREDENTIALS_FILE
+        )
+
+    _gcs_client_cache = storage.Client(credentials=credentials)
+    return _gcs_client_cache
+
+
+def upload_product_image_gcs(
+    file_bytes: bytes,
+    product_id: int,
+    store_id: int
+) -> str:
+    """
+    Sube imagen optimizada a GCS y devuelve el blob_name interno.
+
+    - Redimensiona a 800x800 manteniendo aspecto.
+    - Convierte a JPEG calidad 85.
+    - Borra cualquier blob anterior del mismo producto.
+    """
+    img = Image.open(io.BytesIO(file_bytes))
+    img.thumbnail((800, 800), Image.Resampling.LANCZOS)
+    if img.mode in ('RGBA', 'LA', 'P'):
+        background = Image.new('RGB', img.size, (255, 255, 255))
+        if img.mode == 'P':
+            img = img.convert('RGBA')
+        background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+        img = background
+
+    output = io.BytesIO()
+    img.save(output, format='JPEG', quality=85, optimize=True)
+    output.seek(0)
+
+    timestamp = int(time.time())
+    folder = settings.GCS_PRODUCTS_FOLDER
+    blob_name = f"{folder}/{store_id}/product_{product_id}_{timestamp}.jpg"
+
+    client = get_gcs_client()
+    bucket = client.bucket(settings.GCS_BUCKET_NAME)
+
+    # Borrar imágenes previas del mismo producto
+    prefix = f"{folder}/{store_id}/product_{product_id}_"
+    for blob in bucket.list_blobs(prefix=prefix):
+        try:
+            blob.delete()
+        except Exception as e:
+            logger.warning(f"[GCS] No se pudo borrar blob previo {blob.name}: {e}")
+
+    blob = bucket.blob(blob_name)
+    blob.upload_from_file(output, content_type='image/jpeg')
+
+    return blob_name
+
+
+def delete_product_image_gcs(image_url_or_blob: Optional[str]) -> bool:
+    """
+    Borra una imagen de GCS.
+    Acepta:
+      - blob_name (ej. "productos/2/product_3542_1234.jpg")
+      - URL del proxy (ej. "/api/v1/products/imagen/2/product_3542_1234.jpg")
+    """
+    if not image_url_or_blob:
+        return False
+
+    proxy_prefix = "/api/v1/products/imagen/"
+    if image_url_or_blob.startswith(proxy_prefix):
+        rest = image_url_or_blob[len(proxy_prefix):]
+        blob_name = f"{settings.GCS_PRODUCTS_FOLDER}/{rest}"
+    else:
+        blob_name = image_url_or_blob
+
+    try:
+        client = get_gcs_client()
+        bucket = client.bucket(settings.GCS_BUCKET_NAME)
+        bucket.blob(blob_name).delete()
+        return True
+    except Exception as e:
+        logger.warning(f"[GCS] No se pudo borrar {blob_name}: {e}")
+        return False
+
+
+def download_product_image_gcs(store_id: int, filename: str) -> Optional[bytes]:
+    """Descarga bytes del blob; devuelve None si no existe o falla."""
+    blob_name = f"{settings.GCS_PRODUCTS_FOLDER}/{store_id}/{filename}"
+    try:
+        client = get_gcs_client()
+        bucket = client.bucket(settings.GCS_BUCKET_NAME)
+        blob = bucket.blob(blob_name)
+        if not blob.exists():
+            return None
+        return blob.download_as_bytes()
+    except Exception as e:
+        logger.warning(f"[GCS] No se pudo descargar {blob_name}: {e}")
+        return None
+
 
 
 class UploadService:
