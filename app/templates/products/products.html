@@ -673,6 +673,58 @@
                             <small class="form-hint">Agrupación: "alta_rotacion", "lonchera", "verano"</small>
                         </div>
                         <div class="form-group">
+                            <label>IMAGEN DEL PRODUCTO</label>
+
+                            <!-- Preview de imagen actual -->
+                            <div class="img-preview-wrap" id="img-preview-wrap">
+                                <img id="img-preview"
+                                     src=""
+                                     alt=""
+                                     style="display:none;width:120px;height:120px;
+                                            object-fit:cover;border-radius:12px;
+                                            border:2px solid #667eea">
+                                <div id="img-placeholder"
+                                     style="width:120px;height:120px;border-radius:12px;
+                                            border:2px dashed #ccc;display:flex;
+                                            align-items:center;justify-content:center;
+                                            color:#999;font-size:12px;cursor:pointer"
+                                     onclick="document.getElementById('input-imagen').click()">
+                                    📷 Subir foto
+                                </div>
+                            </div>
+
+                            <!-- Input file oculto -->
+                            <input type="file" id="input-imagen"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   style="display:none"
+                                   onchange="ProductsApp.previsualizarImagen(this)">
+
+                            <!-- Botones -->
+                            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+                                <button type="button"
+                                        onclick="document.getElementById('input-imagen').click()"
+                                        class="btn btn-secondary btn-sm">
+                                    📷 Elegir foto
+                                </button>
+                                <button type="button" id="btn-subir-imagen"
+                                        onclick="ProductsApp.subirImagenProducto()"
+                                        class="btn btn-primary btn-sm"
+                                        style="display:none">
+                                    ☁️ Subir
+                                </button>
+                                <button type="button" id="btn-quitar-imagen"
+                                        onclick="ProductsApp.quitarImagenProducto()"
+                                        class="btn btn-danger btn-sm"
+                                        style="display:none">
+                                    🗑️ Quitar
+                                </button>
+                            </div>
+
+                            <div id="img-upload-status"
+                                 style="font-size:12px;margin-top:4px;color:#666"></div>
+                            <small class="form-hint">JPG, PNG o WEBP. Máximo 2 MB.</small>
+                        </div>
+                        <div class="form-group">
                             <label>Descripción</label>
                             <textarea id="prodDescription" rows="2" placeholder="Opcional"></textarea>
                         </div>
