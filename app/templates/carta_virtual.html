@@ -607,8 +607,15 @@ function renderProducts() {
   grid.innerHTML = filtered.map((p, i) => {
     const agotado = p.stock <= 0;
     const bajo = !agotado && p.stock > 0 && p.stock < 10;
+    const visualEl = p.image_url
+      ? `<img src="${p.image_url}"
+              style="width:54px;height:54px;border-radius:50%;
+                     object-fit:cover;border:2px solid #E8F5E9;flex-shrink:0"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+         /><div class="card-emoji" style="display:none">${getEmoji(p.category)}</div>`
+      : `<div class="card-emoji">${getEmoji(p.category)}</div>`;
     return `<div class="card" style="animation-delay:${i*35}ms" onclick="${agotado ? '' : `abrirDetalle(${p.id})`}">
-      <div class="card-emoji">${getEmoji(p.category)}</div>
+      ${visualEl}
       <div class="card-name">${p.name}</div>
       <div class="card-price">S/ ${p.price.toFixed(2)}</div>
       <div class="card-cat">${p.category || ''}</div>
