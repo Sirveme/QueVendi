@@ -2,7 +2,9 @@
 Servicio para manejo de archivos (imágenes de perfil, productos, etc)
 """
 import os
+import time
 import uuid
+import glob
 from typing import Optional
 from fastapi import UploadFile, HTTPException, status
 from PIL import Image
@@ -13,7 +15,9 @@ class UploadService:
     """Servicio para subir y procesar archivos"""
     
     ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp'}
-    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+    PRODUCT_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
+    MAX_FILE_SIZE = 5 * 1024 * 1024            # 5MB (avatares)
+    PRODUCT_MAX_FILE_SIZE = 2 * 1024 * 1024    # 2MB (productos, según zClaude-10)
     
     # Directorios
     UPLOAD_DIR = "app/static/uploads"
@@ -141,40 +145,89 @@ class UploadService:
         }
     
     async def upload_product_image(
-        self, 
-        file: UploadFile, 
-        product_id: int
+        self,
+        file: UploadFile,
+        product_id: int,
+        store_id: int
     ) -> dict:
-        """Sube imagen de producto"""
-        self._validate_file(file)
-        
-        content = await file.read()
-        
-        if len(content) > self.MAX_FILE_SIZE:
+        """
+        Sube imagen de un producto.
+
+        - Valida extensión (jpg/jpeg/png/webp) y tamaño (≤ 2MB).
+        - Redimensiona a 800×800 manteniendo aspecto.
+        - Guarda en static/uploads/products/{store_id}/product_{product_id}_{ts}.jpg
+        - Elimina cualquier imagen previa del mismo producto.
+        """
+        # Validación específica de productos (no admite gif)
+        if not file.filename:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Archivo muy grande"
+                detail="Nombre de archivo inválido"
             )
-        
-        # Optimizar
+        extension = file.filename.split('.')[-1].lower()
+        if extension not in self.PRODUCT_ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Extensión no permitida. Use: {', '.join(self.PRODUCT_ALLOWED_EXTENSIONS)}"
+            )
+        if not file.content_type or not file.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El archivo debe ser una imagen"
+            )
+
+        content = await file.read()
+
+        if len(content) > self.PRODUCT_MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La imagen no puede superar 2MB"
+            )
+
+        # Optimizar (redimensiona a máx 800×800, manteniendo aspecto)
         optimized_content = await self._optimize_image(content, max_size=(800, 800))
-        
-        # Nombre con UUID para evitar colisiones
-        unique_id = str(uuid.uuid4())[:8]
-        filename = f"product_{product_id}_{unique_id}.jpg"
-        filepath = os.path.join(self.PRODUCTS_DIR, filename)
-        
+
+        # Carpeta por tienda
+        store_dir = os.path.join(self.PRODUCTS_DIR, str(store_id))
+        os.makedirs(store_dir, exist_ok=True)
+
+        # Eliminar imágenes previas de este producto (cualquier timestamp)
+        for prev in glob.glob(os.path.join(store_dir, f"product_{product_id}_*.jpg")):
+            try:
+                os.remove(prev)
+            except OSError:
+                pass
+
+        # Nombre con timestamp para invalidar caché del navegador
+        ts = int(time.time())
+        filename = f"product_{product_id}_{ts}.jpg"
+        filepath = os.path.join(store_dir, filename)
+
         with open(filepath, 'wb') as f:
             f.write(optimized_content)
-        
-        public_url = f"/static/uploads/products/{filename}"
-        
+
+        public_url = f"/static/uploads/products/{store_id}/{filename}"
+
         return {
             'filename': filename,
             'filepath': filepath,
             'url': public_url,
             'size': len(optimized_content)
         }
+
+    def delete_product_image(self, image_url: Optional[str]) -> bool:
+        """Elimina del filesystem la imagen apuntada por image_url (si es local)."""
+        if not image_url or not image_url.startswith("/static/uploads/products/"):
+            return False
+        rel = image_url.lstrip("/")
+        filepath = os.path.join(*rel.split("/"))
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+                return True
+        except OSError:
+            return False
+        return False
     
     def delete_file(self, filepath: str) -> bool:
         """Elimina un archivo del sistema"""
