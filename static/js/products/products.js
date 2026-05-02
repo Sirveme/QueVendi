@@ -767,7 +767,7 @@ const ProductsApp = (() => {
         try {
             const token = localStorage.getItem('token') || '';
             const res = await fetch(
-                `/api/v1/products/${state.editingId}/imagen`,
+                `/api/v1/products/v2/${state.editingId}/imagen`,
                 {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
@@ -809,7 +809,7 @@ const ProductsApp = (() => {
         try {
             const token = localStorage.getItem('token') || '';
             const res = await fetch(
-                `/api/v1/products/${state.editingId}/imagen`,
+                `/api/v1/products/v2/${state.editingId}/imagen`,
                 {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
