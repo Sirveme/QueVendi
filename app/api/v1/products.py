@@ -33,7 +33,9 @@ ENDPOINTS NUEVOS (Fase 2):
   DELETE /v2/catalog/{nicho}     → Eliminar catálogo
 """
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, Response
+import io
+import asyncio
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, any_, desc
 from pydantic import BaseModel, Field
@@ -47,7 +49,13 @@ from app.models.product import Product
 from app.models.store import Store
 from app.services.product_service import ProductService
 from app.services.catalog_service import CatalogService
-from app.services.upload_service import upload_service
+from app.services.upload_service import (
+    upload_service,
+    upload_product_image_gcs,
+    delete_product_image_gcs,
+    download_product_image_gcs,
+)
+from app.core.config import settings
 
 
 router = APIRouter(prefix="/products")
@@ -504,8 +512,12 @@ async def restore_product(
 
 
 # ══════════════════════════════════════════════════════════════
-# IMAGEN DE PRODUCTO (subida / eliminación)
+# IMAGEN DE PRODUCTO (subida / eliminación / proxy público GCS)
 # ══════════════════════════════════════════════════════════════
+
+PRODUCT_IMG_ALLOWED = {"jpg", "jpeg", "png", "webp"}
+PRODUCT_IMG_MAX_BYTES = 2 * 1024 * 1024  # 2MB
+
 
 @router.post("/v2/{product_id}/imagen")
 async def upload_product_image_endpoint(
@@ -515,13 +527,13 @@ async def upload_product_image_endpoint(
     current_user: User = Depends(require_owner)
 ):
     """
-    Sube la imagen de un producto.
+    Sube la imagen de un producto a Google Cloud Storage.
 
     - Form-data: campo `imagen`
     - Solo jpg/jpeg/png/webp, máximo 2MB
     - Redimensiona a 800x800 manteniendo aspecto
-    - Guarda en /static/uploads/products/{store_id}/
-    - Sobrescribe imagen previa (con timestamp para evitar caché)
+    - Sube al bucket en {GCS_PRODUCTS_FOLDER}/{store_id}/product_{id}_{ts}.jpg
+    - image_url se guarda como URL del proxy QueVendi (no GCS firmada)
     """
     product = db.query(Product).filter(
         Product.id == product_id,
@@ -530,19 +542,45 @@ async def upload_product_image_endpoint(
     if not product:
         raise HTTPException(404, detail="Producto no encontrado")
 
-    result = await upload_service.upload_product_image(
-        file=imagen,
-        product_id=product.id,
-        store_id=current_user.store_id
-    )
+    if not imagen.filename:
+        raise HTTPException(400, detail="Nombre de archivo inválido")
+    ext = imagen.filename.rsplit(".", 1)[-1].lower()
+    if ext not in PRODUCT_IMG_ALLOWED:
+        raise HTTPException(
+            400,
+            detail=f"Extensión no permitida. Use: {', '.join(sorted(PRODUCT_IMG_ALLOWED))}"
+        )
+    if not imagen.content_type or not imagen.content_type.startswith("image/"):
+        raise HTTPException(400, detail="El archivo debe ser una imagen")
 
-    product.image_url = result["url"]
+    file_bytes = await imagen.read()
+    if len(file_bytes) > PRODUCT_IMG_MAX_BYTES:
+        raise HTTPException(400, detail="La imagen no puede superar 2MB")
+
+    # Borrar imagen previa de GCS (si la había)
+    if product.image_url:
+        await asyncio.to_thread(delete_product_image_gcs, product.image_url)
+
+    try:
+        blob_name = await asyncio.to_thread(
+            upload_product_image_gcs,
+            file_bytes,
+            product.id,
+            current_user.store_id,
+        )
+    except Exception as e:
+        raise HTTPException(500, detail=f"Error subiendo a GCS: {e}")
+
+    filename = blob_name.split("/")[-1]
+    proxy_url = f"/api/v1/products/imagen/{current_user.store_id}/{filename}"
+
+    product.image_url = proxy_url
     db.commit()
 
     return {
         "ok": True,
-        "image_url": result["url"],
-        "size": result["size"]
+        "image_url": proxy_url,
+        "size": len(file_bytes)
     }
 
 
@@ -552,7 +590,7 @@ async def delete_product_image_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_owner)
 ):
-    """Quita la imagen de un producto (borra archivo y limpia image_url)."""
+    """Quita la imagen de un producto (borra blob de GCS y limpia image_url)."""
     product = db.query(Product).filter(
         Product.id == product_id,
         Product.store_id == current_user.store_id
@@ -560,11 +598,38 @@ async def delete_product_image_endpoint(
     if not product:
         raise HTTPException(404, detail="Producto no encontrado")
 
-    upload_service.delete_product_image(product.image_url)
+    if product.image_url:
+        await asyncio.to_thread(delete_product_image_gcs, product.image_url)
+
     product.image_url = None
     db.commit()
 
     return {"ok": True}
+
+
+@router.get("/imagen/{store_id}/{filename}")
+async def serve_product_image(store_id: int, filename: str):
+    """
+    Proxy PÚBLICO (sin auth) para servir imágenes de productos desde GCS.
+
+    El bucket no es público; este endpoint usa la service account
+    del servidor para descargar y devolver el blob al navegador.
+    """
+    # Defensa básica contra path traversal
+    if "/" in filename or "\\" in filename or ".." in filename:
+        return Response(status_code=404)
+
+    image_bytes = await asyncio.to_thread(
+        download_product_image_gcs, store_id, filename
+    )
+    if image_bytes is None:
+        return Response(status_code=404)
+
+    return StreamingResponse(
+        io.BytesIO(image_bytes),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=86400"}
+    )
 
 
 @router.get("/{product_id}")
