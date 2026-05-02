@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 5242880  # 5MB
     UPLOAD_FOLDER: str = "app/static/uploads"
     ALLOWED_EXTENSIONS: List[str] = ["jpg", "jpeg", "png", "gif", "webp"]
+
+    # Google Cloud Storage (imágenes de productos)
+    GCS_BUCKET_NAME: str = "quevendi-assets"
+    GCS_CREDENTIALS_FILE: str = "quevendi-sa.json"
+    GCS_PRODUCTS_FOLDER: str = "productos"
+    GCS_CREDENTIALS_JSON: Optional[str] = None  # Para Railway (contenido del JSON)
     
     # Subscription Plans (días de trial)
     FREEMIUM_TRIAL_DAYS: int = 30
