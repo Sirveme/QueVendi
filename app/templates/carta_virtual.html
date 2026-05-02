@@ -125,10 +125,10 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 }
 .card:hover::after{opacity:1}
 .card-emoji{
-  width:54px;height:54px;border-radius:50%;
+  width:72px;height:72px;border-radius:50%;
   background:linear-gradient(135deg,#E8F5E9,#C8E6C9);
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;box-shadow:0 2px 6px rgba(0,150,60,.15);flex-shrink:0
+  font-size:32px;box-shadow:0 2px 6px rgba(0,150,60,.15);flex-shrink:0
 }
 .card-name{
   font-size:11px;font-weight:600;color:var(--texto);text-align:center;line-height:1.3;
@@ -245,7 +245,7 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 /* MODAL DETALLE PRODUCTO */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s ease;text-align:center}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s ease;text-align:center}
 .modal-overlay.open .modal-box{transform:translateY(0)}
 .modal-emoji{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#E8F5E9,#C8E6C9);display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:0 auto 12px}
 .modal-name{font-size:1.15rem;font-weight:800;margin-bottom:4px}
@@ -412,7 +412,7 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 <!-- MODAL DETALLE -->
 <div class="modal-overlay" id="modal-detalle" onclick="if(event.target===this)cerrarDetalle()">
   <div class="modal-box">
-    <div class="modal-emoji" id="md-emoji"></div>
+    <div id="md-emoji" style="display:flex;justify-content:center;margin:0 auto 12px"></div>
     <div class="modal-name" id="md-name"></div>
     <div class="modal-price" id="md-price"></div>
     <div class="modal-meta" id="md-meta"></div>
@@ -609,7 +609,7 @@ function renderProducts() {
     const bajo = !agotado && p.stock > 0 && p.stock < 10;
     const visualEl = p.image_url
       ? `<img src="${p.image_url}"
-              style="width:54px;height:54px;border-radius:50%;
+              style="width:72px;height:72px;border-radius:50%;
                      object-fit:cover;border:2px solid #E8F5E9;flex-shrink:0"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
          /><div class="card-emoji" style="display:none">${getEmoji(p.category)}</div>`
@@ -670,7 +670,9 @@ function abrirDetalle(id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
   productoSeleccionado = p;
-  document.getElementById('md-emoji').textContent = getEmoji(p.category);
+  document.getElementById('md-emoji').innerHTML = p.image_url
+    ? `<img src="${p.image_url}" style="width:120px;height:120px;border-radius:16px;object-fit:cover">`
+    : `<div style="font-size:48px">${getEmoji(p.category)}</div>`;
   document.getElementById('md-name').textContent = p.name;
   document.getElementById('md-price').textContent = `S/ ${p.price.toFixed(2)}`;
   document.getElementById('md-meta').textContent = `${p.category || 'General'} · ${p.stock > 0 ? 'Stock disponible: ' + p.stock + ' unidades' : 'Disponible'}`;
