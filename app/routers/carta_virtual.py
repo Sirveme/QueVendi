@@ -159,6 +159,7 @@ async def carta_productos(telefono: str, db: Session = Depends(get_db)):
             "category": cat,
             "description": p.description if hasattr(p, 'description') else None,
             "stock": p.stock,
+            "image_url": p.image_url,
         })
 
     return {"categorias": categorias, "total": len(products)}
