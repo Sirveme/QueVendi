@@ -109,8 +109,11 @@ function buildTicketHtmlDesdeComprobante(comp) {
     const fSlogan = fontMap[cfg.font_slogan]      || 'Pacifico';
 
     // ── Datos del comprobante ─────────────────────────────────────────────────
-    const tipo   = comp.tipo === '01' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
-    const numFmt = comp.numero_formato || `${comp.serie}-${String(comp.numero).padStart(8,'0')}`;
+    const isSimple = comp.is_simple === true;
+    const tipo = isSimple
+        ? 'TICKET DE VENTA'
+        : (comp.tipo === '01' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA');
+    const numFmt = comp.numero_formato || (comp.serie ? `${comp.serie}-${String(comp.numero).padStart(8,'0')}` : `T-${String(comp.numero || 0).padStart(6,'0')}`);
     const total    = parseFloat(comp.total    || 0);
     const igv      = parseFloat(comp.igv      || 0);
     const subtotal = parseFloat(comp.subtotal || 0);
@@ -217,8 +220,8 @@ function buildTicketHtmlDesdeComprobante(comp) {
 
         // BOX 1: RUC + TIPO + NÚMERO
         + '<div style="border:1.5px solid #999;border-radius:4px;padding:5px 6px;margin:4px 0;text-align:center">'
-        + `<div style="font-size:${cfg.size_ruc+2}px;font-weight:700">RUC: ${cfg.ruc}</div>`
-        + '<div style="border-top:1px dashed #bbb;margin:3px 0"></div>'
+        + (isSimple ? '' : `<div style="font-size:${cfg.size_ruc+2}px;font-weight:700">RUC: ${cfg.ruc}</div>`)
+        + (isSimple ? '' : '<div style="border-top:1px dashed #bbb;margin:3px 0"></div>')
         + `<div style="font-size:${cfg.size_items+1}px;font-weight:700;margin:2px 0">${tipo}</div>`
         + `<div style="background:#111;color:white;font-family:'${fNumero}',sans-serif;font-size:${cfg.size_numero}px;font-weight:900;padding:3px;border-radius:3px;margin:3px 2px">${numFmt}</div>`
         + '</div>'
@@ -274,16 +277,18 @@ function buildTicketHtmlDesdeComprobante(comp) {
             + '</div>'
             : '')
 
-        // BOX 6: QR + VERIFICACIÓN + CÓDIGO INTERNO
-        + '<div style="border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin:4px 0">'
-        + '<div style="display:flex;gap:6px;align-items:flex-start">'
-        + `<div id="ticket-qr-${comp.id || 0}" class="ticket-qr-container" data-qr-url="${comp.sunat_hash ? 'https://facturalo.pro/verificar/' + comp.sunat_hash : 'https://www.sunat.gob.pe/ol-ti-itconsultaunificada/'}" style="width:100px;height:100px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:2px;overflow:hidden"></div>`
-        + `<div style="flex:1;font-size:${cfg.size_items}px;line-height:1.5">`
-        + `Representación impresa de la<br><strong>${tipo}</strong><br>`
-        + 'Verifique en:<br>www.facturalo.pro/verificar<br>www.sunat.gob.pe'
-        + (codigoInterno ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Interno: ${codigoInterno}</span>` : (comp.id === 0 ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Código: PENDIENTE</span>` : ''))
-        + `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Hash SUNAT: ${comp.sunat_hash || '[se genera al emitir]'}</span>`
-        + '</div></div></div>'
+        // BOX 6: QR + VERIFICACIÓN + CÓDIGO INTERNO (omitir en ticket simple)
+        + (isSimple
+            ? `<div style="border:1px dashed #999;border-radius:4px;padding:6px;margin:4px 0;text-align:center;font-size:${cfg.size_items}px;font-weight:700">*** TICKET NO FISCAL ***<br><span style="font-weight:400;font-size:${cfg.size_items-1}px;color:#666">Este documento no tiene valor tributario</span></div>`
+            : '<div style="border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin:4px 0">'
+              + '<div style="display:flex;gap:6px;align-items:flex-start">'
+              + `<div id="ticket-qr-${comp.id || 0}" class="ticket-qr-container" data-qr-url="${comp.sunat_hash ? 'https://facturalo.pro/verificar/' + comp.sunat_hash : 'https://www.sunat.gob.pe/ol-ti-itconsultaunificada/'}" style="width:100px;height:100px;flex-shrink:0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:2px;overflow:hidden"></div>`
+              + `<div style="flex:1;font-size:${cfg.size_items}px;line-height:1.5">`
+              + `Representación impresa de la<br><strong>${tipo}</strong><br>`
+              + 'Verifique en:<br>www.facturalo.pro/verificar<br>www.sunat.gob.pe'
+              + (codigoInterno ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Interno: ${codigoInterno}</span>` : (comp.id === 0 ? `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Código: PENDIENTE</span>` : ''))
+              + `<br><span style="color:#888;font-size:${cfg.size_items-1}px">Hash SUNAT: ${comp.sunat_hash || '[se genera al emitir]'}</span>`
+              + '</div></div></div>')
 
         // AMAZONIA
         + (cfg.es_amazonia

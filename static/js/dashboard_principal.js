@@ -2551,8 +2551,7 @@ function handlePrint(printType, saleResult, total) {
             showToast('✅ Venta registrada', 'success');
             break;
         case 'simple':
-            showToast('🖨️ Imprimiendo ticket simple...', 'info');
-            printSimpleTicket(saleResult, total);
+            handleTicketSimple(saleResult, total);
             break;
         case 'ticket_electronico':
             showToast('🧾 Generando Ticket Electrónico...', 'info');
@@ -2679,6 +2678,190 @@ function generateSimpleTicketHtml(saleResult, total) {
         </body>
         </html>
     `;
+}
+
+// ============================================
+// TICKET SIMPLE — detección de impresora + modal con preview
+// ============================================
+
+function buildTicketSimple(saleResult, total) {
+    const sc = JSON.parse(localStorage.getItem('store_config') || '{}');
+    const cartSnapshot = (AppState.cart || []).slice();
+    const items = cartSnapshot.map(item => ({
+        descripcion:     item.name,
+        cantidad:        item.quantity,
+        precio_unitario: item.price,
+        valor_venta:     item.price * item.quantity,
+        unidad:          'NIU',
+    }));
+
+    const saleId = saleResult?.id || 0;
+    const comp = {
+        id:              saleId,
+        is_simple:       true,
+        tipo:            'simple',
+        serie:           '',
+        numero:          saleId,
+        numero_formato:  saleId ? `T-${String(saleId).padStart(6, '0')}` : 'TICKET',
+        fecha_emision:   new Date().toISOString(),
+        total:           total,
+        igv:             0,
+        subtotal:        total,
+        payment_method:  AppState.paymentMethod || 'efectivo',
+        is_credit:       AppState.paymentMethod === 'fiado',
+        usuario_nombre:  localStorage.getItem('user_name') || 'vendedor',
+        cliente: {
+            tipo_doc:  '0',
+            num_doc:   '00000000',
+            nombre:    'CLIENTE VARIOS',
+            direccion: null,
+        },
+        items: items,
+        emisor: {
+            ruc:              sc.ruc              || '',
+            razon_social:     sc.razon_social     || '',
+            nombre_comercial: sc.nombre_comercial || '',
+            direccion:        sc.direccion        || '',
+            telefono:         sc.telefono         || '',
+        },
+    };
+
+    const html = (typeof buildTicketHtmlDesdeComprobante === 'function')
+        ? buildTicketHtmlDesdeComprobante(comp)
+        : '';
+    return { html, comp };
+}
+
+function _detectarImpresora() {
+    try {
+        if (window.ThermalPrinter && typeof window.ThermalPrinter.isConnected === 'function'
+            && window.ThermalPrinter.isConnected()) return true;
+    } catch (e) {}
+    if (window.PrintAgentClient && typeof window.PrintAgentClient.isConnected === 'function') {
+        try { if (window.PrintAgentClient.isConnected()) return true; } catch (e) {}
+    }
+    if (typeof AppState !== 'undefined' && AppState.printerConnected) return true;
+    return false;
+}
+
+function imprimirTicketSimple(ticketHtml) {
+    const printWindow = window.open('', '_blank', 'width=320,height=800');
+    if (!printWindow) {
+        showToast('Popup bloqueado. Permite popups para imprimir.', 'warning');
+        return false;
+    }
+    printWindow.document.write(`
+        <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket</title>
+        <style>
+            @page { margin: 0; }
+            body { margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+        </style></head><body>${ticketHtml}</body></html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+        try { printWindow.print(); } catch (e) {}
+        setTimeout(() => { try { printWindow.close(); } catch (e) {} }, 500);
+    }, 250);
+    return true;
+}
+
+function handleTicketSimple(saleResult, total) {
+    const { html: ticketHtml, comp } = buildTicketSimple(saleResult, total);
+    if (!ticketHtml) {
+        showToast('No se pudo generar el ticket', 'error');
+        return;
+    }
+
+    const hayImpresora = _detectarImpresora();
+
+    if (hayImpresora) {
+        showToast('🖨️ Imprimiendo ticket...', 'info');
+        imprimirTicketSimple(ticketHtml);
+    } else {
+        showToast('✅ Venta registrada', 'success');
+    }
+    mostrarModalTicketSimple(ticketHtml, { saleResult, total, comp });
+}
+
+function mostrarModalTicketSimple(ticketHtml, saleData) {
+    const numeroFormato = saleData?.comp?.numero_formato || 'TICKET';
+
+    let modal = document.getElementById('comprobante-success-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comprobante-success-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+    <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 16px; padding: 12px; max-width: 420px; width: 95%; display: flex; flex-direction: column; max-height: 95vh;">
+        <div style="text-align: center; margin-bottom: 8px;">
+            <span style="font-size: 24px;">&#9989;</span>
+            <span style="color: white; font-size: 15px; font-weight: 700; margin-left: 6px;">Ticket de Venta</span>
+            <span style="color: #a78bfa; font-size: 15px; font-weight: 700; margin-left: 4px;">${numeroFormato}</span>
+        </div>
+
+        <div id="ticket-html-container" style="flex:1;min-height:0;overflow-y:auto;display:flex;justify-content:center;padding:10px 0;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
+            <div id="ticket-html-content" style="font-size:1px"></div>
+        </div>
+
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button id="btn-modal-download-ticket"
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i class="fas fa-receipt"></i> Ticket IMG
+            </button>
+            <button id="btn-modal-share"
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i class="fab fa-whatsapp"></i> Compartir
+            </button>
+            <button id="btn-modal-print-simple"
+                style="flex: 1; min-width: 100px; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button id="btn-modal-close"
+                style="padding: 10px 14px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: #94a3b8; font-size: 13px; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+`;
+
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10005 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
+
+    const content = modal.querySelector('#ticket-html-content');
+    if (content) content.innerHTML = ticketHtml;
+
+    modal.querySelector('#btn-modal-download-ticket').onclick = () => {
+        _downloadTicketAsImage(numeroFormato);
+    };
+    modal.querySelector('#btn-modal-share').onclick = () => {
+        _shareComprobante(numeroFormato);
+    };
+    modal.querySelector('#btn-modal-print-simple').onclick = () => {
+        if (_detectarImpresora()) {
+            imprimirTicketSimple(ticketHtml);
+        } else {
+            const w = window.open('', '_blank', 'width=320,height=800');
+            if (!w) { window.print(); return; }
+            w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket</title><style>@page{margin:0}body{margin:0;padding:0}</style></head><body>${ticketHtml}</body></html>`);
+            w.document.close();
+            setTimeout(() => { try { w.print(); } catch (e) {} setTimeout(() => { try { w.close(); } catch (e) {} }, 500); }, 250);
+        }
+    };
+    modal.querySelector('#btn-modal-close').onclick = () => {
+        closeComprobanteModal();
+    };
 }
 
 // ============================================
