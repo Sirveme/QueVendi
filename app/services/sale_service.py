@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import List, Dict
 from sqlalchemy.orm import Session
 from app.models.sale import Sale, SaleItem
@@ -78,7 +79,7 @@ class SaleService:
                 # Actualizar el stock del producto
                 product = self.db.query(Product).filter(Product.id == item['product_id']).first()
                 if product:
-                    product.stock -= item['quantity']
+                    product.stock = (product.stock or 0) - Decimal(str(item['quantity']))
             
             self.db.commit()
             self.db.refresh(sale)
@@ -204,7 +205,7 @@ class SaleService:
             for item in sale.items:
                 product = self.db.query(Product).filter(Product.id == item.product_id).first()
                 if product:
-                    product.stock += item.quantity
+                    product.stock = (product.stock or 0) + Decimal(str(item.quantity))
             
             # Eliminar los items primero (por la foreign key)
             self.db.query(SaleItem).filter(SaleItem.sale_id == sale_id).delete()
