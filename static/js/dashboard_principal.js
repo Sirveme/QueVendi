@@ -3721,13 +3721,14 @@ function showOfflineStatus() {
     showToast(msg, navigator.onLine ? 'success' : 'warning');
 }
 
-// Bottom nav: vuelve al POS (carrito principal)
+// Bottom nav: vuelve al inicio (top de la página)
 function showPOS() {
     document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
     const pos = document.getElementById('nav-pos');
     if (pos) pos.classList.add('active');
-    const cart = document.querySelector('.cart-section');
-    if (cart) cart.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const main = document.querySelector('.main-content');
+    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function switchCategory(category) {
