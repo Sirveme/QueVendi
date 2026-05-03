@@ -688,6 +688,18 @@ body {
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #1a1a2e;
+}
+.cart-items::-webkit-scrollbar {
+    width: 6px;
+}
+.cart-items::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+.cart-items::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
 }
 
 .cart-empty {
@@ -3933,7 +3945,7 @@ body.is-owner .owner-only {
     text-align: center;
     line-height: 1.2;
 }
-.btn-shield { color: #10b981 !important; }
+.btn-shield { color: #f97316 !important; }
 .btn-shield.alerta-sospecha   { color: #f59e0b !important; }
 .btn-shield.alerta-amenaza    { color: #f97316 !important; }
 .btn-shield.alerta-emergencia { color: #e53935 !important; animation: pulse 0.5s infinite; }
