@@ -369,6 +369,8 @@ const ProductsApp = (() => {
             $('#prodMinStock').value = p.min_stock_alert || 5;
             $('#prodCategory').value = p.category || '';
             $('#prodUnit').value = p.unit || 'UND';
+            const sbf = $('#edit-sell-by-fraction');
+            if (sbf) sbf.checked = p.sell_by_fraction === true;
             $('#prodBrand').value = p.brand || '';
             $('#prodBarcode').value = p.barcode || '';
             $('#prodDescription').value = p.description || '';
@@ -418,6 +420,7 @@ const ProductsApp = (() => {
             min_stock_alert: parseInt($('#prodMinStock').value) || 5,
             category: $('#prodCategory').value.trim() || null,
             unit: $('#prodUnit').value,
+            sell_by_fraction: !!($('#edit-sell-by-fraction')?.checked),
             brand: $('#prodBrand').value.trim() || null,
             barcode: $('#prodBarcode').value.trim() || null,
             description: $('#prodDescription').value.trim() || null,
@@ -917,6 +920,15 @@ const ProductsApp = (() => {
         }
     }
 
+    // Handler del checkbox "Venta fraccionada" en el modal de edición.
+    // El valor se persiste al guardar; este callback solo está para feedback inmediato.
+    function toggleSellByFraction(input) {
+        const on = !!(input && input.checked);
+        if (typeof showToast === 'function') {
+            showToast(on ? 'Venta fraccionada activada' : 'Venta fraccionada desactivada', 'info');
+        }
+    }
+
     // V2 Toast integration
     function showToast(message, type = 'info') {
         if (window.Toast && typeof Toast[type] === 'function') {
@@ -937,6 +949,7 @@ const ProductsApp = (() => {
         openCreateModal,
         openEditModal,
         saveProduct,
+        toggleSellByFraction,
         openStockModal,
         adjustStockInput,
         setStockQty,
