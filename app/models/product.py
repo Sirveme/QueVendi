@@ -3,7 +3,7 @@ Modelo Product - Actualizado para Fase 1
 """
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, DateTime, Text,
-    ForeignKey, ARRAY, DECIMAL
+    ForeignKey, ARRAY, DECIMAL, Numeric
 )
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.orm import relationship
@@ -46,8 +46,9 @@ class Product(Base):
     # ──────────────────────────────────────────────
     # Stock
     # ──────────────────────────────────────────────
-    stock = Column(Integer, default=0)
+    stock = Column(Numeric(10, 3), default=0)
     min_stock_alert = Column(Integer, default=5)
+    sell_by_fraction = Column(Boolean, default=False)  # precio/cantidad libres en carrito (granel)
     
     # ──────────────────────────────────────────────
     # Estado
@@ -148,6 +149,7 @@ class Product(Base):
             "sale_price": self.sale_price,
             "stock": self.stock,
             "min_stock_alert": self.min_stock_alert,
+            "sell_by_fraction": bool(self.sell_by_fraction),
             "is_active": self.is_active,
             "is_low_stock": self.is_low_stock,
             "is_out_of_stock": self.is_out_of_stock,
@@ -174,6 +176,7 @@ class Product(Base):
             "unit": self.unit,
             "sale_price": self.sale_price,
             "stock": self.stock,
+            "sell_by_fraction": bool(self.sell_by_fraction),
             "image_url": self.image_url,
             "is_low_stock": self.is_low_stock,
             "mayoreo": {
