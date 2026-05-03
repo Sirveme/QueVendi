@@ -644,6 +644,18 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="field-group" style="margin:12px 0">
+                            <label class="toggle-label" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                <input type="checkbox" id="edit-sell-by-fraction"
+                                       onchange="ProductsApp.toggleSellByFraction(this)">
+                                <span class="toggle-slider"></span>
+                                <span>Venta fraccionada / Precio libre</span>
+                            </label>
+                            <small style="color:#999;display:block;margin-top:4px">
+                                Permite editar precio y cantidad en el carrito
+                                (útil para granel, peso, medida)
+                            </small>
+                        </div>
                         <div class="form-group">
                             <label>Marca</label>
                             <input type="text" id="prodBrand" placeholder="Ej: Gloria, Alicorp...">
