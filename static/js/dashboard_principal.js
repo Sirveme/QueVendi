@@ -222,23 +222,56 @@ function setUserData(user) {
     const lsStoreId = localStorage.getItem('store_id');
     if (lsStoreId) AppState.user.store_id = parseInt(lsStoreId);
 
-    AppState.isOwner = user.role === 'owner';
+    AppState.isOwner = ['owner', 'admin'].includes(user.role);
     AppState.storeTelefono = user.store_phone || localStorage.getItem('store_phone') || '';
     if (user.store_phone) localStorage.setItem('store_phone', user.store_phone);
 
     const initial = user.full_name ? user.full_name[0].toUpperCase() : 'U';
 
-    document.getElementById('header-username').textContent = user.full_name || 'Usuario';
-    document.getElementById('sidebar-username').textContent = user.full_name || 'Usuario';
-    document.getElementById('sidebar-avatar').textContent = initial;
+    const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setText('header-name', user.full_name || 'Usuario');
+    setText('header-avatar', initial);
+    setText('sidebar-username', user.full_name || 'Usuario');
+    setText('sidebar-avatar', initial);
 
     const storeName = user.store_name || localStorage.getItem('store_name') || 'Mi Negocio';
-    document.getElementById('header-store').textContent = storeName;
-    localStorage.setItem('store_name', storeName); // actualizar localStorage
-    document.getElementById('sidebar-store').textContent = storeName;
+    setText('header-store', storeName);
+    localStorage.setItem('store_name', storeName);
+    setText('sidebar-store', storeName);
 
     if (AppState.isOwner) {
         document.body.classList.add('is-owner');
+        document.body.classList.add('role-owner');
+    } else {
+        document.body.classList.add('role-seller');
+    }
+
+    configurarSidebarPorRol(user.role);
+}
+
+function configurarSidebarPorRol(role) {
+    const isOwner = ['owner', 'admin'].includes(role);
+
+    document.querySelectorAll('[data-owner-tab]').forEach(el => {
+        el.style.display = isOwner ? '' : 'none';
+    });
+    document.querySelectorAll('[data-owner-content]').forEach(el => {
+        if (!isOwner) el.classList.remove('active');
+    });
+    document.querySelectorAll('[data-seller-tab]').forEach(el => {
+        el.style.display = isOwner ? 'none' : '';
+    });
+    document.querySelectorAll('[data-seller-content]').forEach(el => {
+        if (isOwner) el.classList.remove('active');
+        else el.classList.add('active');
+    });
+
+    if (isOwner) {
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        const gerente = document.querySelector('.category-tab[data-category="gerente"]');
+        const cat = document.getElementById('cat-gerente');
+        if (gerente) gerente.classList.add('active');
+        if (cat) cat.classList.add('active');
     }
 }
 
@@ -3608,9 +3641,90 @@ function printTicket(type) {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    
+
     sidebar.classList.toggle('open');
     overlay.classList.toggle('show');
+}
+
+// ============================================
+// HEADER — escudo de seguridad + alertas + online dot
+// ============================================
+function toggleAlertMenu() {
+    const dd = document.getElementById('alert-dropdown');
+    if (!dd) return;
+    dd.style.display = (dd.style.display === 'none' || !dd.style.display) ? 'block' : 'none';
+}
+
+let _emergencyTimer = null;
+function iniciarEmergencia() {
+    const bar = document.getElementById('emergency-progress');
+    if (bar) {
+        bar.style.transition = 'width 3s linear';
+        bar.style.width = '100%';
+    }
+    _emergencyTimer = setTimeout(() => activarAlerta('emergencia'), 3000);
+}
+function cancelarEmergencia() {
+    clearTimeout(_emergencyTimer);
+    const bar = document.getElementById('emergency-progress');
+    if (bar) {
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        setTimeout(() => { bar.style.transition = 'width 3s linear'; }, 50);
+    }
+}
+function activarAlerta(nivel) {
+    const dd = document.getElementById('alert-dropdown');
+    if (dd) dd.style.display = 'none';
+    const shield = document.getElementById('btn-shield');
+    if (shield) shield.className = `btn-shield alerta-${nivel}`;
+
+    if (typeof showReportIncident === 'function') {
+        showReportIncident(nivel);
+    } else if (nivel === 'sospecha' && typeof reportSuspect === 'function') {
+        reportSuspect();
+    } else if (nivel === 'amenaza' && typeof reportThreat === 'function') {
+        reportThreat();
+    } else if (nivel === 'emergencia' && typeof startEmergency === 'function') {
+        startEmergency();
+    }
+    showToast(`🛡️ Alerta ${nivel} activada`, 'warning');
+}
+
+document.addEventListener('click', (e) => {
+    const dd = document.getElementById('alert-dropdown');
+    const shield = document.getElementById('btn-shield');
+    if (!dd || !shield) return;
+    if (dd.style.display === 'block' && !dd.contains(e.target) && !shield.contains(e.target)) {
+        dd.style.display = 'none';
+    }
+});
+
+function _updateOnlineDot() {
+    const dot = document.getElementById('online-dot');
+    if (!dot) return;
+    if (navigator.onLine) dot.classList.remove('offline');
+    else dot.classList.add('offline');
+}
+window.addEventListener('online',  _updateOnlineDot);
+window.addEventListener('offline', _updateOnlineDot);
+document.addEventListener('DOMContentLoaded', _updateOnlineDot);
+_updateOnlineDot();
+
+function showOfflineStatus() {
+    const msg = navigator.onLine
+        ? '✅ Conectado a internet'
+        : '⚠️ Sin conexión — las ventas se guardan localmente';
+    showToast(msg, navigator.onLine ? 'success' : 'warning');
+}
+
+// Bottom nav: vuelve al POS (carrito principal)
+function showPOS() {
+    document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+    const pos = document.getElementById('nav-pos');
+    if (pos) pos.classList.add('active');
+    const cart = document.querySelector('.cart-section');
+    if (cart) cart.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function switchCategory(category) {
@@ -3721,14 +3835,9 @@ setInterval(() => {
 // SEMÁFORO DE PÁNICO (ALERT MENU)
 // ============================================
 
-function toggleAlertMenu() {
-    AppState.panicMenuOpen = !AppState.panicMenuOpen;
-    document.getElementById('alert-menu-popup').classList.toggle('open', AppState.panicMenuOpen);
-}
-
 function closeAlertMenu() {
-    AppState.panicMenuOpen = false;
-    document.getElementById('alert-menu-popup')?.classList.remove('open');
+    const dd = document.getElementById('alert-dropdown');
+    if (dd) dd.style.display = 'none';
 }
 
 function reportSuspect() {
@@ -4731,7 +4840,7 @@ function setupEventListeners() {
     // Cerrar sidebar con Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            if (AppState.panicMenuOpen) closeAlertMenu();
+            closeAlertMenu();
             if (document.getElementById('sidebar')?.classList.contains('open')) toggleSidebar();
             if (document.getElementById('modal-sale-success')?.classList.contains('open')) closeSaleModal();
             if (document.getElementById('modal-panic')?.classList.contains('open')) closePanicModal();
@@ -4739,17 +4848,7 @@ function setupEventListeners() {
         }
     });
     
-    // Cerrar menú de alerta al hacer clic fuera
-    document.addEventListener('click', (e) => {
-        const alertMenu = document.getElementById('alert-menu-popup');
-        const alertBtn = document.querySelector('.footer-btn.alert-btn');
-        
-        if (AppState.panicMenuOpen && 
-            !alertMenu?.contains(e.target) && 
-            !alertBtn?.contains(e.target)) {
-            closeAlertMenu();
-        }
-    });
+    // (cierre del dropdown de alerta del header se maneja en su propio listener)
     
     // Enter en búsqueda
     document.getElementById('search-input')?.addEventListener('keypress', (e) => {
@@ -5637,6 +5736,11 @@ async function pollPedidosCarta() {
         if (homeBadge) {
             homeBadge.textContent = pendientes;
             homeBadge.classList.toggle('show', pendientes > 0);
+        }
+        const navBadge = document.getElementById('nav-pedidos-badge');
+        if (navBadge) {
+            navBadge.textContent = pendientes;
+            navBadge.style.display = pendientes > 0 ? '' : 'none';
         }
         if (pendientes > _lastPedidosPendientes && _lastPedidosPendientes > 0) {
             const nuevos = pendientes - _lastPedidosPendientes;
