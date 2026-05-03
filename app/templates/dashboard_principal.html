@@ -318,8 +318,10 @@
                 <i class="fas fa-bars"></i>
             </button>
 
-            <img class="header-logo-desktop" src="/static/img/logo-quevendi.png"
-                 alt="QueVendi" onerror="this.style.display='none'">
+            <img class="header-logo-desktop" src="/static/img/logo-quevendi.webp"
+                 alt="QueVendi"
+                 style="height:32px;object-fit:contain;filter:brightness(0.9)"
+                 onerror="this.style.display='none'">
 
             <div class="header-user" onclick="toggleSidebar()">
                 <div class="header-avatar" id="header-avatar">U</div>
@@ -618,8 +620,8 @@
         <!-- BOTTOM NAV -->
         <nav class="bottom-nav">
             <button class="nav-btn active" id="nav-pos" onclick="showPOS()">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Cobrar</span>
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
             </button>
 
             <button class="nav-btn" id="nav-stock" onclick="window.location.href='/productos'">
