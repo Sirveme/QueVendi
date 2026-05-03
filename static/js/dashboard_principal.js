@@ -3639,6 +3639,9 @@ function printTicket(type) {
 // ============================================
 
 function toggleSidebar() {
+    // En desktop (≥ 768px) el sidebar es fijo — no se oculta.
+    if (window.innerWidth >= 768) return;
+
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
 
