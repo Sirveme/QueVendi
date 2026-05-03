@@ -147,8 +147,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // _isGranel — Determina si un producto es de venta a granel
 // ================================================================
 function _isGranel(item) {
-    const unit = (item.unit || 'unidad').toLowerCase();
-    return ['kg', 'g', 'litro', 'lt', 'l', 'ml', 'gramo', 'kilo'].includes(unit);
+    const granelUnits = ['kg', 'g', 'litro', 'lt', 'l', 'ml', 'gramo', 'kilo'];
+    return item.sell_by_fraction === true
+        || granelUnits.includes((item.unit || 'unidad').toLowerCase());
 }
 
 
@@ -298,6 +299,7 @@ function addToCart(product, quantity = 1, silent = false) {
             code: product.code || product.barcode || '',
             price: parseFloat(product.sale_price) || parseFloat(product.price) || 0,
             unit: product.unit || 'unidad',
+            sell_by_fraction: product.sell_by_fraction === true,
             quantity: quantity,
             stock: product.stock || 0
         });
