@@ -2786,10 +2786,12 @@ function handleTicketSimple(saleResult, total) {
 function mostrarModalTicketSimple(ticketHtml, saleData) {
     const numeroFormato = saleData?.comp?.numero_formato || 'TICKET';
 
-    let modal = document.getElementById('comprobante-success-modal');
+    // ID propio para que el MutationObserver de print-agent-integration.js
+    // (que inyecta un botón naranja extra "Imprimir") no se active aquí.
+    let modal = document.getElementById('ticket-simple-modal');
     if (!modal) {
         modal = document.createElement('div');
-        modal.id = 'comprobante-success-modal';
+        modal.id = 'ticket-simple-modal';
         document.body.appendChild(modal);
     }
 
@@ -2860,7 +2862,8 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
         }
     };
     modal.querySelector('#btn-modal-close').onclick = () => {
-        closeComprobanteModal();
+        modal.style.display = 'none';
+        modal.remove();
     };
 }
 
