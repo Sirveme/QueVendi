@@ -84,6 +84,7 @@ class ProductCreate(BaseModel):
     cost_price: float = 0.0
     stock: int = 0
     min_stock_alert: int = 0
+    sell_by_fraction: bool = False
     aliases: str | None = None
     is_active: bool = True
 
@@ -108,6 +109,7 @@ class ProductCreateV2(BaseModel):
     sale_price: float = Field(..., gt=0)
     stock: int = 0
     min_stock_alert: int = 5
+    sell_by_fraction: bool = False
     aliases: List[str] = []
     tags: List[str] = []
     mayoreo_cantidad_min: Optional[int] = None
@@ -128,6 +130,7 @@ class ProductUpdateV2(BaseModel):
     sale_price: Optional[float] = None
     stock: Optional[int] = None
     min_stock_alert: Optional[int] = None
+    sell_by_fraction: Optional[bool] = None
     aliases: Optional[List[str]] = None
     tags: Optional[List[str]] = None
     complementarios: Optional[List[int]] = None
@@ -449,6 +452,7 @@ async def create_product(
         cost_price=product_data.cost_price,
         stock=product_data.stock,
         min_stock_alert=product_data.min_stock_alert,
+        sell_by_fraction=product_data.sell_by_fraction,
         aliases=product_data.aliases,
         is_active=product_data.is_active
     )
@@ -896,6 +900,7 @@ async def create_product_v2(
         sale_price=data.sale_price,
         stock=data.stock,
         min_stock_alert=data.min_stock_alert,
+        sell_by_fraction=data.sell_by_fraction,
         aliases=data.aliases,
         tags=data.tags,
         mayoreo_cantidad_min=data.mayoreo_cantidad_min,
