@@ -340,16 +340,30 @@ function updateQuantity(productId, quantity) {
     const item = AppState.cart.find(i => i.id === productId);
     if (item) {
         const newQty = Math.max(0.01, parseFloat(quantity));
-        
+
         if (item.stock && newQty > item.stock) {
             showToast(`Stock disponible: ${item.stock}`, 'warning');
             return;
         }
-        
+
         item.quantity = newQty;
         saveCart();
         renderCart();
     }
+}
+
+function updateCartItemQty(productId, value) {
+    const item = AppState.cart.find(i => i.id === productId);
+    if (!item) return;
+
+    const n = parseFloat(value);
+    if (!isFinite(n) || n <= 0) {
+        renderCart();
+        return;
+    }
+
+    const newQty = _isGranel(item) ? parseFloat(n.toFixed(3)) : Math.max(1, Math.floor(n));
+    updateQuantity(productId, newQty);
 }
 
 function increaseQty(productId) {
@@ -497,7 +511,14 @@ function renderCart() {
             </div>
             <div class="cart-item-qty">
                 <button onclick="decreaseQty(${item.id})">−</button>
-                <span class="${qtyClass}" ${qtyClick}>${qtyStr}</span>
+                <input type="number"
+                       class="cart-item-qty-input"
+                       value="${qtyStr}"
+                       min="${granel ? '0.001' : '1'}"
+                       step="${granel ? '0.001' : '1'}"
+                       style="width:48px;text-align:center;background:transparent;border:none;border-bottom:1px solid #667eea;color:inherit;font-size:14px;font-weight:600"
+                       onchange="updateCartItemQty(${item.id}, this.value)"
+                       onclick="this.select()">
                 <button onclick="increaseQty(${item.id})">+</button>
             </div>
             <div class="${subClass}" ${subClick}>S/${sub.toFixed(2)}</div>
