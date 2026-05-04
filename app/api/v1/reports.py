@@ -29,6 +29,12 @@ def _peru_window(d: date):
     return inicio, fin
 
 
+def _fmt_qty(q) -> str:
+    """Formatea cantidades: enteros sin decimales, fraccionarios con 2."""
+    qf = float(q or 0)
+    return f"{int(qf)}" if qf == int(qf) else f"{qf:.2f}"
+
+
 async def get_user_export(
     request: Request,
     db: Session = Depends(get_db),
@@ -122,7 +128,7 @@ async def get_top_products_html(
     top_products = db.query(
         Product.id,
         Product.name,
-        func.sum(SaleItem.quantity).label('total_quantity'),
+        func.round(func.sum(SaleItem.quantity), 2).label('total_quantity'),
         func.sum(SaleItem.subtotal).label('total_revenue')
     ).join(SaleItem, SaleItem.product_id == Product.id) \
      .join(Sale, Sale.id == SaleItem.sale_id) \
@@ -149,7 +155,7 @@ async def get_top_products_html(
                 <div style="font-weight:800;color:#f59e0b;min-width:30px">#{i}</div>
                 <div style="flex:1">
                     <div style="font-weight:600;color:#f1f5f9;font-size:13px">{name}</div>
-                    <div style="font-size:11px;color:#94a3b8">{int(quantity)} unidades</div>
+                    <div style="font-size:11px;color:#94a3b8">{_fmt_qty(quantity)} unidades</div>
                 </div>
                 <div style="font-weight:700;color:#22c55e">S/ {float(revenue):.2f}</div>
             </li>
@@ -233,7 +239,7 @@ async def get_sales_by_category(
     rows = db.query(
         Product.category,
         func.coalesce(func.sum(SaleItem.subtotal), 0).label('total_ventas'),
-        func.coalesce(func.sum(SaleItem.quantity), 0).label('num_items'),
+        func.coalesce(func.round(func.sum(SaleItem.quantity), 2), 0).label('num_items'),
         func.coalesce(
             func.sum(
                 (SaleItem.unit_price - func.coalesce(Product.cost_price, 0)) * SaleItem.quantity
@@ -253,7 +259,7 @@ async def get_sales_by_category(
         {
             "category": cat or "Sin categoría",
             "total_ventas": float(total or 0),
-            "num_items": float(items or 0),
+            "num_items": round(float(items or 0), 2),
             "margen_est": float(margen or 0),
         }
         for cat, total, items, margen in rows
@@ -318,7 +324,7 @@ async def get_cierre_caja(
     # Producto más vendido
     top_row = db.query(
         Product.name,
-        func.sum(SaleItem.quantity).label('qty'),
+        func.round(func.sum(SaleItem.quantity), 2).label('qty'),
     ).join(SaleItem, SaleItem.product_id == Product.id) \
      .join(Sale, Sale.id == SaleItem.sale_id) \
      .filter(
