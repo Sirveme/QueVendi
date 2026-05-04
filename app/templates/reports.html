@@ -172,7 +172,7 @@
         <!-- ESTADÍSTICAS PRINCIPALES -->
         <div class="stats-grid" 
              id="main-stats"
-             hx-get="/api/reports/stats/today"
+             hx-get="/api/v1/reports/stats/today"
              hx-trigger="load"
              hx-swap="innerHTML">
             <div class="card-loading">Cargando estadísticas...</div>
@@ -189,7 +189,7 @@
             <div class="chart-title">🏆 Top 10 Productos Más Vendidos (Hoy)</div>
             <ul class="top-products-list" 
                 id="top-products"
-                hx-get="/api/reports/top-products"
+                hx-get="/api/v1/reports/top-products"
                 hx-trigger="load"
                 hx-swap="innerHTML">
                 <div class="card-loading">Cargando productos...</div>
@@ -221,7 +221,7 @@
         
         async function loadHourlyChart() {
             try {
-                const response = await fetchWithAuth('/api/reports/hourly-sales');
+                const response = await fetchWithAuth('/api/v1/reports/hourly-sales');
                 const data = await response.json();
                 
                 const ctx = document.getElementById('hourlyChart').getContext('2d');
@@ -265,7 +265,7 @@
         
         async function loadPaymentChart() {
             try {
-                const response = await fetchWithAuth('/api/reports/payment-methods');
+                const response = await fetchWithAuth('/api/v1/reports/payment-methods');
                 const data = await response.json();
                 
                 const ctx = document.getElementById('paymentChart').getContext('2d');
