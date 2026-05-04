@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta de Campo — SHEVALCHE</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0fdf4; color: #111827; font-size: 13px; }
+
+  @media print {
+    body { background: white; font-size: 11px; }
+    .no-print { display: none !important; }
+    .hoja { page-break-after: always; border: none !important; box-shadow: none !important; margin: 0; padding: 4px; }
+    .hoja:last-child { page-break-after: avoid; }
+  }
+
+  .no-print {
+    background: #14532d; color: white; padding: 10px 20px;
+    text-align: center; position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: center; gap: 12px; align-items: center;
+  }
+  .no-print button {
+    background: #16a34a; color: white; border: none;
+    padding: 7px 18px; border-radius: 8px; font-family: inherit;
+    font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .no-print button:hover { background: #15803d; }
+
+  .contenedor { max-width: 760px; margin: 0 auto; padding: 14px; }
+
+  .hoja {
+    background: white; border: 2px solid #16a34a;
+    border-radius: 10px; margin-bottom: 20px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .hoja-header {
+    background: linear-gradient(135deg, #14532d, #16a34a);
+    color: white; padding: 10px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hoja-header h2 { font-size: 14px; font-weight: 700; }
+  .hoja-header p { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+  .calle-section {
+    background: #f0fdf4; border-bottom: 1px solid #bbf7d0;
+    padding: 8px 16px; display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1fr; gap: 12px;
+  }
+  .campo-calle label {
+    font-size: 9px; font-weight: 700; color: #14532d;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: block; margin-bottom: 2px;
+  }
+  .linea-calle {
+    border: none; border-bottom: 1.5px solid #16a34a;
+    width: 100%; font-family: inherit; font-size: 12px;
+    background: transparent; padding: 2px 4px; color: #111827;
+  }
+  .linea-calle:focus { outline: none; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+
+  thead tr { background: #14532d; color: white; }
+  thead th {
+    padding: 6px 5px; text-align: center; font-weight: 600;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
+    border-right: 1px solid rgba(255,255,255,0.15); white-space: nowrap;
+  }
+  thead th:last-child { border-right: none; }
+  thead th small { font-weight: 400; font-size: 8px; opacity: 0.8; display: block; }
+
+  tbody tr { border-bottom: 1px solid #e5e7eb; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody td { padding: 3px 4px; border-right: 1px solid #e5e7eb; vertical-align: middle; }
+  tbody td:last-child { border-right: none; }
+
+  .td-num { text-align: center; color: #9ca3af; font-weight: 600; font-size: 9px; }
+  .linea { display: block; width: 100%; border-bottom: 1px solid #d1d5db; min-height: 16px; margin: 2px 0; }
+  .linea-sm { display: block; width: 100%; border-bottom: 1px solid #d1d5db; min-height: 15px; margin: 2px 0; }
+
+  .tipo-badges { display: flex; flex-direction: column; gap: 2px; }
+  .badge { font-size: 8px; padding: 1px 4px; border-radius: 3px; border: 1px solid; white-space: nowrap; }
+  .badge-casa { border-color: #60a5fa; color: #1d4ed8; }
+  .badge-neg  { border-color: #f97316; color: #c2410c; }
+
+  .check-cell { text-align: center; }
+  .check-box-print {
+    width: 16px; height: 16px; border: 2px solid #16a34a;
+    border-radius: 3px; display: inline-block;
+  }
+
+  .hoja-footer {
+    background: #f0fdf4; border-top: 2px solid #bbf7d0;
+    padding: 7px 16px; display: flex; gap: 20px;
+    align-items: center; flex-wrap: wrap;
+  }
+  .total-item { display: flex; align-items: center; gap: 6px; font-size: 10px; }
+  .total-label { color: #6b7280; font-size: 9px; text-transform: uppercase; }
+  .total-linea {
+    border: none; border-bottom: 1.5px solid #16a34a;
+    width: 36px; font-size: 13px; font-weight: 700;
+    color: #14532d; text-align: center; background: transparent;
+  }
+
+  .nota-footer {
+    background: #14532d; color: white; padding: 5px 16px;
+    font-size: 9px; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <span>📋 Encuesta de Campo — SHEVALCHE Mayo 2026</span>
+  <button onclick="window.print()">🖨️ Imprimir</button>
+  <button onclick="agregarHoja()">➕ Agregar hoja</button>
+</div>
+
+<div class="contenedor">
+  <div id="hojas-container"></div>
+</div>
+
+<script>
+let numHojas = 0;
+const FILAS = 20;
+
+function agregarHoja() {
+  numHojas++;
+  const inicio = (numHojas - 1) * FILAS + 1;
+  let filas = '';
+  for (let i = inicio; i < inicio + FILAS; i++) {
+    filas += `<tr>
+      <td class="td-num">${i}</td>
+      <td><span class="linea"></span></td>
+      <td>
+        <div class="tipo-badges">
+          <span class="badge badge-casa">□ Casa</span>
+          <span class="badge badge-neg">□ Neg.</span>
+        </div>
+      </td>
+      <td><span class="linea"></span><span class="linea-sm"></span></td>
+      <td><span class="linea-sm"></span><span class="linea-sm"></span><span class="linea-sm"></span></td>
+      <td class="check-cell"><div class="check-box-print"></div></td>
+      <td><span class="linea"></span></td>
+      <td><span class="linea-sm"></span></td>
+    </tr>`;
+  }
+
+  const hoja = document.createElement('div');
+  hoja.className = 'hoja';
+  hoja.innerHTML = `
+    <div class="hoja-header">
+      <div>
+        <h2>🛒 SHEVALCHE — Encuesta de Vecindario · Hoja ${numHojas}</h2>
+        <p>Calle Távara N° 884, Iquitos · Mayo 2026</p>
+      </div>
+      <div style="font-size:20px">📋</div>
+    </div>
+    <div class="calle-section">
+      <div class="campo-calle">
+        <label>Calle / Jirón</label>
+        <input type="text" class="linea-calle" placeholder="Ej: Jr. Távara">
+      </div>
+      <div class="campo-calle">
+        <label>Cuadra / Sector</label>
+        <input type="text" class="linea-calle" placeholder="Ej: Cuadra 8 · pares">
+      </div>
+      <div class="campo-calle">
+        <label>Fecha de visita</label>
+        <input type="date" class="linea-calle">
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:22px">#</th>
+        <th style="width:52px">N° Puerta</th>
+        <th style="width:68px">Tipo<small>Casa / Neg.</small></th>
+        <th style="width:130px">Nombre Negocio<small>y Rubro (si aplica)</small></th>
+        <th style="width:110px">Fechas cumpleaños<small>dd/mm · cuántos celebran</small></th>
+        <th style="width:36px">QR<small>✓</small></th>
+        <th>WhatsApp</th>
+        <th style="width:65px">Obs.</th>
+      </tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+    <div class="hoja-footer">
+      <div class="total-item">
+        <span class="total-label">Casas:</span>
+        <input class="total-linea" type="text">
+      </div>
+      <div class="total-item">
+        <span class="total-label">Negocios:</span>
+        <input class="total-linea" type="text">
+      </div>
+      <div class="total-item">
+        <span class="total-label">QR escaneados:</span>
+        <input class="total-linea" type="text">
+      </div>
+      <div class="total-item">
+        <span class="total-label">WhatsApp obtenidos:</span>
+        <input class="total-linea" type="text">
+      </div>
+      <div class="total-item">
+        <span class="total-label">Encuestador:</span>
+        <input class="total-linea" type="text" style="width:90px">
+      </div>
+    </div>
+    <div class="nota-footer">
+      Datos para uso exclusivo de SHEVALCHE · Calle Távara N° 884 · 957 150 243 · quevendi.pro/carta/957150243
+    </div>
+  `;
+  document.getElementById('hojas-container').appendChild(hoja);
+}
+
+agregarHoja();
+agregarHoja();
+</script>
+</body>
+</html>
