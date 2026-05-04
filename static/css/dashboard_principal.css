@@ -4107,7 +4107,11 @@ body.is-owner .owner-only {
         display: flex !important;
         flex-direction: column;
         overflow-y: auto;
+        padding-top: 8px;
     }
+
+    /* En desktop el header ya muestra usuario/tienda — evitar duplicación */
+    .sidebar .sidebar-header { display: none !important; }
 
     /* Ocultar X del sidebar y overlay en desktop */
     .sidebar-close { display: none !important; }
@@ -4116,7 +4120,7 @@ body.is-owner .owner-only {
     /* Contenido principal: grid de 2 paneles a la derecha del sidebar */
     .main-content {
         display: grid !important;
-        grid-template-columns: 1fr 340px !important;
+        grid-template-columns: 1fr 380px !important;
         grid-template-rows: 1fr !important;
         margin-left: 240px;
         margin-top: 60px;
@@ -4285,16 +4289,17 @@ body.is-owner .owner-only {
     gap: 8px;
 }
 .suggestion-card {
-    background: var(--bg-primary);
+    background: var(--bg-card);
     border-radius: 8px;
-    padding: 10px;
+    padding: 10px 10px 10px 12px;
     cursor: pointer;
     border: 1px solid var(--border-color);
-    transition: border-color 0.15s, transform 0.15s;
+    border-left: 4px solid var(--cat-color, var(--border-color));
+    transition: transform 0.15s, box-shadow 0.15s;
 }
 .suggestion-card:hover {
-    border-color: var(--accent-gold);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .suggestion-card .s-name {
     font-size: 12px;
@@ -4307,11 +4312,155 @@ body.is-owner .owner-only {
 .suggestion-card .s-price {
     font-size: 14px;
     font-weight: 700;
-    color: var(--accent-gold);
+    color: var(--text-primary);
     margin-top: 4px;
 }
 .suggestion-card .s-stock {
     font-size: 10px;
     color: var(--text-secondary);
+}
+
+/* ============================================
+   CHECKOUT INFO (panel derecho — desktop)
+   ============================================ */
+.checkout-info { display: none; }
+
+@media (min-width: 768px) {
+    .main-content > .panel-right .checkout-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+    }
+}
+
+.last-receipt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+.receipt-number {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-family: var(--font-display);
+}
+.receipt-status {
+    font-size: 11px;
+    font-weight: 600;
+}
+.receipt-status.aceptado { color: var(--accent-green); }
+.receipt-status.rechazado { color: var(--color-red); }
+.receipt-status.pendiente { color: var(--accent-gold); }
+
+.payment-methods-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.pm-btn {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, background .15s;
+    text-align: center;
+}
+.pm-btn:hover { border-color: var(--accent-gold); }
+.pm-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border-color: transparent;
+}
+
+.change-calculator {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg-card);
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+.change-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+.change-row input {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+/* ============================================
+   MESSAGE BANNER
+   ============================================ */
+.message-banner {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: linear-gradient(90deg, #1e3a5f, #1a1a2e);
+    border-bottom: 1px solid #3b82f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    z-index: 95;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+.banner-icon { flex-shrink: 0; }
+.banner-track {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.banner-text {
+    display: inline-block;
+    animation: scrollBanner 20s linear infinite;
+}
+@keyframes scrollBanner {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+.banner-close {
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+    flex-shrink: 0;
+}
+.banner-close:hover { color: var(--text-primary); }
+
+/* Cuando el banner está visible empuja el contenido principal */
+body.has-banner .main-content { margin-top: 92px !important; }
+@media (min-width: 768px) {
+    body.has-banner .main-content {
+        height: calc(100vh - 92px) !important;
+    }
+    body.has-banner .sidebar {
+        top: 92px !important;
+        height: calc(100vh - 92px) !important;
+    }
 }
 }
