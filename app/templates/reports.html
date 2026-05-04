@@ -299,6 +299,11 @@
              localStorage.getItem('access_token') || '';
     }
 
+    function fmtQty(q) {
+      const n = Number(q || 0);
+      return Number.isInteger(n) ? `${n}` : n.toFixed(2);
+    }
+
     async function cargarReportes() {
       const token = getToken();
       const headers = { 'Authorization': `Bearer ${token}` };
@@ -415,7 +420,7 @@
                         transition:width 0.5s ease"></div>
           </div>
           <div style="font-size:11px;color:#94a3b8;margin-top:2px">
-            ${Number(d.num_items).toFixed(0)} unidades
+            ${fmtQty(d.num_items)} unidades
             ${d.margen_est ? `· Margen est: S/ ${d.margen_est.toFixed(2)}` : ''}
           </div>
         </div>
@@ -491,7 +496,7 @@
             <div class="stock-name">${p.name}</div>
             <div style="font-size:11px;color:#94a3b8">${p.category || ''}</div>
           </div>
-          <span class="stock-qty">${Number(p.stock).toFixed(0)} ud.</span>
+          <span class="stock-qty">${fmtQty(p.stock)} ud.</span>
         </div>
       `).join('');
     }
