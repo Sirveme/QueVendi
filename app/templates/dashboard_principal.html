@@ -21,7 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/dashboard_principal.css?v=20260503c">
+    <link rel="stylesheet" href="/static/css/dashboard_principal.css?v=20260503d">
     <link rel="stylesheet" href="/static/css/cart_v2.css">
     <link rel="stylesheet" href="/static/css/checkout_v2.css">
     
@@ -117,6 +117,17 @@
     </style>
 </head>
 <body>
+    <!-- ========================================
+         BANNER DE MENSAJES (oculto por default)
+    ======================================== -->
+    <div class="message-banner" id="message-banner" style="display:none">
+        <span class="banner-icon">📢</span>
+        <div class="banner-track" id="banner-track">
+            <span class="banner-text" id="banner-text">Mensaje del sistema</span>
+        </div>
+        <button class="banner-close" onclick="closeBanner()">✕</button>
+    </div>
+
     <!-- ========================================
          MENÚ LATERAL (SLIDE)
     ======================================== -->
@@ -506,7 +517,37 @@
 
         <!-- TOTAL Y PAGO — v2 compacto -->
         <section class="checkout-section">
-            
+
+            <!-- Info de la venta (solo desktop) -->
+            <div class="checkout-info" id="checkout-info">
+                <!-- Último comprobante emitido -->
+                <div class="last-receipt" id="last-receipt" style="display:none">
+                    <span class="receipt-number" id="receipt-number">B884-00000001</span>
+                    <span class="receipt-status aceptado" id="receipt-status">✅ Aceptada</span>
+                </div>
+
+                <!-- Métodos de pago siempre visibles -->
+                <div class="payment-methods-row">
+                    <button class="pm-btn active" data-pm="efectivo" onclick="selectPayment('efectivo')">💵 Efectivo</button>
+                    <button class="pm-btn" data-pm="yape" onclick="selectPayment('yape')">💛 Yape</button>
+                    <button class="pm-btn" data-pm="plin" onclick="selectPayment('plin')">🟣 Plin</button>
+                    <button class="pm-btn" data-pm="tarjeta" onclick="selectPayment('tarjeta')">💳 Tarjeta</button>
+                </div>
+
+                <!-- Cálculo de vuelto -->
+                <div class="change-calculator" id="change-calc">
+                    <div class="change-row">
+                        <label for="cash-received">Recibe:</label>
+                        <input type="number" id="cash-received" placeholder="0.00" step="0.10"
+                               oninput="calcularVuelto(this.value)">
+                    </div>
+                    <div class="change-row">
+                        <label>Vuelto:</label>
+                        <strong id="change-amount" style="color:var(--accent-gold)">S/ 0.00</strong>
+                    </div>
+                </div>
+            </div>
+
             <!-- Fila única: COBRAR | método | TOTAL -->
             <div class="checkout-row">
                 <button class="btn-checkout" id="btn-checkout" onclick="processSale()">
@@ -1014,7 +1055,7 @@ document.addEventListener('keydown', function(e) {
     <script src="/static/js/offline-sync.js"></script>
     <script src="/static/js/offline-billing.js"></script>
     <script src="/static/js/offline-sale.js"></script>
-    <script src="/static/js/dashboard_principal.js?v=20260503c"></script>
+    <script src="/static/js/dashboard_principal.js?v=20260503d"></script>
     <script src="/static/js/thermal-printer.js"></script>
     <script src="/static/js/print-agent-client.js"></script>
     <script src="/static/js/print-agent-integration.js"></script>
