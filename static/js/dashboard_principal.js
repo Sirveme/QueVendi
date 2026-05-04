@@ -381,6 +381,35 @@ function _debounce(fn, ms) {
     };
 }
 
+// Mapa categoría → color de borde
+const CATEGORY_COLORS = {
+    'bebidas': '#3b82f6',
+    'gaseosas': '#3b82f6',
+    'aguas': '#06b6d4',
+    'jugos': '#06b6d4',
+    'abarrotes': '#10b981',
+    'verduras': '#22c55e',
+    'frutas': '#84cc16',
+    'carnes': '#ef4444',
+    'lacteos': '#f59e0b',
+    'lácteos': '#f59e0b',
+    'panadería': '#d97706',
+    'panaderia': '#d97706',
+    'licores': '#8b5cf6',
+    'cervezas': '#a855f7',
+    'limpieza': '#0ea5e9',
+    'higiene': '#ec4899',
+    'snacks': '#f97316',
+    'dulces': '#fb7185',
+    'congelados': '#22d3ee'
+};
+
+function _categoryColor(category) {
+    if (!category) return 'var(--border-color)';
+    const key = String(category).toLowerCase().trim();
+    return CATEGORY_COLORS[key] || '#64748b';
+}
+
 async function cargarSugerenciasDesktop() {
     const container = document.getElementById('desktop-suggestions');
     const grid = document.getElementById('suggestions-grid');
@@ -391,58 +420,89 @@ async function cargarSugerenciasDesktop() {
         return;
     }
 
-    let lista = [];
+    // Siempre tirar del catálogo offline si está disponible — más datos para
+    // ordenar por ventas/stock y diversificar categorías
+    let pool = [];
+    try {
+        if (typeof OfflineDB !== 'undefined' && OfflineDB.products?.getAll) {
+            const all = await OfflineDB.products.getAll(0);
+            pool = (all || []).filter(p => p.active !== false && (p.stock || 0) > 0);
+        }
+    } catch (e) {
+        console.warn('[Suggestions] No se pudo leer catálogo offline:', e);
+    }
 
-    // 1) Preferir productos recientes si hay suficientes
-    if (Array.isArray(AppState.recentProducts) && AppState.recentProducts.length >= 4) {
-        lista = AppState.recentProducts.slice(0, 8).map(p => ({
+    // Fallback a productos recientes si el catálogo offline está vacío
+    if (pool.length === 0 && Array.isArray(AppState.recentProducts)) {
+        pool = AppState.recentProducts.slice();
+    }
+
+    if (pool.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    // Ordenar: primero por sales_count (desc), luego por stock (asc — más críticos)
+    pool.sort((a, b) => {
+        const sa = parseInt(a.sales_count || 0);
+        const sb = parseInt(b.sales_count || 0);
+        if (sb !== sa) return sb - sa;
+        return (parseFloat(a.stock) || 0) - (parseFloat(b.stock) || 0);
+    });
+
+    // Diversificar: máximo 2 productos por categoría
+    const perCat = {};
+    const lista = [];
+    for (const p of pool) {
+        const cat = (p.category || 'sin-cat').toLowerCase();
+        perCat[cat] = (perCat[cat] || 0);
+        if (perCat[cat] >= 2) continue;
+        perCat[cat]++;
+        lista.push({
             id: p.id,
             name: p.name,
             sale_price: parseFloat(p.sale_price) || 0,
             stock: parseFloat(p.stock) || 0,
             unit: p.unit || 'unidad',
-            code: p.code
-        }));
-    } else {
-        // 2) Caer al catálogo offline (IndexedDB)
-        try {
-            if (typeof OfflineDB !== 'undefined' && OfflineDB.products?.getAll) {
-                const all = await OfflineDB.products.getAll(60);
-                lista = (all || [])
-                    .filter(p => p.active !== false && (p.stock || 0) > 0)
-                    .slice(0, 8)
-                    .map(p => ({
-                        id: p.id,
-                        name: p.name,
-                        sale_price: parseFloat(p.sale_price) || 0,
-                        stock: parseFloat(p.stock) || 0,
-                        unit: p.unit || 'unidad',
-                        code: p.barcode
-                    }));
-            }
-        } catch (e) {
-            console.warn('[Suggestions] No se pudo leer catálogo offline:', e);
+            code: p.barcode || p.code,
+            category: p.category || null
+        });
+        if (lista.length >= 8) break;
+    }
+
+    // Si no llenamos los 8 con la regla de diversidad, completar libremente
+    if (lista.length < 8) {
+        for (const p of pool) {
+            if (lista.find(x => x.id === p.id)) continue;
+            lista.push({
+                id: p.id,
+                name: p.name,
+                sale_price: parseFloat(p.sale_price) || 0,
+                stock: parseFloat(p.stock) || 0,
+                unit: p.unit || 'unidad',
+                code: p.barcode || p.code,
+                category: p.category || null
+            });
+            if (lista.length >= 8) break;
         }
     }
 
-    if (lista.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    // Cache para click handler
     AppState.desktopSuggestions = lista;
     container.style.display = 'block';
 
-    grid.innerHTML = lista.map(p => `
+    grid.innerHTML = lista.map(p => {
+        const color = _categoryColor(p.category);
+        const stockTxt = p.stock % 1 === 0 ? p.stock : p.stock.toFixed(2);
+        return `
         <div class="suggestion-card"
+             style="--cat-color: ${color}"
              onclick="_addSuggestionToCart(${p.id})"
-             title="${p.name}">
+             title="${p.name}${p.category ? ' · ' + p.category : ''}">
             <div class="s-name">${p.name}</div>
             <div class="s-price">S/ ${p.sale_price.toFixed(2)}</div>
-            <div class="s-stock">Stock: ${p.stock % 1 === 0 ? p.stock : p.stock.toFixed(2)}</div>
-        </div>
-    `).join('');
+            <div class="s-stock">Stock: ${stockTxt}</div>
+        </div>`;
+    }).join('');
 }
 
 function _addSuggestionToCart(productId) {
@@ -453,6 +513,72 @@ function _addSuggestionToCart(productId) {
         return;
     }
     addToCart(product);
+}
+
+// ================================================================
+// CHECKOUT INFO — calculadora de vuelto + último comprobante
+// ================================================================
+function calcularVuelto(recibido) {
+    const total = (typeof getCartTotal === 'function') ? getCartTotal() : 0;
+    const r = parseFloat(recibido) || 0;
+    const vuelto = r - total;
+    const el = document.getElementById('change-amount');
+    if (!el) return;
+
+    if (r <= 0) {
+        el.textContent = 'S/ 0.00';
+        el.style.color = 'var(--accent-gold)';
+        return;
+    }
+
+    el.textContent = vuelto >= 0 ? `S/ ${vuelto.toFixed(2)}` : 'Insuficiente';
+    el.style.color = vuelto >= 0 ? 'var(--accent-gold)' : '#e53935';
+}
+
+function actualizarUltimoComprobante(numero, estado) {
+    const el = document.getElementById('last-receipt');
+    const num = document.getElementById('receipt-number');
+    const st = document.getElementById('receipt-status');
+    if (!el || !num || !st) return;
+
+    num.textContent = numero || '—';
+    const e = String(estado || '').toLowerCase();
+    st.textContent =
+        e === 'aceptado' ? '✅ Aceptada' :
+        e === 'rechazado' ? '❌ Rechazada' :
+        e === 'pendiente' ? '⏳ En cola' : '📋 ' + (estado || '');
+    st.className = 'receipt-status ' + e;
+    el.style.display = 'flex';
+}
+
+// ================================================================
+// MESSAGE BANNER — mensajes scroll en la parte superior
+// ================================================================
+function showBanner(mensaje, tipo = 'info') {
+    const banner = document.getElementById('message-banner');
+    const text = document.getElementById('banner-text');
+    if (!banner || !text) return;
+
+    text.textContent = mensaje;
+    banner.style.display = 'flex';
+    banner.style.borderBottomColor =
+        tipo === 'error' ? '#e53935' :
+        tipo === 'success' ? '#10b981' : '#3b82f6';
+    document.body.classList.add('has-banner');
+}
+
+function closeBanner() {
+    const banner = document.getElementById('message-banner');
+    if (banner) banner.style.display = 'none';
+    document.body.classList.remove('has-banner');
+}
+
+// Sync visual del botón de método de pago en checkout-info
+// con la selección actual (sea desde el popup o desde el panel)
+function _syncPaymentMethodsRow(method) {
+    document.querySelectorAll('.pm-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.pm === method);
+    });
 }
 
 
@@ -2436,6 +2562,11 @@ function selectPaymentUI(method) {
         btn.classList.toggle('active', btn.dataset.method === method);
     });
     AppState.paymentMethod = method;
+
+    // Sync con la fila de métodos de pago del panel desktop (checkout-info)
+    if (typeof _syncPaymentMethodsRow === 'function') {
+        _syncPaymentMethodsRow(method);
+    }
 }
 
 // cerrarModalFiado y confirmarDatosFiado están definidos en dashboard_principal.html (inline script)
@@ -3025,6 +3156,11 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
     const labels = { '01': 'Factura', '03': 'Boleta' };
     const tipoLabel = formato === 'TICKET' ? 'Ticket Electr\u00f3nico' : (labels[tipoDoc] || 'Comprobante');
     const emitidoLabel = formato === 'TICKET' ? 'Emitido' : 'Emitida';
+
+    // Actualizar widget de \u00faltimo comprobante (panel derecho desktop)
+    if (typeof actualizarUltimoComprobante === 'function') {
+        actualizarUltimoComprobante(numeroFormato, 'aceptado');
+    }
 
     let modal = document.getElementById('comprobante-success-modal');
     if (!modal) {
