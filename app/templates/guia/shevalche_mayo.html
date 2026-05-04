@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía QueVendi — SHEVALCHE</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #16a34a;
+    --verde-dark: #14532d;
+    --verde-light: #dcfce7;
+    --naranja: #f97316;
+    --naranja-light: #fff7ed;
+    --rojo: #dc2626;
+    --rojo-light: #fef2f2;
+    --azul: #1d4ed8;
+    --azul-light: #eff6ff;
+    --gris: #6b7280;
+    --gris-light: #f9fafb;
+    --negro: #111827;
+    --blanco: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f8fafc;
+    color: var(--negro);
+    line-height: 1.6;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--verde-dark) 0%, var(--verde) 60%, #22c55e 100%);
+    color: white;
+    padding: 48px 24px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 6vw, 40px);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero h1 span { color: #bbf7d0; }
+  .hero p {
+    font-size: 15px;
+    opacity: 0.85;
+    max-width: 480px;
+    margin: 0 auto 24px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 20px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    display: block;
+  }
+  .stat-label { font-size: 11px; opacity: 0.8; }
+
+  /* NAV STICKY */
+  .nav-sticky {
+    position: sticky;
+    top: 0;
+    background: white;
+    border-bottom: 2px solid var(--verde-light);
+    z-index: 100;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-sticky::-webkit-scrollbar { display: none; }
+  .nav-inner {
+    display: flex;
+    gap: 4px;
+    padding: 10px 16px;
+    min-width: max-content;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--gris);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--verde);
+    color: white;
+  }
+
+  /* CONTENIDO */
+  .container { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* SECCIONES */
+  .section {
+    margin-top: 32px;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .section-icon.verde { background: var(--verde-light); }
+  .section-icon.naranja { background: var(--naranja-light); }
+  .section-icon.rojo { background: var(--rojo-light); }
+  .section-icon.azul { background: var(--azul-light); }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--verde-dark);
+    line-height: 1.2;
+  }
+  .section-subtitle {
+    font-size: 12px;
+    color: var(--gris);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* CARDS */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--verde);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--verde);
+    font-size: 12px;
+  }
+
+  /* PASOS */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--gris-light);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    background: var(--verde);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .step-label { font-weight: 700; font-size: 13px; color: var(--verde-dark); }
+  .step-desc { font-size: 13px; color: var(--gris); }
+
+  /* TIP */
+  .tip {
+    background: var(--azul-light);
+    border-left: 4px solid var(--azul);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--azul);
+    margin: 12px 0;
+  }
+  .tip strong { display: block; margin-bottom: 2px; }
+
+  /* META BOX */
+  .meta-box {
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .meta-header {
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .meta-body {
+    padding: 16px 20px;
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 14px;
+  }
+  .meta-row:last-child { border-bottom: none; }
+  .meta-value { font-weight: 700; }
+
+  /* PROMO CARDS */
+  .promo-grid { display: grid; gap: 12px; }
+  .promo-card {
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid;
+  }
+  .promo-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .promo-card p { font-size: 13px; line-height: 1.5; }
+  .promo-volante { background: #fffbeb; border-color: #fcd34d; }
+  .promo-volante h4 { color: #92400e; }
+  .promo-whatsapp { background: #f0fdf4; border-color: #86efac; }
+  .promo-whatsapp h4 { color: var(--verde-dark); }
+  .promo-deco { background: #fdf4ff; border-color: #d8b4fe; }
+  .promo-deco h4 { color: #6b21a8; }
+
+  /* HABITOS */
+  .habito-card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .habito-header {
+    background: var(--verde);
+    color: white;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .habito-body { padding: 12px 16px; }
+  .habito-item {
+    font-size: 13px;
+    padding: 5px 0;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    gap: 8px;
+  }
+  .habito-item:last-child { border-bottom: none; }
+
+  /* ALERTAS */
+  .alerta-card {
+    background: var(--rojo-light);
+    border: 1px solid #fca5a5;
+    border-left: 5px solid var(--rojo);
+    border-radius: 0 14px 14px 0;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .alerta-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--rojo);
+    margin-bottom: 4px;
+  }
+  .alerta-body { font-size: 13px; color: #7f1d1d; line-height: 1.5; }
+
+  /* CARTA VIRTUAL */
+  .link-box {
+    background: linear-gradient(135deg, var(--verde-dark), var(--verde));
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    margin: 16px 0;
+  }
+  .link-box .url {
+    font-size: 15px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 10px 0;
+    display: inline-block;
+    word-break: break-all;
+  }
+
+  /* TABLA PRODUCTOS */
+  .product-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .product-table th {
+    background: var(--azul);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .product-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .product-table tr:nth-child(even) td { background: #f9fafb; }
+
+  /* DINERO */
+  .regla-oro {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 2px solid #fcd34d;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin: 12px 0;
+  }
+  .regla-oro h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #92400e;
+    margin-bottom: 8px;
+  }
+  .regla-oro p { font-size: 13px; color: #78350f; }
+
+  /* FIADOS TABLE */
+  .fiados-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .fiados-table th {
+    background: var(--naranja);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .fiados-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .fiados-table tr:nth-child(even) td { background: #fff7ed; }
+
+  /* FOOTER */
+  .footer {
+    background: var(--verde-dark);
+    color: white;
+    padding: 32px 24px;
+    text-align: center;
+    margin-top: 48px;
+  }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .footer p { font-size: 13px; opacity: 0.7; margin-bottom: 4px; }
+  .footer .contacto {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 16px 0;
+  }
+  .footer .contacto strong { font-size: 15px; display: block; margin-bottom: 4px; }
+
+  /* UTILIDADES */
+  .bullet-list { list-style: none; padding: 0; }
+  .bullet-list li {
+    padding: 5px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 8px;
+  }
+  .bullet-list li::before { content: '•'; color: var(--verde); font-weight: 700; flex-shrink: 0; }
+
+  .verde { color: var(--verde); }
+  .naranja { color: var(--naranja); }
+  .rojo { color: var(--rojo); }
+  .bold { font-weight: 700; }
+
+  .divider {
+    height: 3px;
+    border-radius: 2px;
+    margin: 6px 0 20px;
+  }
+  .divider.verde { background: var(--verde-light); }
+  .divider.naranja { background: var(--naranja-light); }
+  .divider.rojo { background: var(--rojo-light); }
+  .divider.azul { background: var(--azul-light); }
+
+  @media (min-width: 600px) {
+    .promo-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 64px 32px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📋 Guía Práctica 2026</div>
+  <h1>Bienvenido a<br><span>SHEVALCHE</span></h1>
+  <p>Tu hoja de ruta para arrancar, sobrevivir y crecer con tu negocio. Paso a paso, mes a mes.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">12</span>
+      <span class="stat-label">meses de guía</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">3</span>
+      <span class="stat-label">fechas clave</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">soporte QueVendi</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-sticky">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="scrollTo('semana1')">Semana 1</button>
+    <button class="nav-btn" onclick="scrollTo('mayo')">🌹 Madres</button>
+    <button class="nav-btn" onclick="scrollTo('junio')">👨 Padre</button>
+    <button class="nav-btn" onclick="scrollTo('julio')">🇵🇪 Fiestas</button>
+    <button class="nav-btn" onclick="scrollTo('habitos')">Hábitos</button>
+    <button class="nav-btn" onclick="scrollTo('dinero')">Dinero</button>
+    <button class="nav-btn" onclick="scrollTo('alertas')">⚠️ Alertas</button>
+    <button class="nav-btn" onclick="scrollTo('carta')">Mi Carta</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- SEMANA 1 -->
+  <div class="section" id="semana1">
+    <div class="section-header">
+      <div class="section-icon verde">🚀</div>
+      <div>
+        <div class="section-subtitle">Arranque</div>
+        <h2 class="section-title">Semana 1 — Empezar a vender</h2>
+      </div>
+    </div>
+    <div class="divider verde"></div>
+
+    <div class="card">
+      <div class="card-title">✅ Checklist mínimo para tu primera venta</div>
+      <ul class="checklist">
+        <li><div class="check-box">✓</div><span>Productos cargados con precio de venta en QueVendi</span></li>
+        <li><div class="check-box">✓</div><span>Caja abierta en QueVendi (Sidebar → Caja → Apertura)</span></li>
+        <li><div class="check-box">✓</div><span>Celular con QueVendi cargado al 100%</span></li>
+        <li><div class="check-box">✓</div><span>Sencillo para dar vuelto (S/ 100 en billetes chicos)</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎯 Tu primera semana en números</div>
+      <ul class="bullet-list">
+        <li>Meta realista: <strong>S/ 200–300 de venta diaria</strong></li>
+        <li>No te desanimes si el primer día vendes S/ 50 — es completamente normal</li>
+        <li>El boca a boca tarda <strong>2–3 semanas</strong> en arrancar</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 Cómo usar QueVendi — 3 pasos</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-label">ABRIR CAJA</div>
+            <div class="step-desc">Sidebar → Caja → Apertura — Hazlo cada mañana</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-label">VENDER</div>
+            <div class="step-desc">Busca el producto por voz o texto → agrega → COBRAR</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-label">CERRAR CAJA</div>
+            <div class="step-desc">Al final del día → Sidebar → Caja → Cierre</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>💡 Tip de administrador:</strong>
+      Trata la caja diaria como si fuera una empresa grande. Apertura y cierre todos los días, sin excepción. Esto te dará datos reales para tomar decisiones.
+    </div>
+  </div>
+
+  <!-- MAYO -->
+  <div class="section" id="mayo">
+    <div class="section-header">
+      <div class="section-icon naranja">🌹</div>
+      <div>
+        <div class="section-subtitle">Mayo 2026</div>
+        <h2 class="section-title">Día de las Madres — 11 de mayo</h2>
+      </div>
+    </div>
+    <div class="divider naranja"></div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--naranja)">Tu primera gran oportunidad</div>
+      <p style="font-size:14px; line-height:1.6">
+        El Día de las Madres es la fecha más importante para un negocio de licores y bebidas en Perú.
+        Las familias celebran, los hijos compran, las reuniones se multiplican.
+        <strong>Tienes pocos días — actúa esta semana.</strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 1. Aumenta stock esta semana</div>
+      <ul class="bullet-list">
+        <li>Ron Cartavio — el más regalado en mayo</li>
+        <li>Vino Tabernero y Queirolo espumante</li>
+        <li>Cocteles especiales (coco, maracuyá)</li>
+        <li>Gaseosas grandes 2.5L para reuniones</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎁 2. Prepara 2 ofertas simples</div>
+      <ul class="bullet-list">
+        <li><strong>"Pack Mamá Feliz":</strong> 1 vino + 2 gaseosas grandes = precio especial</li>
+        <li><strong>Cantidad:</strong> Lleva 6 cervezas, paga 5</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📣 3. Promociona en 3–5 cuadras a la redonda</div>
+      <div class="promo-grid" style="margin-top:12px">
+        <div class="promo-card promo-volante">
+          <h4>📄 Volantes — S/ 5–10</h4>
+          <p>50 volantes media hoja en cualquier imprenta. <em>"Celebra a mamá — SHEVALCHE, Calle Távara 884. Ofertas del 9 al 11 de mayo"</em>. Deja en: barbería, peluquería, paradero.</p>
+        </div>
+        <div class="promo-card promo-whatsapp">
+          <h4>📱 WhatsApp — GRATIS</h4>
+          <p>Envía a tus contactos y pídeles reenviar: <em>"🌹 Día de las Madres — SHEVALCHE, Calle Távara 884. Ofertas especiales! 967317946"</em></p>
+        </div>
+        <div class="promo-card promo-deco">
+          <h4>🎈 Decoración — S/ 10–15</h4>
+          <p>Globos rosas + cartel hecho a mano. Ponlo el sábado 9. La presentación atrae clientes que pasan caminando.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-box">
+      <div class="meta-header" style="background:var(--naranja)">🎯 Meta fin de semana 9–11 de mayo</div>
+      <div class="meta-body" style="background:var(--naranja-light)">
+        <div class="meta-row">
+          <span>Venta diaria objetivo</span>
+          <span class="meta-value naranja">S/ 800 – 1,200</span>
+        </div>
+        <div class="meta-row">
+          <span>Productos estrella</span>
+          <span class="meta-value">Ron, vino, cocteles, cervezas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JUNIO -->
+  <div class="section" id="junio">
+    <div class="section-header">
+      <div class="section-icon azul">👨</div>
+      <div>
+        <div class="section-subtitle">Junio 2026</div>
+        <h2 class="section-title">Día del Padre — 15 de junio</h2>
+      </div>
+    </div>
+    <div class="divider azul"></div>
+
+    <div class="card">
+      <p style="font-size:14px; line-height:1.6; margin-bottom:14px">
+        El Día del Padre tiene menor volumen que Madres, pero el <strong>ticket promedio es más alto</strong> — los hombres compran más licor. Repite la misma estrategia de promoción.
+      </p>
+      <div class="card-title">🥃 Productos estrella para papá</div>
+      <table class="product-table">
+        <thead>
+          <tr><th>Categoría</th><th>Marcas recomendadas</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Whisky</strong></td><td>JW Red Label, Old Parr</td></tr>
+          <tr><td><strong>Ron</strong></td><td>Cartavio Black, Havana Club</td></tr>
+          <tr><td><strong>Cerveza pack</strong></td><td>Cristal x6, Pilsen, San Juan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip">
+      <strong>💡 Oferta sugerida:</strong>
+      "Pack Papá Auténtico": 1 whisky + 4 cervezas = precio especial. Aplica la misma estrategia de volantes y WhatsApp desde el lunes 8 de junio.
+    </div>
+  </div>
+
+  <!-- JULIO -->
+  <div class="section" id="julio">
+    <div class="section-header">
+      <div class="section-icon rojo">🇵🇪</div>
+      <div>
+        <div class="section-subtitle">Julio 2026</div>
+        <h2 class="section-title">Fiestas Patrias — 28 y 29 de julio</h2>
+      </div>
+    </div>
+    <div class="divider rojo"></div>
+
+    <div class="card" style="border:2px solid var(--rojo); background:var(--rojo-light)">
+      <div class="card-title rojo">🏆 Tu mejor mes del año</div>
+      <p style="font-size:14px; line-height:1.6">
+        Julio es la temporada alta para cualquier negocio de bebidas en Perú. Parrilladas, fiestas familiares, celebraciones. Prepárate desde el 1 de julio.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Plan desde el 1 de julio</div>
+      <ul class="bullet-list">
+        <li><strong>20 de junio:</strong> Duplica stock de cervezas y gaseosas</li>
+        <li><strong>27–29 de julio:</strong> Horario extendido (8am–10pm) — llama a tu hija</li>
+        <li>Agrega hielo en bolsas y vasos descartables si consigues proveedor</li>
+        <li>Oferta: "Combo Fiestas Patrias" cerveza + snacks a precio especial</li>
+      </ul>
+    </div>
+
+    <div class="meta-box">
+      <div class="meta-header" style="background:var(--rojo)">🎯 Meta Julio</div>
+      <div class="meta-body" style="background:var(--rojo-light)">
+        <div class="meta-row">
+          <span>Semana 27–31 julio (diario)</span>
+          <span class="meta-value rojo">S/ 1,500 – 2,500</span>
+        </div>
+        <div class="meta-row">
+          <span>Meta del mes completo</span>
+          <span class="meta-value rojo">S/ 15,000 – 20,000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HABITOS -->
+  <div class="section" id="habitos">
+    <div class="section-header">
+      <div class="section-icon verde">📅</div>
+      <div>
+        <div class="section-subtitle">Todos los meses</div>
+        <h2 class="section-title">Hábitos que marcan la diferencia</h2>
+      </div>
+    </div>
+    <div class="divider verde"></div>
+
+    <div class="habito-card">
+      <div class="habito-header">⏰ Cada mañana — 5 minutos</div>
+      <div class="habito-body">
+        <div class="habito-item"><span>•</span><span>Abrir caja en QueVendi</span></div>
+        <div class="habito-item"><span>•</span><span>Revisar stock de los 5 productos más vendidos</span></div>
+        <div class="habito-item"><span>•</span><span>Si hay stock bajo → llamar al proveedor hoy</span></div>
+      </div>
+    </div>
+
+    <div class="habito-card">
+      <div class="habito-header">🌙 Cada tarde — 10 minutos</div>
+      <div class="habito-body">
+        <div class="habito-item"><span>•</span><span>Revisar ventas del día en QueVendi → Ventas</span></div>
+        <div class="habito-item"><span>•</span><span>¿Qué se vendió más? → pide más de eso</span></div>
+        <div class="habito-item"><span>•</span><span>¿Qué no se movió? → considera una promoción</span></div>
+      </div>
+    </div>
+
+    <div class="habito-card">
+      <div class="habito-header">📊 Cada semana — 30 minutos</div>
+      <div class="habito-body">
+        <div class="habito-item"><span>•</span><span>Balance: ¿cuánto entró, cuánto salió?</span></div>
+        <div class="habito-item"><span>•</span><span>¿Productos próximos a vencer? → promociónalo esta semana</span></div>
+        <div class="habito-item"><span>•</span><span>¿Algún cliente debe? → cobrar amablemente</span></div>
+      </div>
+    </div>
+
+    <div class="habito-card">
+      <div class="habito-header">🗓️ Cada mes</div>
+      <div class="habito-body">
+        <div class="habito-item"><span>•</span><span>Inventario físico: cuenta lo que tienes vs lo que dice el sistema</span></div>
+        <div class="habito-item"><span>•</span><span>Calcula tu ganancia real del mes</span></div>
+        <div class="habito-item"><span>•</span><span>Evalúa qué productos tienen mejor margen</span></div>
+        <div class="habito-item"><span>•</span><span>Planifica fechas especiales del siguiente mes</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DINERO -->
+  <div class="section" id="dinero">
+    <div class="section-header">
+      <div class="section-icon naranja">💰</div>
+      <div>
+        <div class="section-subtitle">Finanzas básicas</div>
+        <h2 class="section-title">Manejo del dinero</h2>
+      </div>
+    </div>
+    <div class="divider naranja"></div>
+
+    <div class="regla-oro">
+      <h3>⚖️ La Regla de Oro</h3>
+      <p>Nunca mezcles el dinero del negocio con el personal. Este es el error más común y más costoso en un negocio nuevo.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💵 Cómo pagarte un sueldo</div>
+      <ul class="bullet-list">
+        <li>El negocio tiene su propia caja — gestióna en QueVendi</li>
+        <li>Tú tienes un sueldo fijo que te pagas cada semana</li>
+        <li><strong>Mes 1–2:</strong> S/ 500–800 mientras el negocio arranca</li>
+        <li><strong>Mes 3 en adelante:</strong> según lo que el negocio genere</li>
+        <li>Regla práctica: no más del <strong>30–40%</strong> de las ventas netas</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--naranja)">🤝 Fiados — Con cabeza fría</div>
+      <table class="fiados-table" style="margin-top:8px">
+        <thead>
+          <tr><th>Regla</th><th>Cómo aplicarla</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Solo a conocidos</strong></td><td>Nombre, dirección, trabajo</td></tr>
+          <tr><td><strong>Registra SIEMPRE</strong></td><td>QueVendi → módulo Fiados</td></tr>
+          <tr><td><strong>Límite por persona</strong></td><td>Máximo S/ 50–100</td></tr>
+          <tr><td><strong>Cobro regular</strong></td><td>Cada 15 días o inicio de mes</td></tr>
+          <tr><td><strong>30 días sin pago</strong></td><td>No más fiado — sin excepciones</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip">
+      <strong>💡 Cómo cobrar sin incomodar:</strong>
+      "Don X, este viernes paso a saludar, me debe S/ 45 de la semana pasada." — Nunca cobres delante de otras personas. Sé amable pero firme.
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div class="section" id="alertas">
+    <div class="section-header">
+      <div class="section-icon rojo">⚠️</div>
+      <div>
+        <div class="section-subtitle">Señales de peligro</div>
+        <h2 class="section-title">Actúa rápido si ves esto</h2>
+      </div>
+    </div>
+    <div class="divider rojo"></div>
+
+    <div class="alerta-card">
+      <div class="alerta-title">🔴 Las ventas bajaron 3 días seguidos</div>
+      <div class="alerta-body">Revisa si hay competencia nueva cerca. ¿Tienes los productos que la gente busca? Pregunta directamente a tus clientes qué necesitan.</div>
+    </div>
+
+    <div class="alerta-card">
+      <div class="alerta-title">🔴 Un producto no se vende en 2 semanas</div>
+      <div class="alerta-body">Ponlo en oferta inmediatamente. Si tiene vencimiento próximo → precio especial urgente. Mejor vender barato que perderlo.</div>
+    </div>
+
+    <div class="alerta-card">
+      <div class="alerta-title">🔴 Los fiados superan el 10% de tus ventas</div>
+      <div class="alerta-body">Deja de fiar temporalmente. Cobra todo lo que te deben antes de seguir. El efectivo que no entra es dinero que pierdes.</div>
+    </div>
+
+    <div class="alerta-card">
+      <div class="alerta-title">🔴 No te alcanza para pagar a proveedores</div>
+      <div class="alerta-body">Habla con ellos ANTES de que llegue la fecha. Pide plazo — es mejor que quedar mal. Luego revisa qué gastos puedes reducir este mes.</div>
+    </div>
+  </div>
+
+  <!-- CARTA VIRTUAL -->
+  <div class="section" id="carta">
+    <div class="section-header">
+      <div class="section-icon verde">🌐</div>
+      <div>
+        <div class="section-subtitle">Tu vitrina digital</div>
+        <h2 class="section-title">La Carta Virtual de SHEVALCHE</h2>
+      </div>
+    </div>
+    <div class="divider verde"></div>
+
+    <div class="link-box">
+      <p style="font-size:13px; opacity:0.8; margin-bottom:6px">Tu catálogo online gratuito</p>
+      <div class="url">quevendi.pro/carta/957150243</div>
+      <p style="font-size:12px; opacity:0.7; margin-top:6px">Los clientes ven tus productos y precios sin llamarte</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📤 Comparte este link en:</div>
+      <ul class="bullet-list">
+        <li>Tu <strong>estado de WhatsApp</strong> todos los días</li>
+        <li><strong>Grupos de WhatsApp</strong> del barrio y amigos</li>
+        <li>Tu <strong>Facebook personal</strong></li>
+        <li>Imprímelo como <strong>código QR</strong> y ponlo en la puerta del local</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">🛒 QueVendi.pro</div>
+  <div class="contacto">
+    <strong>📞 Soporte directo</strong>
+    <span>Duilio Restuccia — WhatsApp: 967 317 946</span>
+  </div>
+  <p>El éxito de tu negocio es el nuestro.</p>
+  <p>Estamos contigo en cada paso.</p>
+  <p style="margin-top:12px; font-size:11px; opacity:0.5">Versión Mayo 2026 — Peru Sistemas Pro E.I.R.L.</p>
+</div>
+
+<script>
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Highlight nav on scroll
+const sections = ['semana1','mayo','junio','julio','habitos','dinero','alertas','carta'];
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 120) current = id;
+  });
+  document.querySelectorAll('.nav-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', sections[i] === current);
+  });
+});
+</script>
+</body>
+</html>
