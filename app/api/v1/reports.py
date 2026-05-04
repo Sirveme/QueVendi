@@ -128,6 +128,7 @@ async def get_top_products_html(
     top_products = db.query(
         Product.id,
         Product.name,
+        Product.unit,
         func.round(func.sum(SaleItem.quantity), 2).label('total_quantity'),
         func.sum(SaleItem.subtotal).label('total_revenue')
     ).join(SaleItem, SaleItem.product_id == Product.id) \
@@ -136,7 +137,7 @@ async def get_top_products_html(
         Sale.store_id == current_user.store_id,
         Sale.created_at >= today_start,
         Sale.created_at < today_end,
-     ).group_by(Product.id, Product.name) \
+     ).group_by(Product.id, Product.name, Product.unit) \
      .order_by(desc('total_quantity')) \
      .limit(10).all()
 
@@ -149,13 +150,19 @@ async def get_top_products_html(
         """)
 
     html_items = []
-    for i, (product_id, name, quantity, revenue) in enumerate(top_products, 1):
+    for i, (product_id, name, unit, quantity, revenue) in enumerate(top_products, 1):
+        qty = float(quantity or 0)
+        qty_str = f"{int(qty)}" if qty == int(qty) else f"{qty:.2f}"
+        # Para "unidad/unidades" se pluraliza; otras unidades (kg, litro, docena) se mantienen
+        unit_label = unit or "unidad"
+        if unit_label == "unidad":
+            unit_label = "unidades" if qty != 1 else "unidad"
         html_items.append(f"""
             <li class="top-product-item" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #334155;list-style:none">
                 <div style="font-weight:800;color:#f59e0b;min-width:30px">#{i}</div>
                 <div style="flex:1">
                     <div style="font-weight:600;color:#f1f5f9;font-size:13px">{name}</div>
-                    <div style="font-size:11px;color:#94a3b8">{_fmt_qty(quantity)} unidades</div>
+                    <div style="font-size:11px;color:#94a3b8">{qty_str} {unit_label}</div>
                 </div>
                 <div style="font-weight:700;color:#22c55e">S/ {float(revenue):.2f}</div>
             </li>
