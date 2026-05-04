@@ -501,14 +501,14 @@
 <!-- NAV -->
 <nav class="nav-sticky">
   <div class="nav-inner">
-    <button class="nav-btn active" onclick="scrollTo('semana1')">Semana 1</button>
-    <button class="nav-btn" onclick="scrollTo('mayo')">🌹 Madres</button>
-    <button class="nav-btn" onclick="scrollTo('junio')">👨 Padre</button>
-    <button class="nav-btn" onclick="scrollTo('julio')">🇵🇪 Fiestas</button>
-    <button class="nav-btn" onclick="scrollTo('habitos')">Hábitos</button>
-    <button class="nav-btn" onclick="scrollTo('dinero')">Dinero</button>
-    <button class="nav-btn" onclick="scrollTo('alertas')">⚠️ Alertas</button>
-    <button class="nav-btn" onclick="scrollTo('carta')">Mi Carta</button>
+    <button class="nav-btn active" onclick="irA('semana1')">Semana 1</button>
+    <button class="nav-btn" onclick="irA('mayo')">🌹 Madres</button>
+    <button class="nav-btn" onclick="irA('junio')">👨 Padre</button>
+    <button class="nav-btn" onclick="irA('julio')">🇵🇪 Fiestas</button>
+    <button class="nav-btn" onclick="irA('habitos')">Hábitos</button>
+    <button class="nav-btn" onclick="irA('dinero')">Dinero</button>
+    <button class="nav-btn" onclick="irA('alertas')">⚠️ Alertas</button>
+    <button class="nav-btn" onclick="irA('carta')">Mi Carta</button>
   </div>
 </nav>
 
@@ -590,11 +590,9 @@
 
     <div class="card">
       <div class="card-title" style="color:var(--naranja)">Tu primera gran oportunidad</div>
-      <p style="font-size:14px; line-height:1.6">
-        El Día de las Madres es la fecha más importante para un negocio de licores y bebidas en Perú.
-        Las familias celebran, los hijos compran, las reuniones se multiplican.
-        <strong>Tienes pocos días — actúa esta semana.</strong>
-      </p>
+        <li><strong>Lunes 4 al viernes 8 de mayo:</strong> aumenta stock, prepara ofertas</li>
+        <li><strong>Sábado 9:</strong> decora el local con globos rosas</li>
+        <li><strong>10 de mayo — Día de las Madres:</strong> tu jornada más importante del mes</li>
     </div>
 
     <div class="card">
@@ -898,7 +896,7 @@
 </div>
 
 <script>
-function scrollTo(id) {
+function irA(id) {
   document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
