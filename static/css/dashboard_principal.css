@@ -784,6 +784,16 @@ body {
     text-align: center;
 }
 
+/* Ocultar flechas nativas del input number en carrito */
+.cart-item-qty-input::-webkit-outer-spin-button,
+.cart-item-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.cart-item-qty-input[type=number] {
+    -moz-appearance: textfield;
+}
+
 .cart-item-subtotal {
     font-family: var(--font-display);
     font-weight: 600;
