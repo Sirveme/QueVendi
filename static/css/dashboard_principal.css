@@ -2656,28 +2656,6 @@ body {
 }
 
 /* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (min-width: 768px) {
-    .main-content {
-        max-width: 480px;
-        margin: 0 auto;
-        border-left: 1px solid var(--border-color);
-        border-right: 1px solid var(--border-color);
-    }
-    
-    .footer {
-        max-width: 480px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    .panic-fab-container {
-        right: calc(50% - 220px);
-    }
-}
-
-/* ============================================
    UTILITIES
    ============================================ */
 .hidden {
@@ -4127,7 +4105,9 @@ body.is-owner .owner-only {
 
     /* Contenido principal: a la derecha del sidebar, debajo del header */
     .main-content {
+        flex: 1;
         margin-left: 240px;
+        max-width: calc(100vw - 240px);
         padding-top: 60px;
         padding-bottom: 0;
         height: 100vh;
