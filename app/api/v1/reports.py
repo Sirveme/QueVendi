@@ -6,12 +6,19 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from zoneinfo import ZoneInfo
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from app.core.database import get_db
 from app.models.sale import Sale, SaleItem
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 from app.models.user import User
+
+PERU_TZ = timezone(timedelta(hours=-5))
+
+
+def hoy_peru():
+    return datetime.now(PERU_TZ).date()
+
 
 router = APIRouter(prefix="/reports")
 
@@ -21,21 +28,9 @@ async def get_today_stats_html(
     current_user: User = Depends(get_current_user)
 ):
     """Estadísticas del día en formato HTML"""
-    
-    # ✅ USAR TIMEZONE DE PERÚ
-    #peru_tz = ZoneInfo("America/Lima")
-    from datetime import timezone, timedelta
-    peru_tz = timezone(timedelta(hours=-5))  # UTC-5 para Perú
-    
-    # Fecha actual en Perú
-    now_peru = datetime.now(peru_tz)
-    today_peru = now_peru.date()
-    
-    # Inicio del día en Perú (00:00:00 -05:00)
-    today_start = datetime.combine(today_peru, datetime.min.time(), tzinfo=peru_tz)
-    
-    # Fin del día en Perú (23:59:59 -05:00)
-    today_end = datetime.combine(today_peru, datetime.max.time(), tzinfo=peru_tz)
+    today_peru = hoy_peru()
+    today_start = datetime.combine(today_peru, datetime.min.time(), tzinfo=PERU_TZ)
+    today_end = datetime.combine(today_peru, datetime.max.time(), tzinfo=PERU_TZ)
     
     print(f"[Reports] Buscando ventas del día en Perú:")
     print(f"[Reports]   Desde: {today_start}")
@@ -123,9 +118,10 @@ async def get_top_products_html(
     """
     Top 10 productos más vendidos del día en HTML
     """
-    today_start = datetime.combine(date.today(), datetime.min.time())
-    today_end = datetime.combine(date.today(), datetime.max.time())
-    
+    today_peru = hoy_peru()
+    today_start = datetime.combine(today_peru, datetime.min.time(), tzinfo=PERU_TZ)
+    today_end = datetime.combine(today_peru + timedelta(days=1), datetime.min.time(), tzinfo=PERU_TZ)
+
     # Query: Top productos por cantidad vendida
     top_products = db.query(
         Product.id,
@@ -139,7 +135,7 @@ async def get_top_products_html(
     ).filter(
         Sale.store_id == current_user.store_id,
         Sale.created_at >= today_start,
-        Sale.created_at <= today_end
+        Sale.created_at < today_end
     ).group_by(
         Product.id, Product.name
     ).order_by(
@@ -178,22 +174,25 @@ async def get_hourly_sales(
     """
     Ventas por hora del día (para gráfico)
     """
-    today_start = datetime.combine(date.today(), datetime.min.time())
-    today_end = datetime.combine(date.today(), datetime.max.time())
-    
-    # Query: Agrupar por hora
+    today_peru = hoy_peru()
+    today_start = datetime.combine(today_peru, datetime.min.time(), tzinfo=PERU_TZ)
+    today_end = datetime.combine(today_peru + timedelta(days=1), datetime.min.time(), tzinfo=PERU_TZ)
+
+    # Convertir created_at de UTC a Perú (UTC-5) antes de extraer la hora
+    hour_peru = func.extract('hour', Sale.created_at - timedelta(hours=5))
+
     hourly_data = db.query(
-        func.extract('hour', Sale.created_at).label('hour'),
+        hour_peru.label('hour'),
         func.sum(Sale.total).label('total')
     ).filter(
         Sale.store_id == current_user.store_id,
         Sale.created_at >= today_start,
-        Sale.created_at <= today_end
-    ).group_by('hour').order_by('hour').all()
-    
+        Sale.created_at < today_end
+    ).group_by(hour_peru).order_by(hour_peru).all()
+
     # Rellenar horas sin ventas
     hours_dict = {int(hour): float(total) for hour, total in hourly_data}
-    current_hour = datetime.now().hour
+    current_hour = datetime.now(PERU_TZ).hour
     
     hours = []
     totals = []
@@ -214,9 +213,10 @@ async def get_payment_methods(
     """
     Ventas por método de pago (para gráfico)
     """
-    today_start = datetime.combine(date.today(), datetime.min.time())
-    today_end = datetime.combine(date.today(), datetime.max.time())
-    
+    today_peru = hoy_peru()
+    today_start = datetime.combine(today_peru, datetime.min.time(), tzinfo=PERU_TZ)
+    today_end = datetime.combine(today_peru + timedelta(days=1), datetime.min.time(), tzinfo=PERU_TZ)
+
     # Query: Agrupar por método de pago
     payment_data = db.query(
         Sale.payment_method,
@@ -224,7 +224,7 @@ async def get_payment_methods(
     ).filter(
         Sale.store_id == current_user.store_id,
         Sale.created_at >= today_start,
-        Sale.created_at <= today_end
+        Sale.created_at < today_end
     ).group_by(Sale.payment_method).all()
     
     methods = []
