@@ -128,6 +128,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     pollPedidosCarta();
     setInterval(pollPedidosCarta, 60000);
 
+    // ── SUGERENCIAS DESKTOP (panel izquierdo) ──
+    cargarSugerenciasDesktop();
+    window.addEventListener('resize', _debounce(cargarSugerenciasDesktop, 300));
+
     console.log('[Dashboard] ✅ Sistema cargado correctamente');
 
 
@@ -365,6 +369,92 @@ function updateCartItemQty(productId, value) {
     const newQty = _isGranel(item) ? parseFloat(n.toFixed(3)) : Math.max(1, Math.floor(n));
     updateQuantity(productId, newQty);
 }
+
+// ================================================================
+// SUGERENCIAS DESKTOP — productos rápidos en panel izquierdo
+// ================================================================
+function _debounce(fn, ms) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
+}
+
+async function cargarSugerenciasDesktop() {
+    const container = document.getElementById('desktop-suggestions');
+    const grid = document.getElementById('suggestions-grid');
+    if (!container || !grid) return;
+
+    if (window.innerWidth < 768) {
+        container.style.display = 'none';
+        return;
+    }
+
+    let lista = [];
+
+    // 1) Preferir productos recientes si hay suficientes
+    if (Array.isArray(AppState.recentProducts) && AppState.recentProducts.length >= 4) {
+        lista = AppState.recentProducts.slice(0, 8).map(p => ({
+            id: p.id,
+            name: p.name,
+            sale_price: parseFloat(p.sale_price) || 0,
+            stock: parseFloat(p.stock) || 0,
+            unit: p.unit || 'unidad',
+            code: p.code
+        }));
+    } else {
+        // 2) Caer al catálogo offline (IndexedDB)
+        try {
+            if (typeof OfflineDB !== 'undefined' && OfflineDB.products?.getAll) {
+                const all = await OfflineDB.products.getAll(60);
+                lista = (all || [])
+                    .filter(p => p.active !== false && (p.stock || 0) > 0)
+                    .slice(0, 8)
+                    .map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        sale_price: parseFloat(p.sale_price) || 0,
+                        stock: parseFloat(p.stock) || 0,
+                        unit: p.unit || 'unidad',
+                        code: p.barcode
+                    }));
+            }
+        } catch (e) {
+            console.warn('[Suggestions] No se pudo leer catálogo offline:', e);
+        }
+    }
+
+    if (lista.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    // Cache para click handler
+    AppState.desktopSuggestions = lista;
+    container.style.display = 'block';
+
+    grid.innerHTML = lista.map(p => `
+        <div class="suggestion-card"
+             onclick="_addSuggestionToCart(${p.id})"
+             title="${p.name}">
+            <div class="s-name">${p.name}</div>
+            <div class="s-price">S/ ${p.sale_price.toFixed(2)}</div>
+            <div class="s-stock">Stock: ${p.stock % 1 === 0 ? p.stock : p.stock.toFixed(2)}</div>
+        </div>
+    `).join('');
+}
+
+function _addSuggestionToCart(productId) {
+    const list = AppState.desktopSuggestions || [];
+    const product = list.find(p => p.id === productId);
+    if (!product) {
+        showToast('Producto no encontrado', 'error');
+        return;
+    }
+    addToCart(product);
+}
+
 
 function increaseQty(productId) {
     const item = AppState.cart.find(i => i.id === productId);

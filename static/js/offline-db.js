@@ -249,6 +249,13 @@ const OfflineDB = (() => {
             return promisify(store.count());
         },
 
+        async getAll(limit = 0) {
+            _requireInit();
+            const { store } = getStore('products', 'readonly');
+            const all = await promisify(store.getAll());
+            return limit > 0 ? all.slice(0, limit) : all;
+        },
+
         async clear() {
             _requireInit();
             const { store } = getStore('products', 'readwrite');
