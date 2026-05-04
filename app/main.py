@@ -34,6 +34,7 @@ from app.routers.user_management import router as user_mgmt_router
 
 from app.routers.caja import router as caja_router
 from app.routers.carta_virtual import router as carta_router
+from app.routers import guias
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -190,6 +191,7 @@ app.include_router(user_mgmt_router, prefix="/api/v1/users")
 app.include_router(lite.router)
 app.include_router(caja_router, prefix="/api/v1", tags=["caja"])
 app.include_router(carta_router, tags=["carta_virtual"])  # Rutas públicas sin auth
+app.include_router(guias.router)
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
