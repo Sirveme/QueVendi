@@ -227,6 +227,15 @@ function setUserData(user) {
     const lsStoreId = localStorage.getItem('store_id');
     if (lsStoreId) AppState.user.store_id = parseInt(lsStoreId);
 
+    // Guardar store_id y user_id para el chat
+    if (user.store_id) {
+        localStorage.setItem('store_id', user.store_id);
+    }
+    if (user.id) {
+        localStorage.setItem('user_id', user.id);
+    }
+    localStorage.setItem('user_name', user.full_name || 'Usuario');
+
     AppState.isOwner = ['owner', 'admin'].includes(user.role);
     AppState.storeTelefono = user.store_phone || localStorage.getItem('store_phone') || '';
     if (user.store_phone) localStorage.setItem('store_phone', user.store_phone);
