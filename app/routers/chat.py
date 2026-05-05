@@ -6,7 +6,8 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import (
     APIRouter, WebSocket, WebSocketDisconnect,
-    Depends, Query, HTTPException, Request
+    Depends, Query, HTTPException, Request,
+    UploadFile, File, Form
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -161,7 +162,24 @@ async def websocket_chat(
             receiver_id = data.get("receiver_id")  # None = broadcast
             media_url = data.get("media_url")
 
+            # Typing indicator: broadcast efímero sin tocar la BD
+            if msg_type in ("typing", "stop_typing"):
+                await manager.send_to_store(
+                    store_id,
+                    {
+                        "type": msg_type,
+                        "sender_id": user_id,
+                        "sender_name": full_name,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                    exclude_user_id=user_id,
+                )
+                continue
+
+            # Mensajes con media (image/audio/video) no requieren content
             if not content and msg_type == "text":
+                continue
+            if msg_type in ("image", "audio", "video") and not media_url:
                 continue
 
             mensaje = Mensaje(
@@ -294,6 +312,110 @@ async def unread_count(
         .count()
     )
     return {"count": int(count)}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# REST: subir multimedia  →  /api/v1/chat/upload-media
+# ──────────────────────────────────────────────────────────────────────────
+ALLOWED_MEDIA_TYPES = {
+    "image/jpeg", "image/png", "image/webp", "image/gif",
+    "video/mp4", "video/webm",
+    "audio/webm", "audio/mpeg", "audio/ogg", "audio/mp4",
+}
+
+EXT_TO_CT = {
+    "mp4": "video/mp4",
+    "webm": "video/webm",
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "gif": "image/gif",
+    "webp": "image/webp",
+    "mp3": "audio/mpeg",
+    "ogg": "audio/ogg",
+    "m4a": "audio/mp4",
+}
+
+
+@api_router.post("/upload-media")
+async def upload_media(
+    file: UploadFile = File(...),
+    store_id: int = Form(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Sube imagen/video/audio al bucket de GCS (con fallback a disco local).
+    Devuelve `{url}` apuntando al endpoint proxy /api/v1/chat/media/...
+    """
+    import uuid
+    import os
+    from app.services.upload_service import get_gcs_client
+    from app.core.config import settings
+
+    if current_user.store_id != store_id:
+        raise HTTPException(status_code=403, detail="No autorizado para este store")
+
+    if file.content_type not in ALLOWED_MEDIA_TYPES:
+        raise HTTPException(status_code=400, detail=f"Tipo no permitido: {file.content_type}")
+
+    raw_name = (file.filename or "blob").lower()
+    ext = raw_name.rsplit(".", 1)[-1] if "." in raw_name else ""
+    if not ext or len(ext) > 5:
+        # Derivar extensión del content-type
+        ct_to_ext = {v: k for k, v in EXT_TO_CT.items()}
+        ext = ct_to_ext.get(file.content_type, "bin")
+
+    blob_path = f"chat/{store_id}/{uuid.uuid4()}.{ext}"
+    content = await file.read()
+
+    try:
+        client = get_gcs_client()
+        bucket = client.bucket(settings.GCS_BUCKET_NAME)
+        blob = bucket.blob(blob_path)
+        blob.upload_from_string(content, content_type=file.content_type)
+        return {"url": f"/api/v1/chat/media/{blob_path}", "ok": True}
+    except Exception as e:
+        print(f"[chat upload] GCS falló, fallback local: {e}")
+        local_dir = f"static/uploads/chat/{store_id}"
+        os.makedirs(local_dir, exist_ok=True)
+        local_file = f"{local_dir}/{uuid.uuid4()}.{ext}"
+        with open(local_file, "wb") as f:
+            f.write(content)
+        return {"url": f"/{local_file}", "ok": True}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# REST: servir multimedia  →  /api/v1/chat/media/{path:path}
+# ──────────────────────────────────────────────────────────────────────────
+@api_router.get("/media/{path:path}")
+async def serve_chat_media(path: str):
+    """Proxy de descarga desde GCS con cache 24h."""
+    import io
+    from fastapi.responses import StreamingResponse
+    from app.services.upload_service import get_gcs_client
+    from app.core.config import settings
+
+    try:
+        client = get_gcs_client()
+        bucket = client.bucket(settings.GCS_BUCKET_NAME)
+        blob = bucket.blob(path)
+        data = io.BytesIO()
+        blob.download_to_file(data)
+        data.seek(0)
+
+        ext = path.rsplit(".", 1)[-1].lower() if "." in path else ""
+        content_type = EXT_TO_CT.get(ext, "application/octet-stream")
+
+        return StreamingResponse(
+            data,
+            media_type=content_type,
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[chat media] no se pudo servir {path}: {e}")
+        raise HTTPException(status_code=404, detail="No encontrado")
 
 
 # Compatibilidad con el spec que importa `chat.router`
