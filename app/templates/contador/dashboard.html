@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portal Contadores · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f8fafc;
+    --sidebar: #1e293b;
+    --sidebar-text: #e2e8f0;
+    --sidebar-active: #3b82f6;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --accent: #3b82f6;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+  .contador-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+  .contador-sidebar {
+    background: var(--sidebar);
+    color: var(--sidebar-text);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 0 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-brand .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    display: grid; place-items: center; font-weight: 700; color: white;
+  }
+  .sidebar-brand .name { font-weight: 700; font-size: 15px; }
+  .sidebar-brand .role { font-size: 11px; color: #94a3b8; }
+  .sidebar-section {
+    margin: 18px 0 8px; padding: 0 20px;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.06em; color: #94a3b8; font-weight: 700;
+  }
+  .cliente-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cliente-item:hover { background: rgba(255,255,255,0.05); }
+  .cliente-item.active {
+    border-left-color: var(--sidebar-active);
+    background: rgba(59,130,246,0.1);
+  }
+  .estado-pill {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+  }
+  .estado-pill.activo { background: rgba(34,197,94,0.18); color: #86efac; }
+  .estado-pill.pendiente { background: rgba(245,158,11,0.18); color: #fcd34d; }
+  .estado-pill.revocado { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+  .sidebar-footer {
+    margin-top: 24px; padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #e2e8f0;
+    padding: 8px 12px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; width: 100%;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.06); }
+
+  .main {
+    padding: 28px 32px;
+  }
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .page-header h1 { margin: 0; font-size: 22px; }
+  .page-header .sub { color: var(--text-secondary); font-size: 13px; }
+
+  .periodo-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .periodo-btn {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .periodo-display {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .stat-card .label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .stat-card .value {
+    font-size: 22px; font-weight: 700; margin-top: 6px;
+  }
+
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 10px 14px; cursor: pointer; font-size: 13px;
+    color: var(--text-secondary); border-bottom: 2px solid transparent;
+    font-weight: 600;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .panel-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+    padding: 12px 0 0;
+  }
+  .btn {
+    background: var(--accent); color: white; border: 0;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+  }
+  .btn.secondary {
+    background: white; color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .libro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .libro-table th {
+    background: var(--sidebar);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .libro-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .libro-table tr:hover td { background: #f1f5f9; }
+
+  .estado-badge {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .estado-aceptado { background:#dcfce7; color:#14532d; }
+  .estado-pendiente, .estado-pending { background:#fef9c3; color:#713f12; }
+  .estado-rechazado, .estado-rejected, .estado-failed { background:#fee2e2; color:#7f1d1d; }
+
+  .empty-state {
+    text-align: center; color: var(--text-secondary);
+    padding: 40px 16px; font-size: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .contador-layout { grid-template-columns: 1fr; }
+    .contador-sidebar { position: relative; height: auto; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="contador-layout">
+  <aside class="contador-sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">Q</div>
+      <div>
+        <div class="name">QueVendi</div>
+        <div class="role">Portal Contadores</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Mis Clientes</div>
+    <div id="clientes-list">
+      <div style="padding: 12px 20px; color:#94a3b8; font-size:13px;">Cargando…</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div id="contador-name" style="font-size:13px;font-weight:600;margin-bottom:8px;"></div>
+      <div id="contador-email" style="font-size:11px;color:#94a3b8;margin-bottom:10px;"></div>
+      <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 id="cliente-nombre">Selecciona un cliente</h1>
+        <div class="sub" id="cliente-sub">Tus clientes vinculados aparecen a la izquierda.</div>
+      </div>
+    </div>
+
+    <div class="periodo-selector">
+      <button class="periodo-btn" onclick="cambiarPeriodo(-1)">‹</button>
+      <div class="periodo-display" id="periodo-display"></div>
+      <button class="periodo-btn" onclick="cambiarPeriodo(1)">›</button>
+    </div>
+
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="label">Total Ventas</div>
+        <div class="value" id="total-ventas">S/ 0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">CPE Emitidos</div>
+        <div class="value" id="total-cpe">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Con Observaciones</div>
+        <div class="value" id="cpe-obs">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pendientes SUNAT</div>
+        <div class="value" id="cpe-pendientes">0</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="libro" onclick="setTab('libro')">Libro de Ventas</div>
+      <div class="tab" data-tab="resumen" onclick="setTab('resumen')">Resumen</div>
+      <div class="tab" data-tab="notas" onclick="setTab('notas')">Notas</div>
+    </div>
+
+    <section class="panel" id="tab-libro">
+      <div style="overflow-x:auto;">
+        <table class="libro-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Comprobante</th>
+              <th>Doc. Cliente</th>
+              <th>Razón Social</th>
+              <th style="text-align:right">Total</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="libro-tbody">
+            <tr><td colspan="8" class="empty-state">Selecciona un cliente y un período.</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" style="text-align:right;font-weight:700;padding:10px 12px;">Totales</td>
+              <td style="text-align:right;font-weight:700" id="resumen-total">S/ 0.00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="6" style="text-align:right;color:var(--text-secondary);padding:6px 12px;">IGV / Exonerado</td>
+              <td style="text-align:right;color:var(--text-secondary)" id="resumen-igv">S/ 0.00</td>
+              <td style="text-align:right;color:var(--text-secondary)" id="resumen-exonerado">S/ 0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="panel-actions">
+        <button class="btn secondary" onclick="exportarCSV()">Exportar CSV (PLE 14.1)</button>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-resumen" style="display:none;">
+      <div id="resumen-body" class="empty-state">Sin datos.</div>
+    </section>
+
+    <section class="panel" id="tab-notas" style="display:none;">
+      <div class="empty-state">Notas próximamente.</div>
+    </section>
+  </main>
+</div>
+
+<script>
+let currentStoreId = null;
+let currentMes = new Date().getMonth() + 1;
+let currentAnio = new Date().getFullYear();
+const token = localStorage.getItem('contador_token') || '';
+
+if (!token) {
+  window.location.href = '/contador/login';
+}
+
+const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function actualizarPeriodoDisplay() {
+  document.getElementById('periodo-display').textContent =
+    `${meses[currentMes-1]} ${currentAnio}`;
+}
+
+async function fetchContador(url, options = {}) {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...options.headers
+    }
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('contador_token');
+    window.location.href = '/contador/login';
+  }
+  return res;
+}
+
+function logout() {
+  localStorage.removeItem('contador_token');
+  localStorage.removeItem('contador_info');
+  window.location.href = '/contador/login';
+}
+
+function setTab(tab) {
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('tab-libro').style.display = tab === 'libro' ? '' : 'none';
+  document.getElementById('tab-resumen').style.display = tab === 'resumen' ? '' : 'none';
+  document.getElementById('tab-notas').style.display = tab === 'notas' ? '' : 'none';
+}
+
+async function cargarClientes() {
+  const info = JSON.parse(localStorage.getItem('contador_info') || '{}');
+  document.getElementById('contador-name').textContent = info.full_name || 'Contador';
+  document.getElementById('contador-email').textContent = info.email || '';
+
+  const res = await fetchContador('/contador/mis-clientes');
+  if (!res.ok) return;
+  const data = await res.json();
+  const list = document.getElementById('clientes-list');
+  if (!data.stores || !data.stores.length) {
+    list.innerHTML = `<div style="padding:12px 20px;color:#94a3b8;font-size:13px;">
+      No tienes clientes vinculados todavía.<br/>
+      Pídele al dueño que te invite por email.
+    </div>`;
+    return;
+  }
+  list.innerHTML = data.stores.map(s => `
+    <div class="cliente-item" data-store-id="${s.id}"
+         onclick="seleccionarCliente(${s.id}, ${JSON.stringify(s.name)})">
+      <span>${s.name}</span>
+      <span class="estado-pill ${s.estado}">${s.estado}</span>
+    </div>
+  `).join('');
+
+  const primero = data.stores.find(s => s.estado === 'activo');
+  if (primero) {
+    document.querySelector(`.cliente-item[data-store-id="${primero.id}"]`).click();
+  }
+}
+
+async function seleccionarCliente(storeId, storeName) {
+  currentStoreId = storeId;
+  document.getElementById('cliente-nombre').textContent = storeName;
+  document.getElementById('cliente-sub').textContent =
+    `Período: ${meses[currentMes-1]} ${currentAnio}`;
+  document.querySelectorAll('.cliente-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.storeId == storeId));
+  await Promise.all([cargarResumen(), cargarLibroVentas()]);
+}
+
+async function cargarResumen() {
+  if (!currentStoreId) return;
+  const res = await fetchContador(
+    `/contador/resumen/${currentStoreId}?mes=${currentMes}&anio=${currentAnio}`
+  );
+  if (!res.ok) return;
+  const data = await res.json();
+  document.getElementById('total-ventas').textContent =
+    `S/ ${(data.ventas_mes || 0).toFixed(2)}`;
+  document.getElementById('total-cpe').textContent = data.comprobantes_emitidos || 0;
+  document.getElementById('cpe-pendientes').textContent = data.comprobantes_pendientes || 0;
+  document.getElementById('cpe-obs').textContent = '0';
+
+  const body = document.getElementById('resumen-body');
+  if (!data.top_productos || !data.top_productos.length) {
+    body.innerHTML = '<div class="empty-state">Sin datos en el período.</div>';
+    return;
+  }
+  body.innerHTML = `
+    <h3 style="margin:0 0 8px 0;font-size:14px;">Top productos del mes</h3>
+    <table class="libro-table">
+      <thead><tr><th>#</th><th>Producto</th><th style="text-align:right">Cantidad</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody>
+        ${data.top_productos.map((p, i) => `
+          <tr>
+            <td>${i+1}</td>
+            <td>${p.name}</td>
+            <td style="text-align:right">${(p.qty || 0).toFixed(2)}</td>
+            <td style="text-align:right">S/ ${(p.total || 0).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function cargarLibroVentas() {
+  if (!currentStoreId) return;
+  const res = await fetchContador(
+    `/contador/libro-ventas/${currentStoreId}?mes=${currentMes}&anio=${currentAnio}`
+  );
+  if (!res.ok) return;
+  const data = await res.json();
+  renderTablaLibro(data.comprobantes || []);
+  renderResumenLibro(data.resumen || {});
+}
+
+function renderTablaLibro(comprobantes) {
+  const tbody = document.getElementById('libro-tbody');
+  if (!comprobantes.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">
+      Sin comprobantes en este período</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = comprobantes.map((c, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${(c.fecha_emision || '').slice(0,10)}</td>
+      <td>${c.tipo_documento === '01' ? 'Factura' :
+           c.tipo_documento === '03' ? 'Boleta' : c.tipo_documento}</td>
+      <td><strong>${c.numero_comprobante}</strong></td>
+      <td>${c.ruc_cliente || '00000000'}</td>
+      <td>${c.razon_social || 'CLIENTE VARIOS'}</td>
+      <td style="text-align:right">S/ ${parseFloat(c.monto_total || 0).toFixed(2)}</td>
+      <td><span class="estado-badge estado-${(c.estado || 'pendiente').toLowerCase()}">${c.estado}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderResumenLibro(resumen) {
+  document.getElementById('resumen-total').textContent =
+    `S/ ${parseFloat(resumen.total_ventas || 0).toFixed(2)}`;
+  document.getElementById('resumen-igv').textContent =
+    `S/ ${parseFloat(resumen.total_igv || 0).toFixed(2)}`;
+  document.getElementById('resumen-exonerado').textContent =
+    `S/ ${parseFloat(resumen.total_exonerado || 0).toFixed(2)}`;
+}
+
+function cambiarPeriodo(delta) {
+  currentMes += delta;
+  if (currentMes > 12) { currentMes = 1; currentAnio++; }
+  if (currentMes < 1)  { currentMes = 12; currentAnio--; }
+  actualizarPeriodoDisplay();
+  if (currentStoreId) {
+    cargarResumen();
+    cargarLibroVentas();
+  }
+}
+
+function exportarCSV() {
+  if (!currentStoreId) return;
+  window.location.href =
+    `/contador/libro-ventas/${currentStoreId}/export?mes=${currentMes}&anio=${currentAnio}&formato=csv&token=${token}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  actualizarPeriodoDisplay();
+  cargarClientes();
+});
+</script>
+</body>
+</html>
