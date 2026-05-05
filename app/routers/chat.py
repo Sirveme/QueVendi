@@ -146,7 +146,7 @@ async def websocket_chat(
                 "content": m.content,
                 "msg_type": m.msg_type,
                 "media_url": m.media_url,
-                "timestamp": m.created_at.isoformat() if m.created_at else None,
+                "timestamp": m.created_at.strftime('%Y-%m-%dT%H:%M:%S') + 'Z' if m.created_at else None,
                 "is_read": bool(m.is_read),
                 "own": m.sender_id == user_id,
             }
@@ -246,7 +246,7 @@ async def websocket_chat(
                             "content": m.content,
                             "msg_type": m.msg_type,
                             "media_url": m.media_url,
-                            "timestamp": m.created_at.isoformat() if m.created_at else None,
+                            "timestamp": m.created_at.strftime('%Y-%m-%dT%H:%M:%S') + 'Z' if m.created_at else None,
                             "receiver_id": m.receiver_id,
                             "is_read": bool(m.is_read),
                             "own": m.sender_id == user_id,
@@ -285,7 +285,7 @@ async def websocket_chat(
                 "content": content,
                 "msg_type": msg_type,
                 "media_url": mensaje.media_url,
-                "timestamp": mensaje.created_at.isoformat() if mensaje.created_at else None,
+                "timestamp": mensaje.created_at.strftime('%Y-%m-%dT%H:%M:%S') + 'Z' if mensaje.created_at else None,
             }
 
             if receiver_id:
