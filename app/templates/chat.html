@@ -753,7 +753,7 @@ function conectar() {
   if (ws) ws.close();
   const wsHost = location.host.includes('railway')
     ? location.host
-    : 'bd4pjhe6.up.railway.app';
+    : 'quevendi-production.up.railway.app';
   const proto = wsHost === location.host
     ? (location.protocol === 'https:' ? 'wss' : 'ws')
     : 'wss';
