@@ -912,7 +912,9 @@ function agregarBurbuja(msg, esPropio) {
     : new Date().toISOString();
 
   const hora = new Date(ts).toLocaleTimeString('es-PE', {
-    hour: '2-digit', minute: '2-digit'
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Lima'
   });
 
   const senderName = !esPropio
