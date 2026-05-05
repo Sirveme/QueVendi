@@ -161,7 +161,7 @@ async def websocket_chat(
                 # Esperar mensaje con timeout de 30s para enviar ping si está idle
                 data = await asyncio.wait_for(
                     websocket.receive_json(),
-                    timeout=30.0,
+                    timeout=20.0,
                 )
             except asyncio.TimeoutError:
                 try:
