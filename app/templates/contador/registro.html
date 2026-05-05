@@ -86,25 +86,45 @@
     <p class="subtitle">Una vez registrado, los dueños podrán invitarte por email.</p>
 
     <form id="regForm">
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-weight:600;margin-bottom:6px;color:#374151">
+          DNI *
+        </label>
+        <input type="text" id="dni" inputmode="numeric"
+               pattern="\d{8}" maxlength="8" minlength="8"
+               placeholder="12345678" required
+               style="width:100%;padding:10px 14px;
+                      border:1px solid #d1d5db;border-radius:8px;
+                      font-size:15px;outline:none;box-sizing:border-box">
+      </div>
+
       <label for="full_name">Nombre completo</label>
       <input id="full_name" required />
 
-      <label for="email">Email</label>
-      <input id="email" type="email" required />
-
       <div class="row">
+        <div>
+          <label for="whatsapp">WhatsApp</label>
+          <input id="whatsapp" inputmode="tel" placeholder="9XX XXX XXX" />
+        </div>
         <div>
           <label for="phone">Teléfono</label>
           <input id="phone" />
         </div>
+      </div>
+
+      <label for="email">Email (opcional)</label>
+      <input id="email" type="email" placeholder="(opcional)" />
+
+      <div class="row">
         <div>
           <label for="ruc">RUC</label>
           <input id="ruc" maxlength="11" />
         </div>
+        <div>
+          <label for="firma_contable">Colegiatura</label>
+          <input id="firma_contable" placeholder="CCP-XXXXX" />
+        </div>
       </div>
-
-      <label for="firma_contable">Firma / Colegiatura</label>
-      <input id="firma_contable" placeholder="CCP-XXXXX" />
 
       <label for="pin">PIN (mínimo 4 dígitos)</label>
       <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="12" required />
@@ -123,10 +143,17 @@ const errEl = document.getElementById('error');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   errEl.textContent = '';
+  const dni = document.getElementById('dni').value.trim();
+  if (!/^\d{8}$/.test(dni)) {
+    errEl.textContent = 'DNI debe tener 8 dígitos';
+    return;
+  }
   const body = {
+    dni,
     full_name: document.getElementById('full_name').value.trim(),
-    email: document.getElementById('email').value.trim(),
+    email: document.getElementById('email').value.trim() || null,
     phone: document.getElementById('phone').value.trim() || null,
+    whatsapp: document.getElementById('whatsapp').value.trim() || null,
     ruc: document.getElementById('ruc').value.trim() || null,
     firma_contable: document.getElementById('firma_contable').value.trim() || null,
     pin: document.getElementById('pin').value.trim(),
