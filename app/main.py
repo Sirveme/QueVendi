@@ -457,6 +457,11 @@ async def contador_registro_page(request: Request):
     return templates.TemplateResponse("contador/registro.html", {"request": request})
 
 
+@app.get("/contador/aceptar", response_class=HTMLResponse)
+async def contador_aceptar_page(request: Request):
+    return templates.TemplateResponse("contador/aceptar.html", {"request": request})
+
+
 @app.get("/{telefono}")
 async def redirect_carta(telefono: str):
     """Redirect quevendi.pro/967317946 → /carta/967317946"""
