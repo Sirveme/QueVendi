@@ -171,6 +171,10 @@ function renderForm(info) {
     // Registro rápido
     content.innerHTML = negocio + `
       <p class="subtitle">Completa tu cuenta para aceptar:</p>
+      <label for="dni">DNI</label>
+      <input id="dni" inputmode="numeric" pattern="\\d{8}" maxlength="8" minlength="8" required
+             value="${escape((info.contador && info.contador.dni) || '')}" />
+
       <label for="full_name">Nombre completo</label>
       <input id="full_name" required />
 
@@ -198,6 +202,16 @@ async function enviar() {
   msg.textContent = '';
 
   const body = { token };
+  const dniEl = document.getElementById('dni');
+  if (dniEl) {
+    const dni = dniEl.value.trim();
+    if (!/^\d{8}$/.test(dni)) {
+      msg.classList.add('error');
+      msg.textContent = 'DNI debe tener 8 dígitos';
+      return;
+    }
+    body.dni = dni;
+  }
   const fullNameEl = document.getElementById('full_name');
   if (fullNameEl) body.full_name = fullNameEl.value.trim();
   const whatsappEl = document.getElementById('whatsapp');

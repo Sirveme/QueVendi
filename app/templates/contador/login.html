@@ -109,8 +109,8 @@
     <p class="subtitle">Accede al libro de ventas de tus clientes.</p>
 
     <form id="loginForm">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" required autocomplete="email" />
+      <label for="dni">DNI</label>
+      <input id="dni" name="dni" type="text" inputmode="numeric" pattern="\d{8}" maxlength="8" minlength="8" required autocomplete="username" />
 
       <label for="pin">PIN</label>
       <input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" required autocomplete="current-password" />
@@ -129,13 +129,17 @@ const errEl = document.getElementById('error');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   errEl.textContent = '';
-  const email = document.getElementById('email').value.trim();
+  const dni = document.getElementById('dni').value.trim();
   const pin = document.getElementById('pin').value.trim();
+  if (!/^\d{8}$/.test(dni)) {
+    errEl.textContent = 'DNI debe tener 8 dígitos';
+    return;
+  }
   try {
     const res = await fetch('/contador/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, pin })
+      body: JSON.stringify({ dni, pin })
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
