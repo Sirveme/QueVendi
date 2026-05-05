@@ -176,6 +176,64 @@ async def websocket_chat(
                 )
                 continue
 
+            # Solicitud de historial filtrado (cambio de conversación)
+            if msg_type == "get_history":
+                from sqlalchemy import or_, and_
+                receiver_id_hist = data.get("receiver_id")
+                if receiver_id_hist is None:
+                    # Historial del grupo (broadcasts)
+                    historial = (
+                        db.query(Mensaje)
+                        .filter(
+                            Mensaje.store_id == store_id,
+                            Mensaje.receiver_id == None,  # noqa: E711
+                        )
+                        .order_by(Mensaje.created_at.desc())
+                        .limit(30)
+                        .all()
+                    )
+                else:
+                    # Historial privado entre dos usuarios
+                    historial = (
+                        db.query(Mensaje)
+                        .filter(
+                            Mensaje.store_id == store_id,
+                            or_(
+                                and_(
+                                    Mensaje.sender_id == user_id,
+                                    Mensaje.receiver_id == receiver_id_hist,
+                                ),
+                                and_(
+                                    Mensaje.sender_id == receiver_id_hist,
+                                    Mensaje.receiver_id == user_id,
+                                ),
+                            ),
+                        )
+                        .order_by(Mensaje.created_at.desc())
+                        .limit(30)
+                        .all()
+                    )
+
+                await websocket.send_json({
+                    "type": "history",
+                    "messages": [
+                        {
+                            "id": m.id,
+                            "sender_id": m.sender_id,
+                            "sender_name": m.sender.full_name if m.sender else "Sistema",
+                            "content": m.content,
+                            "msg_type": m.msg_type,
+                            "media_url": m.media_url,
+                            "timestamp": m.created_at.isoformat() if m.created_at else None,
+                            "receiver_id": m.receiver_id,
+                            "is_read": bool(m.is_read),
+                            "own": m.sender_id == user_id,
+                        }
+                        for m in reversed(historial)
+                    ],
+                })
+                continue
+
             # Mensajes con media (image/audio/video) no requieren content
             if not content and msg_type == "text":
                 continue
