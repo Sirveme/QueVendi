@@ -785,6 +785,15 @@ async function marcarTodoLeido() {
 function procesarMensaje(data) {
   const container = document.getElementById('messages');
 
+  // Keep-alive: responder ping con pong, ignorar pong entrantes
+  if (data.type === 'ping') {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'pong', content: '' }));
+    }
+    return;
+  }
+  if (data.type === 'pong') return;
+
   if (data.type === 'history') {
     // Filtrar mensajes de la conversación activa
     container.innerHTML = '<div class="watermark" id="watermark-bg"></div>';
