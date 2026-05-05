@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -33,10 +33,16 @@ class ContadorRegistroIn(BaseModel):
     full_name: str = Field(min_length=2, max_length=150)
     phone: Optional[str] = None
     whatsapp: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     ruc: Optional[str] = Field(default=None, max_length=11)
     firma_contable: Optional[str] = None
     pin: str = Field(min_length=4, max_length=12)
+
+    @validator('email', pre=True)
+    def empty_email_to_none(cls, v):
+        if not v or v.strip() == '':
+            return None
+        return v
 
 
 class ContadorLoginIn(BaseModel):
