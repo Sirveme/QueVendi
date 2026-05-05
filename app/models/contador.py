@@ -12,12 +12,13 @@ class Contador(Base):
     __tablename__ = "contadores"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(100), unique=True, nullable=False, index=True)
+    email = Column(String(100), unique=True, nullable=True, index=True)
     full_name = Column(String(150), nullable=False)
     phone = Column(String(20), nullable=True)
+    whatsapp = Column(String(20), nullable=True, index=True)
     ruc = Column(String(11), nullable=True)
     firma_contable = Column(String(200), nullable=True)
-    pin_hash = Column(String(255), nullable=False)
+    pin_hash = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -31,6 +32,7 @@ class ContadorStore(Base):
     contador_id = Column(Integer, ForeignKey("contadores.id"), nullable=False, index=True)
     store_id = Column(Integer, ForeignKey("stores.id"), nullable=False, index=True)
     estado = Column(String(20), default="pendiente")  # pendiente | activo | revocado
+    invitation_token = Column(String(64), nullable=True, index=True)
     invited_at = Column(DateTime(timezone=True), server_default=func.now())
     accepted_at = Column(DateTime(timezone=True), nullable=True)
 
