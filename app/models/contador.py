@@ -12,6 +12,7 @@ class Contador(Base):
     __tablename__ = "contadores"
 
     id = Column(Integer, primary_key=True, index=True)
+    dni = Column(String(8), unique=True, nullable=True, index=True)
     email = Column(String(100), unique=True, nullable=True, index=True)
     full_name = Column(String(150), nullable=False)
     phone = Column(String(20), nullable=True)
