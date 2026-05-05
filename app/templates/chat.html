@@ -477,8 +477,12 @@
         position: absolute;
         z-index: 10;
         top: 0; left: 0; right: 0; bottom: 0;
+        overflow-y: auto;
       }
       .wa-sidebar.hidden { display: none; }
+      .wa-chats-list {
+        display: block !important;
+      }
       .wa-chat-panel { width: 100%; }
       .mobile-back-btn { display: block; }
       .wa-empty-state { display: none; }
@@ -763,9 +767,20 @@ function conectar() {
     procesarMensaje(data);
   };
 
-  ws.onclose = () => {
-    document.getElementById('online-count').textContent = 'reconectando...';
-    reconnectTimer = setTimeout(conectar, 3000);
+  ws.onclose = (event) => {
+    if (event.code === 4001 || event.code === 4003) {
+      // 4001 = token inválido/expirado, 4003 = store no autorizado
+      ['token','access_token','user','user_id',
+       'store_id','user_name','store_name']
+        .forEach(k => localStorage.removeItem(k));
+      window.location.href = '/auth/login';
+      return;
+    }
+    reconnectTimer = setTimeout(() => {
+      const el = document.getElementById('online-count');
+      if (el) el.textContent = 'reconectando...';
+      conectar();
+    }, 1500);
   };
   ws.onerror = () => ws.close();
 }
