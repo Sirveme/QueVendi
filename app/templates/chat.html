@@ -750,7 +750,10 @@ function volverALista() {
 // WEBSOCKET
 // ============================================
 function conectar() {
-  if (ws) ws.close();
+  if (ws && ws.readyState !== WebSocket.CLOSED) {
+    ws.onclose = null; // evitar reconexión recursiva
+    ws.close();
+  }
   const wsHost = location.host.includes('railway')
     ? location.host
     : 'quevendi-production.up.railway.app';
