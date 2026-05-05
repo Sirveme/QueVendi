@@ -7,9 +7,12 @@ Endpoints del portal Contador:
 """
 import csv
 import io
+import re
+import secrets
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
@@ -77,7 +80,23 @@ def _to_float(x) -> float:
 # Schemas
 # ──────────────────────────────────────────────────────────────────────────
 class InvitarIn(BaseModel):
-    email_contador: EmailStr
+    email_o_whatsapp: str
+    # mantenido para retrocompat con clientes viejos
+    email_contador: Optional[EmailStr] = None
+
+
+def _es_email(s: str) -> bool:
+    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", s or ""))
+
+
+def _normaliza_whatsapp(s: str) -> str:
+    """Devuelve solo dígitos. Si vienen menos de 11 asume Perú y antepone 51."""
+    digitos = re.sub(r"\D", "", s or "")
+    if not digitos:
+        return ""
+    if len(digitos) == 9:  # 9XXXXXXXX → 51 9XXXXXXXX
+        digitos = "51" + digitos
+    return digitos
 
 
 class PermisosIn(BaseModel):
@@ -150,17 +169,44 @@ async def listar_contadores_del_store(
 async def invitar_contador(
     store_id: int,
     payload: InvitarIn,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Owner del store invita a un contador por email."""
+    """Owner invita por email o WhatsApp. Genera link único con token."""
     _ensure_owner_of_store(current_user, store_id)
 
-    contador = db.query(Contador).filter(Contador.email == payload.email_contador).first()
-    if not contador:
-        raise HTTPException(status_code=404, detail="No existe un contador con ese email")
+    contacto = (payload.email_o_whatsapp or payload.email_contador or "").strip()
+    if not contacto:
+        raise HTTPException(status_code=400, detail="Falta email o WhatsApp del contador")
 
-    existing = (
+    es_email = _es_email(contacto)
+    whatsapp = "" if es_email else _normaliza_whatsapp(contacto)
+    email = contacto.lower() if es_email else None
+
+    if not es_email and not whatsapp:
+        raise HTTPException(status_code=400, detail="Contacto inválido")
+
+    # Buscar contador existente por email o whatsapp
+    contador: Optional[Contador] = None
+    if email:
+        contador = db.query(Contador).filter(Contador.email == email).first()
+    if not contador and whatsapp:
+        contador = db.query(Contador).filter(Contador.whatsapp == whatsapp).first()
+
+    # Si no existe → crear registro pendiente sin pin_hash
+    if not contador:
+        contador = Contador(
+            email=email,
+            whatsapp=whatsapp or None,
+            full_name=email or whatsapp or "Contador invitado",
+            is_active=True,
+        )
+        db.add(contador)
+        db.flush()  # asegurar id sin commit
+
+    # Vínculo con el store
+    cs = (
         db.query(ContadorStore)
         .filter(
             ContadorStore.contador_id == contador.id,
@@ -168,23 +214,25 @@ async def invitar_contador(
         )
         .first()
     )
-    if existing:
-        if existing.estado == "revocado":
-            existing.estado = "pendiente"
-            existing.invited_at = datetime.utcnow()
-            existing.accepted_at = None
-            db.commit()
-            return {"ok": True, "estado": "pendiente", "reactivado": True}
-        return {"ok": True, "estado": existing.estado, "ya_existe": True}
 
-    cs = ContadorStore(
-        contador_id=contador.id,
-        store_id=store_id,
-        estado="pendiente",
-    )
-    db.add(cs)
+    invitation_token = secrets.token_urlsafe(32)
 
-    # Permisos por defecto
+    if cs:
+        cs.estado = "pendiente" if cs.estado != "activo" else cs.estado
+        cs.invitation_token = invitation_token if cs.estado != "activo" else cs.invitation_token
+        if cs.estado != "activo":
+            cs.invited_at = datetime.utcnow()
+            cs.accepted_at = None
+    else:
+        cs = ContadorStore(
+            contador_id=contador.id,
+            store_id=store_id,
+            estado="pendiente",
+            invitation_token=invitation_token,
+        )
+        db.add(cs)
+
+    # Permisos por defecto si no existen
     perm = (
         db.query(ContadorPermiso)
         .filter(
@@ -197,7 +245,41 @@ async def invitar_contador(
         db.add(ContadorPermiso(contador_id=contador.id, store_id=store_id))
 
     db.commit()
-    return {"ok": True, "estado": "pendiente"}
+
+    # Construir respuesta con link + WhatsApp deep-link
+    base_url = str(request.base_url).rstrip("/")
+    # Preferir dominio público si está accediendo localmente
+    host = request.headers.get("host", "")
+    if "localhost" in host or "127.0.0.1" in host:
+        base_url = "https://quevendi.pro"
+
+    link = f"{base_url}/contador/aceptar?token={cs.invitation_token}"
+
+    store = db.query(Store).filter(Store.id == store_id).first()
+    nombre_negocio = (
+        getattr(store, "commercial_name", None)
+        or getattr(store, "business_name", None)
+        or "mi negocio"
+    ) if store else "mi negocio"
+
+    mensaje_wa = (
+        f"Hola! Te invito a ver los reportes de {nombre_negocio} en QueVendi. "
+        f"Acepta aquí: {link}"
+    )
+    whatsapp_url = (
+        f"https://wa.me/{whatsapp}?text={quote(mensaje_wa)}"
+        if whatsapp
+        else f"https://wa.me/?text={quote(mensaje_wa)}"
+    )
+
+    return {
+        "ok": True,
+        "estado": cs.estado,
+        "contador_id": contador.id,
+        "link": link,
+        "mensaje_wa": mensaje_wa,
+        "whatsapp_url": whatsapp_url,
+    }
 
 
 @router.post("/aceptar/{store_id}")
@@ -220,6 +302,114 @@ async def aceptar_invitacion(
     cs.accepted_at = datetime.utcnow()
     db.commit()
     return {"ok": True, "estado": "activo"}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Aceptar invitación por link (sin auth: el token es la credencial temporal)
+# ──────────────────────────────────────────────────────────────────────────
+class CompletarInvitacionIn(BaseModel):
+    token: str
+    full_name: Optional[str] = None
+    whatsapp: Optional[str] = None
+    email: Optional[EmailStr] = None
+    pin: Optional[str] = None  # requerido si el contador aún no tiene cuenta
+
+
+def _info_invitacion(db: Session, token: str) -> dict:
+    cs = db.query(ContadorStore).filter(ContadorStore.invitation_token == token).first()
+    if not cs:
+        raise HTTPException(status_code=404, detail="Invitación inválida o expirada")
+    contador = db.query(Contador).filter(Contador.id == cs.contador_id).first()
+    store = db.query(Store).filter(Store.id == cs.store_id).first()
+    if not contador or not store:
+        raise HTTPException(status_code=404, detail="Invitación inconsistente")
+
+    nombre_negocio = (
+        getattr(store, "commercial_name", None)
+        or getattr(store, "business_name", None)
+        or f"Store {store.id}"
+    )
+    tiene_cuenta = bool(contador.pin_hash)
+    return {
+        "store_id": store.id,
+        "negocio": nombre_negocio,
+        "ruc_negocio": getattr(store, "ruc", None),
+        "estado": cs.estado,
+        "tiene_cuenta": tiene_cuenta,
+        "contador": {
+            "id": contador.id,
+            "email": contador.email,
+            "whatsapp": contador.whatsapp,
+            "full_name": contador.full_name if tiene_cuenta else None,
+        },
+    }
+
+
+@router.get("/invitacion/{token}")
+async def info_invitacion(token: str, db: Session = Depends(get_db)):
+    return _info_invitacion(db, token)
+
+
+@router.post("/aceptar-invitacion")
+async def aceptar_invitacion_token(
+    payload: CompletarInvitacionIn,
+    db: Session = Depends(get_db),
+):
+    """
+    Acepta invitación usando el token único:
+    - Si el contador ya tiene pin_hash → solo activa el vínculo
+    - Si no → completa nombre/whatsapp/email/pin y activa
+    Devuelve access_token de contador.
+    """
+    from app.core.security import get_pin_hash, verify_pin
+    from app.routers.contador_auth import _build_token
+
+    cs = db.query(ContadorStore).filter(ContadorStore.invitation_token == payload.token).first()
+    if not cs:
+        raise HTTPException(status_code=404, detail="Invitación inválida o expirada")
+
+    contador = db.query(Contador).filter(Contador.id == cs.contador_id).first()
+    if not contador:
+        raise HTTPException(status_code=404, detail="Contador no encontrado")
+
+    if not contador.pin_hash:
+        # Registro nuevo: requiere pin y full_name
+        if not payload.pin or len(payload.pin) < 4:
+            raise HTTPException(status_code=400, detail="PIN requerido (mín 4 dígitos)")
+        if not payload.full_name or len(payload.full_name.strip()) < 2:
+            raise HTTPException(status_code=400, detail="Nombre completo requerido")
+
+        contador.full_name = payload.full_name.strip()
+        if payload.email and not contador.email:
+            contador.email = str(payload.email).lower()
+        if payload.whatsapp and not contador.whatsapp:
+            contador.whatsapp = _normaliza_whatsapp(payload.whatsapp)
+        contador.pin_hash = get_pin_hash(payload.pin)
+        contador.is_active = True
+    else:
+        # Cuenta existente: si mandó pin lo verificamos como login
+        if payload.pin and not verify_pin(payload.pin, contador.pin_hash):
+            raise HTTPException(status_code=401, detail="PIN incorrecto")
+
+    cs.estado = "activo"
+    cs.accepted_at = datetime.utcnow()
+    cs.invitation_token = None  # invalidar token tras uso
+    db.commit()
+    db.refresh(contador)
+
+    access_token = _build_token(contador)
+    return {
+        "ok": True,
+        "access_token": access_token,
+        "token_type": "bearer",
+        "contador": {
+            "id": contador.id,
+            "email": contador.email,
+            "full_name": contador.full_name,
+            "whatsapp": contador.whatsapp,
+        },
+        "store_id": cs.store_id,
+    }
 
 
 @router.delete("/clientes/{store_id}")
