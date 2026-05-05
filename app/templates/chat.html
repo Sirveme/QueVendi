@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat — QueVendi</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #111b21;
+      --bg-panel: #202c33;
+      --bg-chat: #0b141a;
+      --bg-bubble-own: #005c4b;
+      --bg-bubble-other: #202c33;
+      --bg-input: #2a3942;
+      --verde: #00a884;
+      --text: #e9edef;
+      --text-secondary: #8696a0;
+      --border: #2a3942;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-chat);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: var(--bg-panel);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .back-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .chat-avatar {
+      width: 38px; height: 38px;
+      background: var(--verde);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; flex-shrink: 0;
+    }
+    .chat-info { flex: 1; min-width: 0; }
+    .chat-name { font-size: 15px; font-weight: 600; }
+    .chat-status {
+      font-size: 12px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .online-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%; background: var(--verde);
+      display: inline-block;
+    }
+
+    .online-bar {
+      background: var(--bg-panel);
+      padding: 6px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .online-user {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      min-width: 44px;
+    }
+    .online-user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #2a3942;
+      border: 2px solid var(--verde);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: var(--bg-chat);
+    }
+    .messages-container::-webkit-scrollbar { width: 4px; }
+    .messages-container::-webkit-scrollbar-thumb {
+      background: #374151; border-radius: 2px;
+    }
+
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 75%;
+    }
+    .msg-wrapper.own { align-self: flex-end; align-items: flex-end; }
+    .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
+
+    .msg-sender-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--verde);
+      margin-bottom: 2px;
+      padding-left: 10px;
+    }
+
+    .msg-bubble {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+    .msg-wrapper.own .msg-bubble {
+      background: var(--bg-bubble-own);
+      border-radius: 8px 0 8px 8px;
+    }
+    .msg-wrapper.other .msg-bubble {
+      background: var(--bg-bubble-other);
+      border-radius: 0 8px 8px 8px;
+    }
+
+    .msg-meta {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 4px;
+    }
+    .msg-check { color: var(--verde); }
+
+    .msg-system {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 4px 12px;
+      align-self: center;
+      margin: 4px 0;
+    }
+
+    .input-area {
+      background: var(--bg-panel);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+    }
+    .input-wrap {
+      flex: 1;
+      background: var(--bg-input);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      gap: 8px;
+    }
+    .msg-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+    }
+    .msg-input::placeholder { color: var(--text-secondary); }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-icon:hover { color: var(--verde); }
+
+    .btn-send {
+      width: 44px; height: 44px;
+      background: var(--verde);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .btn-send:hover { background: #008f72; }
+
+    .date-separator {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 3px 10px;
+      align-self: center;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-header">
+  <a href="/home" class="back-btn">←</a>
+  <div class="chat-avatar" id="store-avatar">S</div>
+  <div class="chat-info">
+    <div class="chat-name" id="store-name">Chat del Negocio</div>
+    <div class="chat-status">
+      <span class="online-dot"></span>
+      <span id="online-count">conectando...</span>
+    </div>
+  </div>
+</div>
+
+<div class="online-bar" id="online-bar"></div>
+
+<div class="messages-container" id="messages"></div>
+
+<div class="input-area">
+  <div class="input-wrap">
+    <button class="btn-icon" onclick="enviarAudio()" title="Audio">🎤</button>
+    <input type="text" class="msg-input" id="msg-input"
+           placeholder="Escribe un mensaje..."
+           onkeydown="if(event.key==='Enter')enviarMensaje()">
+    <button class="btn-icon" onclick="adjuntarImagen()" title="Imagen">📎</button>
+  </div>
+  <button class="btn-send" onclick="enviarMensaje()">➤</button>
+</div>
+
+<script>
+const storeId = parseInt(localStorage.getItem('store_id') || '0');
+const token = localStorage.getItem('token') ||
+              localStorage.getItem('access_token') || '';
+const userId = parseInt(localStorage.getItem('user_id') || '0');
+const userName = localStorage.getItem('user_name') || 'Usuario';
+const storeName = localStorage.getItem('store_name') || 'Mi Negocio';
+
+document.getElementById('store-name').textContent = storeName;
+document.getElementById('store-avatar').textContent =
+  storeName.charAt(0).toUpperCase();
+
+let ws = null;
+let reconnectTimer = null;
+
+function conectar() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const wsUrl = `${proto}://${location.host}/ws/chat/${storeId}?token=${encodeURIComponent(token)}`;
+  ws = new WebSocket(wsUrl);
+
+  ws.onopen = () => {
+    document.getElementById('online-count').textContent = 'en línea';
+    clearTimeout(reconnectTimer);
+    marcarTodoLeido();
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      procesarMensaje(data);
+    } catch (e) {
+      console.error('Mensaje WS inválido:', e);
+    }
+  };
+
+  ws.onclose = (ev) => {
+    document.getElementById('online-count').textContent = 'reconectando...';
+    // Códigos custom: 4001 token inválido, 4003 store no autorizado
+    if (ev.code === 4001 || ev.code === 4003) {
+      document.getElementById('online-count').textContent = 'no autorizado';
+      return;
+    }
+    reconnectTimer = setTimeout(conectar, 3000);
+  };
+
+  ws.onerror = () => { try { ws.close(); } catch (e) {} };
+}
+
+function procesarMensaje(data) {
+  const container = document.getElementById('messages');
+
+  if (data.type === 'history') {
+    container.innerHTML = '';
+    data.messages.forEach(m => agregarBurbuja(m, m.own === true || m.sender_id === userId));
+    if (data.online_users) actualizarOnline(data.online_users);
+    container.scrollTop = container.scrollHeight;
+    marcarTodoLeido();
+    return;
+  }
+
+  if (data.type === 'system') {
+    const div = document.createElement('div');
+    div.className = 'msg-system';
+    div.textContent = data.content;
+    container.appendChild(div);
+    if (data.online_users) actualizarOnline(data.online_users);
+    container.scrollTop = container.scrollHeight;
+    return;
+  }
+
+  if (data.type === 'message') {
+    agregarBurbuja(data, data.own === true);
+    container.scrollTop = container.scrollHeight;
+
+    if (!data.own) {
+      try { new Audio('/static/sounds/new-notification-sound.mp3').play(); } catch (e) {}
+    }
+  }
+}
+
+function agregarBurbuja(msg, esPropio) {
+  const container = document.getElementById('messages');
+  const wrapper = document.createElement('div');
+  wrapper.className = `msg-wrapper ${esPropio ? 'own' : 'other'}`;
+
+  const hora = msg.timestamp
+    ? new Date(msg.timestamp).toLocaleTimeString('es-PE', {
+        hour: '2-digit', minute: '2-digit'
+      })
+    : '';
+
+  const senderName = !esPropio
+    ? `<div class="msg-sender-name">${escapeHtml(msg.sender_name || 'Usuario')}</div>`
+    : '';
+
+  let contenido = '';
+  if (msg.msg_type === 'text') {
+    contenido = `<div class="msg-bubble">${escapeHtml(msg.content || '')}</div>`;
+  } else if (msg.msg_type === 'image') {
+    contenido = `<div class="msg-bubble">
+      <img src="${msg.media_url}" style="max-width:200px;border-radius:6px">
+    </div>`;
+  } else if (msg.msg_type === 'audio') {
+    contenido = `<div class="msg-bubble">
+      <audio controls src="${msg.media_url}" style="max-width:200px"></audio>
+    </div>`;
+  } else {
+    contenido = `<div class="msg-bubble">${escapeHtml(msg.content || '')}</div>`;
+  }
+
+  const checks = esPropio
+    ? `<span class="msg-check">${msg.is_read ? '✓✓' : '✓'}</span>`
+    : '';
+
+  wrapper.innerHTML = `
+    ${senderName}
+    ${contenido}
+    <div class="msg-meta">${hora} ${checks}</div>
+  `;
+
+  container.appendChild(wrapper);
+}
+
+function actualizarOnline(userIds) {
+  document.getElementById('online-count').textContent =
+    `${userIds.length} en línea`;
+}
+
+function enviarMensaje() {
+  const input = document.getElementById('msg-input');
+  const content = input.value.trim();
+  if (!content || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+  ws.send(JSON.stringify({
+    type: 'text',
+    content: content,
+    receiver_id: null
+  }));
+
+  input.value = '';
+}
+
+function marcarTodoLeido() {
+  if (!token) return;
+  fetch('/api/v1/chat/mark-all-read', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).catch(() => { /* silencioso */ });
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function adjuntarImagen() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    alert('Próximamente: envío de imágenes');
+  };
+  input.click();
+}
+
+function enviarAudio() {
+  alert('Próximamente: mensajes de voz');
+}
+
+if (storeId && token) {
+  conectar();
+} else {
+  document.getElementById('online-count').textContent = 'no autenticado';
+}
+</script>
+</body>
+</html>

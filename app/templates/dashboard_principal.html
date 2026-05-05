@@ -706,9 +706,11 @@
                 <span>Ventas</span>
             </button>
 
-            <button class="nav-btn" id="nav-menu" onclick="toggleSidebar()">
-                <i class="fas fa-th-large"></i>
-                <span>Más</span>
+            <button class="nav-btn" id="nav-chat"
+                    onclick="window.location.href='/chat'">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+                <span class="nav-badge" id="nav-chat-badge" style="display:none">0</span>
             </button>
         </nav>
         
@@ -1060,5 +1062,36 @@ document.addEventListener('keydown', function(e) {
     <script src="/static/js/print-agent-client.js"></script>
     <script src="/static/js/print-agent-integration.js"></script>
     <script src="/static/js/ticket-builder.js?v=20260502"></script>
+
+    <!-- Badge de mensajes no leídos (polling cada 30s) -->
+    <script>
+    (function() {
+      const badge = document.getElementById('nav-chat-badge');
+      if (!badge) return;
+
+      async function refrescarUnread() {
+        const token = localStorage.getItem('token') ||
+                      localStorage.getItem('access_token') || '';
+        if (!token) return;
+        try {
+          const r = await fetch('/api/v1/chat/unread-count', {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          if (!r.ok) return;
+          const data = await r.json();
+          const n = parseInt(data.count || 0);
+          if (n > 0) {
+            badge.textContent = n > 99 ? '99+' : String(n);
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        } catch (e) { /* silencioso */ }
+      }
+
+      refrescarUnread();
+      setInterval(refrescarUnread, 30000);
+    })();
+    </script>
 </body>
 </html>
