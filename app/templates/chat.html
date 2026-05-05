@@ -353,8 +353,10 @@ function agregarBurbuja(msg, esPropio) {
   const wrapper = document.createElement('div');
   wrapper.className = `msg-wrapper ${esPropio ? 'own' : 'other'}`;
 
+  // El timestamp viene sin 'Z' del servidor (UTC naive); agregarlo fuerza
+  // al browser a interpretarlo como UTC y mostrarlo en hora local.
   const hora = msg.timestamp
-    ? new Date(msg.timestamp).toLocaleTimeString('es-PE', {
+    ? new Date(msg.timestamp + 'Z').toLocaleTimeString('es-PE', {
         hour: '2-digit', minute: '2-digit'
       })
     : '';
