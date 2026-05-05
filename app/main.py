@@ -36,6 +36,7 @@ from app.routers.caja import router as caja_router
 from app.routers.carta_virtual import router as carta_router
 from app.routers import guias
 from app.routers import encuestas
+from app.routers import chat
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -194,6 +195,8 @@ app.include_router(caja_router, prefix="/api/v1", tags=["caja"])
 app.include_router(carta_router, tags=["carta_virtual"])  # Rutas públicas sin auth
 app.include_router(guias.router)
 app.include_router(encuestas.router)
+app.include_router(chat.ws_router)
+app.include_router(chat.api_router, prefix="/api/v1", tags=["chat"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -423,6 +426,14 @@ async def config_negocio_page(request: Request):
 @app.get("/descargar", response_class=HTMLResponse)
 async def descargar_page(request: Request):
     return templates.TemplateResponse("descargar.html", {"request": request})
+
+
+# ========================================
+# RUTA HTML — Chat en tiempo real
+# ========================================
+@app.get("/chat", response_class=HTMLResponse)
+async def chat_page(request: Request):
+    return templates.TemplateResponse("chat.html", {"request": request})
 
 
 @app.get("/{telefono}")
