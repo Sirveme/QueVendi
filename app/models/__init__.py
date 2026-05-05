@@ -13,6 +13,7 @@ from app.models.customer import Customer
 from app.models.credit import Credit, CreditPayment
 from app.models.billing import StoreBillingConfig, Comprobante
 from app.models.mensajes import Mensaje
+from app.models.contador import Contador, ContadorStore, ContadorPermiso
 
 __all__ = [
     "Store",
@@ -35,5 +36,8 @@ __all__ = [
     "CreditPayment",
     "StoreBillingConfig",
     "Comprobante",
-    "Mensaje"
+    "Mensaje",
+    "Contador",
+    "ContadorStore",
+    "ContadorPermiso",
 ]
