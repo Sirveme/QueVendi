@@ -37,6 +37,7 @@ from app.routers.carta_virtual import router as carta_router
 from app.routers import guias
 from app.routers import encuestas
 from app.routers import chat
+from app.routers import contador_auth, contador
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -197,6 +198,8 @@ app.include_router(guias.router)
 app.include_router(encuestas.router)
 app.include_router(chat.ws_router)
 app.include_router(chat.api_router, prefix="/api/v1", tags=["chat"])
+app.include_router(contador_auth.router, prefix="/contador", tags=["contador-auth"])
+app.include_router(contador.router, prefix="/contador", tags=["contador"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -434,6 +437,24 @@ async def descargar_page(request: Request):
 @app.get("/chat", response_class=HTMLResponse)
 async def chat_page(request: Request):
     return templates.TemplateResponse("chat.html", {"request": request})
+
+
+# ========================================
+# RUTAS HTML — PORTAL CONTADOR
+# ========================================
+@app.get("/contador/login", response_class=HTMLResponse)
+async def contador_login_page(request: Request):
+    return templates.TemplateResponse("contador/login.html", {"request": request})
+
+
+@app.get("/contador/dashboard", response_class=HTMLResponse)
+async def contador_dashboard_page(request: Request):
+    return templates.TemplateResponse("contador/dashboard.html", {"request": request})
+
+
+@app.get("/contador/registro", response_class=HTMLResponse)
+async def contador_registro_page(request: Request):
+    return templates.TemplateResponse("contador/registro.html", {"request": request})
 
 
 @app.get("/{telefono}")
