@@ -260,12 +260,21 @@
 </div>
 
 <script>
-const storeId = parseInt(localStorage.getItem('store_id') || '0');
 const token = localStorage.getItem('token') ||
               localStorage.getItem('access_token') || '';
-const userId = parseInt(localStorage.getItem('user_id') || '0');
-const userName = localStorage.getItem('user_name') || 'Usuario';
-const storeName = localStorage.getItem('store_name') || 'Mi Negocio';
+
+// Leer desde objeto 'user' si no hay claves separadas
+const _user = JSON.parse(localStorage.getItem('user') || '{}');
+const storeId = parseInt(
+  localStorage.getItem('store_id') || _user.store_id || '0'
+);
+const userId = parseInt(
+  localStorage.getItem('user_id') || _user.id || '0'
+);
+const userName = localStorage.getItem('user_name') ||
+                 _user.full_name || 'Usuario';
+const storeName = localStorage.getItem('store_name') ||
+                  _user.store_name || 'Mi Negocio';
 
 document.getElementById('store-name').textContent = storeName;
 document.getElementById('store-avatar').textContent =
