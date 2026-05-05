@@ -298,7 +298,7 @@ async def login(
     elif user.role in ("owner", "admin"):
         expires = timedelta(days=30)    # dueño no debe re-loguearse
     else:
-        expires = timedelta(hours=10)   # cajero/vendedor normal
+        expires = timedelta(days=7)     # cajero/vendedor normal
 
     access_token = create_access_token(
         data={
@@ -526,7 +526,12 @@ async def refresh_token(
     db: Session = Depends(get_db)
 ):
     """Renueva el token sin pedir PIN de nuevo"""
-    expires = timedelta(hours=12 if current_user.role == "demo_seller" else 10)
+    if current_user.role == "demo_seller":
+        expires = timedelta(hours=12)
+    elif current_user.role in ("owner", "admin"):
+        expires = timedelta(days=30)
+    else:
+        expires = timedelta(days=7)
     new_token = create_access_token(
         data={
             "sub":       str(current_user.id),
