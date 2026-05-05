@@ -12,6 +12,7 @@ from app.models.incidente import Incidente, ContactoEmergencia, RedBodegueros, N
 from app.models.customer import Customer
 from app.models.credit import Credit, CreditPayment
 from app.models.billing import StoreBillingConfig, Comprobante
+from app.models.mensajes import Mensaje
 
 __all__ = [
     "Store",
@@ -33,5 +34,6 @@ __all__ = [
     "Credit",
     "CreditPayment",
     "StoreBillingConfig",
-    "Comprobante"
+    "Comprobante",
+    "Mensaje"
 ]
