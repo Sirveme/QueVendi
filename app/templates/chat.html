@@ -298,200 +298,618 @@
       align-self: center;
       margin: 8px 0;
     }
+
+    /* ========================================
+       LAYOUT 2 PANELES (estilo WhatsApp Web)
+       ======================================== */
+    .wa-layout {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .wa-sidebar {
+      width: 360px;
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .wa-sidebar-header {
+      background: #1f2c34;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .wa-sidebar-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--verde);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .wa-sidebar-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .wa-back-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 18px;
+    }
+
+    .wa-search {
+      padding: 8px 12px;
+      background: var(--bg-chat);
+      flex-shrink: 0;
+    }
+    .wa-search input {
+      width: 100%;
+      background: var(--bg-panel);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .wa-search input::placeholder { color: var(--text-secondary); }
+
+    .wa-chats-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .wa-chats-list::-webkit-scrollbar { width: 4px; }
+    .wa-chats-list::-webkit-scrollbar-thumb { background: #374151; }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+      position: relative;
+    }
+    .chat-item:hover { background: rgba(255,255,255,0.05); }
+    .chat-item.active { background: #2a3942; }
+
+    .chat-item-avatar {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      flex-shrink: 0;
+      color: white;
+    }
+    .chat-item-info { flex: 1; min-width: 0; }
+    .chat-item-name {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-item-preview {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+    .chat-item-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .chat-item-time {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .chat-item-badge {
+      background: var(--verde);
+      color: white;
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .online-indicator {
+      position: absolute;
+      bottom: 14px; left: 50px;
+      width: 10px; height: 10px;
+      background: var(--verde);
+      border-radius: 50%;
+      border: 2px solid var(--bg-panel);
+    }
+
+    .wa-chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .wa-empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      gap: 12px;
+    }
+    .wa-empty-icon { font-size: 64px; opacity: 0.4; }
+    .wa-empty-state h3 { font-size: 20px; color: var(--text); }
+    .wa-empty-state p { font-size: 14px; }
+
+    .wa-conversation {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mobile-back-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 768px) {
+      .wa-sidebar {
+        width: 100%;
+        position: absolute;
+        z-index: 10;
+        top: 0; left: 0; right: 0; bottom: 0;
+      }
+      .wa-sidebar.hidden { display: none; }
+      .wa-chat-panel { width: 100%; }
+      .mobile-back-btn { display: block; }
+      .wa-empty-state { display: none; }
+    }
   </style>
 </head>
 <body>
+<div class="wa-layout">
 
-<div class="chat-header">
-  <a href="/home" class="back-btn">←</a>
-  <div class="chat-avatar" id="store-avatar">S</div>
-  <div class="chat-info">
-    <div class="chat-name" id="store-name">Chat del Negocio</div>
-    <div class="chat-status">
-      <span class="online-dot"></span>
-      <span id="online-count">conectando...</span>
+  <!-- PANEL IZQUIERDO — Lista de conversaciones -->
+  <div class="wa-sidebar" id="wa-sidebar">
+
+    <div class="wa-sidebar-header">
+      <div class="wa-sidebar-avatar" id="my-avatar">U</div>
+      <div class="wa-sidebar-title">QueVendi Chat</div>
+      <div style="flex:1"></div>
+      <a href="/home" class="wa-back-btn" title="Volver">⬅️</a>
+    </div>
+
+    <div class="wa-search">
+      <input type="text" placeholder="🔍 Buscar o iniciar chat..."
+             id="search-contacts" oninput="filtrarContactos(this.value)">
+    </div>
+
+    <div class="wa-chats-list" id="chats-list">
+      <!-- Se llena dinámicamente -->
+    </div>
+
+  </div>
+
+  <!-- PANEL DERECHO — Conversación activa -->
+  <div class="wa-chat-panel" id="wa-chat-panel">
+
+    <div class="wa-empty-state" id="empty-state">
+      <div class="wa-empty-icon">💬</div>
+      <h3>QueVendi Chat</h3>
+      <p>Selecciona una conversación para comenzar</p>
+    </div>
+
+    <div class="wa-conversation" id="wa-conversation" style="display:none">
+
+      <div class="chat-header">
+        <button class="mobile-back-btn" onclick="volverALista()">←</button>
+        <div class="chat-avatar" id="conv-avatar">G</div>
+        <div class="chat-info">
+          <div class="chat-name" id="conv-name">Chat</div>
+          <div class="chat-status" id="conv-status">
+            <span class="online-dot"></span>
+            <span id="online-count">conectando...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messages">
+        <div class="watermark" id="watermark-bg"></div>
+      </div>
+
+      <div class="typing-indicator" id="typing-indicator" style="display:none">
+        <div class="typing-bubble">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="typing-name" id="typing-name">escribiendo...</span>
+      </div>
+
+      <div class="input-area">
+        <div class="input-wrap">
+          <button class="btn-icon" onclick="enviarAudio()"
+                  title="Audio" id="btn-audio">🎤</button>
+          <input type="text" class="msg-input" id="msg-input"
+                 placeholder="Escribe un mensaje..."
+                 onkeydown="if(event.key==='Enter')enviarMensaje()">
+          <button class="btn-icon" onclick="adjuntarImagen()"
+                  title="Adjuntar">📎</button>
+        </div>
+        <button class="btn-send" onclick="enviarMensaje()">➤</button>
+      </div>
+
     </div>
   </div>
-</div>
 
-<div class="online-bar" id="online-bar"></div>
-
-<div class="messages-container" id="messages">
-  <div class="watermark" id="watermark-bg"></div>
-</div>
-
-<div class="typing-indicator" id="typing-indicator" style="display:none">
-  <div class="typing-bubble">
-    <span></span><span></span><span></span>
-  </div>
-  <span class="typing-name" id="typing-name">Usuario está escribiendo</span>
-</div>
-
-<div class="input-area">
-  <div class="input-wrap">
-    <button class="btn-icon" onclick="enviarAudio()" title="Audio">🎤</button>
-    <input type="text" class="msg-input" id="msg-input"
-           placeholder="Escribe un mensaje..."
-           onkeydown="if(event.key==='Enter')enviarMensaje()">
-    <button class="btn-icon" onclick="adjuntarImagen()" title="Imagen">📎</button>
-  </div>
-  <button class="btn-send" onclick="enviarMensaje()">➤</button>
 </div>
 
 <script>
-const token = localStorage.getItem('token') ||
-              localStorage.getItem('access_token') || '';
-
-// Leer desde objeto 'user' si no hay claves separadas
+// ============================================
+// ESTADO GLOBAL
+// ============================================
 const _user = JSON.parse(localStorage.getItem('user') || '{}');
-const storeId = parseInt(
-  localStorage.getItem('store_id') || _user.store_id || '0'
-);
-const userId = parseInt(
-  localStorage.getItem('user_id') || _user.id || '0'
-);
-const userName = localStorage.getItem('user_name') ||
-                 _user.full_name || 'Usuario';
-const storeName = localStorage.getItem('store_name') ||
-                  _user.store_name || 'Mi Negocio';
-
-document.getElementById('store-name').textContent = storeName;
-document.getElementById('store-avatar').textContent =
-  storeName.charAt(0).toUpperCase();
+const storeId = parseInt(localStorage.getItem('store_id') || _user.store_id || '0');
+const token = localStorage.getItem('token') || localStorage.getItem('access_token') || '';
+const userId = parseInt(localStorage.getItem('user_id') || _user.id || '0');
+const userName = localStorage.getItem('user_name') || _user.full_name || 'Usuario';
+const storeName = localStorage.getItem('store_name') || _user.store_name || 'Mi Negocio';
 
 let ws = null;
 let reconnectTimer = null;
+let currentReceiverId = null; // null = grupo, number = privado
+let currentConvName = '';
+let typingTimer = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
 
+// Usuarios del store (se carga al conectar)
+let storeUsers = [];
+let onlineUsers = new Set();
+let unreadCounts = {}; // { 'grupo': 3, 'user_2': 1, ... }
+
+// ============================================
+// CONTACTOS / LISTA DE CHATS
+// ============================================
+const COLORES = ['#25d366','#128c7e','#34b7f1','#e17055',
+                 '#a29bfe','#fd79a8','#fdcb6e','#6c5ce7'];
+
+function colorFor(id) {
+  return COLORES[id % COLORES.length];
+}
+
+async function cargarContactos() {
+  // Cargar usuarios del store desde la API
+  try {
+    const res = await fetch('/api/v1/users/store/list', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      storeUsers = (data.usuarios || []).filter(u => u.id !== userId);
+    }
+  } catch(e) {
+    console.warn('No se pudo cargar usuarios:', e);
+  }
+  renderContactos();
+}
+
+function renderContactos(filtro = '') {
+  const list = document.getElementById('chats-list');
+  const lower = filtro.toLowerCase();
+
+  // Grupo del negocio siempre primero
+  const grupoHTML = `
+    <div class="chat-item ${currentReceiverId === null ? 'active' : ''}"
+         onclick="abrirConversacion(null, '${storeName}', 'G')">
+      <div class="chat-item-avatar"
+           style="background:${colorFor(storeId)}">
+        ${storeName.charAt(0)}
+      </div>
+      <div class="chat-item-info">
+        <div class="chat-item-name">${storeName}</div>
+        <div class="chat-item-preview">
+          Chat del negocio · ${onlineUsers.size} en línea
+        </div>
+      </div>
+      <div class="chat-item-meta">
+        <span class="chat-item-time">Grupo</span>
+        ${(unreadCounts['grupo'] || 0) > 0
+          ? `<span class="chat-item-badge">${unreadCounts['grupo']}</span>`
+          : ''}
+      </div>
+    </div>`;
+
+  // Usuarios individuales
+  const usuariosHTML = storeUsers
+    .filter(u => !filtro || u.full_name.toLowerCase().includes(lower))
+    .map(u => {
+      const isOnline = onlineUsers.has(u.id);
+      const badge = unreadCounts[`user_${u.id}`] || 0;
+      return `
+        <div class="chat-item ${currentReceiverId === u.id ? 'active' : ''}"
+             onclick="abrirConversacion(${u.id}, '${u.full_name}', '${u.full_name.charAt(0)}')">
+          <div style="position:relative;flex-shrink:0">
+            <div class="chat-item-avatar"
+                 style="background:${colorFor(u.id)}">
+              ${u.full_name.charAt(0).toUpperCase()}
+            </div>
+            ${isOnline ? '<div class="online-indicator"></div>' : ''}
+          </div>
+          <div class="chat-item-info">
+            <div class="chat-item-name">${u.full_name}</div>
+            <div class="chat-item-preview" style="color:${isOnline ? '#25d366' : ''}">
+              ${isOnline ? '● En línea' : u.role || 'Vendedor'}
+            </div>
+          </div>
+          <div class="chat-item-meta">
+            ${badge > 0
+              ? `<span class="chat-item-badge">${badge}</span>`
+              : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+  // Soporte QueVendi (siempre al final)
+  const soporteHTML = (!filtro || 'soporte quevendi'.includes(lower)) ? `
+    <div class="chat-item" onclick="alert('Próximamente: Chat con soporte QueVendi')">
+      <div class="chat-item-avatar" style="background:#667eea">🛟</div>
+      <div class="chat-item-info">
+        <div class="chat-item-name">Soporte QueVendi</div>
+        <div class="chat-item-preview">Ayuda y asistencia técnica</div>
+      </div>
+    </div>` : '';
+
+  list.innerHTML = grupoHTML + usuariosHTML + soporteHTML;
+}
+
+function filtrarContactos(valor) {
+  renderContactos(valor);
+}
+
+// ============================================
+// ABRIR CONVERSACIÓN
+// ============================================
+function abrirConversacion(receiverId, nombre, inicial) {
+  currentReceiverId = receiverId;
+  currentConvName = nombre;
+
+  // Actualizar header
+  document.getElementById('conv-avatar').textContent = inicial;
+  document.getElementById('conv-avatar').style.background =
+    receiverId ? colorFor(receiverId) : colorFor(storeId);
+  document.getElementById('conv-name').textContent = nombre;
+
+  // Mostrar panel de conversación
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('wa-conversation').style.display = 'flex';
+  document.getElementById('wa-conversation').style.flexDirection = 'column';
+
+  // En móvil: ocultar sidebar
+  document.getElementById('wa-sidebar').classList.add('hidden');
+
+  // Marcar activo en lista
+  renderContactos();
+
+  // Limpiar mensajes y reconectar si es necesario
+  const messages = document.getElementById('messages');
+  messages.innerHTML = '<div class="watermark" id="watermark-bg"></div>';
+  generarMarcaAgua();
+
+  // Reconectar WebSocket con nuevo contexto
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    conectar();
+  } else {
+    // Solicitar historial filtrado
+    ws.send(JSON.stringify({
+      type: 'get_history',
+      receiver_id: receiverId,
+      content: ''
+    }));
+  }
+
+  // Limpiar badge
+  const key = receiverId ? `user_${receiverId}` : 'grupo';
+  unreadCounts[key] = 0;
+  renderContactos();
+
+  // Foco en input
+  setTimeout(() => document.getElementById('msg-input')?.focus(), 100);
+}
+
+function volverALista() {
+  // Móvil: volver a la lista
+  document.getElementById('wa-sidebar').classList.remove('hidden');
+  document.getElementById('wa-conversation').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'flex';
+}
+
+// ============================================
+// WEBSOCKET
+// ============================================
 function conectar() {
+  if (ws) ws.close();
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   const wsUrl = `${proto}://${location.host}/ws/chat/${storeId}?token=${encodeURIComponent(token)}`;
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    document.getElementById('online-count').textContent = 'en línea';
+    document.getElementById('online-count').textContent =
+      `${onlineUsers.size} en línea`;
     clearTimeout(reconnectTimer);
     marcarTodoLeido();
   };
 
   ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      procesarMensaje(data);
-    } catch (e) {
-      console.error('Mensaje WS inválido:', e);
-    }
+    const data = JSON.parse(event.data);
+    procesarMensaje(data);
   };
 
-  ws.onclose = (ev) => {
+  ws.onclose = () => {
     document.getElementById('online-count').textContent = 'reconectando...';
-    // Códigos custom: 4001 token inválido, 4003 store no autorizado
-    if (ev.code === 4001 || ev.code === 4003) {
-      document.getElementById('online-count').textContent = 'no autorizado';
-      return;
-    }
     reconnectTimer = setTimeout(conectar, 3000);
   };
-
-  ws.onerror = () => { try { ws.close(); } catch (e) {} };
+  ws.onerror = () => ws.close();
 }
 
+async function marcarTodoLeido() {
+  try {
+    await fetch('/api/v1/chat/mark-all-read', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+  } catch(e) {}
+}
+
+// ============================================
+// PROCESAR MENSAJES
+// ============================================
 function procesarMensaje(data) {
   const container = document.getElementById('messages');
 
   if (data.type === 'history') {
+    // Filtrar mensajes de la conversación activa
     container.innerHTML = '<div class="watermark" id="watermark-bg"></div>';
     generarMarcaAgua();
-    data.messages.forEach(m => agregarBurbuja(m, m.own === true || m.sender_id === userId));
-    if (data.online_users) actualizarOnline(data.online_users);
+
+    data.messages.forEach(m => {
+      const esRelevante = currentReceiverId === null
+        ? m.receiver_id === null  // grupo
+        : (m.sender_id === currentReceiverId && m.receiver_id === userId)
+          || (m.sender_id === userId && m.receiver_id === currentReceiverId);
+
+      if (esRelevante || currentReceiverId === null) {
+        agregarBurbuja(m, m.sender_id === userId);
+      }
+    });
     container.scrollTop = container.scrollHeight;
     marcarTodoLeido();
     return;
   }
 
   if (data.type === 'system') {
-    const div = document.createElement('div');
-    div.className = 'msg-system';
-    div.textContent = data.content;
-    container.appendChild(div);
-    if (data.online_users) actualizarOnline(data.online_users);
-    container.scrollTop = container.scrollHeight;
+    // Actualizar usuarios online
+    if (data.online_users) {
+      onlineUsers = new Set(data.online_users);
+      document.getElementById('online-count').textContent =
+        `${onlineUsers.size} en línea`;
+      renderContactos();
+    }
+    // Mostrar mensaje de sistema
+    if (currentReceiverId === null) {
+      const div = document.createElement('div');
+      div.className = 'msg-system';
+      div.textContent = data.content;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
     return;
   }
 
   if (data.type === 'typing') {
     if (data.sender_id !== userId) {
       document.getElementById('typing-name').textContent =
-        `${data.sender_name || 'Alguien'} está escribiendo...`;
+        `${data.sender_name} está escribiendo...`;
       document.getElementById('typing-indicator').style.display = 'flex';
     }
     return;
   }
+
   if (data.type === 'stop_typing') {
     document.getElementById('typing-indicator').style.display = 'none';
     return;
   }
 
   if (data.type === 'message') {
-    // Si el sender estaba "escribiendo", ocultar el indicador
-    document.getElementById('typing-indicator').style.display = 'none';
-    agregarBurbuja(data, data.own === true);
-    container.scrollTop = container.scrollHeight;
+    // ¿Es de la conversación activa?
+    const esGrupo = data.receiver_id === null || data.receiver_id === undefined;
+    const esPrivadoActivo = !esGrupo && currentReceiverId !== null &&
+      (data.sender_id === currentReceiverId || data.receiver_id === userId);
 
+    if ((currentReceiverId === null && esGrupo) || esPrivadoActivo || data.own) {
+      agregarBurbuja(data, data.own === true);
+      container.scrollTop = container.scrollHeight;
+    } else if (!data.own) {
+      // Notificación de mensaje en otra conversación
+      const key = data.receiver_id === null ? 'grupo' : `user_${data.sender_id}`;
+      unreadCounts[key] = (unreadCounts[key] || 0) + 1;
+      renderContactos();
+    }
+
+    // Sonido
     if (!data.own) {
-      try { new Audio('/static/sounds/new-notification-sound.mp3').play(); } catch (e) {}
+      try {
+        new Audio('/static/sounds/new-notification-sound.mp3').play();
+      } catch(e) {}
     }
   }
 }
 
-function generarMarcaAgua() {
-  const wm = document.getElementById('watermark-bg');
-  if (!wm) return;
-  const texto = 'QueVendi  •  QV  •  quevendi.pro  ';
-  let html = '';
-  for (let i = 0; i < 120; i++) {
-    html += `<span class="watermark-text">${texto}</span>`;
-  }
-  wm.innerHTML = html;
-}
-
+// ============================================
+// BURBUJAS DE MENSAJE
+// ============================================
 function agregarBurbuja(msg, esPropio) {
   const container = document.getElementById('messages');
   const wrapper = document.createElement('div');
   wrapper.className = `msg-wrapper ${esPropio ? 'own' : 'other'}`;
+  wrapper.style.position = 'relative';
+  wrapper.style.zIndex = '1';
 
-  // El timestamp viene sin 'Z' del servidor (UTC naive); agregarlo fuerza
-  // al browser a interpretarlo como UTC y mostrarlo en hora local.
-  const hora = msg.timestamp
-    ? new Date(msg.timestamp + 'Z').toLocaleTimeString('es-PE', {
-        hour: '2-digit', minute: '2-digit'
-      })
-    : '';
+  const ts = msg.timestamp
+    ? (msg.timestamp.match(/[Z+\-]\d|Z$/)
+       ? msg.timestamp
+       : msg.timestamp + 'Z')
+    : new Date().toISOString();
+
+  const hora = new Date(ts).toLocaleTimeString('es-PE', {
+    hour: '2-digit', minute: '2-digit'
+  });
 
   const senderName = !esPropio
-    ? `<div class="msg-sender-name">${escapeHtml(msg.sender_name || 'Usuario')}</div>`
+    ? `<div class="msg-sender-name" style="color:${colorFor(msg.sender_id || 0)}">
+         ${msg.sender_name || 'Usuario'}
+       </div>`
     : '';
 
   let contenido = '';
-  if (msg.msg_type === 'text') {
+  if (msg.msg_type === 'text' || !msg.msg_type) {
     contenido = `<div class="msg-bubble">${escapeHtml(msg.content || '')}</div>`;
   } else if (msg.msg_type === 'image') {
-    contenido = `<div class="msg-bubble">
-      <img src="${msg.media_url}" style="max-width:200px;border-radius:6px">
+    contenido = `<div class="msg-bubble" style="padding:4px">
+      <img src="${msg.media_url}"
+           style="max-width:220px;border-radius:8px;display:block;cursor:pointer"
+           onclick="window.open('${msg.media_url}','_blank')"
+           onerror="this.style.display='none'">
     </div>`;
   } else if (msg.msg_type === 'audio') {
     contenido = `<div class="msg-bubble">
-      <audio controls src="${msg.media_url}" style="max-width:200px"></audio>
+      <audio controls src="${msg.media_url}"
+             style="max-width:220px;height:36px"></audio>
     </div>`;
   } else if (msg.msg_type === 'video') {
-    contenido = `<div class="msg-bubble">
-      <video controls
-             src="${msg.media_url}"
+    contenido = `<div class="msg-bubble" style="padding:4px">
+      <video controls src="${msg.media_url}"
              style="max-width:220px;border-radius:8px;display:block"
-             preload="metadata">
-      </video>
+             preload="metadata"></video>
     </div>`;
-  } else {
-    contenido = `<div class="msg-bubble">${escapeHtml(msg.content || '')}</div>`;
   }
 
   const checks = esPropio
@@ -507,11 +925,9 @@ function agregarBurbuja(msg, esPropio) {
   container.appendChild(wrapper);
 }
 
-function actualizarOnline(userIds) {
-  document.getElementById('online-count').textContent =
-    `${userIds.length} en línea`;
-}
-
+// ============================================
+// ENVIAR MENSAJES
+// ============================================
 function enviarMensaje() {
   const input = document.getElementById('msg-input');
   const content = input.value.trim();
@@ -520,28 +936,34 @@ function enviarMensaje() {
   ws.send(JSON.stringify({
     type: 'text',
     content: content,
-    receiver_id: null
+    receiver_id: currentReceiverId
   }));
 
   input.value = '';
+  clearTimeout(typingTimer);
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'stop_typing', content: '' }));
+  }
 }
 
-function marcarTodoLeido() {
-  if (!token) return;
-  fetch('/api/v1/chat/mark-all-read', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` }
-  }).catch(() => { /* silencioso */ });
-}
+// Typing
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('msg-input')?.addEventListener('input', () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'typing', content: '' }));
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'stop_typing', content: '' }));
+        }
+      }, 2000);
+    }
+  });
+});
 
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
+// ============================================
+// ADJUNTAR IMAGEN/VIDEO
+// ============================================
 async function adjuntarImagen() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -550,7 +972,6 @@ async function adjuntarImagen() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Límite: imágenes 5MB, videos 10MB
     const maxSize = file.type.startsWith('video')
       ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
@@ -558,20 +979,17 @@ async function adjuntarImagen() {
       return;
     }
 
-    // Preview local inmediato
-    const localUrl = URL.createObjectURL(file);
     const msgType = file.type.startsWith('video') ? 'video' : 'image';
-    agregarBurbuja({
-      sender_id: userId,
-      sender_name: userName,
-      content: '',
-      msg_type: msgType,
-      media_url: localUrl,
-      timestamp: new Date().toISOString().replace('Z', ''),
-      is_read: false
-    }, true);
 
-    // Subir al servidor
+    // Indicador de carga
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'msg-wrapper own';
+    loadingDiv.id = 'upload-loading';
+    loadingDiv.style.zIndex = '1';
+    loadingDiv.innerHTML = '<div class="msg-bubble" style="color:#8696a0;font-size:12px">⏳ Enviando...</div>';
+    document.getElementById('messages').appendChild(loadingDiv);
+    document.getElementById('messages').scrollTop = 999999;
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('store_id', storeId);
@@ -582,45 +1000,42 @@ async function adjuntarImagen() {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
+      document.getElementById('upload-loading')?.remove();
       const data = await res.json();
       if (data.url && ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
           type: msgType,
           content: '',
           media_url: data.url,
-          receiver_id: null
+          receiver_id: currentReceiverId
         }));
       }
-    } catch (err) {
+    } catch(err) {
+      document.getElementById('upload-loading')?.remove();
       console.error('Error subiendo archivo:', err);
     }
   };
   input.click();
 }
 
-// Audio recorder
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
-
+// ============================================
+// AUDIO
+// ============================================
 async function enviarAudio() {
-  const btnAudio = document.querySelector('.btn-icon[onclick="enviarAudio()"]');
-
   if (isRecording) {
-    mediaRecorder.stop();
-    if (btnAudio) btnAudio.textContent = '🎤';
+    mediaRecorder?.stop();
+    document.getElementById('btn-audio').textContent = '🎤';
     isRecording = false;
     return;
   }
-
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
     mediaRecorder = new MediaRecorder(stream);
     audioChunks = [];
 
     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
     mediaRecorder.onstop = async () => {
-      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const blob = new Blob(audioChunks, {type: 'audio/webm'});
       stream.getTracks().forEach(t => t.stop());
 
       const formData = new FormData();
@@ -639,45 +1054,68 @@ async function enviarAudio() {
             type: 'audio',
             content: '',
             media_url: data.url,
-            receiver_id: null
+            receiver_id: currentReceiverId
           }));
         }
-      } catch (err) {
+      } catch(err) {
         console.error('Error subiendo audio:', err);
       }
     };
 
     mediaRecorder.start();
     isRecording = true;
-    if (btnAudio) btnAudio.textContent = '⏹️';
-  } catch (err) {
+    document.getElementById('btn-audio').textContent = '⏹️';
+  } catch(err) {
     alert('No se pudo acceder al micrófono');
   }
 }
 
-// Indicador "escribiendo"
-let typingTimer = null;
-document.getElementById('msg-input').addEventListener('input', () => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'typing', content: '' }));
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'stop_typing', content: '' }));
-      }
-    }, 2000);
+// ============================================
+// MARCA DE AGUA
+// ============================================
+function generarMarcaAgua() {
+  const wm = document.getElementById('watermark-bg');
+  if (!wm) return;
+  const texto = 'QueVendi  •  QV  •  quevendi.pro  ';
+  let html = '';
+  for (let i = 0; i < 120; i++) {
+    html += `<span class="watermark-text">${texto}</span>`;
+  }
+  wm.innerHTML = html;
+}
+
+// ============================================
+// HELPERS
+// ============================================
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Avatar propio
+  document.getElementById('my-avatar').textContent =
+    userName.charAt(0).toUpperCase();
+
+  // Cargar contactos
+  cargarContactos();
+
+  // Conectar WebSocket (sin abrir conversación aún)
+  if (storeId && token) {
+    conectar();
+  }
+
+  // En desktop, abrir grupo por defecto
+  if (window.innerWidth >= 769) {
+    setTimeout(() => {
+      abrirConversacion(null, storeName, storeName.charAt(0));
+    }, 300);
   }
 });
-
-document.addEventListener('DOMContentLoaded', generarMarcaAgua);
-// Por si DOMContentLoaded ya disparó (script al final del body):
-generarMarcaAgua();
-
-if (storeId && token) {
-  conectar();
-} else {
-  document.getElementById('online-count').textContent = 'no autenticado';
-}
 </script>
 </body>
 </html>
