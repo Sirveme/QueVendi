@@ -1,6 +1,7 @@
 """
 Chat en tiempo real vía WebSocket — multi-tenant por store_id.
 """
+import asyncio
 from typing import Dict, List, Optional
 from datetime import datetime, timezone, timedelta
 
@@ -156,11 +157,32 @@ async def websocket_chat(
 
     try:
         while True:
-            data = await websocket.receive_json()
+            try:
+                # Esperar mensaje con timeout de 30s para enviar ping si está idle
+                data = await asyncio.wait_for(
+                    websocket.receive_json(),
+                    timeout=30.0,
+                )
+            except asyncio.TimeoutError:
+                try:
+                    await websocket.send_json({"type": "ping"})
+                except Exception:
+                    break
+                continue
+            except WebSocketDisconnect:
+                raise
+            except Exception as e:
+                print(f"[chat WS] receive error user={user_id}: {e}")
+                break
+
             msg_type = data.get("type", "text")
             content = (data.get("content") or "").strip()
             receiver_id = data.get("receiver_id")  # None = broadcast
             media_url = data.get("media_url")
+
+            # Keep-alive: descartar ping/pong sin persistir
+            if msg_type in ("ping", "pong"):
+                continue
 
             # Typing indicator: broadcast efímero sin tocar la BD
             if msg_type in ("typing", "stop_typing"):
