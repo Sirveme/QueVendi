@@ -99,17 +99,57 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      background: var(--bg-chat);
+      background-color: var(--bg-chat);
+      background-image: none;
+      position: relative;
     }
     .messages-container::-webkit-scrollbar { width: 4px; }
     .messages-container::-webkit-scrollbar-thumb {
       background: #374151; border-radius: 2px;
+    }
+    .messages-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 60px,
+        rgba(255,255,255,0.015) 60px,
+        rgba(255,255,255,0.015) 61px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Marca de agua con texto */
+    .watermark {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .watermark-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.04);
+      transform: rotate(-35deg);
+      white-space: nowrap;
+      line-height: 3.5;
+      letter-spacing: 2px;
+      user-select: none;
     }
 
     .msg-wrapper {
       display: flex;
       flex-direction: column;
       max-width: 75%;
+      position: relative;
+      z-index: 1;
     }
     .msg-wrapper.own { align-self: flex-end; align-items: flex-end; }
     .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
@@ -161,6 +201,36 @@
       align-self: center;
       margin: 4px 0;
     }
+
+    /* Typing indicator */
+    .typing-indicator {
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-chat);
+    }
+    .typing-bubble {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      background: var(--bg-bubble-other);
+      padding: 8px 12px;
+      border-radius: 16px;
+    }
+    .typing-bubble span {
+      width: 6px; height: 6px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      animation: typing 1.2s infinite;
+    }
+    .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-4px); }
+    }
+    .typing-name { font-size: 12px; color: var(--text-secondary); }
 
     .input-area {
       background: var(--bg-panel);
@@ -246,7 +316,16 @@
 
 <div class="online-bar" id="online-bar"></div>
 
-<div class="messages-container" id="messages"></div>
+<div class="messages-container" id="messages">
+  <div class="watermark" id="watermark-bg"></div>
+</div>
+
+<div class="typing-indicator" id="typing-indicator" style="display:none">
+  <div class="typing-bubble">
+    <span></span><span></span><span></span>
+  </div>
+  <span class="typing-name" id="typing-name">Usuario está escribiendo</span>
+</div>
 
 <div class="input-area">
   <div class="input-wrap">
@@ -320,7 +399,8 @@ function procesarMensaje(data) {
   const container = document.getElementById('messages');
 
   if (data.type === 'history') {
-    container.innerHTML = '';
+    container.innerHTML = '<div class="watermark" id="watermark-bg"></div>';
+    generarMarcaAgua();
     data.messages.forEach(m => agregarBurbuja(m, m.own === true || m.sender_id === userId));
     if (data.online_users) actualizarOnline(data.online_users);
     container.scrollTop = container.scrollHeight;
@@ -338,7 +418,22 @@ function procesarMensaje(data) {
     return;
   }
 
+  if (data.type === 'typing') {
+    if (data.sender_id !== userId) {
+      document.getElementById('typing-name').textContent =
+        `${data.sender_name || 'Alguien'} está escribiendo...`;
+      document.getElementById('typing-indicator').style.display = 'flex';
+    }
+    return;
+  }
+  if (data.type === 'stop_typing') {
+    document.getElementById('typing-indicator').style.display = 'none';
+    return;
+  }
+
   if (data.type === 'message') {
+    // Si el sender estaba "escribiendo", ocultar el indicador
+    document.getElementById('typing-indicator').style.display = 'none';
     agregarBurbuja(data, data.own === true);
     container.scrollTop = container.scrollHeight;
 
@@ -346,6 +441,17 @@ function procesarMensaje(data) {
       try { new Audio('/static/sounds/new-notification-sound.mp3').play(); } catch (e) {}
     }
   }
+}
+
+function generarMarcaAgua() {
+  const wm = document.getElementById('watermark-bg');
+  if (!wm) return;
+  const texto = 'QueVendi  •  QV  •  quevendi.pro  ';
+  let html = '';
+  for (let i = 0; i < 120; i++) {
+    html += `<span class="watermark-text">${texto}</span>`;
+  }
+  wm.innerHTML = html;
 }
 
 function agregarBurbuja(msg, esPropio) {
@@ -375,6 +481,14 @@ function agregarBurbuja(msg, esPropio) {
   } else if (msg.msg_type === 'audio') {
     contenido = `<div class="msg-bubble">
       <audio controls src="${msg.media_url}" style="max-width:200px"></audio>
+    </div>`;
+  } else if (msg.msg_type === 'video') {
+    contenido = `<div class="msg-bubble">
+      <video controls
+             src="${msg.media_url}"
+             style="max-width:220px;border-radius:8px;display:block"
+             preload="metadata">
+      </video>
     </div>`;
   } else {
     contenido = `<div class="msg-bubble">${escapeHtml(msg.content || '')}</div>`;
@@ -428,21 +542,136 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-function adjuntarImagen() {
+async function adjuntarImagen() {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'image/*';
+  input.accept = 'image/*,video/*';
   input.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    alert('Próximamente: envío de imágenes');
+
+    // Límite: imágenes 5MB, videos 10MB
+    const maxSize = file.type.startsWith('video')
+      ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('Archivo muy grande. Máx: imágenes 5MB, videos 10MB');
+      return;
+    }
+
+    // Preview local inmediato
+    const localUrl = URL.createObjectURL(file);
+    const msgType = file.type.startsWith('video') ? 'video' : 'image';
+    agregarBurbuja({
+      sender_id: userId,
+      sender_name: userName,
+      content: '',
+      msg_type: msgType,
+      media_url: localUrl,
+      timestamp: new Date().toISOString().replace('Z', ''),
+      is_read: false
+    }, true);
+
+    // Subir al servidor
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('store_id', storeId);
+
+    try {
+      const res = await fetch('/api/v1/chat/upload-media', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (data.url && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: msgType,
+          content: '',
+          media_url: data.url,
+          receiver_id: null
+        }));
+      }
+    } catch (err) {
+      console.error('Error subiendo archivo:', err);
+    }
   };
   input.click();
 }
 
-function enviarAudio() {
-  alert('Próximamente: mensajes de voz');
+// Audio recorder
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+async function enviarAudio() {
+  const btnAudio = document.querySelector('.btn-icon[onclick="enviarAudio()"]');
+
+  if (isRecording) {
+    mediaRecorder.stop();
+    if (btnAudio) btnAudio.textContent = '🎤';
+    isRecording = false;
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      stream.getTracks().forEach(t => t.stop());
+
+      const formData = new FormData();
+      formData.append('file', blob, 'audio.webm');
+      formData.append('store_id', storeId);
+
+      try {
+        const res = await fetch('/api/v1/chat/upload-media', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.url && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'audio',
+            content: '',
+            media_url: data.url,
+            receiver_id: null
+          }));
+        }
+      } catch (err) {
+        console.error('Error subiendo audio:', err);
+      }
+    };
+
+    mediaRecorder.start();
+    isRecording = true;
+    if (btnAudio) btnAudio.textContent = '⏹️';
+  } catch (err) {
+    alert('No se pudo acceder al micrófono');
+  }
 }
+
+// Indicador "escribiendo"
+let typingTimer = null;
+document.getElementById('msg-input').addEventListener('input', () => {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'typing', content: '' }));
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'stop_typing', content: '' }));
+      }
+    }, 2000);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', generarMarcaAgua);
+// Por si DOMContentLoaded ya disparó (script al final del body):
+generarMarcaAgua();
 
 if (storeId && token) {
   conectar();
