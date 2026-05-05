@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aceptar invitación · QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --accent: #3b82f6;
+    --success: #22c55e;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .brand-logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; display: grid; place-items: center; font-weight: 700;
+  }
+  .brand-name { font-weight: 700; font-size: 18px; }
+  h1 { font-size: 22px; margin: 12px 0 4px 0; }
+  p.subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 18px; }
+
+  .negocio-card {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  .negocio-label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em; font-weight: 700; }
+  .negocio-name { font-size: 17px; font-weight: 700; margin-top: 2px; }
+  .negocio-ruc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 6px; }
+  input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 18px;
+  }
+  .btn:hover { background: #2563eb; }
+  .alt { margin-top: 16px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+  .msg {
+    margin-top: 10px;
+    font-size: 13px;
+    min-height: 18px;
+  }
+  .msg.error { color: var(--danger); }
+  .msg.ok { color: var(--success); }
+
+  .skeleton { color: var(--text-secondary); text-align: center; padding: 20px 0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-logo">Q</div>
+      <div class="brand-name">QueVendi</div>
+    </div>
+    <h1>Te invitaron a ser contador</h1>
+    <p class="subtitle">Acepta la invitación para acceder al Libro de Ventas.</p>
+
+    <div id="content">
+      <div class="skeleton">Validando invitación…</div>
+    </div>
+  </div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const token = params.get('token') || '';
+const content = document.getElementById('content');
+
+if (!token) {
+  content.innerHTML = '<div class="msg error">Link inválido: falta token.</div>';
+}
+
+async function init() {
+  if (!token) return;
+  try {
+    const res = await fetch(`/contador/invitacion/${encodeURIComponent(token)}`);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      content.innerHTML = `<div class="msg error">${data.detail || 'Invitación no válida'}</div>`;
+      return;
+    }
+    const info = await res.json();
+    renderForm(info);
+  } catch (e) {
+    content.innerHTML = '<div class="msg error">Error de red.</div>';
+  }
+}
+
+function escape(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderForm(info) {
+  const negocio = `
+    <div class="negocio-card">
+      <div class="negocio-label">Te invita</div>
+      <div class="negocio-name">${escape(info.negocio)}</div>
+      ${info.ruc_negocio ? `<div class="negocio-ruc">RUC: ${escape(info.ruc_negocio)}</div>` : ''}
+    </div>
+  `;
+
+  if (info.estado === 'activo') {
+    content.innerHTML = negocio + `
+      <div class="msg ok">Ya aceptaste esta invitación.</div>
+      <a class="btn" href="/contador/login" style="text-decoration:none;text-align:center;display:block;">Ir al portal</a>
+    `;
+    return;
+  }
+
+  if (info.tiene_cuenta) {
+    // Login directo: solo PIN
+    content.innerHTML = negocio + `
+      <p class="subtitle">Ingresa tu PIN para aceptar:</p>
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="12" required />
+      <button class="btn" id="aceptarBtn">Aceptar invitación</button>
+      <div class="msg" id="msg"></div>
+    `;
+    document.getElementById('aceptarBtn').addEventListener('click', enviar);
+  } else {
+    // Registro rápido
+    content.innerHTML = negocio + `
+      <p class="subtitle">Completa tu cuenta para aceptar:</p>
+      <label for="full_name">Nombre completo</label>
+      <input id="full_name" required />
+
+      <label for="whatsapp">WhatsApp</label>
+      <input id="whatsapp" inputmode="tel" placeholder="9XX XXX XXX"
+             value="${escape((info.contador && info.contador.whatsapp) || '')}" />
+
+      <label for="email">Email (opcional)</label>
+      <input id="email" type="email"
+             value="${escape((info.contador && info.contador.email) || '')}" />
+
+      <label for="pin">PIN (mínimo 4 dígitos)</label>
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="12" required />
+
+      <button class="btn" id="aceptarBtn">Crear cuenta y aceptar</button>
+      <div class="msg" id="msg"></div>
+    `;
+    document.getElementById('aceptarBtn').addEventListener('click', enviar);
+  }
+}
+
+async function enviar() {
+  const msg = document.getElementById('msg');
+  msg.className = 'msg';
+  msg.textContent = '';
+
+  const body = { token };
+  const fullNameEl = document.getElementById('full_name');
+  if (fullNameEl) body.full_name = fullNameEl.value.trim();
+  const whatsappEl = document.getElementById('whatsapp');
+  if (whatsappEl) body.whatsapp = whatsappEl.value.trim();
+  const emailEl = document.getElementById('email');
+  if (emailEl) body.email = emailEl.value.trim() || null;
+  const pinEl = document.getElementById('pin');
+  if (pinEl) body.pin = pinEl.value.trim();
+
+  try {
+    const res = await fetch('/contador/aceptar-invitacion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      msg.classList.add('error');
+      msg.textContent = data.detail || 'No se pudo aceptar la invitación';
+      return;
+    }
+    localStorage.setItem('contador_token', data.access_token);
+    localStorage.setItem('contador_info', JSON.stringify(data.contador || {}));
+    msg.classList.add('ok');
+    msg.textContent = 'Listo. Redirigiendo…';
+    setTimeout(() => { window.location.href = '/contador/dashboard'; }, 600);
+  } catch (e) {
+    msg.classList.add('error');
+    msg.textContent = 'Error de red.';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
