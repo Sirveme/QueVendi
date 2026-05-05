@@ -307,6 +307,10 @@
                         <i class="fas fa-download"></i>
                         <span>Print Agent</span>
                     </a>
+                    <a href="#" class="nav-item" onclick="abrirModalContador();return false;">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Mi Contador</span>
+                    </a>
                     <a href="#" class="nav-item" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Cerrar sesión</span>
@@ -1091,6 +1095,232 @@ document.addEventListener('keydown', function(e) {
 
       refrescarUnread();
       setInterval(refrescarUnread, 30000);
+    })();
+    </script>
+
+    <!-- ===========================================================
+         MODAL "Mi Contador"
+         =========================================================== -->
+    <div id="contadorModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+      <div style="background:#fff;border-radius:14px;max-width:520px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,0.25);font-family:inherit;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:18px;">Mi Contador</h3>
+          <button onclick="cerrarModalContador()" style="background:transparent;border:0;font-size:22px;cursor:pointer;color:#64748b;">&times;</button>
+        </div>
+        <p style="color:#64748b;font-size:13px;margin:0 0 14px;">Invita al contador por email. Recibirá acceso a tu Libro de Ventas tras aceptar.</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <input id="contadorEmailInput" type="email" placeholder="contador@ejemplo.com"
+                 style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit;" />
+          <button onclick="invitarContador()"
+                  style="background:#3b82f6;color:white;border:0;padding:10px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">
+            Invitar
+          </button>
+        </div>
+
+        <div id="contadorMsg" style="font-size:13px;min-height:18px;margin-bottom:8px;"></div>
+
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;">
+          <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">
+            Contadores vinculados
+          </div>
+          <div id="contadoresList" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;">
+            <div style="color:#94a3b8;font-size:13px;">Aún no has invitado a ningún contador.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de permisos -->
+    <div id="permisosModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:10000;align-items:center;justify-content:center;padding:16px;">
+      <div style="background:#fff;border-radius:14px;max-width:460px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,0.25);font-family:inherit;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:18px;">Permisos del contador</h3>
+          <button onclick="cerrarModalPermisos()" style="background:transparent;border:0;font-size:22px;cursor:pointer;color:#64748b;">&times;</button>
+        </div>
+        <p style="color:#64748b;font-size:13px;margin:0 0 14px;" id="permisosSubtitle">—</p>
+
+        <div id="permisosBody" style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
+          <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="perm-notas"> Puede emitir notas</label>
+          <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="perm-planilla"> Puede ver planilla</label>
+          <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="perm-modificar"> Puede modificar</label>
+          <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="perm-bancario"> Puede ver bancario</label>
+          <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="perm-notificar" checked> Notificar al owner</label>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;">
+          <button onclick="cerrarModalPermisos()"
+                  style="background:white;color:#1e293b;border:1px solid #e2e8f0;padding:9px 14px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">
+            Cancelar
+          </button>
+          <button onclick="guardarPermisos()"
+                  style="background:#3b82f6;color:white;border:0;padding:9px 14px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function() {
+      let permisosContext = { contador_id: null, store_id: null };
+
+      function getToken() {
+        let t = localStorage.getItem('access_token') || '';
+        if (!t) {
+          const m = document.cookie.match(/access_token=([^;]+)/);
+          if (m) t = decodeURIComponent(m[1]).replace(/^Bearer\s+/i, '');
+        }
+        return t;
+      }
+
+      function getStoreId() {
+        try {
+          const u = JSON.parse(localStorage.getItem('user') || '{}');
+          if (u.store_id) return u.store_id;
+        } catch(e) {}
+        const t = getToken();
+        if (!t) return null;
+        try {
+          const payload = JSON.parse(atob(t.split('.')[1]));
+          return payload.store_id || null;
+        } catch(e) { return null; }
+      }
+
+      window.abrirModalContador = async function() {
+        document.getElementById('contadorModal').style.display = 'flex';
+        document.getElementById('contadorMsg').textContent = '';
+        document.getElementById('contadorEmailInput').value = '';
+        await cargarVinculados();
+      };
+
+      window.cerrarModalContador = function() {
+        document.getElementById('contadorModal').style.display = 'none';
+      };
+
+      window.invitarContador = async function() {
+        const email = document.getElementById('contadorEmailInput').value.trim();
+        const msg = document.getElementById('contadorMsg');
+        const storeId = getStoreId();
+        if (!email) { msg.textContent = 'Ingresa un email'; msg.style.color = '#ef4444'; return; }
+        if (!storeId) { msg.textContent = 'No se pudo identificar la tienda'; msg.style.color = '#ef4444'; return; }
+
+        try {
+          const res = await fetch(`/contador/clientes/invitar/${storeId}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + getToken(),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email_contador: email })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            msg.style.color = '#ef4444';
+            msg.textContent = data.detail || 'No se pudo invitar';
+            return;
+          }
+          msg.style.color = '#22c55e';
+          msg.textContent = data.ya_existe
+            ? 'Ya existía un vínculo (' + data.estado + ')'
+            : 'Invitación enviada. Estado: ' + data.estado;
+          document.getElementById('contadorEmailInput').value = '';
+          await cargarVinculados();
+        } catch(e) {
+          msg.style.color = '#ef4444';
+          msg.textContent = 'Error de red';
+        }
+      };
+
+      async function cargarVinculados() {
+        const storeId = getStoreId();
+        const list = document.getElementById('contadoresList');
+        if (!storeId) {
+          list.innerHTML = '<div style="color:#94a3b8;font-size:13px;">Sin tienda identificada.</div>';
+          return;
+        }
+        try {
+          const res = await fetch(`/contador/store/${storeId}/contadores`, {
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+          });
+          let items = [];
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            items = data.contadores || [];
+          }
+          if (!items.length) {
+            list.innerHTML = '<div style="color:#94a3b8;font-size:13px;">Aún no has invitado a ningún contador.</div>';
+            return;
+          }
+          list.innerHTML = items.map(c => `
+            <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;">
+              <div style="min-width:0;">
+                <div style="font-weight:600;font-size:14px;">${c.full_name || c.email}</div>
+                <div style="font-size:12px;color:#64748b;">${c.email}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+                  background:${c.estado === 'activo' ? '#dcfce7' : c.estado === 'pendiente' ? '#fef9c3' : '#fee2e2'};
+                  color:${c.estado === 'activo' ? '#14532d' : c.estado === 'pendiente' ? '#713f12' : '#7f1d1d'};">
+                  ${c.estado}
+                </span>
+                <button onclick="abrirModalPermisos(${c.contador_id}, ${storeId}, '${(c.full_name || c.email).replace(/'/g,"\\'")}')"
+                        style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">
+                  Permisos
+                </button>
+              </div>
+            </div>
+          `).join('');
+        } catch(e) {
+          list.innerHTML = '<div style="color:#94a3b8;font-size:13px;">Lista no disponible.</div>';
+        }
+      }
+
+      window.abrirModalPermisos = async function(contadorId, storeId, label) {
+        permisosContext = { contador_id: contadorId, store_id: storeId };
+        document.getElementById('permisosSubtitle').textContent = label;
+        document.getElementById('permisosModal').style.display = 'flex';
+        try {
+          const res = await fetch(`/contador/permisos/${storeId}?contador_id=${contadorId}`, {
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+          });
+          if (res.ok) {
+            const p = await res.json();
+            document.getElementById('perm-notas').checked = !!p.puede_notas;
+            document.getElementById('perm-planilla').checked = !!p.puede_ver_planilla;
+            document.getElementById('perm-modificar').checked = !!p.puede_modificar;
+            document.getElementById('perm-bancario').checked = !!p.puede_ver_bancario;
+            document.getElementById('perm-notificar').checked = !!p.notificar_owner;
+          }
+        } catch(e) {}
+      };
+
+      window.cerrarModalPermisos = function() {
+        document.getElementById('permisosModal').style.display = 'none';
+      };
+
+      window.guardarPermisos = async function() {
+        const { contador_id, store_id } = permisosContext;
+        if (!contador_id || !store_id) return;
+        const body = {
+          puede_notas: document.getElementById('perm-notas').checked,
+          puede_ver_planilla: document.getElementById('perm-planilla').checked,
+          puede_modificar: document.getElementById('perm-modificar').checked,
+          puede_ver_bancario: document.getElementById('perm-bancario').checked,
+          notificar_owner: document.getElementById('perm-notificar').checked,
+        };
+        try {
+          const res = await fetch(`/contador/permisos/${store_id}?contador_id=${contador_id}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': 'Bearer ' + getToken(),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+          });
+          if (res.ok) cerrarModalPermisos();
+        } catch(e) {}
+      };
     })();
     </script>
 </body>
