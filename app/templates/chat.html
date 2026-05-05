@@ -751,8 +751,13 @@ function volverALista() {
 // ============================================
 function conectar() {
   if (ws) ws.close();
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const wsUrl = `${proto}://${location.host}/ws/chat/${storeId}?token=${encodeURIComponent(token)}`;
+  const wsHost = location.host.includes('railway')
+    ? location.host
+    : 'bd4pjhe6.up.railway.app';
+  const proto = wsHost === location.host
+    ? (location.protocol === 'https:' ? 'wss' : 'ws')
+    : 'wss';
+  const wsUrl = `${proto}://${wsHost}/ws/chat/${storeId}?token=${encodeURIComponent(token)}`;
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
