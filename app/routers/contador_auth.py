@@ -29,24 +29,28 @@ router = APIRouter(tags=["contador-auth"])
 # Schemas
 # ──────────────────────────────────────────────────────────────────────────
 class ContadorRegistroIn(BaseModel):
-    email: EmailStr
+    dni: str = Field(min_length=8, max_length=8, pattern=r"^\d{8}$")
     full_name: str = Field(min_length=2, max_length=150)
     phone: Optional[str] = None
+    whatsapp: Optional[str] = None
+    email: Optional[EmailStr] = None
     ruc: Optional[str] = Field(default=None, max_length=11)
     firma_contable: Optional[str] = None
     pin: str = Field(min_length=4, max_length=12)
 
 
 class ContadorLoginIn(BaseModel):
-    email: EmailStr
+    dni: str = Field(min_length=8, max_length=8, pattern=r"^\d{8}$")
     pin: str
 
 
 class ContadorOut(BaseModel):
     id: int
-    email: EmailStr
+    dni: Optional[str] = None
+    email: Optional[EmailStr] = None
     full_name: str
     phone: Optional[str] = None
+    whatsapp: Optional[str] = None
     ruc: Optional[str] = None
     firma_contable: Optional[str] = None
 
@@ -102,6 +106,7 @@ def _build_token(contador: Contador) -> str:
     return create_contador_token(
         {
             "contador_id": contador.id,
+            "dni": contador.dni,
             "email": contador.email,
             "full_name": contador.full_name,
         },
@@ -114,14 +119,17 @@ def _build_token(contador: Contador) -> str:
 # ──────────────────────────────────────────────────────────────────────────
 @router.post("/registro")
 async def registro_contador(payload: ContadorRegistroIn, db: Session = Depends(get_db)):
-    existing = db.query(Contador).filter(Contador.email == payload.email).first()
-    if existing:
+    if db.query(Contador).filter(Contador.dni == payload.dni).first():
+        raise HTTPException(status_code=409, detail="DNI ya registrado")
+    if payload.email and db.query(Contador).filter(Contador.email == str(payload.email).lower()).first():
         raise HTTPException(status_code=409, detail="Email ya registrado")
 
     contador = Contador(
-        email=payload.email,
+        dni=payload.dni,
+        email=str(payload.email).lower() if payload.email else None,
         full_name=payload.full_name,
         phone=payload.phone,
+        whatsapp=payload.whatsapp,
         ruc=payload.ruc,
         firma_contable=payload.firma_contable,
         pin_hash=get_pin_hash(payload.pin),
@@ -144,10 +152,10 @@ async def registro_contador(payload: ContadorRegistroIn, db: Session = Depends(g
 async def login_contador(payload: ContadorLoginIn, db: Session = Depends(get_db)):
     contador = (
         db.query(Contador)
-        .filter(Contador.email == payload.email, Contador.is_active == True)  # noqa: E712
+        .filter(Contador.dni == payload.dni, Contador.is_active == True)  # noqa: E712
         .first()
     )
-    if not contador or not verify_pin(payload.pin, contador.pin_hash):
+    if not contador or not contador.pin_hash or not verify_pin(payload.pin, contador.pin_hash):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     vinculos = (

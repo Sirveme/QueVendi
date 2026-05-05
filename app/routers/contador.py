@@ -309,6 +309,7 @@ async def aceptar_invitacion(
 # ──────────────────────────────────────────────────────────────────────────
 class CompletarInvitacionIn(BaseModel):
     token: str
+    dni: Optional[str] = None  # requerido si el contador aún no tiene cuenta
     full_name: Optional[str] = None
     whatsapp: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -338,6 +339,7 @@ def _info_invitacion(db: Session, token: str) -> dict:
         "tiene_cuenta": tiene_cuenta,
         "contador": {
             "id": contador.id,
+            "dni": contador.dni,
             "email": contador.email,
             "whatsapp": contador.whatsapp,
             "full_name": contador.full_name if tiene_cuenta else None,
@@ -373,12 +375,21 @@ async def aceptar_invitacion_token(
         raise HTTPException(status_code=404, detail="Contador no encontrado")
 
     if not contador.pin_hash:
-        # Registro nuevo: requiere pin y full_name
+        # Registro nuevo: requiere DNI, pin y full_name
+        dni = (payload.dni or "").strip()
+        if not re.match(r"^\d{8}$", dni):
+            raise HTTPException(status_code=400, detail="DNI inválido (8 dígitos)")
         if not payload.pin or len(payload.pin) < 4:
             raise HTTPException(status_code=400, detail="PIN requerido (mín 4 dígitos)")
         if not payload.full_name or len(payload.full_name.strip()) < 2:
             raise HTTPException(status_code=400, detail="Nombre completo requerido")
 
+        # Verificar DNI no esté tomado por otro contador
+        ya = db.query(Contador).filter(Contador.dni == dni, Contador.id != contador.id).first()
+        if ya:
+            raise HTTPException(status_code=409, detail="DNI ya registrado")
+
+        contador.dni = dni
         contador.full_name = payload.full_name.strip()
         if payload.email and not contador.email:
             contador.email = str(payload.email).lower()
