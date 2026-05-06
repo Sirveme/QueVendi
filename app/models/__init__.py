@@ -17,6 +17,7 @@ from app.models.contador import Contador, ContadorStore, ContadorPermiso
 from app.models.inventory import InventoryMovement
 from app.models.supplier import Supplier
 from app.models.purchase import Purchase, PurchaseItem
+from app.models.gasto_operativo import GastoOperativo
 
 __all__ = [
     "Store",
@@ -47,4 +48,5 @@ __all__ = [
     "Supplier",
     "Purchase",
     "PurchaseItem",
+    "GastoOperativo",
 ]
