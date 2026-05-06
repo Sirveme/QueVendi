@@ -375,7 +375,8 @@ function setTab(tab) {
 async function cargarClientes() {
   const info = JSON.parse(localStorage.getItem('contador_info') || '{}');
   document.getElementById('contador-name').textContent = info.full_name || 'Contador';
-  document.getElementById('contador-email').textContent = info.email || '';
+  document.getElementById('contador-email').textContent =
+    info.whatsapp || info.dni || info.email || '';
 
   const res = await fetchContador('/contador/mis-clientes');
   if (!res.ok) return;
