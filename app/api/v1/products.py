@@ -1027,7 +1027,23 @@ async def adjust_stock_v2(
     product.stock = new_stock
     product.updated_at = datetime.now(timezone.utc)
 
-    # TODO: Registrar en inventory_movements
+    # Registrar en inventory_movements (Kardex)
+    from app.models.inventory import InventoryMovement
+    from decimal import Decimal as _D
+    qty = _D(str(data.quantity))
+    db.add(InventoryMovement(
+        store_id=current_user.store_id,
+        product_id=product.id,
+        user_id=current_user.id,
+        movement_type='entrada_ajuste' if qty > 0 else 'salida_ajuste',
+        quantity=qty,
+        cost_price=_D(str(product.cost_price or 0)),
+        reference_type='adjustment',
+        reference_id=None,
+        stock_before=_D(str(old_stock or 0)),
+        stock_after=_D(str(new_stock or 0)),
+        notes=data.reason or None,
+    ))
     # TODO: Evento comunicación si stock < min_stock_alert
 
     db.commit()
