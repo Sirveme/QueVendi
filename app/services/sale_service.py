@@ -6,6 +6,7 @@ from app.models.sale import Sale, SaleItem
 from app.models.product import Product
 from app.models.user import User
 from app.models.inventory import InventoryMovement
+from app.models.billing import Comprobante
 import pytz
 
 # Timezone de Perú
@@ -81,19 +82,44 @@ class SaleService:
                 product = self.db.query(Product).filter(Product.id == item['product_id']).first()
                 if product:
                     qty = Decimal(str(item['quantity']))
+                    cost = Decimal(str(product.cost_price or 0))
                     stock_before = Decimal(str(product.stock or 0))
                     product.stock = stock_before - qty
 
-                    # Registrar movimiento de inventario (Kardex)
+                    # Datos contables del movimiento
+                    user = self.db.query(User).filter(User.id == user_id).first()
+                    user_name = user.full_name if user else 'Sistema'
+
+                    comprobante = (
+                        self.db.query(Comprobante)
+                        .filter(Comprobante.sale_id == sale.id)
+                        .first()
+                    )
+                    if comprobante and comprobante.tipo == '03':
+                        doc_tipo = 'BOLETA'
+                    elif comprobante and comprobante.tipo == '01':
+                        doc_tipo = 'FACTURA'
+                    else:
+                        doc_tipo = 'TICKET'
+                    if comprobante:
+                        doc_numero = f"{comprobante.serie}-{str(comprobante.numero).zfill(8)}"
+                    else:
+                        doc_numero = f"VTA-{sale.sale_number or sale.id}"
+
                     self.db.add(InventoryMovement(
                         store_id=store_id,
                         product_id=product.id,
                         user_id=user_id,
                         movement_type='salida_venta',
                         quantity=-qty,
-                        cost_price=Decimal(str(product.cost_price or 0)),
+                        cost_price=cost,
+                        costo_total=cost * qty,
                         reference_type='sale',
                         reference_id=sale.id,
+                        doc_tipo=doc_tipo,
+                        doc_numero=doc_numero,
+                        glosa=f"Venta a {sale.customer_name or 'Cliente varios'}",
+                        user_name=user_name,
                         stock_before=stock_before,
                         stock_after=product.stock,
                         notes=f"Venta #{sale.id}",
@@ -220,23 +246,30 @@ class SaleService:
             sale = self.get_sale_by_id(sale_id)
             
             # Restaurar el stock de los productos
+            user = self.db.query(User).filter(User.id == sale.user_id).first()
+            user_name = user.full_name if user else 'Sistema'
             for item in sale.items:
                 product = self.db.query(Product).filter(Product.id == item.product_id).first()
                 if product:
                     qty = Decimal(str(item.quantity))
+                    cost = Decimal(str(product.cost_price or 0))
                     stock_before = Decimal(str(product.stock or 0))
                     product.stock = stock_before + qty
 
-                    # Movimiento de devolución (entrada por anulación)
                     self.db.add(InventoryMovement(
                         store_id=sale.store_id,
                         product_id=product.id,
                         user_id=sale.user_id,
                         movement_type='entrada_devolucion',
                         quantity=qty,
-                        cost_price=Decimal(str(product.cost_price or 0)),
+                        cost_price=cost,
+                        costo_total=cost * qty,
                         reference_type='sale_delete',
                         reference_id=sale.id,
+                        doc_tipo='ANULACIÓN',
+                        doc_numero=f"ANUL-{sale.sale_number or sale.id}",
+                        glosa=f"Anulación venta #{sale.sale_number or sale.id}",
+                        user_name=user_name,
                         stock_before=stock_before,
                         stock_after=product.stock,
                         notes=f"Anulación venta #{sale.id}",
