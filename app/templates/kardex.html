@@ -233,6 +233,11 @@
         </div>
       </div>
 
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">
+        Método de valorización:
+        <strong style="color:#f59e0b">Promedio Ponderado</strong>
+      </div>
+
       <div class="resumen-bar">
         <div class="resumen-card">
           <div class="label">Saldo inicial</div>
@@ -256,20 +261,45 @@
         <table class="kardex-table">
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Referencia</th>
-              <th style="text-align:right">Entrada</th>
-              <th style="text-align:right">Salida</th>
-              <th id="th-saldo" style="text-align:right">Saldo</th>
-              <th style="text-align:right">Valor</th>
+              <th rowspan="2">Fecha</th>
+              <th rowspan="2">Documento</th>
+              <th rowspan="2">Detalle / Glosa</th>
+              <th rowspan="2">Usuario</th>
+              <th colspan="3" style="text-align:center;background:#166534;color:white">ENTRADAS</th>
+              <th colspan="3" style="text-align:center;background:#7f1d1d;color:white">SALIDAS</th>
+              <th colspan="3" style="text-align:center;background:#1e3a5f;color:white">SALDO</th>
+            </tr>
+            <tr>
+              <th style="text-align:right">Cant.</th>
+              <th style="text-align:right">C.Unit.</th>
+              <th style="text-align:right">Total</th>
+              <th style="text-align:right">Cant.</th>
+              <th style="text-align:right">C.Unit.</th>
+              <th style="text-align:right">Total</th>
+              <th id="th-saldo" style="text-align:right">Cant.</th>
+              <th style="text-align:right">C.Unit.</th>
+              <th style="text-align:right">Valor Total</th>
             </tr>
           </thead>
           <tbody id="kardex-tbody">
-            <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">
+            <tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:24px">
               Selecciona un producto para ver su Kardex.
             </td></tr>
           </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="text-align:right;font-weight:700">TOTALES</td>
+              <td id="total-entrada-cant" style="text-align:right;color:#22c55e"></td>
+              <td></td>
+              <td id="total-entrada-valor" style="text-align:right;color:#22c55e"></td>
+              <td id="total-salida-cant" style="text-align:right;color:#ef4444"></td>
+              <td></td>
+              <td id="total-salida-valor" style="text-align:right;color:#ef4444"></td>
+              <td id="saldo-final-cant" style="text-align:right;font-weight:700"></td>
+              <td></td>
+              <td id="saldo-final-valor" style="text-align:right;font-weight:700;color:#f59e0b"></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -371,10 +401,6 @@ async function cargarKardexDetalle() {
   if (!res.ok) return;
   const data = await res.json();
 
-  const unit = (data.producto && data.producto.unit) || '';
-  document.getElementById('th-saldo').textContent =
-    unit ? `Saldo (${unit})` : 'Saldo';
-
   document.getElementById('saldo-inicial').textContent =
     parseFloat(data.saldo_inicial||0).toFixed(3);
   document.getElementById('total-entradas').textContent =
@@ -384,32 +410,86 @@ async function cargarKardexDetalle() {
   document.getElementById('valor-final').textContent =
     `S/ ${parseFloat(data.valor_inventario_final||0).toFixed(2)}`;
 
+  renderTablaKardex(data);
+}
+
+function renderTablaKardex(data) {
+  const unit = (data.producto && data.producto.unit) || '';
+  document.getElementById('th-saldo').textContent =
+    unit ? `Cant. (${unit})` : 'Cant.';
+
   const tbody = document.getElementById('kardex-tbody');
-  if (!data.movimientos || !data.movimientos.length) {
-    tbody.innerHTML = `<tr><td colspan="7"
+  const movs = data.movimientos || [];
+
+  // Limpiar totales si vacío
+  const totEntCantEl = document.getElementById('total-entrada-cant');
+  const totEntValEl = document.getElementById('total-entrada-valor');
+  const totSalCantEl = document.getElementById('total-salida-cant');
+  const totSalValEl = document.getElementById('total-salida-valor');
+  const saldoFinCantEl = document.getElementById('saldo-final-cant');
+  const saldoFinValEl = document.getElementById('saldo-final-valor');
+
+  if (!movs.length) {
+    tbody.innerHTML = `<tr><td colspan="13"
       style="text-align:center;color:#94a3b8;padding:24px">
       Sin movimientos en este período</td></tr>`;
+    totEntCantEl.textContent = '';
+    totEntValEl.textContent = '';
+    totSalCantEl.textContent = '';
+    totSalValEl.textContent = '';
+    saldoFinCantEl.textContent = parseFloat(data.saldo_final||0).toFixed(3);
+    saldoFinValEl.textContent = `S/ ${parseFloat(data.valor_inventario_final||0).toFixed(2)}`;
     return;
   }
-  tbody.innerHTML = data.movimientos.map(m => `
-    <tr>
+
+  let totEntradaCant = 0, totEntradaValor = 0;
+  let totSalidaCant = 0, totSalidaValor = 0;
+
+  const fmt = (n, dec=3) => n != null ? parseFloat(n).toFixed(dec) : '';
+  const fmtS = (n) => n != null ? 'S/ ' + parseFloat(n).toFixed(2) : '';
+
+  tbody.innerHTML = movs.map(m => {
+    if (m.entrada_cant) {
+      totEntradaCant += m.entrada_cant;
+      totEntradaValor += m.entrada_total || 0;
+    }
+    if (m.salida_cant) {
+      totSalidaCant += m.salida_cant;
+      totSalidaValor += m.salida_total || 0;
+    }
+
+    return `<tr>
       <td>${formatFechaPeru(m.fecha)}</td>
-      <td>${formatTipo(m.tipo_movimiento)}</td>
-      <td>${m.referencia || ''}</td>
-      <td class="entrada" style="text-align:right">
-        ${m.entrada ? '+' + parseFloat(m.entrada).toFixed(3) : ''}
+      <td>
+        <div style="font-weight:600;font-size:12px">${m.doc_tipo || ''}</div>
+        <div style="font-size:11px;color:#94a3b8">${m.doc_numero || ''}</div>
       </td>
-      <td class="salida" style="text-align:right">
-        ${m.salida ? '-' + parseFloat(m.salida).toFixed(3) : ''}
+      <td style="font-size:12px">${m.glosa || m.notes || ''}</td>
+      <td style="font-size:12px;color:#94a3b8">${m.user_name || ''}</td>
+      <td style="text-align:right;color:#22c55e">${fmt(m.entrada_cant)}</td>
+      <td style="text-align:right;color:#22c55e;font-size:12px">
+        ${m.entrada_costo_unit != null ? parseFloat(m.entrada_costo_unit).toFixed(4) : ''}
       </td>
-      <td style="text-align:right;font-weight:600">
-        ${parseFloat(m.saldo).toFixed(3)}
+      <td style="text-align:right;color:#22c55e">${fmtS(m.entrada_total)}</td>
+      <td style="text-align:right;color:#ef4444">${fmt(m.salida_cant)}</td>
+      <td style="text-align:right;color:#ef4444;font-size:12px">
+        ${m.salida_costo_unit != null ? parseFloat(m.salida_costo_unit).toFixed(4) : ''}
       </td>
-      <td style="text-align:right;color:#94a3b8">
-        S/ ${parseFloat(m.valor_saldo||0).toFixed(2)}
+      <td style="text-align:right;color:#ef4444">${fmtS(m.salida_total)}</td>
+      <td style="text-align:right;font-weight:600">${fmt(m.saldo_cant)}</td>
+      <td style="text-align:right;font-size:12px;color:#94a3b8">
+        ${m.saldo_costo_unit != null ? parseFloat(m.saldo_costo_unit).toFixed(4) : ''}
       </td>
-    </tr>
-  `).join('');
+      <td style="text-align:right;font-weight:600;color:#f59e0b">${fmtS(m.saldo_total)}</td>
+    </tr>`;
+  }).join('');
+
+  totEntCantEl.textContent = totEntradaCant.toFixed(3);
+  totEntValEl.textContent = `S/ ${totEntradaValor.toFixed(2)}`;
+  totSalCantEl.textContent = totSalidaCant.toFixed(3);
+  totSalValEl.textContent = `S/ ${totSalidaValor.toFixed(2)}`;
+  saldoFinCantEl.textContent = parseFloat(data.saldo_final||0).toFixed(3);
+  saldoFinValEl.textContent = `S/ ${parseFloat(data.valor_inventario_final||0).toFixed(2)}`;
 }
 
 function formatTipo(tipo) {
