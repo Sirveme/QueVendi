@@ -1031,18 +1031,25 @@ async def adjust_stock_v2(
     from app.models.inventory import InventoryMovement
     from decimal import Decimal as _D
     qty = _D(str(data.quantity))
+    cost = _D(str(product.cost_price or 0))
+    motivo = (data.reason or '').strip() or 'Ajuste manual'
     db.add(InventoryMovement(
         store_id=current_user.store_id,
         product_id=product.id,
         user_id=current_user.id,
         movement_type='entrada_ajuste' if qty > 0 else 'salida_ajuste',
         quantity=qty,
-        cost_price=_D(str(product.cost_price or 0)),
+        cost_price=cost,
+        costo_total=cost * abs(qty),
         reference_type='adjustment',
         reference_id=None,
+        doc_tipo='AJUSTE',
+        doc_numero=f"AJ-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        glosa=motivo,
+        user_name=getattr(current_user, 'full_name', None),
         stock_before=_D(str(old_stock or 0)),
         stock_after=_D(str(new_stock or 0)),
-        notes=data.reason or None,
+        notes=motivo,
     ))
     # TODO: Evento comunicación si stock < min_stock_alert
 

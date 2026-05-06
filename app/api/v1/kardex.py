@@ -189,45 +189,87 @@ async def kardex_producto(
     else:
         saldo_inicial = _to_float(product.stock)
 
-    saldo = saldo_inicial
-    total_entradas = 0.0
-    total_salidas = 0.0
+    # Costo promedio ponderado: arranca con el costo actual del producto.
+    costo_prom = _to_float(product.cost_price)
+    saldo_cant = saldo_inicial
+    saldo_valor = saldo_cant * costo_prom
+
+    total_entrada_cant = 0.0
+    total_entrada_valor = 0.0
+    total_salida_cant = 0.0
+    total_salida_valor = 0.0
+
     out_movs = []
     for m in movs:
-        cantidad = _to_float(m.quantity)
-        cost_unit = _to_float(m.cost_price) if m.cost_price is not None else _to_float(product.cost_price)
-        if cantidad >= 0:
-            entrada = round(cantidad, 3)
-            salida = 0.0
-            total_entradas += cantidad
-        else:
-            entrada = 0.0
-            salida = round(-cantidad, 3)
-            total_salidas += -cantidad
+        qty = _to_float(m.quantity)
 
-        # Usar el stock_after real grabado en el movimiento
-        saldo = _to_float(m.stock_after)
-
-        out_movs.append({
+        base_row = {
             "id": m.id,
             "fecha": m.occurred_at.isoformat() if m.occurred_at else None,
             "tipo_movimiento": m.movement_type,
+            "doc_tipo": m.doc_tipo,
+            "doc_numero": m.doc_numero,
+            "glosa": m.glosa or m.notes,
+            "user_name": m.user_name,
             "referencia": (
                 f"{m.reference_type} #{m.reference_id}"
                 if m.reference_type and m.reference_id else
                 (m.reference_type or "")
             ),
-            "entrada": entrada or None,
-            "salida": salida or None,
-            "saldo": round(saldo, 3),
-            "costo_unitario": round(cost_unit, 2),
-            "valor_saldo": round(saldo * cost_unit, 2),
             "notes": m.notes,
-        })
+        }
 
-    saldo_final = saldo
-    cost_actual = _to_float(product.cost_price)
-    valor_inventario_final = round(saldo_final * cost_actual, 2)
+        if qty > 0:
+            # ENTRADA — recalcular costo promedio ponderado
+            entrada_costo_unit = (
+                _to_float(m.cost_price) if m.cost_price is not None else costo_prom
+            )
+            entrada_total = qty * entrada_costo_unit
+            saldo_valor += entrada_total
+            saldo_cant = _to_float(m.stock_after)
+            if saldo_cant > 0:
+                costo_prom = saldo_valor / saldo_cant
+
+            total_entrada_cant += qty
+            total_entrada_valor += entrada_total
+
+            base_row.update({
+                "entrada_cant": round(qty, 3),
+                "entrada_costo_unit": round(entrada_costo_unit, 4),
+                "entrada_total": round(entrada_total, 2),
+                "salida_cant": None,
+                "salida_costo_unit": None,
+                "salida_total": None,
+                "saldo_cant": round(saldo_cant, 3),
+                "saldo_costo_unit": round(costo_prom, 4),
+                "saldo_total": round(saldo_cant * costo_prom, 2),
+            })
+        else:
+            # SALIDA — usa el costo promedio vigente
+            salida_qty = abs(qty)
+            salida_total = salida_qty * costo_prom
+            saldo_cant = _to_float(m.stock_after)
+            saldo_valor = saldo_cant * costo_prom
+
+            total_salida_cant += salida_qty
+            total_salida_valor += salida_total
+
+            base_row.update({
+                "entrada_cant": None,
+                "entrada_costo_unit": None,
+                "entrada_total": None,
+                "salida_cant": round(salida_qty, 3),
+                "salida_costo_unit": round(costo_prom, 4),
+                "salida_total": round(salida_total, 2),
+                "saldo_cant": round(saldo_cant, 3),
+                "saldo_costo_unit": round(costo_prom, 4),
+                "saldo_total": round(saldo_cant * costo_prom, 2),
+            })
+
+        out_movs.append(base_row)
+
+    saldo_final = saldo_cant if movs else saldo_inicial
+    valor_inventario_final = round(saldo_final * costo_prom, 2)
 
     return {
         "producto": {
@@ -235,14 +277,18 @@ async def kardex_producto(
             "name": product.name,
             "category": product.category,
             "unit": product.unit,
-            "cost_price": round(cost_actual, 2),
+            "cost_price": round(_to_float(product.cost_price), 2),
         },
+        "metodo_valorizacion": "Promedio Ponderado",
         "fecha_inicio": fi.date().isoformat(),
         "fecha_fin": ff.date().isoformat(),
         "saldo_inicial": round(saldo_inicial, 3),
         "saldo_final": round(saldo_final, 3),
-        "total_entradas": round(total_entradas, 3),
-        "total_salidas": round(total_salidas, 3),
+        "costo_prom_final": round(costo_prom, 4),
+        "total_entradas": round(total_entrada_cant, 3),
+        "total_salidas": round(total_salida_cant, 3),
+        "total_entrada_valor": round(total_entrada_valor, 2),
+        "total_salida_valor": round(total_salida_valor, 2),
         "valor_inventario_final": valor_inventario_final,
         "movimientos": out_movs,
     }
@@ -409,38 +455,42 @@ async def export_kardex_csv(
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow([
-        "Fecha", "Tipo", "Referencia", "Producto",
-        "Entrada", "Salida", "Saldo", "Costo Unit.", "Valor Saldo",
+        "Fecha", "Doc.Tipo", "Doc.Numero", "Producto", "Detalle", "Usuario",
+        "Entrada.Cant", "Entrada.CUnit", "Entrada.Total",
+        "Salida.Cant",  "Salida.CUnit",  "Salida.Total",
+        "Saldo.Cant",   "Saldo.CUnit",   "Saldo.Total",
     ])
 
-    # Iterar por producto (uno o todos) calculando saldo corriente
-    saldos: dict = {}
-    if product_id:
-        # Saldo inicial del único producto
-        prev = (
+    # Estado por producto: (saldo_cant, saldo_valor, costo_prom)
+    state: dict = {}
+    for pid, p in products.items():
+        # Saldo inicial = stock_before del primer movimiento del período;
+        # si no hay movimiento previo en el período, queremos arrancar con
+        # el saldo previo. Tomamos el último movimiento ANTES del período
+        # como referencia de cantidad y, si no hay, asumimos 0 (consistente
+        # con el detalle de un único producto: el primer movimiento del
+        # período define el saldo inicial real).
+        first_mov = (
             db.query(InventoryMovement)
             .filter(
-                InventoryMovement.product_id == product_id,
+                InventoryMovement.product_id == pid,
                 InventoryMovement.store_id == store_id,
-                InventoryMovement.occurred_at < fi,
+                InventoryMovement.occurred_at >= fi,
+                InventoryMovement.occurred_at <= ff_inclusive,
             )
-            .order_by(InventoryMovement.occurred_at.desc(), InventoryMovement.id.desc())
+            .order_by(InventoryMovement.occurred_at.asc(), InventoryMovement.id.asc())
             .first()
         )
-        saldos[product_id] = _to_float(prev.stock_after) if prev else 0.0
-    else:
-        for pid in products.keys():
-            prev = (
-                db.query(InventoryMovement)
-                .filter(
-                    InventoryMovement.product_id == pid,
-                    InventoryMovement.store_id == store_id,
-                    InventoryMovement.occurred_at < fi,
-                )
-                .order_by(InventoryMovement.occurred_at.desc(), InventoryMovement.id.desc())
-                .first()
-            )
-            saldos[pid] = _to_float(prev.stock_after) if prev else 0.0
+        if first_mov:
+            saldo_cant_0 = _to_float(first_mov.stock_before)
+        else:
+            saldo_cant_0 = _to_float(p.stock)
+        costo_prom_0 = _to_float(p.cost_price)
+        state[pid] = {
+            "saldo_cant": saldo_cant_0,
+            "saldo_valor": saldo_cant_0 * costo_prom_0,
+            "costo_prom": costo_prom_0,
+        }
 
     movs_q = (
         db.query(InventoryMovement)
@@ -459,24 +509,45 @@ async def export_kardex_csv(
         p = products.get(m.product_id)
         if not p:
             continue
-        cantidad = _to_float(m.quantity)
-        cost_unit = _to_float(m.cost_price) if m.cost_price is not None else _to_float(p.cost_price)
-        saldos[m.product_id] = saldos.get(m.product_id, 0.0) + cantidad
-        saldo = saldos[m.product_id]
-        ref = (
-            f"{m.reference_type} #{m.reference_id}"
-            if m.reference_type and m.reference_id else (m.reference_type or "")
-        )
+        st = state.setdefault(m.product_id, {
+            "saldo_cant": 0.0, "saldo_valor": 0.0,
+            "costo_prom": _to_float(p.cost_price),
+        })
+
+        qty = _to_float(m.quantity)
+        if qty > 0:
+            entrada_cunit = _to_float(m.cost_price) if m.cost_price is not None else st["costo_prom"]
+            entrada_total = qty * entrada_cunit
+            st["saldo_valor"] += entrada_total
+            st["saldo_cant"] = _to_float(m.stock_after)
+            if st["saldo_cant"] > 0:
+                st["costo_prom"] = st["saldo_valor"] / st["saldo_cant"]
+            ent_cant_s = f"{qty:.3f}"
+            ent_cu_s = f"{entrada_cunit:.4f}"
+            ent_tot_s = f"{entrada_total:.2f}"
+            sal_cant_s = sal_cu_s = sal_tot_s = ""
+        else:
+            salida_qty = -qty
+            salida_total = salida_qty * st["costo_prom"]
+            st["saldo_cant"] = _to_float(m.stock_after)
+            st["saldo_valor"] = st["saldo_cant"] * st["costo_prom"]
+            sal_cant_s = f"{salida_qty:.3f}"
+            sal_cu_s = f"{st['costo_prom']:.4f}"
+            sal_tot_s = f"{salida_total:.2f}"
+            ent_cant_s = ent_cu_s = ent_tot_s = ""
+
         w.writerow([
             m.occurred_at.strftime("%Y-%m-%d %H:%M") if m.occurred_at else "",
-            m.movement_type,
-            ref,
+            m.doc_tipo or "",
+            m.doc_numero or "",
             p.name,
-            f"{cantidad:.3f}" if cantidad > 0 else "",
-            f"{-cantidad:.3f}" if cantidad < 0 else "",
-            f"{saldo:.3f}",
-            f"{cost_unit:.2f}",
-            f"{saldo * cost_unit:.2f}",
+            (m.glosa or m.notes or ""),
+            m.user_name or "",
+            ent_cant_s, ent_cu_s, ent_tot_s,
+            sal_cant_s, sal_cu_s, sal_tot_s,
+            f"{st['saldo_cant']:.3f}",
+            f"{st['costo_prom']:.4f}",
+            f"{st['saldo_cant'] * st['costo_prom']:.2f}",
         ])
 
     csv_bytes = buf.getvalue().encode("utf-8-sig")
