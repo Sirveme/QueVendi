@@ -80,13 +80,18 @@ def _to_float(x) -> float:
 # Schemas
 # ──────────────────────────────────────────────────────────────────────────
 class InvitarIn(BaseModel):
-    email_o_whatsapp: str
-    # mantenido para retrocompat con clientes viejos
+    contacto: Optional[str] = None
+    # retrocompat con versiones previas del modal
+    email_o_whatsapp: Optional[str] = None
     email_contador: Optional[EmailStr] = None
 
 
 def _es_email(s: str) -> bool:
     return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", s or ""))
+
+
+def _es_dni(s: str) -> bool:
+    return bool(re.match(r"^\d{8}$", (s or "").strip()))
 
 
 def _normaliza_whatsapp(s: str) -> str:
@@ -173,33 +178,38 @@ async def invitar_contador(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Owner invita por email o WhatsApp. Genera link único con token."""
+    """Owner invita por DNI o WhatsApp. Genera link único con token."""
     _ensure_owner_of_store(current_user, store_id)
 
-    contacto = (payload.email_o_whatsapp or payload.email_contador or "").strip()
+    contacto = (
+        payload.contacto
+        or payload.email_o_whatsapp
+        or payload.email_contador
+        or ""
+    ).strip()
     if not contacto:
-        raise HTTPException(status_code=400, detail="Falta email o WhatsApp del contador")
+        raise HTTPException(status_code=400, detail="Falta WhatsApp o DNI del contador")
 
-    es_email = _es_email(contacto)
-    whatsapp = "" if es_email else _normaliza_whatsapp(contacto)
-    email = contacto.lower() if es_email else None
+    es_dni = _es_dni(contacto)
+    whatsapp = "" if es_dni else _normaliza_whatsapp(contacto)
+    dni = contacto if es_dni else None
 
-    if not es_email and not whatsapp:
-        raise HTTPException(status_code=400, detail="Contacto inválido")
+    if not es_dni and not whatsapp:
+        raise HTTPException(status_code=400, detail="Contacto inválido (usa DNI o WhatsApp)")
 
-    # Buscar contador existente por email o whatsapp
+    # Buscar contador existente por DNI o WhatsApp
     contador: Optional[Contador] = None
-    if email:
-        contador = db.query(Contador).filter(Contador.email == email).first()
+    if dni:
+        contador = db.query(Contador).filter(Contador.dni == dni).first()
     if not contador and whatsapp:
         contador = db.query(Contador).filter(Contador.whatsapp == whatsapp).first()
 
     # Si no existe → crear registro pendiente sin pin_hash
     if not contador:
         contador = Contador(
-            email=email,
+            dni=dni,
             whatsapp=whatsapp or None,
-            full_name=email or whatsapp or "Contador invitado",
+            full_name=dni or whatsapp or "Contador invitado",
             is_active=True,
         )
         db.add(contador)
