@@ -5,6 +5,7 @@ Main Application Entry Point
 """
 
 import os
+import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -65,6 +66,7 @@ from app.api.v1 import (
     onboarding,
     kardex,
     purchases,
+    tributario,
 )
 from app.routers import lite
 
@@ -92,14 +94,28 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 # ========================================
 # LIFESPAN EVENT
 # ========================================
+async def _cron_tributario_diario():
+    """Revisa cada 24h vencimientos próximos y envía push (zClaude-28)."""
+    from app.api.v1.tributario import enviar_alertas_vencimiento
+    while True:
+        try:
+            await enviar_alertas_vencimiento()
+        except Exception as e:
+            print(f"[Tributario] Error en cron diario: {e}")
+        await asyncio.sleep(86400)  # 24 horas
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup y shutdown events"""
-    
+
     # ===== STARTUP =====
     print("\n" + "="*60)
     print("🚀 QUEVENDI - SERVIDOR INICIADO")
     print("="*60)
+
+    # Tarea de fondo: alertas tributarias diarias
+    cron_task = asyncio.create_task(_cron_tributario_diario())
     
     # Listar rutas registradas
     routes_html = []
@@ -130,8 +146,13 @@ async def lifespan(app: FastAPI):
     print("="*60 + "\n")
     
     yield
-    
+
     # ===== SHUTDOWN =====
+    cron_task.cancel()
+    try:
+        await cron_task
+    except (asyncio.CancelledError, Exception):
+        pass
     print("\n👋 Servidor detenido")
 
 
@@ -204,6 +225,7 @@ app.include_router(contador_auth.router, prefix="/contador", tags=["contador-aut
 app.include_router(contador.router, prefix="/contador", tags=["contador"])
 app.include_router(kardex.router, prefix="/api/v1", tags=["kardex"])
 app.include_router(purchases.router, prefix="/api/v1", tags=["purchases"])
+app.include_router(tributario.router, prefix="/api/v1", tags=["tributario"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -457,6 +479,14 @@ async def kardex_page(request: Request):
 @app.get("/compras", response_class=HTMLResponse)
 async def compras_page(request: Request):
     return templates.TemplateResponse("compras.html", {"request": request})
+
+
+# ========================================
+# TRIBUTARIO — Asistente SUNAT
+# ========================================
+@app.get("/tributario", response_class=HTMLResponse)
+async def tributario_page(request: Request):
+    return templates.TemplateResponse("tributario.html", {"request": request})
 
 
 # ========================================
