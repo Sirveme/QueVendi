@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compras · QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --verde: #22c55e;
+    --naranja: #f59e0b;
+    --rojo: #ef4444;
+    --azul: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar h1 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+  .topbar a { color: var(--text-secondary); text-decoration: none; font-size: 13px; }
+  .topbar a:hover { color: var(--text); }
+
+  .container { padding: 20px 24px; max-width: 1280px; margin: 0 auto; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap;
+    gap: 10px; align-items: center;
+    margin-bottom: 18px;
+  }
+  .toolbar select, .toolbar input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  .btn {
+    background: var(--azul); color: white; border: 0;
+    padding: 9px 14px; border-radius: 8px;
+    cursor: pointer; font-weight: 600; font-size: 13px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: #2563eb; }
+  .btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn.secondary:hover { background: rgba(255,255,255,0.04); }
+  .btn.danger { background: var(--rojo); }
+
+  table.compras-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  table.compras-table th {
+    background: #1a2744;
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.compras-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  table.compras-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+  .badge {
+    padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge.registrado { background: rgba(34,197,94,0.18); color: #86efac; }
+  .badge.anulado    { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.7);
+    z-index: 1000;
+    align-items: flex-start; justify-content: center;
+    padding: 28px 16px;
+    overflow-y: auto;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 100%; max-width: 820px;
+    padding: 22px;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .modal-header h3 { margin: 0; font-size: 18px; }
+  .close-btn {
+    background: transparent; border: 0;
+    font-size: 22px; cursor: pointer; color: var(--text-secondary);
+  }
+
+  .tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 9px 14px; cursor: pointer;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .tab.active { color: var(--azul); border-bottom-color: var(--azul); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .form-section {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .form-section h4 {
+    margin: 0 0 10px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-grid input, .form-grid select { width: 100%; }
+  .form-section input, .form-section select {
+    background: #0f172a; color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+  }
+  .input-with-btn { display: flex; gap: 6px; }
+  .input-with-btn input { flex: 1; }
+
+  table.items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.items-table th {
+    background: #0f172a; color: var(--text-secondary);
+    padding: 6px 8px; text-align: left;
+    font-size: 10px; text-transform: uppercase;
+  }
+  table.items-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.items-table input {
+    background: transparent; color: var(--text);
+    border: 1px solid transparent;
+    padding: 4px 6px; border-radius: 6px;
+    font-size: 12px; width: 100%; outline: none;
+  }
+  table.items-table input:focus { border-color: var(--azul); background: #0f172a; }
+
+  .totales-section {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-bottom: 12px;
+  }
+  .totales-section > div {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .totales-section input {
+    width: 100%; background: transparent; border: 0;
+    color: var(--text); font-size: 16px; font-weight: 700;
+    text-align: right; padding: 4px 0;
+    font-family: inherit;
+  }
+
+  .ocr-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 30px;
+    text-align: center;
+    background: rgba(255,255,255,0.02);
+  }
+  .ocr-zone label {
+    display: inline-block;
+    padding: 12px 18px;
+    background: var(--azul); color: white;
+    border-radius: 8px; cursor: pointer;
+    font-weight: 600;
+  }
+  .ocr-zone input[type=file] { display: none; }
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 700px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .totales-section { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>🛒 Registro de Compras</h1>
+    <a href="/dashboard">‹ Volver</a>
+  </div>
+
+  <div class="container">
+    <div class="toolbar">
+      <select id="filtro-mes">
+        <option value="">Todos los meses</option>
+      </select>
+      <select id="filtro-anio">
+        <option value="">Todos los años</option>
+      </select>
+      <select id="filtro-tipo">
+        <option value="">Todos los tipos</option>
+        <option value="FACTURA">Factura</option>
+        <option value="BOLETA">Boleta</option>
+        <option value="GUIA">Guía</option>
+        <option value="NOTA_ALMACEN">Nota almacén</option>
+        <option value="TICKET">Ticket</option>
+      </select>
+      <button class="btn secondary" onclick="cargarCompras()">Aplicar filtros</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="abrirModalNueva()">+ Nueva compra</button>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="compras-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Documento</th>
+            <th>Proveedor</th>
+            <th style="text-align:right">Items</th>
+            <th style="text-align:right">Total</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="compras-tbody">
+          <tr><td colspan="7" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================
+       Modal Nueva Compra
+       ============================================ -->
+  <div id="modalNueva" class="modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Nueva compra</h3>
+        <button class="close-btn" onclick="cerrarModal()">&times;</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="manual" onclick="setTab('manual')">📝 Manual</div>
+        <div class="tab" data-tab="foto" onclick="setTab('foto')">📷 Foto OCR</div>
+        <div class="tab" data-tab="pdf" onclick="setTab('pdf')">📄 PDF / Imagen</div>
+        <div class="tab" data-tab="excel" onclick="setTab('excel')">📊 Excel / CSV</div>
+      </div>
+
+      <!-- TAB FOTO -->
+      <div class="tab-content" data-tab="foto">
+        <div class="ocr-zone">
+          <input type="file" id="foto-input" accept="image/*" capture="environment"
+                 onchange="procesarOCR(this)">
+          <label for="foto-input">📷 Tomar foto o seleccionar imagen</label>
+          <div id="ocr-loading-foto" style="display:none;margin-top:14px;color:var(--naranja)">
+            ⏳ Analizando documento con IA…
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PDF -->
+      <div class="tab-content" data-tab="pdf">
+        <div class="ocr-zone">
+          <input type="file" id="doc-input" accept="image/*,.pdf"
+                 onchange="procesarOCR(this)">
+          <label for="doc-input">📄 Subir factura o documento</label>
+          <p style="color:var(--text-secondary);font-size:12px;margin-top:14px;">
+            Soporta imágenes (JPG/PNG) y PDF de una página.
+          </p>
+        </div>
+      </div>
+
+      <!-- TAB EXCEL -->
+      <div class="tab-content" data-tab="excel">
+        <div class="ocr-zone">
+          <input type="file" id="excel-input" accept=".xlsx,.xls,.csv"
+                 onchange="procesarExcel(this)">
+          <label for="excel-input">📊 Subir Excel o CSV de productos</label>
+          <p style="color:var(--text-secondary);font-size:12px;margin-top:14px;">
+            Columnas requeridas: Producto, Cantidad, Precio
+          </p>
+        </div>
+      </div>
+
+      <!-- TAB MANUAL — siempre presente, recibe datos del OCR/Excel -->
+      <div class="tab-content active" data-tab="manual">
+        <div class="form-section">
+          <h4>Proveedor</h4>
+          <div class="input-with-btn">
+            <input id="supplier-ruc" placeholder="RUC del proveedor" maxlength="11">
+            <button class="btn secondary" onclick="buscarProveedor()">🔍 Buscar</button>
+          </div>
+          <div style="height:8px"></div>
+          <input id="supplier-name" placeholder="Nombre / Razón social">
+        </div>
+
+        <div class="form-section">
+          <h4>Documento</h4>
+          <div class="form-grid">
+            <select id="tipo-doc">
+              <option value="FACTURA">Factura</option>
+              <option value="BOLETA">Boleta</option>
+              <option value="GUIA">Guía de remisión</option>
+              <option value="NOTA_ALMACEN">Nota de almacén</option>
+              <option value="TICKET">Ticket</option>
+            </select>
+            <input id="doc-serie" placeholder="Serie (ej: F001)">
+            <input id="doc-numero" placeholder="Número">
+            <input id="fecha-emision" type="date">
+            <input id="fecha-vencimiento" type="date" placeholder="Vencimiento">
+            <select id="payment-method">
+              <option value="contado">Contado</option>
+              <option value="credito">Crédito</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>
+            Productos
+            <button class="btn secondary" onclick="agregarItem()">+ Agregar</button>
+          </h4>
+          <table class="items-table" id="items-table">
+            <thead>
+              <tr>
+                <th style="width:38%">Producto</th>
+                <th style="width:12%">Cant.</th>
+                <th style="width:12%">Unidad</th>
+                <th style="width:14%">Precio Unit.</th>
+                <th style="width:14%">Subtotal</th>
+                <th style="width:10%"></th>
+              </tr>
+            </thead>
+            <tbody id="items-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="totales-section">
+          <div>Subtotal<input id="subtotal-val" type="number" step="0.01" value="0.00"></div>
+          <div>IGV (18%)<input id="igv-val" type="number" step="0.01" value="0.00"></div>
+          <div><strong>Total</strong><input id="total-val" type="number" step="0.01" value="0.00"></div>
+        </div>
+
+        <div class="form-section">
+          <h4>Notas</h4>
+          <input id="notes" placeholder="Notas internas (opcional)">
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn secondary" onclick="cerrarModal()">Cancelar</button>
+          <button class="btn" onclick="guardarCompra()">💾 Guardar compra</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="/static/js/utils.js"></script>
+<script>
+const token = localStorage.getItem('token') ||
+              localStorage.getItem('access_token') || '';
+let ocrRaw = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Filtros mes/año
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const selMes = document.getElementById('filtro-mes');
+  meses.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = i + 1; o.textContent = m;
+    selMes.appendChild(o);
+  });
+  const selAnio = document.getElementById('filtro-anio');
+  const yNow = new Date().getFullYear();
+  for (let y = yNow; y >= yNow - 4; y--) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    selAnio.appendChild(o);
+  }
+  // Default: mes y año actual
+  selMes.value = new Date().getMonth() + 1;
+  selAnio.value = yNow;
+
+  // Fecha emisión por defecto = hoy
+  document.getElementById('fecha-emision').value = new Date().toISOString().slice(0,10);
+
+  cargarCompras();
+});
+
+async function fetchAPI(url, opts = {}) {
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      ...(opts.headers || {})
+    }
+  });
+  if (res.status === 401) {
+    window.location.href = '/auth/login';
+  }
+  return res;
+}
+
+async function cargarCompras() {
+  const params = new URLSearchParams();
+  const mes = document.getElementById('filtro-mes').value;
+  const anio = document.getElementById('filtro-anio').value;
+  const tipo = document.getElementById('filtro-tipo').value;
+  if (mes) params.append('mes', mes);
+  if (anio) params.append('anio', anio);
+  if (tipo) params.append('tipo_documento', tipo);
+
+  const tbody = document.getElementById('compras-tbody');
+  tbody.innerHTML = `<tr><td colspan="7" class="empty">Cargando…</td></tr>`;
+
+  const res = await fetchAPI(`/api/v1/purchases?${params.toString()}`);
+  if (!res.ok) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">Error al cargar</td></tr>`;
+    return;
+  }
+  const data = await res.json();
+  const compras = data.compras || [];
+  if (!compras.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">Sin compras en el período</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = compras.map(c => `
+    <tr>
+      <td>${c.fecha_emision || ''}</td>
+      <td>
+        <div style="font-weight:600">${c.tipo_documento || ''}</div>
+        <div style="font-size:11px;color:#94a3b8">${c.doc_completo || ''}</div>
+      </td>
+      <td>${c.supplier_name || '—'}</td>
+      <td style="text-align:right">${c.num_items || 0}</td>
+      <td style="text-align:right;font-weight:600">S/ ${parseFloat(c.total||0).toFixed(2)}</td>
+      <td><span class="badge ${c.estado||'registrado'}">${c.estado||'registrado'}</span></td>
+      <td>
+        ${c.estado === 'anulado'
+          ? ''
+          : `<button class="btn secondary" onclick="anularCompra(${c.id})">Anular</button>`}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ═══ Modal ═══
+function abrirModalNueva() {
+  document.getElementById('modalNueva').classList.add('show');
+  setTab('manual');
+  // Reset items vacíos: una fila inicial
+  document.getElementById('items-tbody').innerHTML = '';
+  agregarItem();
+}
+function cerrarModal() {
+  document.getElementById('modalNueva').classList.remove('show');
+  ocrRaw = null;
+}
+
+function setTab(name) {
+  document.querySelectorAll('.tabs .tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c =>
+    c.classList.toggle('active', c.dataset.tab === name));
+}
+
+// ═══ Items ═══
+function agregarItem(data = {}) {
+  const tbody = document.getElementById('items-tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="it-nombre" value="${escapeHtml(data.product_name || data.descripcion || '')}"></td>
+    <td><input type="number" step="0.001" class="it-cant" value="${data.quantity || data.cantidad || ''}"></td>
+    <td><input type="text" class="it-unidad" value="${escapeHtml(data.unit || data.unidad || 'UND')}"></td>
+    <td><input type="number" step="0.01" class="it-precio" value="${data.cost_price || data.precio_unitario || ''}"></td>
+    <td><input type="number" step="0.01" class="it-subtotal" value="${data.subtotal || ''}" readonly></td>
+    <td><button class="btn secondary" onclick="this.closest('tr').remove();recalcularTotales()">×</button></td>
+  `;
+  tbody.appendChild(tr);
+  // Listeners para recalcular subtotal
+  tr.querySelectorAll('.it-cant, .it-precio').forEach(el =>
+    el.addEventListener('input', () => actualizarSubtotal(tr)));
+  actualizarSubtotal(tr);
+}
+
+function actualizarSubtotal(tr) {
+  const cant = parseFloat(tr.querySelector('.it-cant').value || 0);
+  const precio = parseFloat(tr.querySelector('.it-precio').value || 0);
+  const sub = cant * precio;
+  tr.querySelector('.it-subtotal').value = sub.toFixed(2);
+  recalcularTotales();
+}
+
+function recalcularTotales() {
+  let subtotalSum = 0;
+  document.querySelectorAll('#items-tbody tr').forEach(tr => {
+    subtotalSum += parseFloat(tr.querySelector('.it-subtotal').value || 0);
+  });
+  // Si el OCR no llenó IGV/total, calculamos
+  const igvInput = document.getElementById('igv-val');
+  const totalInput = document.getElementById('total-val');
+  document.getElementById('subtotal-val').value = subtotalSum.toFixed(2);
+  if (!igvInput.dataset.userEdited) {
+    igvInput.value = (subtotalSum * 0.18).toFixed(2);
+  }
+  if (!totalInput.dataset.userEdited) {
+    totalInput.value = (subtotalSum + parseFloat(igvInput.value || 0)).toFixed(2);
+  }
+}
+
+['igv-val', 'total-val'].forEach(id => {
+  document.getElementById(id).addEventListener('input', e => {
+    e.target.dataset.userEdited = '1';
+  });
+});
+
+function recopilarItems() {
+  return Array.from(document.querySelectorAll('#items-tbody tr')).map(tr => ({
+    product_name: tr.querySelector('.it-nombre').value.trim(),
+    quantity: parseFloat(tr.querySelector('.it-cant').value || 0),
+    unit: tr.querySelector('.it-unidad').value.trim() || null,
+    cost_price: parseFloat(tr.querySelector('.it-precio').value || 0),
+    subtotal: parseFloat(tr.querySelector('.it-subtotal').value || 0),
+  })).filter(it => it.product_name && it.quantity > 0);
+}
+
+// ═══ Buscar proveedor ═══
+async function buscarProveedor() {
+  const ruc = document.getElementById('supplier-ruc').value.trim();
+  if (!ruc) return;
+  const res = await fetchAPI(`/api/v1/suppliers/buscar?ruc=${encodeURIComponent(ruc)}`);
+  if (!res.ok) return;
+  const data = await res.json();
+  if (data.proveedor && data.proveedor.name) {
+    document.getElementById('supplier-name').value = data.proveedor.name;
+  } else if (data.detail) {
+    alert(data.detail);
+  }
+}
+
+// ═══ OCR ═══
+async function procesarOCR(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const loadingId = input.id === 'foto-input' ? 'ocr-loading-foto' : null;
+  if (loadingId) document.getElementById(loadingId).style.display = 'block';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetchAPI('/api/v1/purchases/ocr', { method: 'POST', body: formData });
+  if (loadingId) document.getElementById(loadingId).style.display = 'none';
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.detail || 'Error al procesar el documento');
+    return;
+  }
+  const data = await res.json();
+  ocrRaw = data.ocr;
+  llenarFormularioDesdeOCR(data.ocr);
+  setTab('manual');
+}
+
+function llenarFormularioDesdeOCR(ocr) {
+  if (!ocr) return;
+  if (ocr.proveedor_ruc)    document.getElementById('supplier-ruc').value = ocr.proveedor_ruc;
+  if (ocr.proveedor_nombre) document.getElementById('supplier-name').value = ocr.proveedor_nombre;
+  if (ocr.tipo_documento)   document.getElementById('tipo-doc').value = ocr.tipo_documento;
+  if (ocr.serie)            document.getElementById('doc-serie').value = ocr.serie;
+  if (ocr.numero)           document.getElementById('doc-numero').value = ocr.numero;
+  if (ocr.fecha_emision)    document.getElementById('fecha-emision').value = ocr.fecha_emision;
+  if (ocr.subtotal != null) document.getElementById('subtotal-val').value = ocr.subtotal;
+  if (ocr.igv != null) {
+    const e = document.getElementById('igv-val');
+    e.value = ocr.igv; e.dataset.userEdited = '1';
+  }
+  if (ocr.total != null) {
+    const e = document.getElementById('total-val');
+    e.value = ocr.total; e.dataset.userEdited = '1';
+  }
+  if (Array.isArray(ocr.items)) {
+    document.getElementById('items-tbody').innerHTML = '';
+    ocr.items.forEach(it => agregarItem(it));
+  }
+}
+
+// ═══ Excel ═══
+async function procesarExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetchAPI('/api/v1/purchases/ocr-excel', { method: 'POST', body: formData });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.detail || 'Error al procesar Excel');
+    return;
+  }
+  const data = await res.json();
+  document.getElementById('items-tbody').innerHTML = '';
+  (data.items || []).forEach(it => agregarItem(it));
+  recalcularTotales();
+  setTab('manual');
+}
+
+// ═══ Guardar ═══
+async function guardarCompra() {
+  const items = recopilarItems();
+  if (!items.length) { alert('Agrega al menos un producto'); return; }
+
+  const payload = {
+    supplier_ruc: document.getElementById('supplier-ruc').value.trim(),
+    supplier_name: document.getElementById('supplier-name').value.trim() || 'Proveedor sin nombre',
+    tipo_documento: document.getElementById('tipo-doc').value,
+    serie: document.getElementById('doc-serie').value.trim() || null,
+    numero: document.getElementById('doc-numero').value.trim(),
+    fecha_emision: document.getElementById('fecha-emision').value,
+    fecha_vencimiento: document.getElementById('fecha-vencimiento').value || null,
+    subtotal: parseFloat(document.getElementById('subtotal-val').value || 0),
+    igv: parseFloat(document.getElementById('igv-val').value || 0),
+    total: parseFloat(document.getElementById('total-val').value || 0),
+    items: items,
+    payment_method: document.getElementById('payment-method').value || 'contado',
+    notes: document.getElementById('notes').value.trim() || null,
+    ocr_raw: ocrRaw,
+  };
+
+  if (!payload.numero) { alert('Falta el número del documento'); return; }
+  if (!payload.fecha_emision) { alert('Falta la fecha de emisión'); return; }
+
+  const res = await fetchAPI('/api/v1/purchases', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.detail || 'No se pudo guardar la compra');
+    return;
+  }
+  cerrarModal();
+  cargarCompras();
+}
+
+async function anularCompra(id) {
+  if (!confirm('¿Anular esta compra? Se revertirá el stock.')) return;
+  const res = await fetchAPI(`/api/v1/purchases/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.detail || 'No se pudo anular');
+    return;
+  }
+  cargarCompras();
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
