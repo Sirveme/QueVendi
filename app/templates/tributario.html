@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Situación Tributaria · QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --verde: #22c55e;
+    --naranja: #f59e0b;
+    --rojo: #ef4444;
+    --azul: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .topbar h1 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+  .topbar a { color: var(--text-secondary); text-decoration: none; font-size: 13px; }
+  .topbar a:hover { color: var(--text); }
+
+  .container { padding: 20px 24px; max-width: 1280px; margin: 0 auto; }
+
+  .header-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .regimen-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(59,130,246,0.18);
+    border: 1px solid rgba(59,130,246,0.4);
+    color: #93c5fd;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px; font-weight: 600;
+  }
+  .periodo-nav {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px 8px;
+  }
+  .periodo-nav button {
+    background: transparent; color: var(--text-secondary);
+    border: 0; cursor: pointer; padding: 4px 8px; font-size: 14px;
+    border-radius: 6px;
+  }
+  .periodo-nav button:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .periodo-nav strong { font-size: 14px; min-width: 130px; text-align: center; }
+
+  .btn {
+    background: var(--azul); color: white; border: 0;
+    padding: 9px 14px; border-radius: 8px;
+    cursor: pointer; font-weight: 600; font-size: 13px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: #2563eb; }
+  .btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn.secondary:hover { background: rgba(255,255,255,0.04); }
+  .btn.ghost { background: transparent; color: var(--text-secondary); border: 0; padding: 6px 10px; }
+  .btn.ghost:hover { color: var(--text); }
+
+  /* ── Tarjetas KPI ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .kpi-label { color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 24px; font-weight: 700; margin-top: 6px; }
+  .kpi-card.ventas .kpi-value { color: var(--verde); }
+  .kpi-card.gastos .kpi-value { color: var(--naranja); }
+  .kpi-card.utilidad .kpi-value { color: var(--azul); }
+  .kpi-card.impuesto .kpi-value { color: var(--rojo); }
+
+  /* ── Alerta vencimiento ── */
+  .alerta-vencimiento {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
+    border: 1px solid rgba(239,68,68,0.4);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px; justify-content: space-between;
+  }
+  .alerta-vencimiento.pronto { animation: pulse-red 2s infinite; }
+  @keyframes pulse-red {
+    0%, 100% { border-color: rgba(239,68,68,0.4); }
+    50%      { border-color: rgba(239,68,68,0.85); }
+  }
+  .alerta-ok {
+    background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05));
+    border: 1px solid rgba(34,197,94,0.4);
+  }
+  .alerta-fecha { font-size: 18px; font-weight: 700; }
+  .alerta-dias { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+  .alerta-detalle { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .alerta-rus {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.4);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #fcd34d;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 14px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px; font-weight: 600;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--azul); color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Tabla de gastos ── */
+  table.t-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  table.t-table th {
+    background: #1a2744;
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+  }
+  table.t-table td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+  }
+  table.t-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin-bottom: 12px;
+  }
+  .toolbar .totales {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-left: auto;
+  }
+  .toolbar .totales strong { color: var(--text); }
+
+  /* ── Historial barras ── */
+  .historial-grid {
+    display: flex; gap: 10px;
+    align-items: flex-end;
+    height: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .hist-bar {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    justify-content: flex-end;
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+  .hist-bar .bar-pair {
+    width: 100%; display: flex; gap: 2px; align-items: flex-end;
+    height: 160px;
+  }
+  .hist-bar .b-ventas {
+    flex: 1; background: rgba(34,197,94,0.7); border-radius: 4px 4px 0 0;
+  }
+  .hist-bar .b-impuesto {
+    flex: 1; background: rgba(239,68,68,0.7); border-radius: 4px 4px 0 0;
+  }
+
+  /* ── Modal ── */
+  .modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+    padding: 20px;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .modal-header h3 { margin: 0; font-size: 17px; }
+  .close-btn {
+    background: transparent; border: 0; color: var(--text-secondary);
+    font-size: 22px; cursor: pointer;
+  }
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .form-grid.full { grid-template-columns: 1fr; }
+  label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+  label.field input,
+  label.field select,
+  label.field textarea {
+    background: #0f1c33; color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; outline: none;
+    font-family: inherit;
+  }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 540px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>⚖️ Mi Situación Tributaria</h1>
+    <a href="/dashboard">‹ Volver</a>
+  </div>
+
+  <div class="container">
+
+    <!-- HEADER: régimen + período -->
+    <div class="header-row">
+      <span class="regimen-badge">
+        Régimen: <strong id="regimen-label">—</strong>
+      </span>
+      <button class="btn secondary" onclick="abrirModalConfig()">⚙️ Configurar</button>
+      <div style="flex:1"></div>
+      <div class="periodo-nav">
+        <button onclick="cambiarMes(-1)">‹</button>
+        <strong id="periodo-label">—</strong>
+        <button onclick="cambiarMes(1)">›</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card ventas">
+        <div class="kpi-label">Ventas del mes</div>
+        <div class="kpi-value" id="total-ventas">S/ 0.00</div>
+      </div>
+      <div class="kpi-card gastos">
+        <div class="kpi-label">Gastos totales</div>
+        <div class="kpi-value" id="total-gastos">S/ 0.00</div>
+      </div>
+      <div class="kpi-card utilidad">
+        <div class="kpi-label">Utilidad estimada</div>
+        <div class="kpi-value" id="utilidad">S/ 0.00</div>
+      </div>
+      <div class="kpi-card impuesto">
+        <div class="kpi-label">Impuesto a pagar</div>
+        <div class="kpi-value" id="impuesto">S/ 0.00</div>
+      </div>
+    </div>
+
+    <!-- Alerta vencimiento -->
+    <div id="alerta-vcto" class="alerta-vencimiento">
+      <div>
+        <div class="alerta-fecha">📅 Vence el <span id="fecha-vcto">—</span></div>
+        <div class="alerta-dias" id="dias-restantes">—</div>
+        <div class="alerta-detalle" id="detalle-calculo">—</div>
+        <div id="alerta-rus" class="alerta-rus" style="display:none"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="recordarme()">🔔 Recordarme</button>
+        <button class="btn secondary" onclick="exportarResumen()">📥 Exportar</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="gastos" onclick="setTab('gastos')">Gastos Operativos</div>
+      <div class="tab" data-tab="historial" onclick="setTab('historial')">Historial</div>
+    </div>
+
+    <!-- Tab Gastos -->
+    <div class="tab-content active" data-tab="gastos">
+      <div class="toolbar">
+        <button class="btn" onclick="abrirModalGasto()">+ Agregar Gasto</button>
+        <div class="totales">
+          Total del mes: <strong id="gastos-total">S/ 0.00</strong>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th>Descripción</th>
+              <th>Comprobante</th>
+              <th style="text-align:right">Monto</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="gastos-tbody">
+            <tr><td colspan="6" class="empty">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab Historial -->
+    <div class="tab-content" data-tab="historial">
+      <div style="margin-bottom:8px;color:var(--text-secondary);font-size:12px">
+        <span style="display:inline-block;width:10px;height:10px;background:rgba(34,197,94,0.7);border-radius:2px;margin-right:4px"></span>
+        Ventas
+        <span style="margin-left:14px;display:inline-block;width:10px;height:10px;background:rgba(239,68,68,0.7);border-radius:2px;margin-right:4px"></span>
+        Impuesto
+      </div>
+      <div class="historial-grid" id="historial-grid">
+        <div class="empty">Cargando historial…</div>
+      </div>
+      <div style="overflow-x:auto;margin-top:14px">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th style="text-align:right">Ventas</th>
+              <th style="text-align:right">Impuesto</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="historial-tbody">
+            <tr><td colspan="5" class="empty">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================
+       Modal Agregar Gasto
+       ============================================ -->
+  <div id="modalGasto" class="modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>+ Nuevo gasto operativo</h3>
+        <button class="close-btn" onclick="cerrarModalGasto()">&times;</button>
+      </div>
+      <div class="form-grid">
+        <label class="field">Fecha
+          <input id="gasto-fecha" type="date">
+        </label>
+        <label class="field">Categoría
+          <select id="gasto-cat">
+            <option value="alquiler">Alquiler</option>
+            <option value="servicios">Servicios (luz/agua/internet)</option>
+            <option value="planilla">Planilla / Sueldos</option>
+            <option value="mantenimiento">Mantenimiento</option>
+            <option value="transporte">Transporte / Flete</option>
+            <option value="otros">Otros</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-grid full" style="margin-top:10px">
+        <label class="field">Descripción
+          <input id="gasto-desc" placeholder="Ej: Alquiler local mayo">
+        </label>
+      </div>
+      <div class="form-grid" style="margin-top:10px">
+        <label class="field">Monto (S/)
+          <input id="gasto-monto" type="number" step="0.01" placeholder="0.00">
+        </label>
+        <label class="field">Tipo comprobante
+          <select id="gasto-doc-tipo">
+            <option value="">— Sin comprobante —</option>
+            <option value="BOLETA">Boleta</option>
+            <option value="FACTURA">Factura</option>
+            <option value="RECIBO">Recibo</option>
+            <option value="OTRO">Otro</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-grid full" style="margin-top:10px">
+        <label class="field">Número de comprobante
+          <input id="gasto-doc-num" placeholder="Ej: B001-00012345">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn secondary" onclick="cerrarModalGasto()">Cancelar</button>
+        <button class="btn" onclick="agregarGasto()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       Modal Configurar Régimen
+       ============================================ -->
+  <div id="modalConfig" class="modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>⚙️ Régimen Tributario</h3>
+        <button class="close-btn" onclick="cerrarModalConfig()">&times;</button>
+      </div>
+      <div class="form-grid">
+        <label class="field">Régimen
+          <select id="select-regimen" onchange="onChangeRegimen()">
+            <option value="RUS">RUS — Régimen Único Simplificado</option>
+            <option value="RER">RER — Régimen Especial</option>
+            <option value="RMT">RMT — Régimen MYPE Tributario</option>
+            <option value="RG">RG — Régimen General</option>
+          </select>
+        </label>
+        <label class="field" id="cat-rus-wrapper">Categoría RUS
+          <select id="select-categoria">
+            <option value="1">Cat. 1 — hasta S/ 5,000/mes (S/ 20)</option>
+            <option value="2">Cat. 2 — hasta S/ 8,000/mes (S/ 50)</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-grid" style="margin-top:10px">
+        <label class="field">Fecha inicio actividades
+          <input id="config-fecha-inicio" type="date">
+        </label>
+        <label class="field">Último dígito RUC
+          <input id="config-ult-digito" type="number" min="0" max="9" placeholder="Auto desde RUC">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn secondary" onclick="cerrarModalConfig()">Cancelar</button>
+        <button class="btn" onclick="configurarRegimen()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const TOKEN = localStorage.getItem('token') ||
+              localStorage.getItem('access_token') || '';
+let mes = new Date().getMonth() + 1;
+let anio = new Date().getFullYear();
+const NOMBRES_MES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+async function fetchAuth(url, opts = {}) {
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': `Bearer ${TOKEN}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+  if (res.status === 401) {
+    window.location.href = '/auth/login';
+  }
+  return res;
+}
+
+function fmtMoney(n) {
+  return 'S/ ' + (Number(n) || 0).toFixed(2);
+}
+function formatFechaPeru(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-PE',
+      { day: '2-digit', month: 'long', year: 'numeric' });
+  } catch (e) { return iso; }
+}
+
+// ─── Período ───
+function actualizarPeriodoLabel() {
+  document.getElementById('periodo-label').textContent =
+    `${NOMBRES_MES[mes]} ${anio}`;
+}
+function cambiarMes(delta) {
+  mes += delta;
+  if (mes < 1)  { mes = 12; anio--; }
+  if (mes > 12) { mes = 1;  anio++; }
+  actualizarPeriodoLabel();
+  cargarResumen();
+  cargarGastos();
+}
+
+// ─── Cargar resumen ───
+async function cargarResumen() {
+  const res = await fetchAuth(`/api/v1/tributario/resumen?mes=${mes}&anio=${anio}`);
+  if (!res.ok) return;
+  const data = await res.json();
+
+  document.getElementById('total-ventas').textContent  = fmtMoney(data.ventas_mes);
+  document.getElementById('total-gastos').textContent  = fmtMoney(data.total_gastos);
+  document.getElementById('utilidad').textContent      = fmtMoney(data.utilidad_estimada);
+  document.getElementById('impuesto').textContent      = fmtMoney(data.impuesto_estimado);
+  document.getElementById('regimen-label').textContent = data.regimen + (data.categoria_rus ? ` Cat. ${data.categoria_rus}` : '');
+
+  const alerta = document.getElementById('alerta-vcto');
+  alerta.className = data.alerta ? 'alerta-vencimiento pronto' : 'alerta-vencimiento alerta-ok';
+
+  document.getElementById('fecha-vcto').textContent =
+    formatFechaPeru(data.fecha_vencimiento + 'T00:00:00');
+  if (data.dias_restantes < 0) {
+    document.getElementById('dias-restantes').textContent = '🔴 ¡VENCIDO!';
+  } else if (data.dias_restantes === 0) {
+    document.getElementById('dias-restantes').textContent = '⚠️ Vence HOY';
+  } else {
+    document.getElementById('dias-restantes').textContent =
+      `⏳ Faltan ${data.dias_restantes} días`;
+  }
+  document.getElementById('detalle-calculo').textContent = data.detalle_calculo || '';
+
+  const alertaRus = document.getElementById('alerta-rus');
+  if (data.alerta_rus) {
+    alertaRus.style.display = 'block';
+    alertaRus.textContent = '⚠️ ' + data.alerta_rus;
+  } else {
+    alertaRus.style.display = 'none';
+  }
+}
+
+// ─── Cargar gastos ───
+async function cargarGastos() {
+  const tbody = document.getElementById('gastos-tbody');
+  tbody.innerHTML = `<tr><td colspan="6" class="empty">Cargando…</td></tr>`;
+  const res = await fetchAuth(`/api/v1/tributario/gastos?mes=${mes}&anio=${anio}`);
+  if (!res.ok) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">Error al cargar</td></tr>`;
+    return;
+  }
+  const data = await res.json();
+  document.getElementById('gastos-total').textContent = fmtMoney(data.total);
+
+  const lista = data.gastos || [];
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">Sin gastos registrados este mes</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(g => `
+    <tr>
+      <td>${g.fecha || ''}</td>
+      <td>${escapeHtml(g.categoria || '—')}</td>
+      <td>${escapeHtml(g.descripcion || '—')}</td>
+      <td>${escapeHtml(g.comprobante_tipo || '')} ${escapeHtml(g.comprobante_numero || '')}</td>
+      <td style="text-align:right;font-weight:600">${fmtMoney(g.monto)}</td>
+      <td><button class="btn ghost" onclick="eliminarGasto(${g.id})">🗑</button></td>
+    </tr>
+  `).join('');
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+async function eliminarGasto(id) {
+  if (!confirm('¿Eliminar este gasto?')) return;
+  const res = await fetchAuth(`/api/v1/tributario/gastos/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    cargarGastos();
+    cargarResumen();
+  }
+}
+
+// ─── Cargar historial ───
+async function cargarHistorial() {
+  const grid = document.getElementById('historial-grid');
+  const tbody = document.getElementById('historial-tbody');
+  grid.innerHTML = `<div class="empty">Cargando…</div>`;
+  tbody.innerHTML = `<tr><td colspan="5" class="empty">Cargando…</td></tr>`;
+
+  const res = await fetchAuth('/api/v1/tributario/historial?meses=6');
+  if (!res.ok) {
+    grid.innerHTML = `<div class="empty">Error al cargar</div>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">Error</td></tr>`;
+    return;
+  }
+  const data = await res.json();
+  const items = (data.historial || []).slice().reverse(); // más antiguo primero
+
+  if (!items.length) {
+    grid.innerHTML = `<div class="empty">Sin historial</div>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">Sin registros</td></tr>`;
+    return;
+  }
+
+  const maxV = Math.max(...items.map(i => Math.max(i.ventas, i.impuesto * 30, 1)));
+  grid.innerHTML = items.map(i => {
+    const hV = (i.ventas / maxV) * 100;
+    const hI = (i.impuesto * 30 / maxV) * 100;
+    return `
+      <div class="hist-bar">
+        <div class="bar-pair">
+          <div class="b-ventas" style="height:${hV}%" title="Ventas: ${fmtMoney(i.ventas)}"></div>
+          <div class="b-impuesto" style="height:${hI}%" title="Impuesto: ${fmtMoney(i.impuesto)}"></div>
+        </div>
+        <div>${i.periodo}</div>
+      </div>
+    `;
+  }).join('');
+
+  tbody.innerHTML = items.slice().reverse().map(i => `
+    <tr>
+      <td>${i.periodo}</td>
+      <td style="text-align:right">${fmtMoney(i.ventas)}</td>
+      <td style="text-align:right;font-weight:600">${fmtMoney(i.impuesto)}</td>
+      <td>${i.fecha_vencimiento}</td>
+      <td>
+        <span style="color:${i.estado==='vencido'?'var(--rojo)':'var(--naranja)'}">
+          ${i.estado === 'vencido' ? '🔴 Vencido' : '⏳ Pendiente'}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ─── Tabs ───
+function setTab(name) {
+  document.querySelectorAll('.tabs .tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c =>
+    c.classList.toggle('active', c.dataset.tab === name));
+  if (name === 'historial') cargarHistorial();
+}
+
+// ─── Modal Gasto ───
+function abrirModalGasto() {
+  document.getElementById('modalGasto').classList.add('show');
+  document.getElementById('gasto-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('gasto-desc').value = '';
+  document.getElementById('gasto-monto').value = '';
+  document.getElementById('gasto-doc-tipo').value = '';
+  document.getElementById('gasto-doc-num').value = '';
+}
+function cerrarModalGasto() {
+  document.getElementById('modalGasto').classList.remove('show');
+}
+
+async function agregarGasto() {
+  const monto = parseFloat(document.getElementById('gasto-monto').value || 0);
+  if (!monto || monto <= 0) {
+    alert('Ingresa un monto válido');
+    return;
+  }
+  const payload = {
+    fecha: document.getElementById('gasto-fecha').value,
+    categoria: document.getElementById('gasto-cat').value,
+    descripcion: document.getElementById('gasto-desc').value,
+    monto: monto,
+    comprobante_tipo: document.getElementById('gasto-doc-tipo').value || null,
+    comprobante_numero: document.getElementById('gasto-doc-num').value || null,
+  };
+  const res = await fetchAuth('/api/v1/tributario/gastos', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  if (res.ok) {
+    cerrarModalGasto();
+    cargarGastos();
+    cargarResumen();
+  } else {
+    alert('Error al guardar el gasto');
+  }
+}
+
+// ─── Modal Config ───
+async function abrirModalConfig() {
+  document.getElementById('modalConfig').classList.add('show');
+  // Cargar config actual
+  const res = await fetchAuth('/api/v1/tributario/config');
+  if (res.ok) {
+    const d = await res.json();
+    document.getElementById('select-regimen').value = d.regimen_tributario || 'RUS';
+    document.getElementById('select-categoria').value = d.categoria_rus || '1';
+    if (d.fecha_inicio_actividades)
+      document.getElementById('config-fecha-inicio').value = d.fecha_inicio_actividades;
+    if (d.ultimo_digito_ruc !== null && d.ultimo_digito_ruc !== undefined)
+      document.getElementById('config-ult-digito').value = d.ultimo_digito_ruc;
+    onChangeRegimen();
+  }
+}
+function cerrarModalConfig() {
+  document.getElementById('modalConfig').classList.remove('show');
+}
+function onChangeRegimen() {
+  const r = document.getElementById('select-regimen').value;
+  document.getElementById('cat-rus-wrapper').style.display = (r === 'RUS') ? 'flex' : 'none';
+}
+async function configurarRegimen() {
+  const ult = document.getElementById('config-ult-digito').value;
+  const payload = {
+    regimen_tributario: document.getElementById('select-regimen').value,
+    categoria_rus: document.getElementById('select-categoria').value,
+    fecha_inicio_actividades: document.getElementById('config-fecha-inicio').value || null,
+    ultimo_digito_ruc: ult === '' ? null : parseInt(ult, 10),
+  };
+  const res = await fetchAuth('/api/v1/tributario/config', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  if (res.ok) {
+    cerrarModalConfig();
+    cargarResumen();
+  } else {
+    const err = await res.text();
+    alert('Error: ' + err);
+  }
+}
+
+// ─── Recordarme ───
+async function recordarme() {
+  const res = await fetchAuth('/api/v1/tributario/notificar', { method: 'POST' });
+  if (res.ok) {
+    const d = await res.json();
+    alert(d.enviadas
+      ? '✅ Recordatorio enviado a tus dispositivos'
+      : '✅ Recordatorio activado. Te avisaremos cuando se acerque el vencimiento.');
+  }
+}
+
+// ─── Exportar ───
+function exportarResumen() {
+  window.print();
+}
+
+// ─── Init ───
+document.addEventListener('DOMContentLoaded', () => {
+  actualizarPeriodoLabel();
+  cargarResumen();
+  cargarGastos();
+});
+</script>
+</body>
+</html>
