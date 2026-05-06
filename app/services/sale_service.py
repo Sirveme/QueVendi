@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.sale import Sale, SaleItem
 from app.models.product import Product
 from app.models.user import User
+from app.models.inventory import InventoryMovement
 import pytz
 
 # Timezone de Perú
@@ -79,7 +80,24 @@ class SaleService:
                 # Actualizar el stock del producto
                 product = self.db.query(Product).filter(Product.id == item['product_id']).first()
                 if product:
-                    product.stock = (product.stock or 0) - Decimal(str(item['quantity']))
+                    qty = Decimal(str(item['quantity']))
+                    stock_before = Decimal(str(product.stock or 0))
+                    product.stock = stock_before - qty
+
+                    # Registrar movimiento de inventario (Kardex)
+                    self.db.add(InventoryMovement(
+                        store_id=store_id,
+                        product_id=product.id,
+                        user_id=user_id,
+                        movement_type='salida_venta',
+                        quantity=-qty,
+                        cost_price=Decimal(str(product.cost_price or 0)),
+                        reference_type='sale',
+                        reference_id=sale.id,
+                        stock_before=stock_before,
+                        stock_after=product.stock,
+                        notes=f"Venta #{sale.id}",
+                    ))
             
             self.db.commit()
             self.db.refresh(sale)
@@ -205,7 +223,24 @@ class SaleService:
             for item in sale.items:
                 product = self.db.query(Product).filter(Product.id == item.product_id).first()
                 if product:
-                    product.stock = (product.stock or 0) + Decimal(str(item.quantity))
+                    qty = Decimal(str(item.quantity))
+                    stock_before = Decimal(str(product.stock or 0))
+                    product.stock = stock_before + qty
+
+                    # Movimiento de devolución (entrada por anulación)
+                    self.db.add(InventoryMovement(
+                        store_id=sale.store_id,
+                        product_id=product.id,
+                        user_id=sale.user_id,
+                        movement_type='entrada_devolucion',
+                        quantity=qty,
+                        cost_price=Decimal(str(product.cost_price or 0)),
+                        reference_type='sale_delete',
+                        reference_id=sale.id,
+                        stock_before=stock_before,
+                        stock_after=product.stock,
+                        notes=f"Anulación venta #{sale.id}",
+                    ))
             
             # Eliminar los items primero (por la foreign key)
             self.db.query(SaleItem).filter(SaleItem.sale_id == sale_id).delete()
