@@ -170,19 +170,6 @@ async def kardex_producto(
     # Final del día para fecha_fin inclusivo
     ff_inclusive = ff.replace(hour=23, minute=59, second=59)
 
-    # Saldo inicial = saldo justo antes de fi
-    saldo_inicial = (
-        db.query(InventoryMovement)
-        .filter(
-            InventoryMovement.product_id == product_id,
-            InventoryMovement.store_id == store_id,
-            InventoryMovement.occurred_at < fi,
-        )
-        .order_by(InventoryMovement.occurred_at.desc(), InventoryMovement.id.desc())
-        .first()
-    )
-    saldo = _to_float(saldo_inicial.stock_after) if saldo_inicial else 0.0
-
     movs: List[InventoryMovement] = (
         db.query(InventoryMovement)
         .filter(
@@ -195,7 +182,14 @@ async def kardex_producto(
         .all()
     )
 
-    saldo_corriente = saldo
+    # Saldo inicial = stock_before del primer movimiento del período.
+    # Si no hay movimientos, usar el stock actual del producto.
+    if movs:
+        saldo_inicial = _to_float(movs[0].stock_before)
+    else:
+        saldo_inicial = _to_float(product.stock)
+
+    saldo = saldo_inicial
     total_entradas = 0.0
     total_salidas = 0.0
     out_movs = []
@@ -210,7 +204,9 @@ async def kardex_producto(
             entrada = 0.0
             salida = round(-cantidad, 3)
             total_salidas += -cantidad
-        saldo_corriente += cantidad
+
+        # Usar el stock_after real grabado en el movimiento
+        saldo = _to_float(m.stock_after)
 
         out_movs.append({
             "id": m.id,
@@ -223,13 +219,13 @@ async def kardex_producto(
             ),
             "entrada": entrada or None,
             "salida": salida or None,
-            "saldo": round(saldo_corriente, 3),
+            "saldo": round(saldo, 3),
             "costo_unitario": round(cost_unit, 2),
-            "valor_saldo": round(saldo_corriente * cost_unit, 2),
+            "valor_saldo": round(saldo * cost_unit, 2),
             "notes": m.notes,
         })
 
-    saldo_final = saldo_corriente
+    saldo_final = saldo
     cost_actual = _to_float(product.cost_price)
     valor_inventario_final = round(saldo_final * cost_actual, 2)
 
@@ -243,7 +239,7 @@ async def kardex_producto(
         },
         "fecha_inicio": fi.date().isoformat(),
         "fecha_fin": ff.date().isoformat(),
-        "saldo_inicial": round(saldo, 3),
+        "saldo_inicial": round(saldo_inicial, 3),
         "saldo_final": round(saldo_final, 3),
         "total_entradas": round(total_entradas, 3),
         "total_salidas": round(total_salidas, 3),
