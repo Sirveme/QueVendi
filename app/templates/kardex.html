@@ -261,7 +261,7 @@
               <th>Referencia</th>
               <th style="text-align:right">Entrada</th>
               <th style="text-align:right">Salida</th>
-              <th style="text-align:right">Saldo</th>
+              <th id="th-saldo" style="text-align:right">Saldo</th>
               <th style="text-align:right">Valor</th>
             </tr>
           </thead>
@@ -369,6 +369,10 @@ async function cargarKardexDetalle() {
   );
   if (!res.ok) return;
   const data = await res.json();
+
+  const unit = (data.producto && data.producto.unit) || '';
+  document.getElementById('th-saldo').textContent =
+    unit ? `Saldo (${unit})` : 'Saldo';
 
   document.getElementById('saldo-inicial').textContent =
     parseFloat(data.saldo_inicial||0).toFixed(3);
