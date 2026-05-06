@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kardex · QueVendi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --verde: #22c55e;
+    --naranja: #f59e0b;
+    --rojo: #ef4444;
+    --azul: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .topbar a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .topbar a:hover { color: var(--text); }
+
+  .kardex-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: calc(100vh - 49px);
+    overflow: hidden;
+  }
+  .producto-list {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .producto-search {
+    padding: 12px;
+    position: sticky; top: 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    z-index: 1;
+  }
+  .producto-search input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  .producto-search input:focus { border-color: var(--azul); }
+  .producto-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  .producto-item:hover { background: rgba(255,255,255,0.04); }
+  .producto-item.active {
+    background: rgba(59,130,246,0.15);
+    border-left: 3px solid var(--azul);
+  }
+  .producto-name { font-size: 14px; font-weight: 600; }
+  .producto-meta {
+    font-size: 12px; color: var(--text-secondary);
+    display: flex; justify-content: space-between;
+    margin-top: 3px;
+  }
+  .stock-ok { color: var(--verde); }
+  .stock-low { color: var(--naranja); }
+  .stock-zero { color: var(--rojo); }
+
+  .kardex-panel {
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+  .kardex-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; gap: 16px; flex-wrap: wrap;
+  }
+  .kardex-header h2 { margin: 0; font-size: 22px; }
+  .periodo-selector {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .periodo-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .periodo-btn:hover { background: #233149; }
+  .periodo-display {
+    font-size: 16px; font-weight: 700;
+  }
+
+  .resumen-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .resumen-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .resumen-card .label {
+    font-size: 11px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .resumen-card .value {
+    font-size: 20px; font-weight: 700; margin-top: 4px;
+  }
+
+  .kardex-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kardex-table th {
+    background: #1a2744;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kardex-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .kardex-table .entrada { color: var(--verde); }
+  .kardex-table .salida { color: var(--rojo); }
+
+  .panel-actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 16px;
+  }
+  .btn {
+    background: var(--azul);
+    color: white;
+    border: 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: #2563eb; }
+  .btn.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+  }
+  .btn.secondary:hover { background: rgba(255,255,255,0.04); }
+
+  @media (max-width: 900px) {
+    .kardex-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+    .producto-list {
+      max-height: 280px;
+      border-right: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .resumen-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>📦 Kardex de Inventario</h1>
+    <a href="/dashboard">‹ Volver</a>
+  </div>
+
+  <div class="kardex-layout">
+    <aside class="producto-list">
+      <div class="producto-search">
+        <input id="buscar" placeholder="Buscar producto o categoría…" oninput="filtrarProductos(this.value)" />
+      </div>
+      <div id="producto-list">
+        <div style="padding:20px;color:#94a3b8;text-align:center;font-size:13px;">Cargando…</div>
+      </div>
+    </aside>
+
+    <main class="kardex-panel">
+      <div class="kardex-header">
+        <h2 id="kardex-titulo">Selecciona un producto</h2>
+        <div class="periodo-selector">
+          <button class="periodo-btn" onclick="cambiarPeriodo(-1)">‹</button>
+          <div class="periodo-display" id="periodo-display"></div>
+          <button class="periodo-btn" onclick="cambiarPeriodo(1)">›</button>
+        </div>
+      </div>
+
+      <div class="resumen-bar">
+        <div class="resumen-card">
+          <div class="label">Saldo inicial</div>
+          <div class="value" id="saldo-inicial">0.000</div>
+        </div>
+        <div class="resumen-card">
+          <div class="label">Entradas</div>
+          <div class="value" id="total-entradas" style="color:var(--verde)">0.000</div>
+        </div>
+        <div class="resumen-card">
+          <div class="label">Salidas</div>
+          <div class="value" id="total-salidas" style="color:var(--rojo)">0.000</div>
+        </div>
+        <div class="resumen-card">
+          <div class="label">Valor inventario</div>
+          <div class="value" id="valor-final">S/ 0.00</div>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="kardex-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Referencia</th>
+              <th style="text-align:right">Entrada</th>
+              <th style="text-align:right">Salida</th>
+              <th style="text-align:right">Saldo</th>
+              <th style="text-align:right">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="kardex-tbody">
+            <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">
+              Selecciona un producto para ver su Kardex.
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
+      </div>
+    </main>
+  </div>
+
+<script>
+const token = localStorage.getItem('token') ||
+              localStorage.getItem('access_token') || '';
+let currentProductId = null;
+let currentMes = new Date().getMonth() + 1;
+let currentAnio = new Date().getFullYear();
+let allProductos = [];
+
+const meses = ['Enero','Febrero','Marzo','Abril','Mayo',
+  'Junio','Julio','Agosto','Septiembre','Octubre',
+  'Noviembre','Diciembre'];
+
+async function fetchKardex(url) {
+  const res = await fetch(url, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (res.status === 401) {
+    window.location.href = '/auth/login';
+  }
+  return res;
+}
+
+async function cargarProductos() {
+  const res = await fetchKardex('/api/v1/kardex/productos');
+  if (!res.ok) return;
+  allProductos = await res.json();
+  renderProductos(allProductos);
+  if (allProductos.length) {
+    seleccionarProducto(allProductos[0].id, allProductos[0].name);
+  }
+}
+
+function renderProductos(productos) {
+  const list = document.getElementById('producto-list');
+  if (!productos.length) {
+    list.innerHTML = '<div style="padding:20px;color:#94a3b8;text-align:center">Sin productos</div>';
+    return;
+  }
+  list.innerHTML = productos.map(p => {
+    const stockClass = p.stock <= 0 ? 'stock-zero' :
+      (p.min_stock_alert && p.stock <= p.min_stock_alert)
+        ? 'stock-low' : 'stock-ok';
+    const stockIcon = p.stock <= 0 ? '🔴' :
+      (p.min_stock_alert && p.stock <= p.min_stock_alert)
+        ? '⚠️' : '✓';
+    const safeName = (p.name || '').replace(/'/g, "\\'");
+    return `
+      <div class="producto-item ${currentProductId === p.id ? 'active' : ''}"
+           onclick="seleccionarProducto(${p.id}, '${safeName}')"
+           data-id="${p.id}">
+        <div class="producto-name">${p.name}</div>
+        <div class="producto-meta">
+          <span>${p.category || 'Sin categoría'}</span>
+          <span class="${stockClass}">
+            ${stockIcon} ${parseFloat(p.stock||0).toFixed(2)} ${p.unit||''}
+            · S/ ${parseFloat(p.valor_inventario||0).toFixed(2)}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filtrarProductos(q) {
+  const lower = (q || '').toLowerCase();
+  const filtrados = allProductos.filter(p =>
+    (p.name || '').toLowerCase().includes(lower) ||
+    (p.category || '').toLowerCase().includes(lower)
+  );
+  renderProductos(filtrados);
+}
+
+async function seleccionarProducto(productId, productName) {
+  currentProductId = productId;
+  document.getElementById('kardex-titulo').textContent = productName;
+  document.querySelectorAll('.producto-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.id == productId));
+  await cargarKardexDetalle();
+}
+
+async function cargarKardexDetalle() {
+  if (!currentProductId) return;
+  const inicio = `${currentAnio}-${String(currentMes).padStart(2,'0')}-01`;
+  const fin = new Date(currentAnio, currentMes, 0).toISOString().slice(0,10);
+
+  const res = await fetchKardex(
+    `/api/v1/kardex/producto/${currentProductId}?fecha_inicio=${inicio}&fecha_fin=${fin}`
+  );
+  if (!res.ok) return;
+  const data = await res.json();
+
+  document.getElementById('saldo-inicial').textContent =
+    parseFloat(data.saldo_inicial||0).toFixed(3);
+  document.getElementById('total-entradas').textContent =
+    parseFloat(data.total_entradas||0).toFixed(3);
+  document.getElementById('total-salidas').textContent =
+    parseFloat(data.total_salidas||0).toFixed(3);
+  document.getElementById('valor-final').textContent =
+    `S/ ${parseFloat(data.valor_inventario_final||0).toFixed(2)}`;
+
+  const tbody = document.getElementById('kardex-tbody');
+  if (!data.movimientos || !data.movimientos.length) {
+    tbody.innerHTML = `<tr><td colspan="7"
+      style="text-align:center;color:#94a3b8;padding:24px">
+      Sin movimientos en este período</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.movimientos.map(m => `
+    <tr>
+      <td>${(m.fecha || '').slice(0,10)}</td>
+      <td>${formatTipo(m.tipo_movimiento)}</td>
+      <td>${m.referencia || ''}</td>
+      <td class="entrada" style="text-align:right">
+        ${m.entrada ? '+' + parseFloat(m.entrada).toFixed(3) : ''}
+      </td>
+      <td class="salida" style="text-align:right">
+        ${m.salida ? '-' + parseFloat(m.salida).toFixed(3) : ''}
+      </td>
+      <td style="text-align:right;font-weight:600">
+        ${parseFloat(m.saldo).toFixed(3)}
+      </td>
+      <td style="text-align:right;color:#94a3b8">
+        S/ ${parseFloat(m.valor_saldo||0).toFixed(2)}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function formatTipo(tipo) {
+  const map = {
+    'salida_venta': '🛒 Venta',
+    'entrada_compra': '📦 Compra',
+    'entrada_devolucion': '↩️ Devolución',
+    'salida_ajuste': '📉 Ajuste baja',
+    'entrada_ajuste': '📈 Ajuste alta',
+    'entrada_inicial': '🏁 Stock inicial',
+  };
+  return map[tipo] || tipo;
+}
+
+function cambiarPeriodo(delta) {
+  currentMes += delta;
+  if (currentMes > 12) { currentMes = 1; currentAnio++; }
+  if (currentMes < 1)  { currentMes = 12; currentAnio--; }
+  document.getElementById('periodo-display').textContent =
+    `${meses[currentMes-1]} ${currentAnio}`;
+  if (currentProductId) cargarKardexDetalle();
+}
+
+function exportarCSV() {
+  if (!currentProductId) {
+    alert('Selecciona un producto primero');
+    return;
+  }
+  const inicio = `${currentAnio}-${String(currentMes).padStart(2,'0')}-01`;
+  const fin = new Date(currentAnio, currentMes, 0).toISOString().slice(0,10);
+  window.location.href =
+    `/api/v1/kardex/export-csv?product_id=${currentProductId}&fecha_inicio=${inicio}&fecha_fin=${fin}&token=${token}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('periodo-display').textContent =
+    `${meses[currentMes-1]} ${currentAnio}`;
+  cargarProductos();
+});
+</script>
+</body>
+</html>
