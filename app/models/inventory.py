@@ -24,9 +24,16 @@ class InventoryMovement(Base):
     movement_type = Column(String(30), nullable=False)
     quantity = Column(Numeric(10, 3), nullable=False)
     cost_price = Column(Numeric(10, 2), nullable=True)
+    costo_total = Column(Numeric(12, 2), nullable=True)
 
     reference_type = Column(String(50), nullable=True)
     reference_id = Column(Integer, nullable=True)
+
+    # Documento que sustenta el movimiento (Boleta, Factura, Ticket, Ajuste, etc.)
+    doc_tipo = Column(String(30), nullable=True)
+    doc_numero = Column(String(50), nullable=True)
+    glosa = Column(Text, nullable=True)
+    user_name = Column(String(150), nullable=True)
 
     stock_before = Column(Numeric(10, 3), nullable=False)
     stock_after = Column(Numeric(10, 3), nullable=False)
