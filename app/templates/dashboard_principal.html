@@ -1107,11 +1107,11 @@ document.addEventListener('keydown', function(e) {
           <h3 style="margin:0;font-size:18px;">Mi Contador</h3>
           <button onclick="cerrarModalContador()" style="background:transparent;border:0;font-size:22px;cursor:pointer;color:#64748b;">&times;</button>
         </div>
-        <p style="color:#64748b;font-size:13px;margin:0 0 14px;">Invita al contador por email. Recibirá acceso a tu Libro de Ventas tras aceptar.</p>
+        <p style="color:#64748b;font-size:13px;margin:0 0 14px;">Invita a tu contador a ver tu Libro de Ventas. Se generará un link que puedes enviar por WhatsApp.</p>
 
         <div style="display:flex;gap:8px;margin-bottom:14px;">
           <input type="text" id="contador-contacto"
-                 placeholder="WhatsApp o email del contador"
+                 placeholder="WhatsApp o DNI del contador"
                  style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit;" />
           <button onclick="invitarContador()"
                   style="background:#3b82f6;color:white;border:0;padding:10px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;">
@@ -1131,15 +1131,12 @@ document.addEventListener('keydown', function(e) {
                    style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;background:white;font-family:inherit;" />
             <button onclick="copiarLinkContador()"
                     style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;font-weight:600;">
-              Copiar
+              📋 Copiar link
             </button>
           </div>
           <a id="contadorWaBtn" href="#" target="_blank" rel="noopener"
              style="display:flex;align-items:center;justify-content:center;gap:8px;background:#22c55e;color:white;border-radius:8px;padding:10px 14px;font-weight:600;font-size:14px;text-decoration:none;">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-              <path d="M19.1 17.3c-.3-.1-1.6-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.4-.8-2-.2-.5-.4-.4-.6-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1.1 1-1.1 2.4 0 1.4 1.1 2.8 1.2 3 .1.2 2.1 3.4 5.2 4.7 2.6 1 3 .9 3.6.8.6-.1 1.6-.7 1.9-1.3.2-.6.2-1.1.2-1.3 0-.2-.2-.2-.5-.4zM16 4C9.4 4 4 9.4 4 16c0 2.1.5 4.1 1.6 5.9L4 28l6.3-1.6c1.7.9 3.7 1.5 5.7 1.5 6.6 0 12-5.4 12-12S22.6 4 16 4z"/>
-            </svg>
-            Abrir WhatsApp
+            📲 Enviar por WhatsApp
           </a>
         </div>
 
@@ -1242,7 +1239,7 @@ document.addEventListener('keydown', function(e) {
         linkBox.style.display = 'none';
         msg.textContent = '';
 
-        if (!contacto) { msg.textContent = 'Ingresa un WhatsApp o email'; msg.style.color = '#ef4444'; return; }
+        if (!contacto) { msg.textContent = 'Ingresa un WhatsApp o DNI'; msg.style.color = '#ef4444'; return; }
         if (!storeId) { msg.textContent = 'No se pudo identificar la tienda'; msg.style.color = '#ef4444'; return; }
 
         try {
@@ -1252,7 +1249,7 @@ document.addEventListener('keydown', function(e) {
               'Authorization': 'Bearer ' + getToken(),
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email_o_whatsapp: contacto })
+            body: JSON.stringify({ contacto })
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
