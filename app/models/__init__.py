@@ -14,6 +14,7 @@ from app.models.credit import Credit, CreditPayment
 from app.models.billing import StoreBillingConfig, Comprobante
 from app.models.mensajes import Mensaje
 from app.models.contador import Contador, ContadorStore, ContadorPermiso
+from app.models.inventory import InventoryMovement
 
 __all__ = [
     "Store",
@@ -40,4 +41,5 @@ __all__ = [
     "Contador",
     "ContadorStore",
     "ContadorPermiso",
+    "InventoryMovement",
 ]
