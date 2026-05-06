@@ -64,6 +64,7 @@ from app.api.v1 import (
     billing,
     onboarding,
     kardex,
+    purchases,
 )
 from app.routers import lite
 
@@ -202,6 +203,7 @@ app.include_router(chat.api_router, prefix="/api/v1", tags=["chat"])
 app.include_router(contador_auth.router, prefix="/contador", tags=["contador-auth"])
 app.include_router(contador.router, prefix="/contador", tags=["contador"])
 app.include_router(kardex.router, prefix="/api/v1", tags=["kardex"])
+app.include_router(purchases.router, prefix="/api/v1", tags=["purchases"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -447,6 +449,14 @@ async def chat_page(request: Request):
 @app.get("/kardex", response_class=HTMLResponse)
 async def kardex_page(request: Request):
     return templates.TemplateResponse("kardex.html", {"request": request})
+
+
+# ========================================
+# COMPRAS
+# ========================================
+@app.get("/compras", response_class=HTMLResponse)
+async def compras_page(request: Request):
+    return templates.TemplateResponse("compras.html", {"request": request})
 
 
 # ========================================
