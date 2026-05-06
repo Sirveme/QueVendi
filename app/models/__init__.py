@@ -15,6 +15,8 @@ from app.models.billing import StoreBillingConfig, Comprobante
 from app.models.mensajes import Mensaje
 from app.models.contador import Contador, ContadorStore, ContadorPermiso
 from app.models.inventory import InventoryMovement
+from app.models.supplier import Supplier
+from app.models.purchase import Purchase, PurchaseItem
 
 __all__ = [
     "Store",
@@ -42,4 +44,7 @@ __all__ = [
     "ContadorStore",
     "ContadorPermiso",
     "InventoryMovement",
+    "Supplier",
+    "Purchase",
+    "PurchaseItem",
 ]
