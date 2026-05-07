@@ -19,9 +19,11 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 from app.core.database import get_db
+from app.core.config import settings
 from app.api.dependencies import get_current_user
 from app.models.product import Product
 from app.models.inventory import InventoryMovement
+from app.models.sale import Sale
 from app.models.user import User
 from app.services.auth_service import AuthService
 
@@ -820,3 +822,136 @@ async def exportar_corte(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# GET /kardex/sugerencia-ia — Agente de Salud Comercial (primer ladrillo)
+# Genera 3 sugerencias concretas con GPT-4o-mini a partir del corte actual,
+# ventas del último mes y productos sin movimiento.
+# ──────────────────────────────────────────────────────────────────────────
+@router.get("/sugerencia-ia")
+async def sugerencia_inventario_ia(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not settings.OPENAI_API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY no configurada en el servidor",
+        )
+
+    store_id = current_user.store_id
+
+    corte = _compute_corte(db, store_id, fecha=None, categoria=None)
+
+    hace_30 = datetime.now(timezone.utc) - timedelta(days=30)
+
+    ventas_mes = (
+        db.query(func.sum(Sale.total))
+        .filter(
+            Sale.store_id == store_id,
+            Sale.sale_date >= hace_30,
+            Sale.status != "cancelled",
+        )
+        .scalar()
+        or 0
+    )
+
+    productos_sin_mov: List[str] = []
+    for p in corte["productos"]:
+        if p["stock"] <= 0:
+            continue
+        ultimo_mov = (
+            db.query(InventoryMovement.id)
+            .filter(
+                InventoryMovement.store_id == store_id,
+                InventoryMovement.product_id == p["product_id"],
+                InventoryMovement.occurred_at >= hace_30,
+            )
+            .first()
+        )
+        if not ultimo_mov:
+            productos_sin_mov.append(p["name"])
+
+    cats_lines = []
+    for c in corte["por_categoria"][:5]:
+        bajo = (
+            f", {c['stock_bajo']} con stock bajo"
+            if c["stock_bajo"] else ""
+        )
+        cats_lines.append(
+            f"- {c['categoria']}: S/ {c['valor_total']:.2f} "
+            f"({c['num_productos']} productos{bajo})"
+        )
+    cats_str = "\n".join(cats_lines) if cats_lines else "- (sin categorías)"
+
+    sin_mov_str = ", ".join(productos_sin_mov[:5]) if productos_sin_mov else "Ninguno"
+
+    stock_bajo_nombres = [p["name"] for p in corte["productos"] if p["stock_bajo"]][:5]
+    stock_bajo_str = ", ".join(stock_bajo_nombres) if stock_bajo_nombres else "Ninguno"
+
+    contexto = f"""
+Negocio: store #{store_id}
+Fecha: {datetime.now().strftime('%d/%m/%Y')}
+
+INVENTARIO ACTUAL:
+- Total productos: {corte['total_productos']}
+- Valor total inventario: S/ {corte['total_valor_inventario']:.2f}
+- Ventas último mes: S/ {float(ventas_mes):.2f}
+
+POR CATEGORÍA (de mayor a menor inversión):
+{cats_str}
+
+PRODUCTOS SIN MOVIMIENTO EN 30 DÍAS (stock > 0):
+{sin_mov_str}
+
+ALERTAS DE STOCK BAJO:
+{stock_bajo_str}
+"""
+
+    try:
+        import openai
+        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres un asesor experto en gestión de inventarios para "
+                        "pequeños negocios peruanos (bodegas, minimarkets, "
+                        "depósitos). Das consejos concretos, prácticos y en "
+                        "español simple.\n"
+                        "Máximo 3 sugerencias. Formato:\n"
+                        "🔴/🟡/🟢 [URGENCIA] [Título corto]\n"
+                        "[1-2 oraciones explicando qué hacer y por qué]\n"
+                        "Sin preámbulos. Directo al punto."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        "Analiza este inventario y dame 3 sugerencias "
+                        f"concretas:\n{contexto}"
+                    ),
+                },
+            ],
+            max_tokens=400,
+        )
+        sugerencia = response.choices[0].message.content
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"No se pudo generar el análisis: {e}",
+        )
+
+    return {
+        "sugerencia": sugerencia,
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "contexto_usado": {
+            "total_valor": corte["total_valor_inventario"],
+            "ventas_mes": float(ventas_mes),
+            "productos_sin_mov": len(productos_sin_mov),
+            "stock_bajo": sum(1 for p in corte["productos"] if p["stock_bajo"]),
+        },
+    }
