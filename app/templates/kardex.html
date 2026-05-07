@@ -193,6 +193,16 @@
   }
   .btn.secondary:hover { background: rgba(255,255,255,0.04); }
 
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.4s ease both; }
+
   .kardex-tabs {
     display: flex;
     gap: 8px;
@@ -348,34 +358,90 @@
 
   <div id="panel-corte" style="display:none;padding:20px 24px">
 
-    <div style="display:flex;align-items:flex-end;gap:12px;
-                margin-bottom:20px;flex-wrap:wrap">
-      <div>
-        <label style="font-size:12px;color:#94a3b8;
-                      display:block;margin-bottom:4px">
-          Fecha y hora del corte
-        </label>
-        <input type="datetime-local" id="corte-fecha"
-               style="background:#1e293b;border:1px solid #334155;
-                      color:#f1f5f9;padding:8px 12px;
-                      border-radius:8px;font-size:14px;
-                      font-family:inherit">
+    <div id="corte-inicial" style="text-align:center;
+         padding:48px 24px">
+      <div style="font-size:48px;margin-bottom:16px">🤖</div>
+      <h2 style="font-size:20px;font-weight:600;
+                 color:#f1f5f9;margin-bottom:8px">
+        Análisis de Inventario
+      </h2>
+      <p style="color:#94a3b8;font-size:14px;
+                max-width:400px;margin:0 auto 28px;
+                line-height:1.6">
+        Obtén sugerencias personalizadas basadas en
+        tu inventario, ventas y tendencias del negocio.
+      </p>
+      <button onclick="iniciarAnalisis()"
+              id="btn-analizar-main"
+              style="background:linear-gradient(135deg,
+                     #3b82f6,#1d4ed8);
+                     color:white;border:none;
+                     padding:16px 48px;
+                     border-radius:14px;
+                     font-size:16px;font-weight:700;
+                     cursor:pointer;
+                     box-shadow:0 4px 20px rgba(59,130,246,0.4);
+                     transition:all 0.2s;
+                     letter-spacing:0.3px;
+                     font-family:inherit">
+        ✨ Evaluar mi Inventario
+      </button>
+      <div style="margin-top:16px;font-size:12px;
+                  color:#64748b">
+        Análisis con IA · Basado en tus datos reales
       </div>
-      <button onclick="cargarCorte(false)"
-              style="background:#3b82f6;color:white;border:none;
-                     padding:10px 20px;border-radius:8px;
-                     font-weight:600;cursor:pointer">
-        Ver corte
-      </button>
-      <button onclick="cargarCorte(true)"
-              style="background:#22c55e;color:white;border:none;
-                     padding:10px 20px;border-radius:8px;
-                     font-weight:600;cursor:pointer">
-        📸 Ahora
-      </button>
     </div>
 
-    <div id="corte-info" style="display:none">
+    <div id="corte-loading" style="display:none;
+         text-align:center;padding:48px 24px">
+      <div style="font-size:36px;margin-bottom:16px;
+                  animation:spin 2s linear infinite;
+                  display:inline-block">⚙️</div>
+      <div style="font-size:16px;font-weight:600;
+                  color:#f1f5f9;margin-bottom:8px"
+           id="loading-texto">
+        Evaluando tu inventario...
+      </div>
+      <div style="font-size:13px;color:#94a3b8"
+           id="loading-subtexto">
+        Analizando movimientos y ventas del último mes
+      </div>
+    </div>
+
+    <div id="corte-resultado" style="display:none">
+
+      <div style="display:flex;justify-content:flex-end;
+                  align-items:flex-end;gap:8px;
+                  margin-bottom:16px;flex-wrap:wrap">
+        <div>
+          <label style="font-size:11px;color:#64748b;
+                        display:block;margin-bottom:4px">
+            Cambiar fecha del corte
+          </label>
+          <input type="datetime-local" id="corte-fecha"
+                 style="background:#1e293b;border:1px solid #334155;
+                        color:#f1f5f9;padding:6px 10px;
+                        border-radius:8px;font-size:13px;
+                        font-family:inherit">
+        </div>
+        <button onclick="iniciarAnalisis(false)"
+                style="background:transparent;color:#94a3b8;
+                       border:1px solid #334155;
+                       padding:7px 14px;border-radius:8px;
+                       font-size:13px;cursor:pointer;
+                       font-family:inherit">
+          Ver corte
+        </button>
+        <button onclick="iniciarAnalisis(true)"
+                style="background:transparent;color:#94a3b8;
+                       border:1px solid #334155;
+                       padding:7px 14px;border-radius:8px;
+                       font-size:13px;cursor:pointer;
+                       font-family:inherit">
+          📸 Ahora
+        </button>
+      </div>
+
       <div style="display:grid;grid-template-columns:repeat(3,1fr);
                   gap:12px;margin-bottom:20px">
         <div class="resumen-card">
@@ -504,34 +570,15 @@
                           color:#f1f5f9">
                 Análisis de tu inventario
               </div>
-              <div style="font-size:12px;color:#94a3b8">
+              <div style="font-size:12px;color:#94a3b8"
+                   id="sugerencia-meta">
                 Sugerencias basadas en tus datos reales
               </div>
             </div>
           </div>
-          <button onclick="cargarSugerenciaIA()"
-                  id="btn-sugerencia"
-                  style="background:#3b82f6;color:white;
-                         border:none;padding:8px 16px;
-                         border-radius:8px;font-size:13px;
-                         font-weight:600;cursor:pointer;
-                         font-family:inherit">
-            ✨ Analizar
-          </button>
         </div>
 
-        <div id="sugerencia-contenido"
-             style="color:#94a3b8;font-size:13px;
-                    font-style:italic">
-          Toca "Analizar" para obtener sugerencias
-          personalizadas basadas en tu inventario actual.
-        </div>
-
-        <div id="sugerencia-loading" style="display:none;
-             text-align:center;padding:16px;color:#94a3b8;
-             font-size:13px">
-          ⏳ Analizando tu inventario...
-        </div>
+        <div id="sugerencia-contenido"></div>
 
       </div>
 
@@ -582,6 +629,32 @@
       </div>
     </div>
 
+  </div>
+
+  <div id="modal-concepto"
+       style="display:none;position:fixed;
+              inset:0;background:rgba(0,0,0,0.7);
+              z-index:1000;align-items:center;
+              justify-content:center;padding:20px">
+    <div style="background:#1e293b;
+                border:1px solid #334155;
+                border-radius:16px;
+                max-width:560px;width:100%;
+                max-height:80vh;overflow-y:auto;
+                padding:24px">
+      <div style="display:flex;justify-content:space-between;
+                  align-items:center;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:600;
+                    color:#f1f5f9">
+          💡 Explicación personalizada
+        </div>
+        <button onclick="document.getElementById('modal-concepto').style.display='none'"
+                style="background:transparent;border:none;
+                       color:#94a3b8;font-size:20px;
+                       cursor:pointer;font-family:inherit">×</button>
+      </div>
+      <div id="modal-concepto-body"></div>
+    </div>
   </div>
 
 <script src="/static/js/utils.js"></script>
@@ -820,36 +893,18 @@ function inicializarFechaCorte() {
   if (input) input.value = iso;
 }
 
-async function cargarCorte(ahora) {
-  let fechaParam = '';
-  if (!ahora) {
-    const fechaInput = document.getElementById('corte-fecha').value;
-    if (!fechaInput) {
-      alert('Selecciona una fecha y hora');
-      return;
-    }
-    const fechaLocal = new Date(fechaInput);
-    fechaParam = `?fecha=${encodeURIComponent(fechaLocal.toISOString())}`;
-  }
-
-  const res = await fetchKardex(`/api/v1/kardex/corte${fechaParam}`);
-  if (!res.ok) return;
-  corteData = await res.json();
-
-  document.getElementById('corte-info').style.display = 'block';
+function _aplicarCorteData(corte) {
   document.getElementById('corte-fecha-display').textContent =
-    formatFechaHoraPeru(corteData.fecha_corte);
+    formatFechaHoraPeru(corte.fecha_corte);
   document.getElementById('corte-total-productos').textContent =
-    corteData.total_productos;
+    corte.total_productos;
   document.getElementById('corte-valor-total').textContent =
-    `S/ ${corteData.total_valor_inventario.toFixed(2)}`;
-
-  renderCorteCategorias(corteData.por_categoria,
-    corteData.total_valor_inventario);
-  renderCorteTabla(corteData.productos);
-
+    `S/ ${corte.total_valor_inventario.toFixed(2)}`;
+  renderCorteCategorias(corte.por_categoria,
+    corte.total_valor_inventario);
+  renderCorteTabla(corte.productos);
   document.getElementById('corte-total-foot').textContent =
-    `S/ ${corteData.total_valor_inventario.toFixed(2)}`;
+    `S/ ${corte.total_valor_inventario.toFixed(2)}`;
 }
 
 function renderCorteCategorias(cats, total) {
@@ -953,66 +1008,298 @@ function setKardexTab(tab) {
     esCorte ? 'none' : 'grid';
   document.getElementById('panel-corte').style.display =
     esCorte ? 'block' : 'none';
-
-  if (esCorte && !corteData) {
-    cargarCorte(true);
-  }
+  // No auto-carga: el dueño decide cuándo evaluar.
 }
 
 // ──────────────────────────────────────────────────────────────────────
-// Agente de Salud Comercial — sugerencia IA
+// Agente de Salud Comercial — análisis accionable
 // ──────────────────────────────────────────────────────────────────────
-async function cargarSugerenciaIA() {
-  const btn = document.getElementById('btn-sugerencia');
-  const loading = document.getElementById('sugerencia-loading');
-  const contenido = document.getElementById('sugerencia-contenido');
+let iaData = null;
+let _loadingTimer = null;
 
-  btn.disabled = true;
-  btn.textContent = '⏳ Analizando...';
-  loading.style.display = 'block';
-  contenido.style.display = 'none';
+const loadingTextos = [
+  ['Evaluando tu inventario...',
+   'Analizando movimientos del último mes'],
+  ['Calculando rotación de productos...',
+   'Identificando qué se mueve y qué no'],
+  ['Comparando ventas vs inventario...',
+   'Calculando valor inmovilizado'],
+  ['Generando sugerencias personalizadas...',
+   'Casi listo...'],
+];
+
+function _setEstadoCorte(estado) {
+  const ini = document.getElementById('corte-inicial');
+  const load = document.getElementById('corte-loading');
+  const res = document.getElementById('corte-resultado');
+  ini.style.display = estado === 'inicial' ? 'block' : 'none';
+  load.style.display = estado === 'loading' ? 'block' : 'none';
+  res.style.display = estado === 'resultado' ? 'block' : 'none';
+}
+
+async function iniciarAnalisis(forzarAhora) {
+  // forzarAhora === true: usa "ahora"
+  // forzarAhora === false: usa la fecha del input
+  // forzarAhora undefined: primer click, usa "ahora"
+  let fechaParam = '';
+  if (forzarAhora === false) {
+    const fechaInput = document.getElementById('corte-fecha').value;
+    if (!fechaInput) {
+      alert('Selecciona una fecha y hora');
+      return;
+    }
+    const fechaLocal = new Date(fechaInput);
+    fechaParam = `?fecha=${encodeURIComponent(fechaLocal.toISOString())}`;
+  }
+
+  _setEstadoCorte('loading');
+  let idx = 0;
+  document.getElementById('loading-texto').textContent = loadingTextos[0][0];
+  document.getElementById('loading-subtexto').textContent = loadingTextos[0][1];
+  if (_loadingTimer) clearInterval(_loadingTimer);
+  _loadingTimer = setInterval(() => {
+    idx = (idx + 1) % loadingTextos.length;
+    document.getElementById('loading-texto').textContent =
+      loadingTextos[idx][0];
+    document.getElementById('loading-subtexto').textContent =
+      loadingTextos[idx][1];
+  }, 2000);
 
   try {
-    const res = await fetchKardex('/api/v1/kardex/sugerencia-ia');
-    if (!res.ok) throw new Error('Error');
-    const data = await res.json();
+    const [corteRes, iaRes] = await Promise.all([
+      fetchKardex(`/api/v1/kardex/corte${fechaParam}`),
+      fetchKardex('/api/v1/kardex/sugerencia-ia'),
+    ]);
 
-    loading.style.display = 'none';
-    contenido.style.display = 'block';
-    contenido.style.fontStyle = 'normal';
+    clearInterval(_loadingTimer);
+    _loadingTimer = null;
 
-    contenido.innerHTML = (data.sugerencia || '')
-      .split('\n')
-      .filter(line => line.trim().length > 0)
-      .map(line => `<div style="margin-bottom:10px;
-                                line-height:1.6;
-                                color:#e2e8f0">
-                      ${line}
-                    </div>`)
-      .join('');
+    if (!corteRes.ok || !iaRes.ok) throw new Error('Error');
 
-    const valorTxt = data.contexto_usado && data.contexto_usado.total_valor != null
-      ? 'S/ ' + Number(data.contexto_usado.total_valor).toFixed(2) + ' en inventario'
-      : 'datos actuales';
+    corteData = await corteRes.json();
+    iaData = await iaRes.json();
 
-    contenido.innerHTML += `
-      <div style="margin-top:12px;font-size:11px;
-                  color:#64748b;border-top:1px solid #334155;
-                  padding-top:8px">
-        Generado: ${formatFechaHoraPeru(data.generado_en)}
-        · Basado en ${valorTxt}
-      </div>`;
-
-    btn.textContent = '🔄 Actualizar';
-    btn.disabled = false;
+    _setEstadoCorte('resultado');
+    renderCorteCompleto(corteData, iaData);
 
   } catch (e) {
-    loading.style.display = 'none';
-    contenido.style.display = 'block';
-    contenido.style.fontStyle = 'italic';
-    contenido.textContent = 'No se pudo generar el análisis.';
-    btn.textContent = '✨ Analizar';
-    btn.disabled = false;
+    if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+    _setEstadoCorte('inicial');
+    document.getElementById('btn-analizar-main').textContent =
+      '🔄 Reintentar';
+  }
+}
+
+function renderCorteCompleto(corte, ia) {
+  _aplicarCorteData(corte);
+
+  const cont = document.getElementById('sugerencia-contenido');
+  cont.innerHTML = renderSugerencias(ia, corte);
+
+  const meta = document.getElementById('sugerencia-meta');
+  if (meta) {
+    const valorTxt = ia && ia.contexto_usado && ia.contexto_usado.total_valor != null
+      ? 'S/ ' + Number(ia.contexto_usado.total_valor).toFixed(2) + ' en inventario'
+      : 'datos actuales';
+    meta.textContent =
+      `Generado ${formatFechaHoraPeru(ia.generado_en)} · ${valorTxt}`;
+  }
+}
+
+function renderSugerencias(ia, corte) {
+  const lineas = (ia.sugerencia || '').split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  const items = lineas.filter(l => /^[🔴🟡🟢]/.test(l));
+  const fuente = items.length ? items : lineas;
+
+  return fuente.map(linea => {
+    const esAlerta   = linea.startsWith('🔴');
+    const esAtencion = linea.startsWith('🟡');
+
+    const color = esAlerta ? '#ef4444' :
+                  esAtencion ? '#f59e0b' : '#22c55e';
+    const bg = esAlerta ? 'rgba(239,68,68,0.08)' :
+               esAtencion ? 'rgba(245,158,11,0.08)' :
+               'rgba(34,197,94,0.08)';
+    const border = esAlerta ? 'rgba(239,68,68,0.3)' :
+                   esAtencion ? 'rgba(245,158,11,0.3)' :
+                   'rgba(34,197,94,0.3)';
+
+    const t = linea.toLowerCase();
+    const botones = [];
+
+    if (t.includes('precio')) {
+      botones.push({
+        label: '💡 ¿Cómo ajustar precios?',
+        action: `explicarConcepto('ajuste_precios','Cómo ajustar precios en mi negocio')`,
+      });
+    }
+    if (t.includes('flujo de caja') || t.includes('flujo')) {
+      botones.push({
+        label: '📊 ¿Qué es Flujo de Caja?',
+        action: `explicarConcepto('flujo_caja','Flujo de caja con mis números')`,
+      });
+    }
+    if (t.includes('stock bajo') || t.includes('stocks bajos')) {
+      botones.push({
+        label: '📦 Ver productos afectados',
+        action: `filtrarTablaCorte('stock_bajo')`,
+      });
+    }
+    if (t.includes('sin movimiento') ||
+        t.includes('poca rotación') ||
+        t.includes('sin ventas')) {
+      botones.push({
+        label: '📋 Ver sin movimiento',
+        action: `filtrarTablaCorte('sin_movimiento')`,
+      });
+    }
+    if (t.includes('promo') || t.includes('descuento')) {
+      botones.push({
+        label: '🏷️ ¿Cómo hacer promociones?',
+        action: `explicarConcepto('promociones','Estrategias de promoción para mi negocio')`,
+      });
+    }
+    if (t.includes('compra') || t.includes('reponer') || t.includes('rellena')) {
+      botones.push({
+        label: '🛒 Ir a Compras',
+        action: `window.location.href='/compras'`,
+      });
+    }
+    botones.push({
+      label: '❓ Explicar más',
+      action: `explicarConcepto('general', ${JSON.stringify(linea.slice(0,80))})`,
+    });
+
+    const botonesHtml = botones.map(b => `
+      <button onclick="${b.action}"
+              style="background:transparent;
+                     border:1px solid ${border};
+                     color:${color};padding:6px 12px;
+                     border-radius:8px;font-size:12px;
+                     cursor:pointer;font-weight:500;
+                     transition:all 0.15s;font-family:inherit"
+              onmouseover="this.style.background='${bg}'"
+              onmouseout="this.style.background='transparent'">
+        ${b.label}
+      </button>
+    `).join('');
+
+    return `
+      <div class="fade-in" style="background:${bg};
+           border:1px solid ${border};
+           border-left:4px solid ${color};
+           border-radius:0 12px 12px 0;
+           padding:16px;margin-bottom:12px">
+        <div style="font-size:14px;line-height:1.6;
+                    color:#e2e8f0;margin-bottom:12px">
+          ${linea}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${botonesHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+let _filtroCorteActivo = null;
+
+function filtrarTablaCorte(tipo) {
+  if (!corteData) return;
+
+  let prods = corteData.productos || [];
+  let etiqueta = '';
+  if (tipo === 'stock_bajo') {
+    prods = prods.filter(p => p.stock_bajo);
+    etiqueta = 'Stock bajo';
+  } else if (tipo === 'sin_movimiento') {
+    prods = prods.filter(p => (p.num_movimientos || 0) === 0);
+    etiqueta = 'Sin movimiento';
+  }
+
+  _filtroCorteActivo = tipo;
+  renderCorteTabla(prods);
+
+  // Inserta un chip de filtro encima de la tabla (idempotente).
+  const chipId = 'corte-filtro-chip';
+  let chip = document.getElementById(chipId);
+  if (!chip) {
+    chip = document.createElement('div');
+    chip.id = chipId;
+    chip.style.cssText =
+      'display:flex;align-items:center;gap:8px;' +
+      'background:rgba(59,130,246,0.1);' +
+      'border:1px solid rgba(59,130,246,0.3);' +
+      'color:#93c5fd;padding:6px 12px;border-radius:20px;' +
+      'font-size:12px;width:fit-content;margin-bottom:10px';
+    const tabla = document.getElementById('corte-tabla');
+    tabla.parentElement.insertBefore(chip, tabla);
+  }
+  chip.innerHTML =
+    `Filtro: <strong>${etiqueta}</strong> (${prods.length})` +
+    ' <button onclick="quitarFiltroCorte()" style="background:transparent;' +
+    'border:none;color:#93c5fd;cursor:pointer;font-weight:700;' +
+    'font-family:inherit">×</button>';
+
+  document.getElementById('corte-tabla').scrollIntoView({
+    behavior: 'smooth', block: 'start',
+  });
+}
+
+function quitarFiltroCorte() {
+  if (!corteData) return;
+  _filtroCorteActivo = null;
+  renderCorteTabla(corteData.productos);
+  const chip = document.getElementById('corte-filtro-chip');
+  if (chip) chip.remove();
+}
+
+async function explicarConcepto(tipo, pregunta) {
+  const modal = document.getElementById('modal-concepto');
+  const contenido = document.getElementById('modal-concepto-body');
+  modal.style.display = 'flex';
+  contenido.innerHTML =
+    '<div style="text-align:center;padding:24px;' +
+    'color:#94a3b8;font-size:14px">' +
+    '⏳ Preparando explicación con tus datos...</div>';
+
+  try {
+    const res = await fetch('/api/v1/kardex/explicar-concepto', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tipo: tipo,
+        pregunta: pregunta,
+        contexto: corteData ? {
+          total_valor: corteData.total_valor_inventario,
+          categorias: (corteData.por_categoria || []).slice(0, 3),
+          productos_stock_bajo: (corteData.productos || [])
+            .filter(p => p.stock_bajo)
+            .map(p => p.name)
+            .slice(0, 5),
+        } : {},
+      }),
+    });
+
+    if (!res.ok) throw new Error('Error');
+
+    const data = await res.json();
+    contenido.innerHTML = (data.explicacion || '')
+      .split('\n')
+      .map(l => l.trim()
+        ? `<p style="margin-bottom:12px;line-height:1.7;
+                     color:#e2e8f0;font-size:14px">${l}</p>`
+        : '')
+      .join('');
+  } catch (e) {
+    contenido.innerHTML =
+      '<p style="color:#fca5a5;text-align:center;padding:16px">' +
+      'No se pudo generar la explicación.</p>';
   }
 }
 </script>
