@@ -394,6 +394,90 @@
         </div>
       </div>
 
+      <div style="background:linear-gradient(135deg,
+                  #1e3a5f 0%, #1e293b 100%);
+                  border:1px solid #334155;
+                  border-radius:16px;padding:20px;
+                  margin-bottom:20px">
+
+        <div style="display:flex;align-items:center;
+                    gap:10px;margin-bottom:14px">
+          <span style="font-size:20px">📊</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;
+                        color:#f1f5f9">
+              ¿Qué significa este gráfico?
+            </div>
+            <div style="font-size:12px;color:#94a3b8">
+              Valor de tu inventario por categoría
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;
+                    gap:12px;margin-bottom:14px">
+
+          <div style="background:rgba(59,130,246,0.1);
+                      border:1px solid rgba(59,130,246,0.3);
+                      border-radius:10px;padding:12px">
+            <div style="font-size:18px;margin-bottom:4px">📏</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:#93c5fd;margin-bottom:4px">
+              Largo de la barra
+            </div>
+            <div style="font-size:11px;color:#94a3b8;
+                        line-height:1.5">
+              Cuánto representa esa categoría del total
+              de tu inventario. Barra más larga = más
+              capital invertido ahí.
+            </div>
+          </div>
+
+          <div style="background:rgba(245,158,11,0.1);
+                      border:1px solid rgba(245,158,11,0.3);
+                      border-radius:10px;padding:12px">
+            <div style="font-size:18px;margin-bottom:4px">💰</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:#fcd34d;margin-bottom:4px">
+              Valor en soles
+            </div>
+            <div style="font-size:11px;color:#94a3b8;
+                        line-height:1.5">
+              Cuánto dinero tienes invertido en esa
+              categoría hoy. Stock × costo promedio
+              de cada producto.
+            </div>
+          </div>
+
+          <div style="background:rgba(239,68,68,0.1);
+                      border:1px solid rgba(239,68,68,0.3);
+                      border-radius:10px;padding:12px">
+            <div style="font-size:18px;margin-bottom:4px">⚠️</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:#fca5a5;margin-bottom:4px">
+              Alerta de stock
+            </div>
+            <div style="font-size:11px;color:#94a3b8;
+                        line-height:1.5">
+              Número de productos en esa categoría
+              que están por agotarse. Actúa antes
+              de quedarte sin stock.
+            </div>
+          </div>
+
+        </div>
+
+        <div style="font-size:11px;color:#64748b;
+                    border-top:1px solid #334155;
+                    padding-top:10px">
+          💡 <strong style="color:#94a3b8">Tip:</strong>
+          Si una categoría tiene mucho valor pero pocas ventas,
+          ese dinero está "dormido". Considera promociones
+          o reducir el pedido próximo.
+        </div>
+
+      </div>
+
       <div style="background:#1e293b;border:1px solid #334155;
                   border-radius:12px;padding:16px;margin-bottom:16px">
         <div style="font-size:13px;font-weight:600;
@@ -401,6 +485,54 @@
           POR CATEGORÍA
         </div>
         <div id="corte-categorias"></div>
+      </div>
+
+      <div id="sugerencia-ia-card"
+           style="background:#0f2027;
+                  border:1px solid #334155;
+                  border-radius:16px;
+                  padding:20px;margin-top:16px;
+                  margin-bottom:16px">
+
+        <div style="display:flex;justify-content:space-between;
+                    align-items:center;margin-bottom:14px;
+                    gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🤖</span>
+            <div>
+              <div style="font-size:14px;font-weight:600;
+                          color:#f1f5f9">
+                Análisis de tu inventario
+              </div>
+              <div style="font-size:12px;color:#94a3b8">
+                Sugerencias basadas en tus datos reales
+              </div>
+            </div>
+          </div>
+          <button onclick="cargarSugerenciaIA()"
+                  id="btn-sugerencia"
+                  style="background:#3b82f6;color:white;
+                         border:none;padding:8px 16px;
+                         border-radius:8px;font-size:13px;
+                         font-weight:600;cursor:pointer;
+                         font-family:inherit">
+            ✨ Analizar
+          </button>
+        </div>
+
+        <div id="sugerencia-contenido"
+             style="color:#94a3b8;font-size:13px;
+                    font-style:italic">
+          Toca "Analizar" para obtener sugerencias
+          personalizadas basadas en tu inventario actual.
+        </div>
+
+        <div id="sugerencia-loading" style="display:none;
+             text-align:center;padding:16px;color:#94a3b8;
+             font-size:13px">
+          ⏳ Analizando tu inventario...
+        </div>
+
       </div>
 
       <div style="display:flex;justify-content:space-between;
@@ -824,6 +956,63 @@ function setKardexTab(tab) {
 
   if (esCorte && !corteData) {
     cargarCorte(true);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Agente de Salud Comercial — sugerencia IA
+// ──────────────────────────────────────────────────────────────────────
+async function cargarSugerenciaIA() {
+  const btn = document.getElementById('btn-sugerencia');
+  const loading = document.getElementById('sugerencia-loading');
+  const contenido = document.getElementById('sugerencia-contenido');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Analizando...';
+  loading.style.display = 'block';
+  contenido.style.display = 'none';
+
+  try {
+    const res = await fetchKardex('/api/v1/kardex/sugerencia-ia');
+    if (!res.ok) throw new Error('Error');
+    const data = await res.json();
+
+    loading.style.display = 'none';
+    contenido.style.display = 'block';
+    contenido.style.fontStyle = 'normal';
+
+    contenido.innerHTML = (data.sugerencia || '')
+      .split('\n')
+      .filter(line => line.trim().length > 0)
+      .map(line => `<div style="margin-bottom:10px;
+                                line-height:1.6;
+                                color:#e2e8f0">
+                      ${line}
+                    </div>`)
+      .join('');
+
+    const valorTxt = data.contexto_usado && data.contexto_usado.total_valor != null
+      ? 'S/ ' + Number(data.contexto_usado.total_valor).toFixed(2) + ' en inventario'
+      : 'datos actuales';
+
+    contenido.innerHTML += `
+      <div style="margin-top:12px;font-size:11px;
+                  color:#64748b;border-top:1px solid #334155;
+                  padding-top:8px">
+        Generado: ${formatFechaHoraPeru(data.generado_en)}
+        · Basado en ${valorTxt}
+      </div>`;
+
+    btn.textContent = '🔄 Actualizar';
+    btn.disabled = false;
+
+  } catch (e) {
+    loading.style.display = 'none';
+    contenido.style.display = 'block';
+    contenido.style.fontStyle = 'italic';
+    contenido.textContent = 'No se pudo generar el análisis.';
+    btn.textContent = '✨ Analizar';
+    btn.disabled = false;
   }
 }
 </script>
