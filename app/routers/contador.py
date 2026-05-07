@@ -29,6 +29,7 @@ from app.models.sale import Sale, SaleItem
 from app.models.product import Product
 from app.models.contador import Contador, ContadorStore, ContadorPermiso
 from app.routers.contador_auth import get_current_contador
+from app.api.v1.kardex import _compute_corte, _build_corte_xlsx
 
 
 router = APIRouter(tags=["contador"])
@@ -751,3 +752,42 @@ async def resumen_cliente(
         "ventas_por_dia": ventas_por_dia,
         "top_productos": top_productos,
     }
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Corte de Inventario (motor histórico) — acceso del contador
+# ──────────────────────────────────────────────────────────────────────────
+@router.get("/corte/{store_id}")
+async def corte_inventario_contador(
+    store_id: int,
+    fecha: Optional[str] = None,
+    categoria: Optional[str] = None,
+    db: Session = Depends(get_db),
+    contador: Contador = Depends(get_current_contador),
+):
+    """Corte de inventario a una fecha/hora, para un store del contador."""
+    _ensure_contador_access(db, contador.id, store_id)
+    return _compute_corte(db, store_id, fecha=fecha, categoria=categoria)
+
+
+@router.get("/corte/{store_id}/export")
+async def exportar_corte_contador(
+    store_id: int,
+    fecha: Optional[str] = None,
+    categoria: Optional[str] = None,
+    db: Session = Depends(get_db),
+    contador: Contador = Depends(get_current_contador),
+):
+    """Exporta el corte de inventario a Excel para un store del contador."""
+    _ensure_contador_access(db, contador.id, store_id)
+    corte = _compute_corte(db, store_id, fecha=fecha, categoria=categoria)
+    buf = _build_corte_xlsx(corte)
+
+    fecha_dt = datetime.fromisoformat(corte["fecha_corte"])
+    fecha_str = fecha_dt.strftime("%Y%m%d_%H%M")
+    filename = f"corte_inventario_store{store_id}_{fecha_str}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
