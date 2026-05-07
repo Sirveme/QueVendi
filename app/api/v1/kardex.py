@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
@@ -955,3 +956,107 @@ ALERTAS DE STOCK BAJO:
             "stock_bajo": sum(1 for p in corte["productos"] if p["stock_bajo"]),
         },
     }
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# POST /kardex/explicar-concepto — explicaciones contextualizadas con IA
+# Usado por los botones "¿Qué es X?" / "¿Cómo hacer Y?" del análisis IA.
+# ──────────────────────────────────────────────────────────────────────────
+class ExplicarConceptoIn(BaseModel):
+    tipo: Optional[str] = "general"
+    pregunta: Optional[str] = ""
+    contexto: Optional[dict] = None
+
+
+_PROMPTS_EXPLICACION = {
+    "ajuste_precios": (
+        "Explica cómo ajustar precios en un negocio pequeño peruano "
+        "(bodega/minimarket). Incluye: qué es el margen, cómo calcular "
+        "precio de venta, cuándo subir precios, consecuencias de precios "
+        "bajos/altos. Usa ejemplos concretos con soles. Máx 200 palabras."
+    ),
+    "flujo_caja": (
+        "Explica flujo de caja para dueño de bodega/minimarket en Perú. "
+        "Incluye: qué es, cómo calcularlo simple, cuánto debe ser el "
+        "ideal para un negocio pequeño, señales de alerta. Con ejemplos "
+        "en soles. Usa los datos del negocio si los tienes. Máx 200 palabras."
+    ),
+    "promociones": (
+        "Explica estrategias de promoción para bodega/minimarket en "
+        "Iquitos, Perú. Incluye: tipos de promoción simples, cuándo "
+        "hacerlas, cómo fijar el descuento sin perder dinero. Ejemplos "
+        "concretos. Máx 200 palabras."
+    ),
+}
+
+
+@router.post("/explicar-concepto")
+async def explicar_concepto(
+    payload: ExplicarConceptoIn,
+    db: Session = Depends(get_db),  # noqa: ARG001 — reservado para futura personalización
+    current_user: User = Depends(get_current_user),  # noqa: ARG001
+):
+    if not settings.OPENAI_API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY no configurada en el servidor",
+        )
+
+    tipo = (payload.tipo or "general").strip()
+    pregunta = (payload.pregunta or "").strip()
+    contexto = payload.contexto or {}
+
+    base = _PROMPTS_EXPLICACION.get(tipo)
+    if not base:
+        base = (
+            f"Explica este concepto para dueño de negocio pequeño en Perú: "
+            f"{pregunta or tipo}\n"
+            "Simple, práctico, con ejemplos en soles. Máx 200 palabras."
+        )
+
+    user_prompt = base
+    total_valor = contexto.get("total_valor")
+    if total_valor is not None:
+        try:
+            tv = float(total_valor)
+        except (TypeError, ValueError):
+            tv = None
+        cats = contexto.get("categorias") or []
+        cats_nombres = ", ".join(
+            (c.get("categoria") if isinstance(c, dict) else str(c))
+            for c in cats[:3]
+        ) or "—"
+        prods_bajo = ", ".join(contexto.get("productos_stock_bajo") or []) or "—"
+        if tv is not None:
+            user_prompt += (
+                "\n\nDatos del negocio:\n"
+                f"- Valor inventario: S/ {tv:.2f}\n"
+                f"- Categorías principales: {cats_nombres}\n"
+                f"- Productos stock bajo: {prods_bajo}"
+            )
+
+    try:
+        import openai
+        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres asesor de negocios pequeños peruanos. "
+                        "Hablas en español simple, directo y práctico."
+                    ),
+                },
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=300,
+        )
+        explicacion = response.choices[0].message.content
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"No se pudo generar la explicación: {e}",
+        )
+
+    return {"explicacion": explicacion, "tipo": tipo}
