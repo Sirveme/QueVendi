@@ -1107,6 +1107,11 @@ function renderCorteCompleto(corte, ia) {
 }
 
 function renderSugerencias(ia, corte) {
+  // Las preguntas del usuario se guardan en un array global y los onclick
+  // pasan solo el índice, evitando problemas de quoting con apóstrofes,
+  // comillas o HTML dentro del texto generado por la IA.
+  window._sugerencias = window._sugerencias || [];
+
   const lineas = (ia.sugerencia || '').split('\n')
     .map(l => l.trim())
     .filter(l => l.length > 0);
@@ -1131,15 +1136,17 @@ function renderSugerencias(ia, corte) {
     const botones = [];
 
     if (t.includes('precio')) {
+      const idx = window._sugerencias.push('Cómo ajustar precios en mi negocio') - 1;
       botones.push({
         label: '💡 ¿Cómo ajustar precios?',
-        action: `explicarConcepto('ajuste_precios','Cómo ajustar precios en mi negocio')`,
+        action: `explicarConceptoIdx('ajuste_precios', ${idx})`,
       });
     }
     if (t.includes('flujo de caja') || t.includes('flujo')) {
+      const idx = window._sugerencias.push('Flujo de caja con mis números') - 1;
       botones.push({
         label: '📊 ¿Qué es Flujo de Caja?',
-        action: `explicarConcepto('flujo_caja','Flujo de caja con mis números')`,
+        action: `explicarConceptoIdx('flujo_caja', ${idx})`,
       });
     }
     if (t.includes('stock bajo') || t.includes('stocks bajos')) {
@@ -1157,9 +1164,10 @@ function renderSugerencias(ia, corte) {
       });
     }
     if (t.includes('promo') || t.includes('descuento')) {
+      const idx = window._sugerencias.push('Estrategias de promoción para mi negocio') - 1;
       botones.push({
         label: '🏷️ ¿Cómo hacer promociones?',
-        action: `explicarConcepto('promociones','Estrategias de promoción para mi negocio')`,
+        action: `explicarConceptoIdx('promociones', ${idx})`,
       });
     }
     if (t.includes('compra') || t.includes('reponer') || t.includes('rellena')) {
@@ -1168,10 +1176,13 @@ function renderSugerencias(ia, corte) {
         action: `window.location.href='/compras'`,
       });
     }
-    botones.push({
-      label: '❓ Explicar más',
-      action: `explicarConcepto('general', ${JSON.stringify(linea.slice(0,80))})`,
-    });
+    {
+      const idx = window._sugerencias.push(linea) - 1;
+      botones.push({
+        label: '❓ Explicar más',
+        action: `explicarConceptoIdx('general', ${idx})`,
+      });
+    }
 
     const botonesHtml = botones.map(b => `
       <button onclick="${b.action}"
@@ -1254,6 +1265,11 @@ function quitarFiltroCorte() {
   renderCorteTabla(corteData.productos);
   const chip = document.getElementById('corte-filtro-chip');
   if (chip) chip.remove();
+}
+
+function explicarConceptoIdx(tipo, idx) {
+  const pregunta = (window._sugerencias && window._sugerencias[idx]) || '';
+  explicarConcepto(tipo, pregunta);
 }
 
 async function explicarConcepto(tipo, pregunta) {
