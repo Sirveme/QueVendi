@@ -1,7 +1,8 @@
 """
 Kardex Valorizado.
 Endpoints para listar productos con valor de inventario, ver movimientos
-detallados por producto con saldo corriente, resumen por categoría y export CSV.
+detallados por producto con saldo corriente, resumen por categoría, export CSV
+y cortes de inventario históricos (motor reconstruye saldo a cualquier fecha).
 """
 import csv
 import io
@@ -13,6 +14,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
+
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_user
@@ -556,5 +560,263 @@ async def export_kardex_csv(
     return StreamingResponse(
         iter([csv_bytes]),
         media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Corte de inventario — Motor histórico
+# Reconstruye el estado del inventario en cualquier instante recorriendo
+# inventory_movements (inmutable) y aplicando promedio ponderado.
+# ──────────────────────────────────────────────────────────────────────────
+def _parse_fecha_iso(s: Optional[str]) -> Optional[datetime]:
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Fecha inválida: {s} (use ISO 8601)")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def _compute_corte(
+    db: Session,
+    store_id: int,
+    fecha: Optional[str] = None,
+    categoria: Optional[str] = None,
+) -> dict:
+    """
+    Reconstruye el inventario hasta `fecha` (o ahora si None).
+    Devuelve productos con stock, costo unitario (promedio ponderado),
+    valor total y agrupado por categoría.
+    """
+    es_historico = bool(fecha)
+    hasta = _parse_fecha_iso(fecha) or datetime.now(timezone.utc)
+
+    q = db.query(Product).filter(
+        Product.store_id == store_id,
+        Product.is_active == True,  # noqa: E712
+    )
+    if hasattr(Product, "deleted_at"):
+        q = q.filter(Product.deleted_at == None)  # noqa: E711
+    if categoria:
+        q = q.filter(Product.category == categoria)
+    productos: List[Product] = q.all()
+
+    resultado = []
+    total_valor = 0.0
+
+    for p in productos:
+        movs: List[InventoryMovement] = (
+            db.query(InventoryMovement)
+            .filter(
+                InventoryMovement.store_id == store_id,
+                InventoryMovement.product_id == p.id,
+                InventoryMovement.occurred_at <= hasta,
+            )
+            .order_by(InventoryMovement.occurred_at.asc(), InventoryMovement.id.asc())
+            .all()
+        )
+
+        if not movs:
+            if es_historico:
+                # En histórico, sin movimientos = no existía el producto aún.
+                continue
+            stock = _to_float(p.stock)
+            costo = _to_float(p.cost_price)
+        else:
+            stock = 0.0
+            saldo_valor = 0.0
+            costo_prom = _to_float(p.cost_price)
+
+            for m in movs:
+                qty = _to_float(m.quantity)
+                if qty > 0:
+                    entrada_unit = (
+                        _to_float(m.cost_price)
+                        if m.cost_price is not None else costo_prom
+                    )
+                    saldo_valor += qty * entrada_unit
+                    stock = _to_float(m.stock_after)
+                    if stock > 0:
+                        costo_prom = saldo_valor / stock
+                else:
+                    stock = _to_float(m.stock_after)
+                    saldo_valor = stock * costo_prom
+
+            costo = costo_prom
+
+        valor = round(stock * costo, 2)
+        total_valor += valor
+
+        stock_bajo = bool(
+            p.min_stock_alert is not None
+            and stock <= _to_float(p.min_stock_alert)
+        )
+
+        resultado.append({
+            "product_id": p.id,
+            "name": p.name,
+            "category": p.category or "Sin categoría",
+            "unit": p.unit or "unidad",
+            "stock": round(stock, 3),
+            "costo_unitario": round(costo, 4),
+            "valor_total": valor,
+            "stock_bajo": stock_bajo,
+            "num_movimientos": len(movs),
+        })
+
+    resultado.sort(key=lambda x: (x["category"], x["name"]))
+
+    categorias: dict = {}
+    for item in resultado:
+        cat = item["category"]
+        b = categorias.setdefault(cat, {
+            "categoria": cat,
+            "num_productos": 0,
+            "valor_total": 0.0,
+            "stock_bajo": 0,
+        })
+        b["num_productos"] += 1
+        b["valor_total"] += item["valor_total"]
+        if item["stock_bajo"]:
+            b["stock_bajo"] += 1
+
+    por_categoria = sorted(
+        ({**v, "valor_total": round(v["valor_total"], 2)} for v in categorias.values()),
+        key=lambda x: x["valor_total"],
+        reverse=True,
+    )
+
+    return {
+        "fecha_corte": hasta.isoformat(),
+        "es_historico": es_historico,
+        "total_productos": len(resultado),
+        "total_valor_inventario": round(total_valor, 2),
+        "productos": resultado,
+        "por_categoria": por_categoria,
+    }
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# GET /kardex/corte
+# ──────────────────────────────────────────────────────────────────────────
+@router.get("/corte")
+async def corte_inventario(
+    fecha: Optional[str] = None,
+    categoria: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Corte de inventario a una fecha/hora. Sin fecha = ahora."""
+    return _compute_corte(db, current_user.store_id, fecha=fecha, categoria=categoria)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# GET /kardex/corte/export
+# ──────────────────────────────────────────────────────────────────────────
+def _build_corte_xlsx(corte: dict) -> io.BytesIO:
+    productos = corte["productos"]
+    por_categoria = corte["por_categoria"]
+    total = corte["total_valor_inventario"]
+    fecha_corte_iso = corte["fecha_corte"]
+
+    try:
+        fecha_corte_dt = datetime.fromisoformat(fecha_corte_iso)
+    except ValueError:
+        fecha_corte_dt = datetime.now(timezone.utc)
+    fecha_corte_str = fecha_corte_dt.strftime("%Y-%m-%d %H:%M")
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Corte de Inventario"
+
+    ws.merge_cells("A1:G1")
+    ws["A1"] = f"CORTE DE INVENTARIO — {fecha_corte_str}"
+    ws["A1"].font = Font(bold=True, size=14)
+    ws["A1"].alignment = Alignment(horizontal="center")
+
+    ws.merge_cells("A2:G2")
+    ws["A2"] = f"Método: Promedio Ponderado | Total: S/ {total:.2f}"
+    ws["A2"].alignment = Alignment(horizontal="center")
+
+    headers = ["N°", "Categoría", "Producto", "Unidad", "Stock", "Costo Unit.", "Valor Total"]
+    for i, h in enumerate(headers, 1):
+        cell = ws.cell(row=4, column=i, value=h)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="1E3A5F")
+        cell.alignment = Alignment(horizontal="center")
+
+    for i, p in enumerate(productos, 1):
+        row = 4 + i
+        ws.cell(row=row, column=1, value=i)
+        ws.cell(row=row, column=2, value=p["category"])
+        ws.cell(row=row, column=3, value=p["name"])
+        ws.cell(row=row, column=4, value=p["unit"])
+        ws.cell(row=row, column=5, value=p["stock"])
+        ws.cell(row=row, column=6, value=p["costo_unitario"])
+        ws.cell(row=row, column=7, value=p["valor_total"])
+        if i % 2 == 0:
+            for col in range(1, 8):
+                ws.cell(row=row, column=col).fill = PatternFill("solid", fgColor="F1F5F9")
+
+    tot_row = 5 + len(productos)
+    ws.cell(tot_row, 1, "TOTAL")
+    ws.cell(tot_row, 7, total)
+    for col in range(1, 8):
+        ws.cell(tot_row, col).font = Font(bold=True)
+
+    ws2 = wb.create_sheet("Por Categoría")
+    ws2.append(["Categoría", "Productos", "Valor Total", "Stock Bajo"])
+    for cat in por_categoria:
+        ws2.append([
+            cat["categoria"],
+            cat["num_productos"],
+            cat["valor_total"],
+            cat["stock_bajo"],
+        ])
+
+    for col in ws.columns:
+        try:
+            col_letter = col[0].column_letter
+        except AttributeError:
+            # MergedCell, saltar
+            continue
+        max_len = 0
+        for cell in col:
+            try:
+                v = cell.value
+            except AttributeError:
+                v = None
+            if v is not None:
+                max_len = max(max_len, len(str(v)))
+        ws.column_dimensions[col_letter].width = min(max_len + 4, 40)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+@router.get("/corte/export")
+async def exportar_corte(
+    fecha: Optional[str] = None,
+    categoria: Optional[str] = None,
+    token: Optional[str] = None,  # noqa: ARG001 — leído por get_current_user_or_token
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_or_token),
+):
+    """Exporta el corte de inventario a Excel (.xlsx)."""
+    corte = _compute_corte(db, current_user.store_id, fecha=fecha, categoria=categoria)
+    buf = _build_corte_xlsx(corte)
+
+    fecha_dt = datetime.fromisoformat(corte["fecha_corte"])
+    fecha_str = fecha_dt.strftime("%Y%m%d_%H%M")
+    filename = f"corte_inventario_{fecha_str}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
