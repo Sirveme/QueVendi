@@ -28,7 +28,9 @@ from app.core.database import get_db
 from app.models.store import Store
 from app.models.product import Product
 from app.models.user import User
+from app.models.pricing import Combo
 from app.api.dependencies import get_current_user
+from sqlalchemy import or_
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -162,7 +164,41 @@ async def carta_productos(telefono: str, db: Session = Depends(get_db)):
             "image_url": p.image_url,
         })
 
-    return {"categorias": categorias, "total": len(products)}
+    # ──────────────────────────────────────────────
+    # Combos activos visibles en catálogo
+    # ──────────────────────────────────────────────
+    from datetime import date
+    hoy = date.today()
+    combos_q = db.query(Combo).filter(
+        Combo.store_id == store.id,
+        Combo.is_active == True,
+        Combo.show_in_catalog == True,
+        or_(Combo.fecha_fin == None, Combo.fecha_fin >= hoy),
+    ).all()
+
+    combos = [{
+        "id": c.id,
+        "nombre": c.nombre,
+        "descripcion": c.descripcion,
+        "precio_combo": float(c.precio_combo or 0),
+        "precio_normal": float(c.precio_normal or 0),
+        "ahorro": round(
+            float(c.precio_normal or 0) -
+            float(c.precio_combo or 0), 2
+        ),
+        "imagen_url": c.imagen_url,
+        "fecha_fin": c.fecha_fin.isoformat() if c.fecha_fin else None,
+        "items": [
+            f"{float(i.quantity):.0f}x {i.product.name}"
+            for i in c.items if i.product
+        ],
+    } for c in combos_q]
+
+    return {
+        "categorias": categorias,
+        "total": len(products),
+        "combos": combos,
+    }
 
 
 @router.get("/api/public/carta/{telefono}/info")
