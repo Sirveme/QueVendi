@@ -67,6 +67,7 @@ from app.api.v1 import (
     kardex,
     purchases,
     tributario,
+    pricing,
 )
 from app.routers import lite
 
@@ -226,6 +227,7 @@ app.include_router(contador.router, prefix="/contador", tags=["contador"])
 app.include_router(kardex.router, prefix="/api/v1", tags=["kardex"])
 app.include_router(purchases.router, prefix="/api/v1", tags=["purchases"])
 app.include_router(tributario.router, prefix="/api/v1", tags=["tributario"])
+app.include_router(pricing.router, prefix="/api/v1", tags=["pricing"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
@@ -361,6 +363,12 @@ async def reports_page(request: Request):
 async def pedidos_page(request: Request):
     """Panel de pedidos de la carta virtual"""
     return templates.TemplateResponse("pedidos.html", {"request": request})
+
+
+@app.get("/precios", response_class=HTMLResponse)
+async def precios_page(request: Request):
+    """Configuración de precios y combos (multi-precios)"""
+    return templates.TemplateResponse("precios.html", {"request": request})
 
 
 @app.get("/users/add", response_class=HTMLResponse)
