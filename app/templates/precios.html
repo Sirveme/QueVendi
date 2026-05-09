@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precios y Combos · QueVendi</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:#0f172a; color:#e2e8f0;
+      min-height:100vh;
+    }
+    .topbar {
+      background:#1e293b; padding:14px 20px;
+      display:flex; align-items:center; gap:14px;
+      border-bottom:1px solid #334155;
+    }
+    .topbar a {
+      color:#94a3b8; text-decoration:none; font-size:14px;
+    }
+    .topbar h1 {
+      font-size:18px; color:#f1f5f9; font-weight:600;
+    }
+    .container {
+      max-width:1100px; margin:0 auto; padding:24px 20px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display:flex; gap:4px; margin-bottom:20px;
+      border-bottom:1px solid #334155;
+    }
+    .tab {
+      background:transparent; border:none; color:#94a3b8;
+      padding:12px 20px; font-size:14px; cursor:pointer;
+      border-bottom:2px solid transparent; font-weight:500;
+    }
+    .tab:hover { color:#e2e8f0; }
+    .tab.active { color:#3b82f6; border-bottom-color:#3b82f6; }
+
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* Cards / paneles */
+    .card {
+      background:#1e293b; border:1px solid #334155;
+      border-radius:12px; padding:20px; margin-bottom:16px;
+    }
+    .card h3 {
+      font-size:15px; color:#f1f5f9; margin-bottom:14px;
+      font-weight:600;
+    }
+
+    /* Formularios */
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+    .field { display:flex; flex-direction:column; gap:6px; flex:1; min-width:140px; }
+    .field label { font-size:12px; color:#94a3b8; }
+    input, select, textarea {
+      background:#0f172a; border:1px solid #334155;
+      color:#e2e8f0; padding:10px 12px; border-radius:8px;
+      font-size:14px; font-family:inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:none; border-color:#3b82f6;
+    }
+    .btn {
+      background:#3b82f6; color:white; border:none;
+      padding:10px 18px; border-radius:8px; font-size:13px;
+      font-weight:600; cursor:pointer;
+    }
+    .btn:hover { background:#2563eb; }
+    .btn-success { background:#22c55e; }
+    .btn-success:hover { background:#16a34a; }
+    .btn-danger { background:#ef4444; }
+    .btn-danger:hover { background:#dc2626; }
+    .btn-ghost {
+      background:transparent; border:1px solid #334155;
+      color:#94a3b8;
+    }
+    .btn-ghost:hover { color:#e2e8f0; border-color:#475569; }
+
+    /* Listas */
+    .list-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 14px; background:#0f172a;
+      border:1px solid #334155; border-radius:10px;
+      margin-bottom:8px;
+    }
+    .list-item:last-child { margin-bottom:0; }
+    .badge {
+      display:inline-block; padding:3px 10px; border-radius:8px;
+      font-size:11px; font-weight:600; color:white;
+    }
+    .actions { display:flex; gap:6px; }
+
+    /* Combo card */
+    .combo-card {
+      background:#0f172a; border:1px solid #334155;
+      border-radius:12px; padding:14px; margin-bottom:10px;
+    }
+    .combo-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:8px;
+    }
+    .combo-title { font-weight:600; color:#f1f5f9; font-size:14px; }
+    .combo-price { color:#22c55e; font-weight:700; font-size:16px; }
+    .combo-items-list {
+      font-size:12px; color:#94a3b8; margin-top:4px;
+    }
+
+    .empty {
+      padding:30px; text-align:center; color:#64748b;
+      font-size:13px;
+    }
+    .hint { font-size:12px; color:#64748b; margin-top:6px; }
+
+    /* Modal */
+    .modal-bg {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.6); z-index:100;
+      align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-bg.show { display:flex; }
+    .modal {
+      background:#1e293b; border:1px solid #334155;
+      border-radius:14px; padding:24px; max-width:560px;
+      width:100%; max-height:90vh; overflow-y:auto;
+    }
+    .modal h3 {
+      margin-bottom:14px; color:#f1f5f9; font-size:16px;
+    }
+    .modal-actions {
+      display:flex; gap:8px; justify-content:flex-end;
+      margin-top:16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/dashboard">← Dashboard</a>
+  <h1>🏷️ Precios y Combos</h1>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" data-tab="tiers" onclick="showTab('tiers', this)">Tipos de Cliente</button>
+    <button class="tab" data-tab="precios" onclick="showTab('precios', this)">Precios por Producto</button>
+    <button class="tab" data-tab="combos" onclick="showTab('combos', this)">Combos</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TAB: TIPOS DE CLIENTE                          -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-tiers">
+    <div class="card">
+      <h3>Crear nuevo tipo de cliente</h3>
+      <div class="row">
+        <div class="field">
+          <label>Nombre</label>
+          <input id="tier-nombre" placeholder="Mayorista, VIP, Distribuidor…">
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input id="tier-descripcion" placeholder="A partir de 6 unidades">
+        </div>
+        <div class="field" style="max-width:120px">
+          <label>Color</label>
+          <input id="tier-color" type="color" value="#3b82f6">
+        </div>
+        <button class="btn" onclick="crearTier()">+ Agregar</button>
+      </div>
+      <div class="hint">Los precios diferenciados se asignan luego a cada producto en la pestaña "Precios por Producto".</div>
+    </div>
+
+    <div class="card">
+      <h3>Tipos configurados</h3>
+      <div id="tiers-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TAB: PRECIOS POR PRODUCTO                       -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="panel" id="panel-precios">
+    <div class="card">
+      <h3>Selecciona un producto</h3>
+      <div class="row">
+        <div class="field" style="flex:1">
+          <input id="prod-search" placeholder="Buscar producto por nombre…" oninput="buscarProductos()">
+        </div>
+      </div>
+      <div id="prod-results" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" id="prod-detalle" style="display:none">
+      <h3 id="prod-detalle-title"></h3>
+      <div style="font-size:13px; color:#94a3b8; margin-bottom:14px">
+        Precio normal: <b id="prod-precio-normal" style="color:#f1f5f9"></b>
+      </div>
+
+      <h3 style="margin-top:8px">Agregar precio especial</h3>
+      <div class="row">
+        <div class="field">
+          <label>Tipo de cliente</label>
+          <select id="precio-tier"></select>
+        </div>
+        <div class="field" style="max-width:130px">
+          <label>Cantidad mínima</label>
+          <input id="precio-cantmin" type="number" step="0.001" value="1">
+        </div>
+        <div class="field" style="max-width:130px">
+          <label>Precio (S/)</label>
+          <input id="precio-valor" type="number" step="0.01" placeholder="7.50">
+        </div>
+        <button class="btn btn-success" onclick="agregarPrecioEspecial()">Guardar</button>
+      </div>
+
+      <h3 style="margin-top:16px">Precios configurados</h3>
+      <div id="precios-list"><div class="empty">Sin precios especiales</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TAB: COMBOS                                     -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="panel" id="panel-combos">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 style="margin:0">Combos activos</h3>
+        <button class="btn" onclick="abrirModalCombo()">+ Nuevo combo</button>
+      </div>
+    </div>
+    <div class="card">
+      <div id="combos-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- MODAL: NUEVO/EDITAR COMBO                       -->
+<!-- ════════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-combo">
+  <div class="modal">
+    <h3 id="modal-combo-title">Nuevo combo</h3>
+    <div class="row">
+      <div class="field" style="flex:1">
+        <label>Nombre</label>
+        <input id="combo-nombre" placeholder="Pack Mamá Feliz">
+      </div>
+      <div class="field" style="max-width:150px">
+        <label>Precio combo (S/)</label>
+        <input id="combo-precio" type="number" step="0.01">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="field">
+        <label>Descripción</label>
+        <input id="combo-desc" placeholder="Promoción para fechas especiales">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="field" style="max-width:160px">
+        <label>Fecha inicio</label>
+        <input id="combo-fini" type="date">
+      </div>
+      <div class="field" style="max-width:160px">
+        <label>Fecha fin</label>
+        <input id="combo-ffin" type="date">
+      </div>
+      <div class="field" style="max-width:160px">
+        <label>
+          <input id="combo-show" type="checkbox" checked> Mostrar en carta
+        </label>
+      </div>
+    </div>
+
+    <h3 style="margin-top:16px">Productos del combo</h3>
+    <div class="row">
+      <div class="field" style="flex:1">
+        <input id="combo-prod-search" placeholder="Buscar producto…" oninput="buscarProductosCombo()">
+      </div>
+    </div>
+    <div id="combo-prod-results" style="margin-top:8px"></div>
+    <div id="combo-items-list" style="margin-top:10px"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="cerrarModalCombo()">Cancelar</button>
+      <button class="btn btn-success" onclick="guardarCombo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/v1';
+
+function authHeaders() {
+  const token = localStorage.getItem('access_token') ||
+                localStorage.getItem('token');
+  const h = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  return h;
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { ...authHeaders(), ...(opts.headers || {}) },
+  });
+  if (res.status === 401) {
+    location.href = '/auth/login';
+    return null;
+  }
+  return res;
+}
+
+// ──────────────────────────────
+// TABS
+// ──────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+
+  if (name === 'tiers') cargarTiers();
+  if (name === 'precios') cargarTiersSelect();
+  if (name === 'combos') cargarCombos();
+}
+
+// ──────────────────────────────
+// TIERS
+// ──────────────────────────────
+let TIERS = [];
+
+async function cargarTiers() {
+  const r = await api('/pricing/tiers');
+  if (!r) return;
+  const d = await r.json();
+  TIERS = d.tiers || [];
+  const cont = document.getElementById('tiers-list');
+  if (!TIERS.length) {
+    cont.innerHTML = '<div class="empty">Aún no hay tipos de cliente. Crea el primero arriba.</div>';
+    return;
+  }
+  cont.innerHTML = TIERS.map(t => `
+    <div class="list-item">
+      <div style="display:flex; align-items:center; gap:10px">
+        <span class="badge" style="background:${t.color}">${t.nombre}</span>
+        <span style="font-size:13px; color:#94a3b8">${t.descripcion || ''}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="editarTier(${t.id})">Editar</button>
+        <button class="btn btn-danger" onclick="eliminarTier(${t.id})">Eliminar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function crearTier() {
+  const nombre = document.getElementById('tier-nombre').value.trim();
+  if (!nombre) return alert('Ingresa un nombre');
+  const r = await api('/pricing/tiers', {
+    method: 'POST',
+    body: JSON.stringify({
+      nombre,
+      descripcion: document.getElementById('tier-descripcion').value.trim(),
+      color: document.getElementById('tier-color').value,
+    })
+  });
+  if (r && r.ok) {
+    document.getElementById('tier-nombre').value = '';
+    document.getElementById('tier-descripcion').value = '';
+    cargarTiers();
+  }
+}
+
+async function editarTier(id) {
+  const t = TIERS.find(x => x.id === id);
+  if (!t) return;
+  const nombre = prompt('Nombre:', t.nombre);
+  if (!nombre) return;
+  const descripcion = prompt('Descripción:', t.descripcion || '');
+  await api(`/pricing/tiers/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ nombre, descripcion }),
+  });
+  cargarTiers();
+}
+
+async function eliminarTier(id) {
+  if (!confirm('¿Eliminar este tipo de cliente?')) return;
+  await api(`/pricing/tiers/${id}`, { method: 'DELETE' });
+  cargarTiers();
+}
+
+async function cargarTiersSelect() {
+  if (!TIERS.length) await cargarTiers();
+  const sel = document.getElementById('precio-tier');
+  if (!sel) return;
+  sel.innerHTML = TIERS.map(t =>
+    `<option value="${t.id}">${t.nombre}</option>`
+  ).join('') || '<option value="">No hay tipos — crea uno primero</option>';
+}
+
+// ──────────────────────────────
+// PRECIOS POR PRODUCTO
+// ──────────────────────────────
+let PRODUCTO_SEL = null;
+
+async function buscarProductos() {
+  const q = document.getElementById('prod-search').value.trim();
+  if (!q) {
+    document.getElementById('prod-results').innerHTML = '';
+    return;
+  }
+  const r = await api(`/products/v2/search?q=${encodeURIComponent(q)}`);
+  if (!r || !r.ok) return;
+  const d = await r.json();
+  const products = d.products || d.results || d || [];
+  const cont = document.getElementById('prod-results');
+  if (!products.length) {
+    cont.innerHTML = '<div class="empty">Sin coincidencias</div>';
+    return;
+  }
+  cont.innerHTML = products.slice(0, 8).map(p => `
+    <div class="list-item" style="cursor:pointer" onclick="seleccionarProducto(${p.id}, '${(p.name||'').replace(/'/g,"\\'")}', ${p.sale_price || p.price || 0})">
+      <div>
+        <div style="font-weight:600;color:#f1f5f9">${p.name}</div>
+        <div style="font-size:12px;color:#94a3b8">S/ ${Number(p.sale_price || p.price || 0).toFixed(2)}</div>
+      </div>
+      <span style="color:#3b82f6;font-size:13px">Seleccionar →</span>
+    </div>
+  `).join('');
+}
+
+async function seleccionarProducto(id, name, precio) {
+  PRODUCTO_SEL = { id, name, precio };
+  document.getElementById('prod-detalle').style.display = 'block';
+  document.getElementById('prod-detalle-title').textContent = name;
+  document.getElementById('prod-precio-normal').textContent = 'S/ ' + Number(precio).toFixed(2);
+  await cargarTiersSelect();
+  cargarPreciosProducto();
+}
+
+async function cargarPreciosProducto() {
+  if (!PRODUCTO_SEL) return;
+  const r = await api(`/pricing/producto/${PRODUCTO_SEL.id}`);
+  if (!r || !r.ok) return;
+  const d = await r.json();
+  const cont = document.getElementById('precios-list');
+  if (!d.precios || !d.precios.length) {
+    cont.innerHTML = '<div class="empty">Sin precios especiales</div>';
+    return;
+  }
+  cont.innerHTML = d.precios.map(p => `
+    <div class="list-item">
+      <div>
+        <span class="badge" style="background:${p.tier_color}">${p.tier_nombre}</span>
+        <span style="margin-left:10px;font-size:13px;color:#94a3b8">
+          ${p.cantidad_minima}+ uds → <b style="color:#f1f5f9">S/ ${Number(p.precio).toFixed(2)}</b>
+          · Ahorro S/ ${p.ahorro.toFixed(2)}
+        </span>
+      </div>
+      <button class="btn btn-danger" onclick="eliminarPrecio(${p.tier_id})">Eliminar</button>
+    </div>
+  `).join('');
+}
+
+async function agregarPrecioEspecial() {
+  if (!PRODUCTO_SEL) return;
+  const tier_id = parseInt(document.getElementById('precio-tier').value);
+  const cantidad_minima = parseFloat(document.getElementById('precio-cantmin').value);
+  const precio = parseFloat(document.getElementById('precio-valor').value);
+  if (!tier_id || !precio) return alert('Completa los datos');
+
+  // Cargar precios actuales para preservar otros tiers
+  const r = await api(`/pricing/producto/${PRODUCTO_SEL.id}`);
+  const d = await r.json();
+  const existentes = (d.precios || [])
+    .filter(p => p.tier_id !== tier_id)
+    .map(p => ({
+      tier_id: p.tier_id,
+      precio: p.precio,
+      cantidad_minima: p.cantidad_minima,
+    }));
+
+  existentes.push({ tier_id, precio, cantidad_minima });
+
+  await api(`/pricing/producto/${PRODUCTO_SEL.id}`, {
+    method: 'POST',
+    body: JSON.stringify({ precios: existentes }),
+  });
+  document.getElementById('precio-valor').value = '';
+  cargarPreciosProducto();
+}
+
+async function eliminarPrecio(tier_id) {
+  if (!PRODUCTO_SEL) return;
+  if (!confirm('¿Eliminar este precio especial?')) return;
+  const r = await api(`/pricing/producto/${PRODUCTO_SEL.id}`);
+  const d = await r.json();
+  const restantes = (d.precios || [])
+    .filter(p => p.tier_id !== tier_id)
+    .map(p => ({
+      tier_id: p.tier_id,
+      precio: p.precio,
+      cantidad_minima: p.cantidad_minima,
+    }));
+  await api(`/pricing/producto/${PRODUCTO_SEL.id}`, {
+    method: 'POST',
+    body: JSON.stringify({ precios: restantes }),
+  });
+  cargarPreciosProducto();
+}
+
+// ──────────────────────────────
+// COMBOS
+// ──────────────────────────────
+let COMBO_EDIT_ID = null;
+let COMBO_ITEMS = [];
+
+async function cargarCombos() {
+  const r = await api('/pricing/combos');
+  if (!r) return;
+  const d = await r.json();
+  const cont = document.getElementById('combos-list');
+  if (!d.combos || !d.combos.length) {
+    cont.innerHTML = '<div class="empty">Aún no hay combos. Crea el primero.</div>';
+    return;
+  }
+  cont.innerHTML = d.combos.map(c => `
+    <div class="combo-card">
+      <div class="combo-header">
+        <div>
+          <div class="combo-title">${c.nombre}</div>
+          <div class="combo-items-list">
+            ${c.items.map(i => `${i.quantity}x ${i.product_name}`).join(' + ')}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="combo-price">S/ ${c.precio_combo.toFixed(2)}</div>
+          ${c.precio_normal > c.precio_combo ? `
+            <div style="font-size:11px;color:#94a3b8;text-decoration:line-through">
+              S/ ${c.precio_normal.toFixed(2)}
+            </div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <div style="font-size:12px;color:#64748b">
+          ${c.show_in_catalog ? '✓ En carta virtual' : '✗ Oculto en carta'}
+          ${c.fecha_fin ? ' · Hasta ' + c.fecha_fin : ''}
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick='editarCombo(${JSON.stringify(c)})'>Editar</button>
+          <button class="btn btn-danger" onclick="eliminarCombo(${c.id})">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirModalCombo() {
+  COMBO_EDIT_ID = null;
+  COMBO_ITEMS = [];
+  document.getElementById('modal-combo-title').textContent = 'Nuevo combo';
+  ['combo-nombre','combo-precio','combo-desc','combo-fini','combo-ffin','combo-prod-search']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('combo-show').checked = true;
+  renderComboItems();
+  document.getElementById('modal-combo').classList.add('show');
+}
+
+function editarCombo(c) {
+  COMBO_EDIT_ID = c.id;
+  COMBO_ITEMS = (c.items || []).map(i => ({
+    product_id: i.product_id,
+    product_name: i.product_name,
+    quantity: i.quantity,
+    precio_unitario: i.precio_unitario,
+  }));
+  document.getElementById('modal-combo-title').textContent = 'Editar combo';
+  document.getElementById('combo-nombre').value = c.nombre || '';
+  document.getElementById('combo-precio').value = c.precio_combo || '';
+  document.getElementById('combo-desc').value = c.descripcion || '';
+  document.getElementById('combo-fini').value = c.fecha_inicio || '';
+  document.getElementById('combo-ffin').value = c.fecha_fin || '';
+  document.getElementById('combo-show').checked = !!c.show_in_catalog;
+  renderComboItems();
+  document.getElementById('modal-combo').classList.add('show');
+}
+
+function cerrarModalCombo() {
+  document.getElementById('modal-combo').classList.remove('show');
+}
+
+async function buscarProductosCombo() {
+  const q = document.getElementById('combo-prod-search').value.trim();
+  if (!q) {
+    document.getElementById('combo-prod-results').innerHTML = '';
+    return;
+  }
+  const r = await api(`/products/v2/search?q=${encodeURIComponent(q)}`);
+  if (!r || !r.ok) return;
+  const d = await r.json();
+  const products = d.products || d.results || d || [];
+  document.getElementById('combo-prod-results').innerHTML =
+    products.slice(0, 6).map(p => `
+      <div class="list-item" style="cursor:pointer; padding:8px 10px"
+           onclick="agregarItemCombo(${p.id}, '${(p.name||'').replace(/'/g,"\\'")}', ${p.sale_price || p.price || 0})">
+        <span style="color:#f1f5f9;font-size:13px">${p.name}</span>
+        <span style="color:#94a3b8;font-size:12px">S/ ${Number(p.sale_price || p.price || 0).toFixed(2)}</span>
+      </div>`).join('');
+}
+
+function agregarItemCombo(id, name, precio) {
+  if (COMBO_ITEMS.some(i => i.product_id === id)) return;
+  COMBO_ITEMS.push({
+    product_id: id, product_name: name,
+    quantity: 1, precio_unitario: precio,
+  });
+  document.getElementById('combo-prod-search').value = '';
+  document.getElementById('combo-prod-results').innerHTML = '';
+  renderComboItems();
+}
+
+function actualizarCantidadCombo(idx, val) {
+  COMBO_ITEMS[idx].quantity = parseFloat(val) || 1;
+}
+
+function quitarItemCombo(idx) {
+  COMBO_ITEMS.splice(idx, 1);
+  renderComboItems();
+}
+
+function renderComboItems() {
+  const cont = document.getElementById('combo-items-list');
+  if (!COMBO_ITEMS.length) {
+    cont.innerHTML = '<div class="empty" style="padding:14px">Agrega productos al combo</div>';
+    return;
+  }
+  cont.innerHTML = COMBO_ITEMS.map((i, idx) => `
+    <div class="list-item">
+      <div>
+        <div style="font-weight:600;color:#f1f5f9;font-size:13px">${i.product_name}</div>
+        <div style="font-size:11px;color:#94a3b8">S/ ${Number(i.precio_unitario||0).toFixed(2)} c/u</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="number" step="0.001" value="${i.quantity}" style="width:80px"
+               onchange="actualizarCantidadCombo(${idx}, this.value)">
+        <button class="btn btn-danger" onclick="quitarItemCombo(${idx})">×</button>
+      </div>
+    </div>`).join('');
+}
+
+async function guardarCombo() {
+  const nombre = document.getElementById('combo-nombre').value.trim();
+  const precio_combo = parseFloat(document.getElementById('combo-precio').value);
+  if (!nombre || !precio_combo) return alert('Nombre y precio son obligatorios');
+  if (!COMBO_ITEMS.length) return alert('Agrega al menos un producto');
+
+  const payload = {
+    nombre,
+    precio_combo,
+    descripcion: document.getElementById('combo-desc').value.trim(),
+    fecha_inicio: document.getElementById('combo-fini').value || null,
+    fecha_fin: document.getElementById('combo-ffin').value || null,
+    show_in_catalog: document.getElementById('combo-show').checked,
+    items: COMBO_ITEMS.map(i => ({
+      product_id: i.product_id,
+      quantity: i.quantity,
+      precio_unitario: i.precio_unitario,
+    })),
+  };
+
+  const url = COMBO_EDIT_ID ? `/pricing/combos/${COMBO_EDIT_ID}` : '/pricing/combos';
+  const method = COMBO_EDIT_ID ? 'PUT' : 'POST';
+  const r = await api(url, { method, body: JSON.stringify(payload) });
+  if (r && r.ok) {
+    cerrarModalCombo();
+    cargarCombos();
+  }
+}
+
+async function eliminarCombo(id) {
+  if (!confirm('¿Desactivar este combo?')) return;
+  await api(`/pricing/combos/${id}`, { method: 'DELETE' });
+  cargarCombos();
+}
+
+// Init
+cargarTiers();
+</script>
+
+</body>
+</html>
