@@ -302,7 +302,7 @@ function logout() {
 
 function addToCart(product, quantity = 1, silent = false) {
     const existing = AppState.cart.find(item => item.id === product.id);
-    
+
     if (existing) {
         existing.quantity += quantity;
     } else {
@@ -316,15 +316,22 @@ function addToCart(product, quantity = 1, silent = false) {
             quantity: quantity,
             stock: product.stock || 0
         });
-        
+
         addToRecentProducts(product);
     }
-    
+
     saveCart();
     renderCart();
     showCrossSell(product.name);
     showToast(`✅ ${product.name} agregado`, 'success');
     playSound('add');
+
+    // Detectar precio especial según cantidad total acumulada en el carrito
+    try {
+        const item = AppState.cart.find(i => i.id === product.id);
+        const cantidadTotal = item ? item.quantity : quantity;
+        verificarPrecioEspecial(product.id, cantidadTotal);
+    } catch (e) { /* no romper flujo de venta */ }
     
     // Anunciar total por voz (solo si no es silencioso)
     if (!silent) {
@@ -362,6 +369,85 @@ function updateQuantity(productId, quantity) {
         item.quantity = newQty;
         saveCart();
         renderCart();
+
+        try { verificarPrecioEspecial(productId, newQty); } catch (e) {}
+    }
+}
+
+// ════════════════════════════════════════════════
+// PRECIO ESPECIAL — detección automática (Mayorista/VIP/etc.)
+// ════════════════════════════════════════════════
+async function verificarPrecioEspecial(productId, cantidad) {
+    try {
+        const res = await fetchWithAuth(
+            `${CONFIG.apiBase}/pricing/detectar?product_id=${productId}&cantidad=${cantidad}`
+        );
+        if (!res || !res.ok) return;
+        const data = await res.json();
+        if (!data.aplica_especial) {
+            descartarPrecioEspecial();
+            return;
+        }
+        data._product_id = productId;
+        data._cantidad = cantidad;
+        mostrarOfertaPrecio(data);
+    } catch (e) { /* silencioso */ }
+}
+
+function mostrarOfertaPrecio(data) {
+    const banner = document.getElementById('precio-especial-banner');
+    if (!banner) return;
+    banner.innerHTML = `
+      <div style="background:rgba(34,197,94,0.15);
+                  border:1px solid #22c55e;
+                  border-radius:10px;padding:10px 14px;
+                  margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;
+                    color:#22c55e;margin-bottom:6px">
+          💡 Precio ${data.tier_nombre} disponible
+        </div>
+        <div style="font-size:12px;color:#94a3b8;
+                    margin-bottom:8px">
+          ${data.cantidad_minima}+ uds: S/ ${data.precio_especial}
+          · Ahorro total: S/ ${data.ahorro_total}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="aplicarPrecioEspecial(${data._product_id}, ${data.precio_especial}, '${(data.tier_nombre||'').replace(/'/g,"\\'")}')"
+                  style="background:#22c55e;color:white;
+                         border:none;padding:6px 14px;
+                         border-radius:8px;font-size:12px;
+                         font-weight:600;cursor:pointer">
+            ✓ Aplicar precio ${data.tier_nombre}
+          </button>
+          <button onclick="descartarPrecioEspecial()"
+                  style="background:transparent;
+                         border:1px solid #334155;
+                         color:#94a3b8;padding:6px 12px;
+                         border-radius:8px;font-size:12px;
+                         cursor:pointer">
+            Precio normal
+          </button>
+        </div>
+      </div>`;
+    banner.style.display = 'block';
+}
+
+function aplicarPrecioEspecial(productId, precioEspecial, tierNombre) {
+    const item = AppState.cart.find(i => i.id === productId);
+    if (!item) { descartarPrecioEspecial(); return; }
+    item.price = parseFloat(precioEspecial);
+    item.tier_nombre = tierNombre || '';
+    saveCart();
+    renderCart();
+    showToast(`✅ Precio ${tierNombre || 'especial'} aplicado`, 'success');
+    descartarPrecioEspecial();
+}
+
+function descartarPrecioEspecial() {
+    const banner = document.getElementById('precio-especial-banner');
+    if (banner) {
+        banner.style.display = 'none';
+        banner.innerHTML = '';
     }
 }
 
