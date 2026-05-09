@@ -18,6 +18,7 @@ from app.models.inventory import InventoryMovement
 from app.models.supplier import Supplier
 from app.models.purchase import Purchase, PurchaseItem
 from app.models.gasto_operativo import GastoOperativo
+from app.models.pricing import PriceTier, ProductPrice, Combo, ComboItem
 
 __all__ = [
     "Store",
@@ -49,4 +50,8 @@ __all__ = [
     "Purchase",
     "PurchaseItem",
     "GastoOperativo",
+    "PriceTier",
+    "ProductPrice",
+    "Combo",
+    "ComboItem",
 ]
