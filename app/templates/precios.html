@@ -188,11 +188,19 @@
     <div class="card">
       <h3>Selecciona un producto</h3>
       <div class="row">
-        <div class="field" style="flex:1">
-          <input id="prod-search" placeholder="Buscar producto por nombre…" oninput="buscarProductos()">
+        <div class="field" style="flex:1; position:relative">
+          <input id="prod-search"
+                 placeholder="Buscar producto por nombre…"
+                 oninput="buscarProductos(this.value, onSelectProductoPrecios, 'dropdown-precios')"
+                 onblur="setTimeout(() => document.getElementById('dropdown-precios').style.display='none', 180)"
+                 autocomplete="off">
+          <div id="dropdown-precios"
+               style="position:absolute;top:100%;left:0;z-index:100;
+                      background:#1e293b;border:1px solid #334155;
+                      border-radius:8px;max-height:240px;overflow-y:auto;
+                      width:100%;display:none;margin-top:4px"></div>
         </div>
       </div>
-      <div id="prod-results" style="margin-top:10px"></div>
     </div>
 
     <div class="card" id="prod-detalle" style="display:none">
@@ -280,11 +288,19 @@
 
     <h3 style="margin-top:16px">Productos del combo</h3>
     <div class="row">
-      <div class="field" style="flex:1">
-        <input id="combo-prod-search" placeholder="Buscar producto…" oninput="buscarProductosCombo()">
+      <div class="field" style="flex:1; position:relative">
+        <input id="combo-prod-search"
+               placeholder="Buscar producto…"
+               oninput="buscarProductos(this.value, onSelectProductoCombo, 'dropdown-combo')"
+               onblur="setTimeout(() => document.getElementById('dropdown-combo').style.display='none', 180)"
+               autocomplete="off">
+        <div id="dropdown-combo"
+             style="position:absolute;top:100%;left:0;z-index:100;
+                    background:#1e293b;border:1px solid #334155;
+                    border-radius:8px;max-height:240px;overflow-y:auto;
+                    width:100%;display:none;margin-top:4px"></div>
       </div>
     </div>
-    <div id="combo-prod-results" style="margin-top:8px"></div>
     <div id="combo-items-list" style="margin-top:10px"></div>
 
     <div class="modal-actions">
@@ -407,41 +423,78 @@ async function cargarTiersSelect() {
 }
 
 // ──────────────────────────────
+// AUTOCOMPLETE REUTILIZABLE
+// ──────────────────────────────
+// Mapa para callbacks de selección por dropdown id
+window._dropdownCallbacks = {};
+
+async function buscarProductos(query, onSelect, dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return;
+
+  // Registrar callback para este dropdown
+  window._dropdownCallbacks[dropdownId] = onSelect;
+
+  if (!query || query.length < 2) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  const r = await api(
+    `/products/v2/list?search=${encodeURIComponent(query)}&per_page=10`
+  );
+  if (!r || !r.ok) return;
+  const data = await r.json();
+  const productos = data.products || data || [];
+
+  if (!productos.length) {
+    dropdown.innerHTML = '<div style="padding:12px;color:#64748b;font-size:13px;text-align:center">Sin coincidencias</div>';
+    dropdown.style.display = 'block';
+    return;
+  }
+
+  dropdown.innerHTML = productos.map(p => {
+    const safe = JSON.stringify(p).replace(/"/g, '&quot;');
+    return `
+      <div data-product="${safe}"
+           onclick="_seleccionarProductoDropdown(this, '${dropdownId}')"
+           style="padding:10px 14px;cursor:pointer;
+                  font-size:13px;color:#f1f5f9;
+                  border-bottom:1px solid #334155"
+           onmouseover="this.style.background='#334155'"
+           onmouseout="this.style.background='transparent'">
+        <div style="font-weight:600">${p.name}</div>
+        <div style="font-size:11px;color:#94a3b8">
+          ${p.category || ''} · S/ ${Number(p.sale_price || 0).toFixed(2)}
+        </div>
+      </div>`;
+  }).join('');
+  dropdown.style.display = 'block';
+}
+
+function _seleccionarProductoDropdown(el, dropdownId) {
+  const p = JSON.parse(el.getAttribute('data-product'));
+  const cb = window._dropdownCallbacks[dropdownId];
+  document.getElementById(dropdownId).style.display = 'none';
+  if (typeof cb === 'function') cb(p);
+}
+
+// ──────────────────────────────
 // PRECIOS POR PRODUCTO
 // ──────────────────────────────
 let PRODUCTO_SEL = null;
 
-async function buscarProductos() {
-  const q = document.getElementById('prod-search').value.trim();
-  if (!q) {
-    document.getElementById('prod-results').innerHTML = '';
-    return;
-  }
-  const r = await api(`/products/v2/search?q=${encodeURIComponent(q)}`);
-  if (!r || !r.ok) return;
-  const d = await r.json();
-  const products = d.products || d.results || d || [];
-  const cont = document.getElementById('prod-results');
-  if (!products.length) {
-    cont.innerHTML = '<div class="empty">Sin coincidencias</div>';
-    return;
-  }
-  cont.innerHTML = products.slice(0, 8).map(p => `
-    <div class="list-item" style="cursor:pointer" onclick="seleccionarProducto(${p.id}, '${(p.name||'').replace(/'/g,"\\'")}', ${p.sale_price || p.price || 0})">
-      <div>
-        <div style="font-weight:600;color:#f1f5f9">${p.name}</div>
-        <div style="font-size:12px;color:#94a3b8">S/ ${Number(p.sale_price || p.price || 0).toFixed(2)}</div>
-      </div>
-      <span style="color:#3b82f6;font-size:13px">Seleccionar →</span>
-    </div>
-  `).join('');
-}
-
-async function seleccionarProducto(id, name, precio) {
-  PRODUCTO_SEL = { id, name, precio };
+async function onSelectProductoPrecios(p) {
+  document.getElementById('prod-search').value = p.name;
+  PRODUCTO_SEL = {
+    id: p.id,
+    name: p.name,
+    precio: parseFloat(p.sale_price || 0),
+  };
   document.getElementById('prod-detalle').style.display = 'block';
-  document.getElementById('prod-detalle-title').textContent = name;
-  document.getElementById('prod-precio-normal').textContent = 'S/ ' + Number(precio).toFixed(2);
+  document.getElementById('prod-detalle-title').textContent = p.name;
+  document.getElementById('prod-precio-normal').textContent =
+    'S/ ' + Number(PRODUCTO_SEL.precio).toFixed(2);
   await cargarTiersSelect();
   cargarPreciosProducto();
 }
@@ -597,33 +650,18 @@ function cerrarModalCombo() {
   document.getElementById('modal-combo').classList.remove('show');
 }
 
-async function buscarProductosCombo() {
-  const q = document.getElementById('combo-prod-search').value.trim();
-  if (!q) {
-    document.getElementById('combo-prod-results').innerHTML = '';
+function onSelectProductoCombo(p) {
+  if (COMBO_ITEMS.some(i => i.product_id === p.id)) {
+    document.getElementById('combo-prod-search').value = '';
     return;
   }
-  const r = await api(`/products/v2/search?q=${encodeURIComponent(q)}`);
-  if (!r || !r.ok) return;
-  const d = await r.json();
-  const products = d.products || d.results || d || [];
-  document.getElementById('combo-prod-results').innerHTML =
-    products.slice(0, 6).map(p => `
-      <div class="list-item" style="cursor:pointer; padding:8px 10px"
-           onclick="agregarItemCombo(${p.id}, '${(p.name||'').replace(/'/g,"\\'")}', ${p.sale_price || p.price || 0})">
-        <span style="color:#f1f5f9;font-size:13px">${p.name}</span>
-        <span style="color:#94a3b8;font-size:12px">S/ ${Number(p.sale_price || p.price || 0).toFixed(2)}</span>
-      </div>`).join('');
-}
-
-function agregarItemCombo(id, name, precio) {
-  if (COMBO_ITEMS.some(i => i.product_id === id)) return;
   COMBO_ITEMS.push({
-    product_id: id, product_name: name,
-    quantity: 1, precio_unitario: precio,
+    product_id: p.id,
+    product_name: p.name,
+    quantity: 1,
+    precio_unitario: parseFloat(p.sale_price || 0),
   });
   document.getElementById('combo-prod-search').value = '';
-  document.getElementById('combo-prod-results').innerHTML = '';
   renderComboItems();
 }
 
