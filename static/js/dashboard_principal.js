@@ -458,6 +458,154 @@ function descartarPrecioEspecial() {
     }
 }
 
+// ════════════════════════════════════════════════
+// COMBOS — bottom sheet en el POS
+// ════════════════════════════════════════════════
+let COMBOS_CACHE = [];
+
+async function cargarCombosBadge() {
+    try {
+        const r = await fetchWithAuth(`${CONFIG.apiBase}/pricing/combos`);
+        if (!r || !r.ok) return;
+        const d = await r.json();
+        COMBOS_CACHE = d.combos || [];
+        const badge = document.getElementById('badge-combos');
+        if (!badge) return;
+        if (COMBOS_CACHE.length > 0) {
+            badge.textContent = COMBOS_CACHE.length;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (e) {
+        console.log('[COMBOS] Error cargando:', e);
+    }
+}
+
+async function abrirSheetCombos() {
+    const overlay = document.getElementById('combos-sheet-overlay');
+    const sheet = document.getElementById('combos-sheet');
+    const list = document.getElementById('combos-sheet-list');
+    if (!overlay || !sheet || !list) return;
+
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:#94a3b8">Cargando…</div>';
+    overlay.style.display = 'block';
+    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
+
+    await cargarCombosBadge();
+
+    if (!COMBOS_CACHE.length) {
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b">No hay combos activos. Crea uno en /precios.</div>';
+        return;
+    }
+
+    list.innerHTML = COMBOS_CACHE.map((c, idx) => {
+        const items = (c.items || []).map(i =>
+            `${i.quantity}x ${i.product_name}`
+        ).join(' + ');
+        return `
+          <div style="background:#0f172a;border:1px solid #334155;
+                      border-radius:12px;padding:14px;margin-bottom:10px;
+                      position:relative;overflow:hidden">
+            ${c.ahorro > 0 ? `
+              <div style="position:absolute;top:10px;right:-6px;
+                          background:#f97316;color:white;
+                          padding:3px 14px 3px 8px;font-size:10px;
+                          font-weight:700;border-radius:4px 0 0 4px">
+                Ahorra S/ ${c.ahorro.toFixed(2)}
+              </div>` : ''}
+            <div style="font-size:14px;font-weight:700;color:#f1f5f9;
+                        margin-bottom:4px;padding-right:90px">
+              ${c.nombre}
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
+              ${items}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:18px;font-weight:800;color:#22c55e">
+                  S/ ${Number(c.precio_combo).toFixed(2)}
+                </div>
+                ${c.precio_normal > c.precio_combo ? `
+                  <div style="font-size:11px;color:#64748b;text-decoration:line-through">
+                    S/ ${Number(c.precio_normal).toFixed(2)}
+                  </div>` : ''}
+              </div>
+              <button onclick="agregarComboAlCarrito(${idx})"
+                      style="background:#22c55e;color:white;border:none;
+                             padding:8px 16px;border-radius:8px;
+                             font-size:13px;font-weight:600;cursor:pointer">
+                + Agregar
+              </button>
+            </div>
+          </div>`;
+    }).join('');
+}
+
+function cerrarSheetCombos() {
+    const overlay = document.getElementById('combos-sheet-overlay');
+    const sheet = document.getElementById('combos-sheet');
+    if (!sheet || !overlay) return;
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => { overlay.style.display = 'none'; }, 250);
+}
+
+async function _obtenerProducto(productId, fallback) {
+    // Intenta encontrarlo en AppState.products primero
+    const cached = AppState.products?.find(p => p.id === productId);
+    if (cached) return cached;
+
+    // Sino, fetch del backend
+    try {
+        const r = await fetchWithAuth(`${CONFIG.apiBase}/products/${productId}`);
+        if (r && r.ok) return await r.json();
+    } catch (e) { /* ignorar */ }
+
+    // Fallback con datos del combo
+    return fallback;
+}
+
+async function agregarComboAlCarrito(idx) {
+    const combo = COMBOS_CACHE[idx];
+    if (!combo) return;
+
+    const precioNormal = Number(combo.precio_normal || 0);
+    const precioCombo = Number(combo.precio_combo || 0);
+    const factor = (precioNormal > 0) ? (precioCombo / precioNormal) : 1;
+
+    for (const item of (combo.items || [])) {
+        const product = await _obtenerProducto(item.product_id, {
+            id: item.product_id,
+            name: item.product_name,
+            sale_price: item.precio_unitario || 0,
+            stock: 999,
+            unit: 'unidad',
+        });
+
+        const precioUnit = Number(item.precio_unitario || product.sale_price || 0);
+        const precioAjustado = +(precioUnit * factor).toFixed(2);
+
+        addToCart({
+            ...product,
+            sale_price: precioAjustado,
+            name: `${product.name} 🎁`,
+            _from_combo: combo.id,
+            _combo_nombre: combo.nombre,
+        }, Number(item.quantity || 1), true);
+    }
+
+    cerrarSheetCombos();
+    if (typeof showToast === 'function') {
+        showToast(`🎁 ${combo.nombre} agregado · Ahorro S/ ${combo.ahorro.toFixed(2)}`, 'success');
+    }
+    if (typeof playSound === 'function') playSound('add');
+}
+
+// Cargar badge al iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(cargarCombosBadge, 1500);
+});
+
 function updateCartItemQty(productId, value) {
     const item = AppState.cart.find(i => i.id === productId);
     if (!item) return;
