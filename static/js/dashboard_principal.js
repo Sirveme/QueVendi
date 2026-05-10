@@ -378,12 +378,17 @@ function updateQuantity(productId, quantity) {
 // PRECIO ESPECIAL — detección automática (Mayorista/VIP/etc.)
 // ════════════════════════════════════════════════
 async function verificarPrecioEspecial(productId, cantidad) {
+    console.log('[PRECIO] Verificando:', productId, cantidad);
     try {
         const res = await fetchWithAuth(
             `${CONFIG.apiBase}/pricing/detectar?product_id=${productId}&cantidad=${cantidad}`
         );
-        if (!res || !res.ok) return;
+        if (!res || !res.ok) {
+            console.log('[PRECIO] Respuesta NO OK:', res && res.status);
+            return;
+        }
         const data = await res.json();
+        console.log('[PRECIO] Respuesta:', data);
         if (!data.aplica_especial) {
             descartarPrecioEspecial();
             return;
@@ -391,7 +396,9 @@ async function verificarPrecioEspecial(productId, cantidad) {
         data._product_id = productId;
         data._cantidad = cantidad;
         mostrarOfertaPrecio(data);
-    } catch (e) { /* silencioso */ }
+    } catch (e) {
+        console.log('[PRECIO] Error:', e);
+    }
 }
 
 function mostrarOfertaPrecio(data) {
