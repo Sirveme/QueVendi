@@ -68,6 +68,7 @@ from app.api.v1 import (
     purchases,
     tributario,
     pricing,
+    webhooks,
 )
 from app.routers import lite
 
@@ -228,6 +229,7 @@ app.include_router(kardex.router, prefix="/api/v1", tags=["kardex"])
 app.include_router(purchases.router, prefix="/api/v1", tags=["purchases"])
 app.include_router(tributario.router, prefix="/api/v1", tags=["tributario"])
 app.include_router(pricing.router, prefix="/api/v1", tags=["pricing"])
+app.include_router(webhooks.router, prefix="/api/v1", tags=["webhooks"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
