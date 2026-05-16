@@ -134,61 +134,61 @@ const BluetoothPrinter = {
   async imprimirTicketHTML(htmlContent, config, anchoPapel = 58) {
     const anchoPixels = anchoPapel === 80 ? 576 : 384;
 
-    // Medir altura real del contenido
-    const tempDiv = document.createElement('div');
-    tempDiv.style.cssText = `
-      position: fixed; left: -9999px;
-      width: ${anchoPixels}px;
-      font-family: monospace; font-size: 22px;
-      background: white; color: black; padding: 8px;
+    // Crear div temporal con el ticket
+    const div = document.createElement('div');
+    div.style.cssText = `
+        position: fixed; left: -9999px; top: 0;
+        width: ${anchoPixels}px;
+        background: white; color: black;
+        font-family: monospace; font-size: 22px;
+        padding: 8px;
     `;
-    tempDiv.innerHTML = htmlContent;
-    document.body.appendChild(tempDiv);
-    const altura = tempDiv.scrollHeight + 40;
-    document.body.removeChild(tempDiv);
+    div.innerHTML = htmlContent;
+    document.body.appendChild(div);
 
-    // Crear canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = anchoPixels;
-    canvas.height = altura;
-    const ctx = canvas.getContext('2d');
+    try {
+        // html2canvas renderiza correctamente en Android
+        const canvas = await html2canvas(div, {
+            width: anchoPixels,
+            backgroundColor: '#ffffff',
+            scale: 1,
+            logging: false,
+            useCORS: true
+        });
 
-    // Fondo blanco
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, anchoPixels, altura);
+        document.body.removeChild(div);
 
-    // Renderizar HTML via SVG foreignObject
-    const svgData = `<svg xmlns="http://www.w3.org/2000/svg"
-      width="${anchoPixels}" height="${altura}">
-      <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml"
-          style="font-family:monospace;font-size:22px;
-                 background:white;color:black;padding:8px;
-                 width:${anchoPixels}px">
-          ${htmlContent}
-        </div>
-      </foreignObject>
-    </svg>`;
+        const imageData = canvas.getContext('2d').getImageData(
+            0, 0, canvas.width, canvas.height
+        );
+        await this._imprimirRaster(imageData, anchoPixels);
 
-    const blob = new Blob([svgData], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
+    } catch(e) {
+        document.body.removeChild(div);
+        throw e;
+    }
+  },
 
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = url;
-    });
+  async imprimirTexto(texto, anchoPapel = 58) {
+    const bytes = [];
 
-    ctx.drawImage(img, 0, 0);
-    URL.revokeObjectURL(url);
+    // Inicializar
+    bytes.push(0x1B, 0x40); // ESC @
 
-    // Convertir a ESC/POS raster
-    const imageData = ctx.getImageData(0, 0, anchoPixels, altura);
-    console.log('[BT] Canvas:', anchoPixels, 'x', altura);
-    console.log('[BT] ImageData size:',
-        anchoPixels * altura * 4, 'bytes');
-    await this._imprimirRaster(imageData, anchoPixels);
+    // Codificar texto línea por línea
+    const encoder = new TextEncoder();
+    const lineas = texto.split('\n');
+
+    for (const linea of lineas) {
+        const encoded = encoder.encode(linea);
+        for (const b of encoded) bytes.push(b);
+        bytes.push(0x0A); // nueva línea
+    }
+
+    // Avanzar papel
+    bytes.push(0x1B, 0x64, 0x05);
+
+    await this.enviarBytes(new Uint8Array(bytes));
   },
 
   async _imprimirRaster(imageData, anchoPixels) {
