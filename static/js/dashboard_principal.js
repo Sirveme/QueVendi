@@ -3379,19 +3379,20 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
     };
     modal.querySelector('#btn-modal-print-simple').onclick = async () => {
         alert('BT: ' + window.BluetoothPrinter?.estaConectado());
-        // Intentar Bluetooth primero
         if (window.BluetoothPrinter?.estaConectado()) {
             try {
+                alert('Intentando imprimir por BT...');
                 const config = JSON.parse(
                     localStorage.getItem('store_config') || '{}'
                 );
+                alert('Config OK, ticketHtml length: ' + ticketHtml?.length);
                 await window.BluetoothPrinter.imprimirTicketHTML(
                     ticketHtml, config, 58
                 );
+                alert('Impresión enviada OK');
                 return;
             } catch(e) {
-                console.warn('[BT Print] Error:', e);
-                // Si falla BT, continúa con impresión normal
+                alert('Error BT: ' + e.message);
             }
         }
         // Impresión normal (sin BT)
