@@ -84,6 +84,13 @@ const BluetoothPrinter = {
   // ─────────────────────────────────────────
 
   async enviarBytes(bytes) {
+    console.log('[BT] Enviando', bytes.length, 'bytes');
+    console.log('[BT] Characteristic:', this.characteristic?.uuid);
+    console.log('[BT] writeWithoutResponse:',
+        this.characteristic?.properties?.writeWithoutResponse);
+    console.log('[BT] write:',
+        this.characteristic?.properties?.write);
+
     if (!this.characteristic) throw new Error('Impresora no conectada');
 
     const CHUNK = 512;
@@ -156,6 +163,9 @@ const BluetoothPrinter = {
 
     // Convertir a ESC/POS raster
     const imageData = ctx.getImageData(0, 0, anchoPixels, altura);
+    console.log('[BT] Canvas:', anchoPixels, 'x', altura);
+    console.log('[BT] ImageData size:',
+        anchoPixels * altura * 4, 'bytes');
     await this._imprimirRaster(imageData, anchoPixels);
   },
 
