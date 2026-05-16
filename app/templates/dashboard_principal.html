@@ -377,6 +377,11 @@
                     <i class="fas fa-shield-alt"></i>
                 </button>
 
+                <button onclick="toggleBluetoothPrinter()"
+                        style="background:transparent;border:none;
+                               cursor:pointer;font-size:18px"
+                        title="Impresora Bluetooth">🖨️</button>
+
                 <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
@@ -1425,5 +1430,6 @@ document.addEventListener('keydown', function(e) {
       };
     })();
     </script>
+    <script src="/static/js/bluetooth_printer.js"></script>
 </body>
 </html>
