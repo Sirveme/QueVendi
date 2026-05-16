@@ -3377,7 +3377,23 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
     modal.querySelector('#btn-modal-share').onclick = () => {
         _shareComprobante(numeroFormato);
     };
-    modal.querySelector('#btn-modal-print-simple').onclick = () => {
+    modal.querySelector('#btn-modal-print-simple').onclick = async () => {
+        // Intentar Bluetooth primero
+        if (window.BluetoothPrinter?.estaConectado()) {
+            try {
+                const config = JSON.parse(
+                    localStorage.getItem('store_config') || '{}'
+                );
+                await window.BluetoothPrinter.imprimirTicketHTML(
+                    ticketHtml, config, 58
+                );
+                return;
+            } catch(e) {
+                console.warn('[BT Print] Error:', e);
+                // Si falla BT, continúa con impresión normal
+            }
+        }
+        // Impresión normal (sin BT)
         if (_detectarImpresora()) {
             imprimirTicketSimple(ticketHtml);
         } else {
@@ -6261,7 +6277,20 @@ async function pollPedidosCarta() {
     }
 }
 
-function toggleBluetoothPrinter(){alert('BT Printer');}
+function toggleBluetoothPrinter(){
+    if(!window.BluetoothPrinter){
+        showToast('Módulo BT no cargado','error');
+        return;
+    }
+    if(window.BluetoothPrinter.estaConectado()){
+        if(confirm('¿Desconectar impresora Bluetooth?')){
+            window.BluetoothPrinter.desconectar();
+            showToast('Impresora desconectada','info');
+        }
+    } else {
+        conectarImpresora();
+    }
+}
 async function conectarImpresora(){
   try{await window.BluetoothPrinter.conectar();
   showToast('Conectada','success');}
