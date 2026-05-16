@@ -6296,6 +6296,17 @@ function toggleBluetoothPrinter(){
         conectarImpresora();
     }
 }
+
+async function imprimirPrueba() {
+    if(!window.BluetoothPrinter?.estaConectado())
+        return showToast('Conecta la impresora primero','warning');
+    try {
+        await window.BluetoothPrinter.imprimirPruebaTexto();
+        showToast('Prueba enviada','success');
+    } catch(e) {
+        showToast('Error: '+e.message,'error');
+    }
+}
 async function conectarImpresora(){
   try{await window.BluetoothPrinter.conectar();
   showToast('Conectada','success');}
