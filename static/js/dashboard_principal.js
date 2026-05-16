@@ -6260,3 +6260,10 @@ async function pollPedidosCarta() {
         // silencioso — el polling sigue
     }
 }
+
+function toggleBluetoothPrinter(){alert('BT Printer');}
+async function conectarImpresora(){
+  try{await window.BluetoothPrinter.conectar();
+  showToast('Conectada','success');}
+  catch(e){showToast(e.message,'error');}
+}
