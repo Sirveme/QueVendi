@@ -147,7 +147,6 @@ const BluetoothPrinter = {
     document.body.appendChild(div);
 
     try {
-        // html2canvas renderiza correctamente en Android
         const canvas = await html2canvas(div, {
             width: anchoPixels,
             backgroundColor: '#ffffff',
@@ -156,15 +155,17 @@ const BluetoothPrinter = {
             useCORS: true
         });
 
-        document.body.removeChild(div);
-
         const imageData = canvas.getContext('2d').getImageData(
             0, 0, canvas.width, canvas.height
         );
+
+        // Remover ANTES de imprimir (una sola vez)
+        if (div.parentNode) div.parentNode.removeChild(div);
+
         await this._imprimirRaster(imageData, anchoPixels);
 
     } catch(e) {
-        document.body.removeChild(div);
+        if (div.parentNode) div.parentNode.removeChild(div);
         throw e;
     }
   },
