@@ -84,25 +84,47 @@ const BluetoothPrinter = {
   // ─────────────────────────────────────────
 
   async enviarBytes(bytes) {
-    console.log('[BT] Enviando', bytes.length, 'bytes');
-    console.log('[BT] Characteristic:', this.characteristic?.uuid);
-    console.log('[BT] writeWithoutResponse:',
-        this.characteristic?.properties?.writeWithoutResponse);
-    console.log('[BT] write:',
-        this.characteristic?.properties?.write);
+    const log = (msg) => {
+        console.log(msg);
+        // Mostrar en pantalla
+        let div = document.getElementById('bt-debug-log');
+        if (!div) {
+            div = document.createElement('div');
+            div.id = 'bt-debug-log';
+            div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;' +
+                'background:rgba(0,0,0,0.9);color:#0f0;font-size:10px;' +
+                'padding:8px;z-index:9999;max-height:200px;overflow-y:auto;' +
+                'font-family:monospace';
+            document.body.appendChild(div);
+        }
+        div.innerHTML += msg + '<br>';
+        div.scrollTop = div.scrollHeight;
+    };
 
-    if (!this.characteristic) throw new Error('Impresora no conectada');
+    log('UUID: ' + this.characteristic?.uuid);
+    log('writeWithoutResponse: ' + this.characteristic?.properties?.writeWithoutResponse);
+    log('write: ' + this.characteristic?.properties?.write);
+    log('Bytes a enviar: ' + bytes.length);
+
+    if (!this.characteristic) throw new Error('No conectado');
 
     const CHUNK = 512;
     for (let i = 0; i < bytes.length; i += CHUNK) {
-      const chunk = bytes.slice(i, i + CHUNK);
-      if (this.characteristic.properties.writeWithoutResponse) {
-        await this.characteristic.writeValueWithoutResponse(chunk);
-      } else {
-        await this.characteristic.writeValue(chunk);
-      }
-      await new Promise(r => setTimeout(r, 50));
+        const chunk = bytes.slice(i, i + CHUNK);
+        log('Enviando chunk ' + i + '/' + bytes.length);
+        try {
+            if (this.characteristic.properties.writeWithoutResponse) {
+                await this.characteristic.writeValueWithoutResponse(chunk);
+            } else {
+                await this.characteristic.writeValue(chunk);
+            }
+        } catch(e) {
+            log('ERROR en chunk ' + i + ': ' + e.name + ' / ' + e.message);
+            throw e;
+        }
+        await new Promise(r => setTimeout(r, 50));
     }
+    log('Envío completado OK');
   },
 
   // ─────────────────────────────────────────
