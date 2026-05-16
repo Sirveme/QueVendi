@@ -3392,7 +3392,10 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
                 alert('Impresión enviada OK');
                 return;
             } catch(e) {
-                alert('Error BT: ' + e.message);
+                alert('Error BT:\nNombre: ' + e.name +
+                      '\nMsg: ' + e.message +
+                      '\nTipo: ' + typeof e +
+                      '\nStack: ' + (e.stack || '').slice(0,100));
             }
         }
         // Impresión normal (sin BT)
