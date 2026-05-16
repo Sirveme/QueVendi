@@ -28,6 +28,7 @@ const BluetoothPrinter = {
 
     this.device = await navigator.bluetooth.requestDevice({
       filters: [
+        { namePrefix: 'QueVendi' },
         { namePrefix: 'Phomemo' },
         { namePrefix: 'M221' },
         { namePrefix: 'PT-' },
