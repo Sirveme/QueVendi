@@ -3378,6 +3378,7 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
         _shareComprobante(numeroFormato);
     };
     modal.querySelector('#btn-modal-print-simple').onclick = async () => {
+        alert('BT: ' + window.BluetoothPrinter?.estaConectado());
         // Intentar Bluetooth primero
         if (window.BluetoothPrinter?.estaConectado()) {
             try {
