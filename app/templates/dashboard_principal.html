@@ -382,6 +382,15 @@
                                cursor:pointer;font-size:18px"
                         title="Impresora Bluetooth">🖨️</button>
 
+                <button onclick="alert('BT conectado: ' +
+                  (window.BluetoothPrinter?.estaConectado()) +
+                  '\nMódulo cargado: ' +
+                  (!!window.BluetoothPrinter))"
+                 style="background:red;color:white;
+                        border:none;padding:4px 8px;
+                        border-radius:4px;font-size:11px">
+                  DEBUG</button>
+
                 <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
