@@ -194,59 +194,62 @@ const BluetoothPrinter = {
   },
 
   async _imprimirRaster(imageData, anchoPixels) {
-    const bytes = [];
     const { data, width, height } = imageData;
-    const bytesPerRow = Math.ceil(width / 8);
+    const widthBytes = Math.ceil(width / 8);
 
-    // Reset + centrado
-    bytes.push(0x1B, 0x40);
-    bytes.push(0x1B, 0x61, 0x01);
-
-    // Comando propietario Phomemo M220/M221
-    // OBLIGATORIO antes del raster
-    bytes.push(0x1F, 0x11, 0x02, 0x04);
-
-    // Enviar imagen en bloques de máx 255 líneas
-    const MAX_LINEAS = 255;
-    let lineaActual = 0;
-
-    while (lineaActual < height) {
-        const lineasBloque = Math.min(
-            MAX_LINEAS, height - lineaActual
-        );
-
-        // GS v 0
-        bytes.push(0x1D, 0x76, 0x30, 0x00);
-        bytes.push(bytesPerRow & 0xFF,
-                   (bytesPerRow >> 8) & 0xFF);
-        bytes.push(lineasBloque & 0xFF,
-                   (lineasBloque >> 8) & 0xFF);
-
-        for (let y = lineaActual;
-             y < lineaActual + lineasBloque; y++) {
-            for (let bx = 0; bx < bytesPerRow; bx++) {
-                let byte = 0;
-                for (let bit = 0; bit < 8; bit++) {
-                    const x = bx * 8 + bit;
-                    if (x < width) {
-                        const idx = (y * width + x) * 4;
-                        const lum = data[idx] * 0.299 +
-                            data[idx+1] * 0.587 +
-                            data[idx+2] * 0.114;
-                        if (lum < 128) byte |= (0x80 >> bit);
-                    }
+    // Preparar datos raster
+    const rasterData = [];
+    for (let y = 0; y < height; y++) {
+        for (let bx = 0; bx < widthBytes; bx++) {
+            let byte = 0;
+            for (let bit = 0; bit < 8; bit++) {
+                const x = bx * 8 + bit;
+                if (x < width) {
+                    const idx = (y * width + x) * 4;
+                    const lum = data[idx] * 0.299 +
+                                data[idx+1] * 0.587 +
+                                data[idx+2] * 0.114;
+                    if (lum < 128) byte |= (0x80 >> bit);
                 }
-                bytes.push(byte);
             }
+            rasterData.push(byte);
         }
-
-        lineaActual += lineasBloque;
     }
 
-    // Feed final
-    bytes.push(0x1B, 0x64, 0x05);
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-    await this.enviarBytes(new Uint8Array(bytes));
+    // 1. Init
+    await this.enviarBytes(new Uint8Array([0x1b, 0x40]));
+    await delay(100);
+
+    // 2. Heat settings (ESC 7) — CRÍTICO para M221
+    // maxDots=7, heatTime=120 (density 6/8), heatInterval=2
+    await this.enviarBytes(new Uint8Array([0x1b, 0x37, 7, 120, 2]));
+    await delay(30);
+
+    // 3. Density command
+    await this.enviarBytes(new Uint8Array([0x1d, 0x7c, 6]));
+    await delay(50);
+
+    // 4. Raster header GS v 0
+    await this.enviarBytes(new Uint8Array([
+        0x1d, 0x76, 0x30, 0x00,
+        widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
+        height & 0xFF, (height >> 8) & 0xFF
+    ]));
+
+    // 5. Datos en chunks de 128 bytes
+    const CHUNK = 128;
+    const bytes = new Uint8Array(rasterData);
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+        await this.enviarBytes(bytes.slice(i, i + CHUNK));
+        await delay(20);
+    }
+
+    // 6. Feed (ESC J = feed n dots, no ESC d)
+    await delay(300);
+    await this.enviarBytes(new Uint8Array([0x1b, 0x4a, 48]));
+    await delay(800);
   },
 
   // ─────────────────────────────────────────
