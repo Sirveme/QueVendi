@@ -166,7 +166,15 @@ class BillingService:
 
         # ✅ FIX v2: Solo guardar si facturalo tuvo éxito
         numero_real = resultado.get("numero", 0)
-        numero_formato_real = resultado.get("numero_formato", f"{serie}-{str(numero_real).zfill(8)}")
+        # Verificar si ese número ya existe y buscar el siguiente libre
+        while self.db.query(Comprobante).filter(
+            Comprobante.store_id == self.store_id,
+            Comprobante.serie == serie,
+            Comprobante.numero == numero_real
+        ).first():
+            logger.warning(f"[Billing] Número {serie}-{numero_real} ya existe, saltando...")
+            numero_real += 1
+        numero_formato_real = f"{serie}-{str(numero_real).zfill(8)}"
 
         comprobante = Comprobante(
             store_id=self.store_id,
