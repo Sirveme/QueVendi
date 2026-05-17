@@ -311,17 +311,9 @@ const BluetoothPrinter = {
 
   async imprimirPruebaTexto() {
     const bytes = [];
-    const enc = new TextEncoder();
 
-    // Reset
-    bytes.push(0x1B, 0x40);
-
-    // Texto simple
-    const texto = enc.encode('PRUEBA QUEVENDI\n');
-    for (const b of texto) bytes.push(b);
-
-    // Feed
-    bytes.push(0x0A, 0x0A, 0x0A);
+    // Comando específico Phomemo para avance
+    bytes.push(0x1B, 0x64, 0x0A); // feed 10 líneas
 
     await this.enviarBytes(new Uint8Array(bytes));
   }
