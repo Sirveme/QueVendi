@@ -164,15 +164,21 @@ const BluetoothPrinter = {
   },
 
   async imprimirPruebaTexto() {
-    const enc = new TextEncoder();
-    await this._send([0x1b, 0x40]);
-    await this._delay(100);
-    await this._send([0x1b, 0x37, 7, 120, 2]);
-    await this._delay(30);
-    await this._sendChunked(enc.encode('PRUEBA QUEVENDI\n\n\n'), 128, 20);
-    await this._delay(300);
-    await this._send([0x1b, 0x4a, 48]);
-    await this._delay(500);
+    const canvas = document.createElement('canvas');
+    canvas.width = 576;
+    canvas.height = 120;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, 576, 120);
+    ctx.fillStyle = 'black';
+    ctx.font = 'bold 32px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PRUEBA QUEVENDI', 288, 45);
+    ctx.font = '22px monospace';
+    ctx.fillText('quevendi.pro', 288, 90);
+    const {data, widthBytes, height} = this._canvasARaster(canvas);
+    await this._enviarRaster(data, widthBytes, height);
   },
 
   async imprimirVenta(venta, config, anchoPapel = 58) {
@@ -184,7 +190,8 @@ const BluetoothPrinter = {
   _renderTicketEnCanvas(venta, config) {
     const W = 576;
     const LINEA_H = 26;
-    const PAD = 12;
+    const PAD = 68; // margen izquierdo para papel 58mm en cabezal 72mm
+    const W_PAPEL = 464; // 58mm × 8px/mm
     const fmt = (n) => 'S/ ' + parseFloat(n || 0).toFixed(2);
     const fecha = new Date().toLocaleDateString('es-PE', {
         timeZone: 'America/Lima', day:'2-digit',
@@ -238,7 +245,7 @@ const BluetoothPrinter = {
         ctx.textBaseline = 'middle';
         if (l.c) {
             ctx.textAlign = 'center';
-            ctx.fillText(l.t, W/2, y);
+            ctx.fillText(l.t, PAD + W_PAPEL/2, y);
         } else {
             ctx.textAlign = 'left';
             ctx.fillText(l.t, PAD, y);
