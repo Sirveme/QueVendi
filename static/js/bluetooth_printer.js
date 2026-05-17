@@ -175,6 +175,140 @@ const BluetoothPrinter = {
     await this._delay(500);
   },
 
+  async imprimirVenta(venta, config, anchoPapel = 58) {
+    const canvas = this._renderTicketEnCanvas(venta, config);
+    const { data, widthBytes, height } = this._canvasARaster(canvas);
+    await this._enviarRaster(data, widthBytes, height);
+  },
+
+  _renderTicketEnCanvas(venta, config) {
+    const W = 576;
+    const LINEA_H = 26;
+    const PAD = 12;
+    const fmt = (n) => 'S/ ' + parseFloat(n || 0).toFixed(2);
+    const fecha = new Date().toLocaleDateString('es-PE', {
+        timeZone: 'America/Lima', day:'2-digit',
+        month:'2-digit', year:'numeric'
+    });
+    const hora = new Date().toLocaleTimeString('es-PE', {
+        timeZone: 'America/Lima',
+        hour:'2-digit', minute:'2-digit'
+    });
+    const linea = '─'.repeat(36);
+    const nombre = config.nombre_comercial ||
+                   config.razon_social || 'Mi Negocio';
+    const items = venta.items || [];
+
+    const lineas = [];
+    lineas.push({t: nombre, s: 32, bold: true, c: true});
+    if (config.direccion) lineas.push({t: config.direccion, s: 22, c: true});
+    if (config.ruc) lineas.push({t: 'RUC: '+config.ruc, s: 22, c: true});
+    lineas.push({t: linea, s: 22, c: true});
+    lineas.push({t: 'TICKET DE VENTA', s: 28, bold: true, c: true});
+    lineas.push({t: 'N°: '+(venta.sale_number||''), s: 22});
+    lineas.push({t: 'Fecha: '+fecha+' '+hora, s: 22});
+    lineas.push({t: linea, s: 22, c: true});
+    for (const item of items) {
+        lineas.push({t: (item.name||'').substring(0,28), s: 22});
+        const qty = parseFloat(item.quantity||0).toFixed(2);
+        const total = fmt((item.quantity||0)*(item.price||0));
+        lineas.push({t: '  '+qty+' x '+fmt(item.price)+' = '+total, s: 22});
+    }
+    lineas.push({t: linea, s: 22, c: true});
+    lineas.push({t: 'TOTAL: '+fmt(venta.total), s: 28, bold: true});
+    lineas.push({t: 'Pago: '+(venta.payment_method||'Contado'), s: 22});
+    lineas.push({t: linea, s: 22, c: true});
+    lineas.push({t: '¡Gracias por su compra!', s: 22, c: true});
+    lineas.push({t: 'quevendi.pro', s: 18, c: true});
+    lineas.push({t: '', s: 22});
+
+    const H = lineas.length * LINEA_H + PAD * 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'black';
+    let y = PAD + LINEA_H;
+    for (const l of lineas) {
+        if (!l.t) { y += LINEA_H; continue; }
+        ctx.font = (l.bold ? 'bold ' : '') + l.s + 'px monospace';
+        ctx.textBaseline = 'middle';
+        if (l.c) {
+            ctx.textAlign = 'center';
+            ctx.fillText(l.t, W/2, y);
+        } else {
+            ctx.textAlign = 'left';
+            ctx.fillText(l.t, PAD, y);
+        }
+        y += LINEA_H;
+    }
+    return canvas;
+  },
+
+  _canvasARaster(canvas) {
+    const ctx = canvas.getContext('2d');
+    const {width: W, height: H} = canvas;
+    const {data} = ctx.getImageData(0, 0, W, H);
+    const widthBytes = Math.ceil(W / 8);
+    const raster = new Uint8Array(widthBytes * H);
+    const gray = new Float32Array(W * H);
+    const gi = 1/1.3;
+    for (let i = 0; i < W*H; i++) {
+        const idx = i*4;
+        let g = 0.299*data[idx] + 0.587*data[idx+1] + 0.114*data[idx+2];
+        if (data[idx+3] < 255) g = g*(data[idx+3]/255) + 255*(1-data[idx+3]/255);
+        gray[i] = 255 * Math.pow(g/255, gi);
+    }
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const i = y*W + x;
+            const old = gray[i];
+            const nw = old < 128 ? 0 : 255;
+            const err = old - nw;
+            gray[i] = nw;
+            if (nw === 0) raster[y*widthBytes + Math.floor(x/8)] |= (1 << (7-(x%8)));
+            if (x+1 < W) gray[i+1] += err*7/16;
+            if (y+1 < H) {
+                if (x > 0) gray[(y+1)*W+(x-1)] += err*3/16;
+                gray[(y+1)*W+x] += err*5/16;
+                if (x+1 < W) gray[(y+1)*W+(x+1)] += err*1/16;
+            }
+        }
+    }
+    return {data: raster, widthBytes, height: H};
+  },
+
+  async _enviarRaster(data, widthBytes, height) {
+    await this._send([0x1b, 0x40]);
+    await this._delay(100);
+    await this._send([0x1b, 0x37, 7, 120, 2]);
+    await this._delay(30);
+    await this._send([0x1d, 0x7c, 6]);
+    await this._delay(50);
+    // Enviar en bloques de máx 255 líneas
+    const MAX_LINEAS = 255;
+    let lineaActual = 0;
+    while (lineaActual < height) {
+        const bloque = Math.min(MAX_LINEAS, height - lineaActual);
+        await this._send([
+            0x1d, 0x76, 0x30, 0x00,
+            widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
+            bloque & 0xFF, (bloque >> 8) & 0xFF,
+        ]);
+        const offset = lineaActual * widthBytes;
+        await this._sendChunked(
+            data.slice(offset, offset + bloque * widthBytes),
+            128, 20
+        );
+        lineaActual += bloque;
+    }
+    await this._delay(300);
+    await this._send([0x1b, 0x4a, 48]);
+    await this._delay(800);
+  },
+
   generarHTMLTicket(venta, config, anchoPapel = 58) {
     const fmt = (n) => `S/ ${parseFloat(n || 0).toFixed(2)}`;
     const fecha = new Date().toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: '2-digit', month: '2-digit', year: 'numeric' });
