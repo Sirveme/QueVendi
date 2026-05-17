@@ -132,7 +132,8 @@ const BluetoothPrinter = {
   // ─────────────────────────────────────────
 
   async imprimirTicketHTML(htmlContent, config, anchoPapel = 58) {
-    const anchoPixels = anchoPapel === 80 ? 576 : 384;
+    // M221 siempre usa 576px internamente
+    const anchoPixels = 576;
 
     // Crear div temporal con el ticket
     const div = document.createElement('div');
