@@ -2984,6 +2984,18 @@ async function executeSale(total, printType = 'none') {
             AppState.dailySales += total;
             updateGoalProgress();
 
+            // Snapshot del ticket para impresión BT (antes de limpiar carrito)
+            window._ultimaVentaBT = {
+                sale_number: result?.sale_number || result?.id || '',
+                total: AppState.cart.reduce((s,i) => s + i.quantity*i.price, 0),
+                payment_method: AppState.paymentMethod || 'Contado',
+                items: AppState.cart.map(i => ({
+                    name: i.name,
+                    quantity: i.quantity,
+                    price: i.price
+                }))
+            };
+
             // ✅ handlePrint ANTES de resetear (y lee de window._lastSalePayment)
             handlePrint(printType, result, total);
 
@@ -3385,17 +3397,8 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
                 const config = JSON.parse(
                     localStorage.getItem('store_config') || '{}'
                 );
-                const ventaData = {
-                    sale_number: '',
-                    total: AppState.cart
-                        ? AppState.cart.reduce((s,i) => s + i.quantity*i.price, 0)
-                        : 0,
-                    payment_method: 'Contado',
-                    items: AppState.cart
-                        ? AppState.cart.map(i => ({
-                            name: i.name, quantity: i.quantity, price: i.price
-                          }))
-                        : []
+                const ventaData = window._ultimaVentaBT || {
+                    items: [], total: 0, payment_method: 'Contado'
                 };
                 await window.BluetoothPrinter.imprimirVenta(ventaData, config, 58);
                 alert('Impresión enviada OK');

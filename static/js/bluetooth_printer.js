@@ -215,7 +215,8 @@ const BluetoothPrinter = {
         lineas.push({t: '  '+qty+' x '+fmt(item.price)+' = '+total, s: 22});
     }
     lineas.push({t: linea, s: 22, c: true});
-    lineas.push({t: 'TOTAL: '+fmt(venta.total), s: 28, bold: true});
+    lineas.push({t: 'TOTAL:', s: 28, bold: true, c: true});
+    lineas.push({t: fmt(venta.total), s: 32, bold: true, c: true});
     lineas.push({t: 'Pago: '+(venta.payment_method||'Contado'), s: 22});
     lineas.push({t: linea, s: 22, c: true});
     lineas.push({t: '¡Gracias por su compra!', s: 22, c: true});
