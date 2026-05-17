@@ -188,47 +188,41 @@ const BluetoothPrinter = {
   },
 
   _renderTicketEnCanvas(venta, config) {
-    const W = 576;
-    const LINEA_H = 26;
-    const PAD = 68; // margen izquierdo para papel 58mm en cabezal 72mm
-    const W_PAPEL = 464; // 58mm × 8px/mm
-    const fmt = (n) => 'S/ ' + parseFloat(n || 0).toFixed(2);
-    const fecha = new Date().toLocaleDateString('es-PE', {
-        timeZone: 'America/Lima', day:'2-digit',
-        month:'2-digit', year:'numeric'
-    });
-    const hora = new Date().toLocaleTimeString('es-PE', {
-        timeZone: 'America/Lima',
-        hour:'2-digit', minute:'2-digit'
-    });
-    const linea = '─'.repeat(36);
-    const nombre = config.nombre_comercial ||
-                   config.razon_social || 'Mi Negocio';
+    const W = 384; // 48 bytes × 8 = 384px para 58mm
+    const LINEA_H = 24;
+    const PAD = 10;
+    const fmt = (n) => 'S/ ' + parseFloat(n||0).toFixed(2);
+    const fecha = new Date().toLocaleDateString('es-PE',
+        {timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric'});
+    const hora = new Date().toLocaleTimeString('es-PE',
+        {timeZone:'America/Lima',hour:'2-digit',minute:'2-digit'});
+    const linea = '-'.repeat(32);
+    const nombre = (config.nombre_comercial||config.razon_social||'Mi Negocio').toUpperCase();
     const items = venta.items || [];
 
     const lineas = [];
-    lineas.push({t: nombre, s: 32, bold: true, c: true});
-    if (config.direccion) lineas.push({t: config.direccion, s: 22, c: true});
-    if (config.ruc) lineas.push({t: 'RUC: '+config.ruc, s: 22, c: true});
-    lineas.push({t: linea, s: 22, c: true});
-    lineas.push({t: 'TICKET DE VENTA', s: 28, bold: true, c: true});
-    lineas.push({t: 'N°: '+(venta.sale_number||''), s: 22});
-    lineas.push({t: 'Fecha: '+fecha+' '+hora, s: 22});
-    lineas.push({t: linea, s: 22, c: true});
+    lineas.push({t:nombre, s:26, bold:true, c:true});
+    if (config.direccion) lineas.push({t:config.direccion, s:18, c:true});
+    if (config.ruc) lineas.push({t:'RUC: '+config.ruc, s:18, c:true});
+    lineas.push({t:linea, s:18, c:true});
+    lineas.push({t:'TICKET DE VENTA', s:22, bold:true, c:true});
+    lineas.push({t:'N°: '+(venta.sale_number||''), s:18});
+    lineas.push({t:'Fecha: '+fecha+' '+hora, s:18});
+    lineas.push({t:linea, s:18, c:true});
     for (const item of items) {
-        lineas.push({t: (item.name||'').substring(0,28), s: 22});
+        lineas.push({t:(item.name||'').substring(0,24), s:18, bold:true});
         const qty = parseFloat(item.quantity||0).toFixed(2);
         const total = fmt((item.quantity||0)*(item.price||0));
-        lineas.push({t: '  '+qty+' x '+fmt(item.price)+' = '+total, s: 22});
+        lineas.push({t:'  '+qty+' x '+fmt(item.price)+' = '+total, s:18});
     }
-    lineas.push({t: linea, s: 22, c: true});
-    lineas.push({t: 'TOTAL:', s: 28, bold: true, c: true});
-    lineas.push({t: fmt(venta.total), s: 32, bold: true, c: true});
-    lineas.push({t: 'Pago: '+(venta.payment_method||'Contado'), s: 22});
-    lineas.push({t: linea, s: 22, c: true});
-    lineas.push({t: '¡Gracias por su compra!', s: 22, c: true});
-    lineas.push({t: 'quevendi.pro', s: 18, c: true});
-    lineas.push({t: '', s: 22});
+    lineas.push({t:linea, s:18, c:true});
+    lineas.push({t:'TOTAL: '+fmt(venta.total), s:24, bold:true});
+    lineas.push({t:'Pago: '+(venta.payment_method||'Contado'), s:18});
+    lineas.push({t:linea, s:18, c:true});
+    lineas.push({t:'Gracias por su compra!', s:18, c:true});
+    lineas.push({t:'quevendi.pro', s:16, c:true});
+    lineas.push({t:'', s:18});
+    lineas.push({t:'', s:18});
 
     const H = lineas.length * LINEA_H + PAD * 2;
     const canvas = document.createElement('canvas');
@@ -241,11 +235,11 @@ const BluetoothPrinter = {
     let y = PAD + LINEA_H;
     for (const l of lineas) {
         if (!l.t) { y += LINEA_H; continue; }
-        ctx.font = (l.bold ? 'bold ' : '') + l.s + 'px monospace';
+        ctx.font = (l.bold?'bold ':'')+l.s+'px Courier New';
         ctx.textBaseline = 'middle';
         if (l.c) {
             ctx.textAlign = 'center';
-            ctx.fillText(l.t, PAD + W_PAPEL/2, y);
+            ctx.fillText(l.t, W/2, y);
         } else {
             ctx.textAlign = 'left';
             ctx.fillText(l.t, PAD, y);
@@ -256,65 +250,62 @@ const BluetoothPrinter = {
   },
 
   _canvasARaster(canvas) {
-    const ctx = canvas.getContext('2d');
-    const {width: W, height: H} = canvas;
-    const {data} = ctx.getImageData(0, 0, W, H);
-    const widthBytes = Math.ceil(W / 8);
+    const W = canvas.width;
+    const H = canvas.height;
+    const {data} = canvas.getContext('2d').getImageData(0,0,W,H);
+    const widthBytes = Math.ceil(W/8);
     const raster = new Uint8Array(widthBytes * H);
-    const gray = new Float32Array(W * H);
-    const gi = 1/1.3;
-    for (let i = 0; i < W*H; i++) {
-        const idx = i*4;
-        let g = 0.299*data[idx] + 0.587*data[idx+1] + 0.114*data[idx+2];
-        if (data[idx+3] < 255) g = g*(data[idx+3]/255) + 255*(1-data[idx+3]/255);
-        gray[i] = 255 * Math.pow(g/255, gi);
-    }
     for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
-            const i = y*W + x;
-            const old = gray[i];
-            const nw = old < 128 ? 0 : 255;
-            const err = old - nw;
-            gray[i] = nw;
-            if (nw === 0) raster[y*widthBytes + Math.floor(x/8)] |= (1 << (7-(x%8)));
-            if (x+1 < W) gray[i+1] += err*7/16;
-            if (y+1 < H) {
-                if (x > 0) gray[(y+1)*W+(x-1)] += err*3/16;
-                gray[(y+1)*W+x] += err*5/16;
-                if (x+1 < W) gray[(y+1)*W+(x+1)] += err*1/16;
+            const idx = (y*W+x)*4;
+            const avg = (data[idx]+data[idx+1]+data[idx+2])/3;
+            if (avg < 128) {
+                raster[y*widthBytes+Math.floor(x/8)] |= (0x80>>(x%8));
             }
         }
     }
-    return {data: raster, widthBytes, height: H};
+    return {data:raster, widthBytes, height:H};
   },
 
   async _enviarRaster(data, widthBytes, height) {
+    const delay = (ms) => new Promise(r=>setTimeout(r,ms));
+
+    // 1. Init
     await this._send([0x1b, 0x40]);
-    await this._delay(100);
+    await delay(100);
+
+    // 2. Heat settings (phomymo — crítico)
     await this._send([0x1b, 0x37, 7, 120, 2]);
-    await this._delay(30);
+    await delay(30);
+
+    // 3. Density
     await this._send([0x1d, 0x7c, 6]);
-    await this._delay(50);
-    // Enviar en bloques de máx 255 líneas
-    const MAX_LINEAS = 255;
-    let lineaActual = 0;
-    while (lineaActual < height) {
-        const bloque = Math.min(MAX_LINEAS, height - lineaActual);
+    await delay(50);
+
+    // 4. Bloques de máx 200 líneas
+    const MAX = 200;
+    let linea = 0;
+    while (linea < height) {
+        const bloque = Math.min(MAX, height - linea);
         await this._send([
             0x1d, 0x76, 0x30, 0x00,
-            widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
-            bloque & 0xFF, (bloque >> 8) & 0xFF,
+            widthBytes & 0xFF, (widthBytes>>8) & 0xFF,
+            bloque & 0xFF, (bloque>>8) & 0xFF,
         ]);
-        const offset = lineaActual * widthBytes;
+        const offset = linea * widthBytes;
+        // Chunks de 20 bytes (MTU BLE seguro)
         await this._sendChunked(
-            data.slice(offset, offset + bloque * widthBytes),
-            128, 20
+            data.slice(offset, offset + bloque*widthBytes),
+            20, 10
         );
-        lineaActual += bloque;
+        linea += bloque;
+        await delay(100); // respiro entre bloques
     }
-    await this._delay(300);
-    await this._send([0x1b, 0x4a, 48]);
-    await this._delay(800);
+
+    // 5. Feed final
+    await delay(300);
+    await this._send([0x1b, 0x64, 0x05]);
+    await delay(800);
   },
 
   generarHTMLTicket(venta, config, anchoPapel = 58) {
