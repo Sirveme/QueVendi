@@ -3385,10 +3385,19 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
                 const config = JSON.parse(
                     localStorage.getItem('store_config') || '{}'
                 );
-                alert('Config OK, ticketHtml length: ' + ticketHtml?.length);
-                await window.BluetoothPrinter.imprimirTicketHTML(
-                    ticketHtml, config, 58
-                );
+                const ventaData = {
+                    sale_number: '',
+                    total: AppState.cart
+                        ? AppState.cart.reduce((s,i) => s + i.quantity*i.price, 0)
+                        : 0,
+                    payment_method: 'Contado',
+                    items: AppState.cart
+                        ? AppState.cart.map(i => ({
+                            name: i.name, quantity: i.quantity, price: i.price
+                          }))
+                        : []
+                };
+                await window.BluetoothPrinter.imprimirVenta(ventaData, config, 58);
                 alert('Impresión enviada OK');
                 return;
             } catch(e) {
