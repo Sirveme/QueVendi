@@ -2995,6 +2995,8 @@ async function executeSale(total, printType = 'none') {
                     price: i.price
                 }))
             };
+            console.log('[BT snapshot]',
+                JSON.stringify(window._ultimaVentaBT));
 
             // ✅ handlePrint ANTES de resetear (y lee de window._lastSalePayment)
             handlePrint(printType, result, total);

@@ -130,6 +130,22 @@ const OfflineSale = (() => {
             // 5. Mostrar modal de éxito offline
             showOfflineSuccessModal(total, verificationCode, localId);
 
+            // Snapshot del ticket para impresión BT (antes de limpiar carrito)
+            if (typeof AppState !== 'undefined' && AppState.cart) {
+                window._ultimaVentaBT = {
+                    sale_number: verificationCode || '',
+                    total: AppState.cart.reduce((s,i) => s + i.quantity*i.price, 0),
+                    payment_method: AppState.paymentMethod || 'Contado',
+                    items: AppState.cart.map(i => ({
+                        name: i.name,
+                        quantity: i.quantity,
+                        price: i.price
+                    }))
+                };
+                console.log('[BT snapshot]',
+                    JSON.stringify(window._ultimaVentaBT));
+            }
+
             // 6. Limpiar carrito
             if (typeof AppState !== 'undefined') {
                 AppState.cart = [];
