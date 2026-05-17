@@ -196,9 +196,17 @@ const BluetoothPrinter = {
   async _imprimirRaster(imageData, anchoPixels) {
     const { data, width, height } = imageData;
     const widthBytes = Math.ceil(width / 8);
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // Función send que envía UN buffer a la vez
+    const send = async (bytes) => {
+        await this.characteristic.writeValueWithoutResponse(
+            new Uint8Array(bytes).buffer
+        );
+    };
 
     // Preparar datos raster
-    const rasterData = [];
+    const rasterData = new Uint8Array(widthBytes * height);
     for (let y = 0; y < height; y++) {
         for (let bx = 0; bx < widthBytes; bx++) {
             let byte = 0;
@@ -212,43 +220,39 @@ const BluetoothPrinter = {
                     if (lum < 128) byte |= (0x80 >> bit);
                 }
             }
-            rasterData.push(byte);
+            rasterData[y * widthBytes + bx] = byte;
         }
     }
 
-    const delay = (ms) => new Promise(r => setTimeout(r, ms));
-
-    // 1. Init
-    await this.enviarBytes(new Uint8Array([0x1b, 0x40]));
+    // 1. Init — comando individual con delay
+    await send([0x1b, 0x40]);
     await delay(100);
 
-    // 2. Heat settings (ESC 7) — CRÍTICO para M221
-    // maxDots=7, heatTime=120 (density 6/8), heatInterval=2
-    await this.enviarBytes(new Uint8Array([0x1b, 0x37, 7, 120, 2]));
+    // 2. Heat settings — comando individual con delay
+    await send([0x1b, 0x37, 7, 120, 2]);
     await delay(30);
 
-    // 3. Density command
-    await this.enviarBytes(new Uint8Array([0x1d, 0x7c, 6]));
+    // 3. Density
+    await send([0x1d, 0x7c, 6]);
     await delay(50);
 
-    // 4. Raster header GS v 0
-    await this.enviarBytes(new Uint8Array([
+    // 4. Raster header
+    await send([
         0x1d, 0x76, 0x30, 0x00,
         widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
         height & 0xFF, (height >> 8) & 0xFF
-    ]));
+    ]);
 
-    // 5. Datos en chunks de 128 bytes
-    const CHUNK = 128;
-    const bytes = new Uint8Array(rasterData);
-    for (let i = 0; i < bytes.length; i += CHUNK) {
-        await this.enviarBytes(bytes.slice(i, i + CHUNK));
+    // 5. Datos en chunks de 128 bytes con delay de 20ms
+    for (let i = 0; i < rasterData.length; i += 128) {
+        const chunk = rasterData.slice(i, i + 128);
+        await send(chunk);
         await delay(20);
     }
 
-    // 6. Feed (ESC J = feed n dots, no ESC d)
+    // 6. Feed
     await delay(300);
-    await this.enviarBytes(new Uint8Array([0x1b, 0x4a, 48]));
+    await send([0x1b, 0x4a, 48]);
     await delay(800);
   },
 
