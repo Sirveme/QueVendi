@@ -115,6 +115,7 @@ const BluetoothPrinter = {
         logging: false,
         useCORS: true,
       });
+      alert('Canvas: ' + canvas.width + 'x' + canvas.height);
     } finally {
       if (div.parentNode) div.parentNode.removeChild(div);
     }
