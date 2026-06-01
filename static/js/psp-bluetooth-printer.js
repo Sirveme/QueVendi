@@ -34,9 +34,9 @@
   const WRITE_CHAR_UUID = 0xff02;
   const NOTIFY_CHAR_UUID = 0xff01;
 
-  // Configuración BLE
-  const CHUNK_SIZE = 128;        // Bytes por chunk de envío
-  const CHUNK_DELAY_MS = 20;     // Delay entre chunks
+  // Configuración BLE - VALORES PROBADOS EN PHOMYMO PARA M221
+  const CHUNK_SIZE = 256;        // 256 bytes (phomymo usa 200-256, más rápido que 128)
+  const CHUNK_DELAY_MS = 8;      // 8ms (phomymo usa 5-10ms, mucho más rápido)
   const MAX_RETRIES = 3;
   const INITIAL_RETRY_DELAY_MS = 500;
 
@@ -67,6 +67,53 @@
     return heatTimes[Math.max(0, Math.min(7, density - 1))];
   }
 
+  // ============ CONFIG DEL NEGOCIO EN LOCALSTORAGE ============
+  const STORAGE_KEY = 'psp-printer-negocio-config';
+
+  const NegocioConfig = {
+    DEFAULT: {
+      nombre_comercial: '',
+      razon_social: '',
+      ruc: '',
+      direccion: '',
+      telefono: '',
+      eslogan: '',
+      mensaje_pie: '¡Gracias por su compra!',
+      mensaje_promo: '',
+      mensaje_sorteo: '',
+      mostrar_telefono: true,
+      mostrar_promo: true,
+    },
+
+    load() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+          return { ...this.DEFAULT, ...JSON.parse(data) };
+        }
+      } catch (e) {
+        console.warn('Error cargando config:', e);
+      }
+      return { ...this.DEFAULT };
+    },
+
+    save(config) {
+      try {
+        const current = this.load();
+        const merged = { ...current, ...config };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      } catch (e) {
+        console.error('Error guardando config:', e);
+        return null;
+      }
+    },
+
+    clear() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
   // ============ CLASE PRINCIPAL ============
   class PSPPrinter {
     constructor(config = {}) {
@@ -79,7 +126,8 @@
 
       // Configuración por defecto
       this.ancho = config.ancho || '80mm';            // '58mm' o '80mm'
-      this.density = config.density || 5;             // 1-8, default 5 (medio)
+      this.density = config.density || 6;             // 1-8, default 6 (más oscuro)
+      this.tamanoFuente = config.tamanoFuente || 'M'; // 'S' / 'M' / 'L'
       this.feedAfterPrint = config.feedAfterPrint || 60;  // dots a alimentar después
       this.onProgress = config.onProgress || null;
       this.onLog = config.onLog || ((msg) => console.log('[PSPPrinter]', msg));
@@ -314,12 +362,31 @@
     }
 
     /**
+     * Cambiar tamaño base de fuente ('S' / 'M' / 'L')
+     */
+    setTamanoFuente(tamano) {
+      if (!['S', 'M', 'L'].includes(tamano)) {
+        throw new Error(`Tamaño no válido: ${tamano}. Use 'S', 'M' o 'L'`);
+      }
+      this.tamanoFuente = tamano;
+      this.onLog(`Tamaño de fuente: ${tamano}`);
+    }
+
+    /**
      * Imprimir un canvas directamente
      */
     async printCanvas(canvas) {
       if (!this.isConnected()) {
         throw new Error('No conectado. Llame a connect() primero.');
       }
+
+      const tStart = performance.now();
+      const t = (label) => {
+        const elapsed = Math.round(performance.now() - tStart);
+        this.onLog(`⏱ [${elapsed}ms] ${label}`);
+      };
+
+      t('Inicio printCanvas');
 
       const config = ANCHOS[this.ancho];
       const widthPx = config.widthPx;
@@ -329,27 +396,31 @@
       let canvasToUse = canvas;
       if (canvas.width !== widthPx) {
         canvasToUse = this._scaleCanvas(canvas, widthPx);
+        t('Canvas escalado');
       }
 
       // Convertir canvas a raster bytes
       const raster = this._canvasToRaster(canvasToUse, widthBytes);
       const heightLines = canvasToUse.height;
-
-      this.onLog(`Imprimiendo: ${widthPx}×${heightLines}px (${raster.length} bytes)`);
+      t(`Raster generado: ${widthPx}×${heightLines}px (${raster.length} bytes)`);
 
       // Secuencia de impresión
       await this._send(CMD.INIT);
-      await this._delay(100);
+      t('INIT enviado');
+      await this._delay(50);
 
       const heatTime = densityToHeatTime(this.density);
       this.onLog(`Heat time: ${heatTime}, density: ${this.density}`);
       await this._send(CMD.HEAT_SETTINGS(7, heatTime, 2));
-      await this._delay(30);
+      t('HEAT enviado');
+      await this._delay(20);
       await this._send(CMD.DENSITY(this.density));
-      await this._delay(50);
+      t('DENSITY enviado');
+      await this._delay(30);
 
       // Header del raster
       await this._send(CMD.RASTER_HEADER(widthBytes, heightLines));
+      t('RASTER_HEADER enviado - INICIO DE TRANSMISIÓN');
 
       // Enviar datos en chunks
       const totalChunks = Math.ceil(raster.length / CHUNK_SIZE);
@@ -365,13 +436,13 @@
           this.onProgress(Math.round((chunksEnviados / totalChunks) * 100));
         }
       }
+      t(`Transmisión completa (${totalChunks} chunks)`);
 
       // Feed final
-      await this._delay(300);
+      await this._delay(200);
       await this._send(CMD.FEED(this.feedAfterPrint));
-      await this._delay(800);
-
-      this.onLog('Impresión completa!');
+      await this._delay(500);
+      t('Impresión finalizada');
     }
 
     /**
@@ -394,12 +465,42 @@
 
     /**
      * Renderizar un ticket completo en un canvas
+     * Optimizado para legibilidad en impresora térmica 203 DPI
+     *
+     * Usa configuración del negocio guardada en localStorage si está disponible.
+     * Los campos pasados en ticket sobreescriben los de la configuración.
      */
     _renderTicketCanvas(ticket) {
+      // Cargar configuración del negocio y combinar con datos del ticket
+      const cfg = NegocioConfig.load();
+      const t = {
+        negocio: ticket.negocio || cfg.nombre_comercial || cfg.razon_social || 'MI NEGOCIO',
+        razon_social: ticket.razon_social || cfg.razon_social || '',
+        ruc: ticket.ruc || cfg.ruc || '',
+        direccion: ticket.direccion || cfg.direccion || '',
+        telefono: ticket.telefono || (cfg.mostrar_telefono ? cfg.telefono : '') || '',
+        eslogan: ticket.eslogan || cfg.eslogan || '',
+        numero: ticket.numero || '',
+        cliente: ticket.cliente || '',
+        items: ticket.items || [],
+        total: ticket.total || 0,
+        metodoPago: ticket.metodoPago || '',
+        mensajePromo: ticket.mensajePromo || (cfg.mostrar_promo ? cfg.mensaje_promo : '') || '',
+        mensajeSorteo: ticket.mensajeSorteo || cfg.mensaje_sorteo || '',
+        pieMensaje: ticket.pieMensaje || cfg.mensaje_pie || '¡Gracias por su compra!',
+      };
+
       const config = ANCHOS[this.ancho];
       const W = config.widthPx;
-      const PAD = 10;
-      const LINEA_H = this.ancho === '58mm' ? 22 : 28;
+      const PAD = 12;
+
+      // Presets de tamaños (en pixels a 203 DPI)
+      const PRESETS = {
+        'S': { titulo: 32, datos: 22, items: 22, total: 30, pie: 20, lineaH: 30 },
+        'M': { titulo: 38, datos: 26, items: 26, total: 38, pie: 22, lineaH: 36 },
+        'L': { titulo: 44, datos: 30, items: 30, total: 46, pie: 26, lineaH: 42 },
+      };
+      const P = PRESETS[this.tamanoFuente] || PRESETS['M'];
 
       const fmt = (n) => 'S/ ' + parseFloat(n || 0).toFixed(2);
       const ahora = new Date();
@@ -409,75 +510,124 @@
       const hora = ahora.toLocaleTimeString('es-PE', {
         timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit'
       });
-      const linea = this.ancho === '58mm' ? '-'.repeat(32) : '-'.repeat(42);
+
+      // Caracteres por línea según ancho y tamaño
+      const charsXLinea = this.ancho === '58mm'
+        ? (this.tamanoFuente === 'L' ? 20 : this.tamanoFuente === 'M' ? 26 : 32)
+        : (this.tamanoFuente === 'L' ? 32 : this.tamanoFuente === 'M' ? 38 : 46);
+
+      const linea = '='.repeat(charsXLinea);
+      const lineaFina = '-'.repeat(charsXLinea);
 
       const lineas = [];
 
-      // Cabecera
-      lineas.push({ t: (ticket.negocio || 'MI NEGOCIO').toUpperCase(), s: 26, bold: true, c: true });
-      if (ticket.direccion) lineas.push({ t: ticket.direccion, s: 18, c: true });
-      if (ticket.ruc) lineas.push({ t: 'RUC: ' + ticket.ruc, s: 18, c: true });
-      lineas.push({ t: linea, s: 18, c: true });
+      // ── CABECERA DEL NEGOCIO ─────────────────────────────
+      lineas.push({ t: t.negocio.toUpperCase(), s: P.titulo, c: true });
 
-      // Tipo de ticket
-      lineas.push({ t: 'TICKET DE VENTA', s: 22, bold: true, c: true });
-      if (ticket.numero) lineas.push({ t: 'N°: ' + ticket.numero, s: 18 });
-      lineas.push({ t: 'Fecha: ' + fecha + ' ' + hora, s: 18 });
-      if (ticket.cliente) lineas.push({ t: 'Cliente: ' + ticket.cliente, s: 18 });
-      lineas.push({ t: linea, s: 18, c: true });
+      if (t.razon_social && t.razon_social.toUpperCase() !== t.negocio.toUpperCase()) {
+        lineas.push({ t: t.razon_social, s: P.datos, c: true });
+      }
+      if (t.ruc) lineas.push({ t: 'RUC: ' + t.ruc, s: P.datos, c: true });
+      if (t.direccion) lineas.push({ t: t.direccion, s: P.datos, c: true });
+      if (t.telefono) lineas.push({ t: 'Cel: ' + t.telefono, s: P.datos, c: true });
+      if (t.eslogan) {
+        lineas.push({ t: '', s: P.datos });
+        lineas.push({ t: t.eslogan, s: P.datos, c: true });
+      }
+      lineas.push({ t: linea, s: P.datos, c: true });
 
-      // Items
-      const items = ticket.items || [];
-      for (const item of items) {
-        const nombre = (item.nombre || item.name || '').substring(0, this.ancho === '58mm' ? 24 : 34);
-        lineas.push({ t: nombre, s: 18, bold: true });
-        const qty = parseFloat(item.cantidad || item.quantity || 0).toFixed(2);
+      // ── DATOS DEL TICKET ─────────────────────────────────
+      lineas.push({ t: 'TICKET DE VENTA', s: P.titulo - 6, c: true });
+      if (t.numero) lineas.push({ t: 'N°: ' + t.numero, s: P.datos });
+      lineas.push({ t: fecha + '  ' + hora, s: P.datos });
+      if (t.cliente) lineas.push({ t: 'Cliente: ' + t.cliente, s: P.datos });
+      lineas.push({ t: lineaFina, s: P.datos, c: true });
+
+      // ── ITEMS ────────────────────────────────────────────
+      const maxNombre = charsXLinea - 4;
+      for (const item of t.items) {
+        const nombre = (item.nombre || item.name || '').substring(0, maxNombre);
+        lineas.push({ t: nombre, s: P.items });
+        const qty = parseFloat(item.cantidad || item.quantity || 0);
+        const qtyStr = qty % 1 === 0 ? qty.toString() : qty.toFixed(2);
         const precio = item.precio || item.price || 0;
         const totalItem = fmt(qty * precio);
-        lineas.push({ t: '  ' + qty + ' x ' + fmt(precio) + ' = ' + totalItem, s: 18 });
+        lineas.push({ t: '  ' + qtyStr + ' x ' + fmt(precio) + ' = ' + totalItem, s: P.items });
       }
 
-      lineas.push({ t: linea, s: 18, c: true });
+      lineas.push({ t: lineaFina, s: P.datos, c: true });
 
-      // Total
-      lineas.push({ t: 'TOTAL: ' + fmt(ticket.total), s: 26, bold: true });
-      if (ticket.metodoPago) {
-        lineas.push({ t: 'Pago: ' + ticket.metodoPago, s: 18 });
+      // ── TOTAL ────────────────────────────────────────────
+      lineas.push({ t: 'TOTAL: ' + fmt(t.total), s: P.total, c: true });
+      if (t.metodoPago) {
+        lineas.push({ t: 'Pago: ' + t.metodoPago, s: P.datos, c: true });
       }
-      lineas.push({ t: linea, s: 18, c: true });
+      lineas.push({ t: linea, s: P.datos, c: true });
 
-      // Pie
-      if (ticket.pieMensaje) {
-        const lineasPie = ticket.pieMensaje.split('\n');
-        for (const lp of lineasPie) {
-          lineas.push({ t: lp, s: 16, c: true });
+      // ── MENSAJE PROMOCIONAL ──────────────────────────────
+      if (t.mensajePromo) {
+        const lineasPromo = t.mensajePromo.split('\n');
+        for (const lp of lineasPromo) {
+          if (lp.trim()) lineas.push({ t: lp, s: P.pie, c: true });
         }
-      } else {
-        lineas.push({ t: '¡Gracias por su compra!', s: 18, c: true });
+        lineas.push({ t: '', s: P.datos });
+      }
+
+      // ── SORTEO ───────────────────────────────────────────
+      if (t.mensajeSorteo) {
+        lineas.push({ t: '★ SORTEO ★', s: P.pie, c: true });
+        const lineasSorteo = t.mensajeSorteo.split('\n');
+        for (const ls of lineasSorteo) {
+          if (ls.trim()) lineas.push({ t: ls, s: P.pie, c: true });
+        }
+        lineas.push({ t: '', s: P.datos });
+      }
+
+      // ── PIE ──────────────────────────────────────────────
+      if (t.pieMensaje) {
+        const lineasPie = t.pieMensaje.split('\n');
+        for (const lp of lineasPie) {
+          if (lp.trim()) lineas.push({ t: lp, s: P.pie, c: true });
+        }
       }
 
       // Espacios al final
-      lineas.push({ t: '', s: 18 });
-      lineas.push({ t: '', s: 18 });
+      lineas.push({ t: '', s: P.datos });
+      lineas.push({ t: '', s: P.datos });
 
-      // Calcular altura total
-      const H = lineas.length * LINEA_H + PAD * 2;
+      // Calcular altura total con line-height proporcional al tamaño
+      let alturaTotal = PAD * 2;
+      for (const l of lineas) {
+        alturaTotal += Math.max(P.lineaH, l.s * 1.3);
+      }
 
-      // Crear canvas
+      // Crear canvas con resolución correcta
       const canvas = document.createElement('canvas');
       canvas.width = W;
-      canvas.height = H;
+      canvas.height = Math.ceil(alturaTotal);
       const ctx = canvas.getContext('2d');
 
+      // Fondo blanco sólido
       ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, W, canvas.height);
       ctx.fillStyle = 'black';
 
-      let y = PAD + LINEA_H;
+      // CRÍTICO: desactivar antialiasing del texto para impresión térmica nítida
+      ctx.imageSmoothingEnabled = false;
+      ctx.textRendering = 'geometricPrecision';
+
+      let y = PAD;
       for (const l of lineas) {
-        if (!l.t) { y += LINEA_H; continue; }
-        ctx.font = (l.bold ? 'bold ' : '') + l.s + 'px Courier New, monospace';
-        ctx.textBaseline = 'middle';
+        const lh = Math.max(P.lineaH, l.s * 1.3);
+        if (!l.t) {
+          y += lh;
+          continue;
+        }
+        // SIEMPRE en bold para legibilidad en térmica
+        ctx.font = `bold ${l.s}px 'Courier New', 'Consolas', monospace`;
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = 'black';
+
         if (l.c) {
           ctx.textAlign = 'center';
           ctx.fillText(l.t, W / 2, y);
@@ -485,7 +635,7 @@
           ctx.textAlign = 'left';
           ctx.fillText(l.t, PAD, y);
         }
-        y += LINEA_H;
+        y += lh;
       }
 
       return canvas;
@@ -510,6 +660,7 @@
 
     /**
      * Convertir un canvas a bytes raster monocromo
+     * Threshold ajustado para texto nítido en impresión térmica
      */
     _canvasToRaster(canvas, widthBytes) {
       const W = canvas.width;
@@ -517,6 +668,10 @@
       const ctx = canvas.getContext('2d');
       const { data } = ctx.getImageData(0, 0, W, H);
       const raster = new Uint8Array(widthBytes * H);
+
+      // Threshold alto para que píxeles semi-grises (antialiasing) cuenten como negro
+      // Esto hace el texto mucho más nítido en térmica
+      const THRESHOLD = 180;
 
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W && x < widthBytes * 8; x++) {
@@ -528,10 +683,11 @@
 
           // Considerar pixeles transparentes como blancos
           const alpha = a / 255;
-          const avg = (r * alpha + g * alpha + b * alpha) / 3 + 255 * (1 - alpha);
+          const luminancia = (r * 0.299 + g * 0.587 + b * 0.114);
+          const valor = luminancia * alpha + 255 * (1 - alpha);
 
-          // Threshold simple
-          if (avg < 128) {
+          // Threshold más alto = más píxeles capturados como negro = letras más sólidas
+          if (valor < THRESHOLD) {
             raster[y * widthBytes + Math.floor(x / 8)] |= (0x80 >> (x % 8));
           }
         }
@@ -588,5 +744,6 @@
 
   // Exportar al global
   global.PSPPrinter = PSPPrinter;
+  global.PSPNegocioConfig = NegocioConfig;
 
 })(typeof window !== 'undefined' ? window : globalThis);
