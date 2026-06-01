@@ -34,9 +34,12 @@
   const WRITE_CHAR_UUID = 0xff02;
   const NOTIFY_CHAR_UUID = 0xff01;
 
-  // Configuración BLE - VALORES PROBADOS EN PHOMYMO PARA M221
-  const CHUNK_SIZE = 256;        // 256 bytes (phomymo usa 200-256, más rápido que 128)
-  const CHUNK_DELAY_MS = 8;      // 8ms (phomymo usa 5-10ms, mucho más rápido)
+  // Configuración BLE - AJUSTADO PARA M221
+  // MTU típico BLE: ~150-180 bytes. Chunks de 128 bytes garantizan que no se corten.
+  const CHUNK_SIZE = 128;        // 128 bytes - respeta MTU del M221 sin fragmentar
+  const CHUNK_DELAY_MS = 10;     // 10ms entre chunks (sin flow control)
+  const ACK_TIMEOUT_MS = 200;    // Timeout máximo esperando ACK
+  const USE_ACK_FLOW = false;    // true = espera ACK 01 01 antes de siguiente chunk
   const MAX_RETRIES = 3;
   const INITIAL_RETRY_DELAY_MS = 500;
 
@@ -133,6 +136,8 @@
       this.onLog = config.onLog || ((msg) => console.log('[PSPPrinter]', msg));
 
       this._notificationHandler = null;
+      this._ackResolver = null;
+      this._lastAck = 0;
     }
 
     static isAvailable() {
@@ -301,7 +306,19 @@
               await ch.startNotifications();
               this._notificationHandler = (event) => {
                 const data = new Uint8Array(event.target.value.buffer);
-                this.onLog(`Notif: ${Array.from(data).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+                const hex = Array.from(data).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                this.onLog(`Notif: ${hex}`);
+
+                // Detectar ACK de Phomemo
+                // 01 01 = chunk procesado correctamente
+                // 01 07 = init ack
+                if (data.length >= 2 && data[0] === 0x01 && data[1] === 0x01) {
+                  if (this._ackResolver) {
+                    const resolver = this._ackResolver;
+                    this._ackResolver = null;
+                    resolver();
+                  }
+                }
               };
               ch.addEventListener('characteristicvaluechanged', this._notificationHandler);
               this.onLog(`✓ Notificaciones habilitadas en: ${ch.uuid}`);
@@ -422,14 +439,35 @@
       await this._send(CMD.RASTER_HEADER(widthBytes, heightLines));
       t('RASTER_HEADER enviado - INICIO DE TRANSMISIÓN');
 
-      // Enviar datos en chunks
+      // Enviar datos en chunks de 128 bytes (MTU safe)
       const totalChunks = Math.ceil(raster.length / CHUNK_SIZE);
       let chunksEnviados = 0;
+      this.onLog(`Enviando ${totalChunks} chunks de ${CHUNK_SIZE} bytes`);
 
       for (let i = 0; i < raster.length; i += CHUNK_SIZE) {
         const chunk = raster.slice(i, Math.min(i + CHUNK_SIZE, raster.length));
-        await this._send(chunk);
-        await this._delay(CHUNK_DELAY_MS);
+
+        if (USE_ACK_FLOW && this.notifyChar) {
+          // Modo flow control: esperar ACK del chunk anterior antes de enviar el siguiente
+          const ackPromise = new Promise(resolve => {
+            this._ackResolver = resolve;
+            // Timeout de seguridad si no llega ACK
+            setTimeout(() => {
+              if (this._ackResolver === resolve) {
+                this._ackResolver = null;
+                resolve();
+              }
+            }, ACK_TIMEOUT_MS);
+          });
+
+          await this._send(chunk);
+          await ackPromise;
+        } else {
+          // Modo delay fijo
+          await this._send(chunk);
+          await this._delay(CHUNK_DELAY_MS);
+        }
+
         chunksEnviados++;
 
         if (this.onProgress) {
@@ -705,10 +743,12 @@
       const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
 
       try {
-        if (this.writeChar.properties.writeWithoutResponse) {
-          await this.writeChar.writeValueWithoutResponse(bytes);
-        } else {
+        // SIEMPRE usar writeValue (con response) para garantizar orden
+        // writeWithoutResponse puede causar pérdida/desorden en M221
+        if (this.writeChar.properties.write) {
           await this.writeChar.writeValue(bytes);
+        } else if (this.writeChar.properties.writeWithoutResponse) {
+          await this.writeChar.writeValueWithoutResponse(bytes);
         }
       } catch (e) {
         throw new Error(`Error escribiendo a la impresora: ${e.message}`);
