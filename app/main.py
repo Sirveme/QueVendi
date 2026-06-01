@@ -278,6 +278,13 @@ async def health():
 
 
 
+#PHOMYMO
+@app.get("/test-impresion", response_class=HTMLResponse)
+def test_impresion(request: Request):
+    return templates.TemplateResponse("test-impresion.html", {"request": request})
+
+
+
 # ========================================
 # RUTAS HTML - PRIVADAS (requieren auth en frontend)
 # ========================================
