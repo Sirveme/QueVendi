@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prueba Impresión Bluetooth - QueVendi</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #1f2937;
+    padding: 1rem;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .header {
+    background: linear-gradient(135deg, #FCD34D, #FBBF24);
+    color: #1f2937;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .header h1 {
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+  .header p {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: 0.2rem;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: #16A34A;
+  }
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.3rem;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #16A34A;
+  }
+  .btn-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: #16A34A; color: white; }
+  .btn-secondary { background: white; color: #374151; border: 2px solid #d1d5db; }
+  .btn-danger { background: #DC2626; color: white; }
+  .btn-blue { background: #2563EB; color: white; }
+  .estado {
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+  .estado.desconectado { background: #FEE2E2; color: #991B1B; }
+  .estado.conectado { background: #D1FAE5; color: #065F46; }
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+    display: none;
+  }
+  .progress-bar.activo { display: block; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #16A34A, #22C55E);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  .logs {
+    background: #1F2937;
+    color: #D1FAE5;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    max-height: 280px;
+    overflow-y: auto;
+    line-height: 1.4;
+  }
+  .logs-empty {
+    color: #6B7280;
+    font-style: italic;
+  }
+  .log-line { margin-bottom: 0.2rem; }
+  .log-line.error { color: #FCA5A5; }
+  .log-line.success { color: #6EE7B7; }
+
+  .item-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px 30px;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    align-items: center;
+  }
+  .item-row input {
+    padding: 0.4rem 0.5rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+  .btn-mini {
+    background: none;
+    border: none;
+    color: #DC2626;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+  }
+  details {
+    margin-top: 0.5rem;
+  }
+  summary {
+    cursor: pointer;
+    padding: 0.4rem;
+    font-size: 0.85rem;
+    color: #6B7280;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🖨️ Prueba Impresión Bluetooth</h1>
+    <p>QueVendi · Phomemo M221 · Módulo PSP</p>
+  </div>
+
+  <!-- ESTADO DE CONEXIÓN -->
+  <div class="card">
+    <div id="estado" class="estado desconectado">⚪ Desconectado</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-conectar" onclick="conectarImpresora()">
+        🔵 Conectar M221
+      </button>
+      <button class="btn btn-danger" id="btn-desconectar" onclick="desconectarImpresora()" disabled>
+        🔌 Desconectar
+      </button>
+    </div>
+  </div>
+
+  <!-- CONFIGURACIÓN -->
+  <div class="card">
+    <h2>⚙️ Configuración</h2>
+    <div class="row-2">
+      <div class="form-group">
+        <label class="form-label">Ancho de papel</label>
+        <select class="form-select" id="ancho">
+          <option value="80mm">80 mm</option>
+          <option value="58mm">58 mm</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Densidad (1-8)</label>
+        <select class="form-select" id="density">
+          <option value="1">1 - Muy claro</option>
+          <option value="2">2 - Claro</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5 - Medio</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8 - Muy oscuro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKET DE PRUEBA -->
+  <div class="card">
+    <h2>🧾 Ticket de prueba</h2>
+    <div class="form-group">
+      <label class="form-label">Nombre del negocio</label>
+      <input type="text" class="form-input" id="negocio" value="POLLERIA BOLOGNESI">
+    </div>
+    <div class="row-2">
+      <div class="form-group">
+        <label class="form-label">RUC</label>
+        <input type="text" class="form-input" id="ruc" value="20615446565">
+      </div>
+      <div class="form-group">
+        <label class="form-label">N° Ticket</label>
+        <input type="text" class="form-input" id="numero" value="T-001">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dirección</label>
+      <input type="text" class="form-input" id="direccion" value="Iquitos, Loreto">
+    </div>
+
+    <h2 style="margin-top:1rem;">Items</h2>
+    <div id="items-container">
+      <div class="item-row">
+        <input type="number" placeholder="Cant" value="1" step="1" min="1">
+        <input type="text" placeholder="Producto" value="Pollo a la brasa 1/4">
+        <input type="number" placeholder="Precio" value="18.00" step="0.10">
+        <button class="btn-mini" onclick="eliminarItem(this)">✕</button>
+      </div>
+      <div class="item-row">
+        <input type="number" placeholder="Cant" value="2" step="1" min="1">
+        <input type="text" placeholder="Producto" value="Inca Kola 500ml">
+        <input type="number" placeholder="Precio" value="4.50" step="0.10">
+        <button class="btn-mini" onclick="eliminarItem(this)">✕</button>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="agregarItem()" style="width:100%;margin-top:0.5rem;">
+      ➕ Agregar item
+    </button>
+
+    <div class="btn-row" style="margin-top:1rem;">
+      <button class="btn btn-blue" onclick="imprimirTicket()" id="btn-imprimir" disabled>
+        🖨️ Imprimir Ticket
+      </button>
+      <button class="btn btn-secondary" onclick="imprimirTest()" id="btn-test" disabled>
+        ⚡ Test Rápido
+      </button>
+    </div>
+
+    <div class="progress-bar" id="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="card">
+    <h2>📋 Logs</h2>
+    <div class="logs" id="logs">
+      <div class="logs-empty">Los mensajes aparecerán aquí...</div>
+    </div>
+    <details>
+      <summary>Acerca de Web Bluetooth</summary>
+      <p style="font-size:0.8rem;color:#6b7280;margin-top:0.5rem;">
+        Web Bluetooth solo funciona en Chrome (Android y desktop). No funciona en Firefox, Safari ni iOS.
+        Asegúrese de tener Chrome actualizado y conceder permisos de Bluetooth al sitio.
+      </p>
+    </details>
+  </div>
+
+</div>
+
+<script src="psp-bluetooth-printer.js"></script>
+<script>
+let printer = null;
+
+function log(mensaje, tipo = '') {
+  const logsDiv = document.getElementById('logs');
+  if (logsDiv.querySelector('.logs-empty')) {
+    logsDiv.innerHTML = '';
+  }
+  const linea = document.createElement('div');
+  linea.className = 'log-line ' + tipo;
+  const tiempo = new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  linea.textContent = `[${tiempo}] ${mensaje}`;
+  logsDiv.appendChild(linea);
+  logsDiv.scrollTop = logsDiv.scrollHeight;
+}
+
+function actualizarEstado(conectado) {
+  const estado = document.getElementById('estado');
+  const btnConectar = document.getElementById('btn-conectar');
+  const btnDesconectar = document.getElementById('btn-desconectar');
+  const btnImprimir = document.getElementById('btn-imprimir');
+  const btnTest = document.getElementById('btn-test');
+
+  if (conectado) {
+    estado.textContent = '🟢 Conectado a ' + (printer?.device?.name || 'impresora');
+    estado.className = 'estado conectado';
+    btnConectar.disabled = true;
+    btnDesconectar.disabled = false;
+    btnImprimir.disabled = false;
+    btnTest.disabled = false;
+  } else {
+    estado.textContent = '⚪ Desconectado';
+    estado.className = 'estado desconectado';
+    btnConectar.disabled = false;
+    btnDesconectar.disabled = true;
+    btnImprimir.disabled = true;
+    btnTest.disabled = true;
+  }
+}
+
+async function conectarImpresora() {
+  try {
+    if (!PSPPrinter.isAvailable()) {
+      log('Web Bluetooth no está disponible en este navegador', 'error');
+      alert('Use Chrome en Android o desktop. Firefox y Safari no soportan Web Bluetooth.');
+      return;
+    }
+
+    printer = new PSPPrinter({
+      ancho: document.getElementById('ancho').value,
+      density: parseInt(document.getElementById('density').value),
+      onLog: (msg) => log(msg),
+      onProgress: (pct) => {
+        document.getElementById('progress-bar').classList.add('activo');
+        document.getElementById('progress-fill').style.width = pct + '%';
+      }
+    });
+
+    document.getElementById('btn-conectar').disabled = true;
+    document.getElementById('btn-conectar').textContent = '⏳ Conectando...';
+
+    await printer.connect();
+    actualizarEstado(true);
+    log('Listo para imprimir!', 'success');
+  } catch (e) {
+    log('Error: ' + e.message, 'error');
+    document.getElementById('btn-conectar').disabled = false;
+    document.getElementById('btn-conectar').textContent = '🔵 Conectar M221';
+  }
+}
+
+async function desconectarImpresora() {
+  if (!printer) return;
+  try {
+    await printer.disconnect();
+    actualizarEstado(false);
+  } catch (e) {
+    log('Error desconectando: ' + e.message, 'error');
+  }
+}
+
+function agregarItem() {
+  const container = document.getElementById('items-container');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.innerHTML = `
+    <input type="number" placeholder="Cant" value="1" step="1" min="1">
+    <input type="text" placeholder="Producto">
+    <input type="number" placeholder="Precio" step="0.10">
+    <button class="btn-mini" onclick="eliminarItem(this)">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function eliminarItem(btn) {
+  btn.parentElement.remove();
+}
+
+function recolectarItems() {
+  const items = [];
+  document.querySelectorAll('#items-container .item-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const cant = parseFloat(inputs[0].value) || 0;
+    const nombre = inputs[1].value.trim();
+    const precio = parseFloat(inputs[2].value) || 0;
+    if (cant > 0 && nombre && precio > 0) {
+      items.push({ cantidad: cant, nombre, precio });
+    }
+  });
+  return items;
+}
+
+async function imprimirTicket() {
+  if (!printer || !printer.isConnected()) {
+    log('No conectado', 'error');
+    return;
+  }
+
+  const items = recolectarItems();
+  if (items.length === 0) {
+    alert('Agregue al menos un item con cantidad, nombre y precio');
+    return;
+  }
+
+  const total = items.reduce((s, i) => s + (i.cantidad * i.precio), 0);
+
+  // Actualizar configuración del printer en tiempo real
+  printer.setAncho(document.getElementById('ancho').value);
+  printer.setDensity(parseInt(document.getElementById('density').value));
+
+  document.getElementById('btn-imprimir').disabled = true;
+  document.getElementById('btn-imprimir').textContent = '⏳ Imprimiendo...';
+
+  try {
+    await printer.printTicket({
+      negocio: document.getElementById('negocio').value,
+      ruc: document.getElementById('ruc').value,
+      direccion: document.getElementById('direccion').value,
+      numero: document.getElementById('numero').value,
+      items: items,
+      total: total,
+      metodoPago: 'Efectivo',
+      pieMensaje: '¡Gracias por su compra!\nquevendi.pro'
+    });
+
+    log('Ticket impreso ✓', 'success');
+  } catch (e) {
+    log('Error imprimiendo: ' + e.message, 'error');
+  } finally {
+    document.getElementById('btn-imprimir').disabled = false;
+    document.getElementById('btn-imprimir').textContent = '🖨️ Imprimir Ticket';
+    setTimeout(() => {
+      document.getElementById('progress-bar').classList.remove('activo');
+      document.getElementById('progress-fill').style.width = '0%';
+    }, 1500);
+  }
+}
+
+async function imprimirTest() {
+  if (!printer || !printer.isConnected()) {
+    log('No conectado', 'error');
+    return;
+  }
+
+  printer.setAncho(document.getElementById('ancho').value);
+  printer.setDensity(parseInt(document.getElementById('density').value));
+
+  document.getElementById('btn-test').disabled = true;
+  try {
+    await printer.printTest();
+    log('Test impreso ✓', 'success');
+  } catch (e) {
+    log('Error: ' + e.message, 'error');
+  } finally {
+    document.getElementById('btn-test').disabled = false;
+  }
+}
+
+// Verificar disponibilidad al cargar
+window.addEventListener('DOMContentLoaded', () => {
+  if (!PSPPrinter.isAvailable()) {
+    log('⚠️ Web Bluetooth NO disponible. Use Chrome en Android o desktop.', 'error');
+    document.getElementById('btn-conectar').disabled = true;
+  } else {
+    log('Web Bluetooth disponible. Listo para conectar.', 'success');
+  }
+});
+</script>
+</body>
+</html>
