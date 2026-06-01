@@ -180,6 +180,14 @@
     <p>QueVendi · Phomemo M221 · Módulo PSP</p>
   </div>
 
+  <!-- DIAGNÓSTICO -->
+  <div class="card">
+    <h2>🔍 Diagnóstico automático</h2>
+    <div id="diagnostico" style="font-size:0.85rem;line-height:1.6;">
+      Verificando...
+    </div>
+  </div>
+
   <!-- ESTADO DE CONEXIÓN -->
   <div class="card">
     <div id="estado" class="estado desconectado">⚪ Desconectado</div>
@@ -334,33 +342,161 @@ function actualizarEstado(conectado) {
 }
 
 async function conectarImpresora() {
+  log('═══════════════════════════════');
+  log('Iniciando proceso de conexión...');
+
   try {
-    if (!PSPPrinter.isAvailable()) {
-      log('Web Bluetooth no está disponible en este navegador', 'error');
-      alert('Use Chrome en Android o desktop. Firefox y Safari no soportan Web Bluetooth.');
+    // Diagnóstico previo
+    log('[1/5] Verificando soporte de Web Bluetooth...');
+    if (!('bluetooth' in navigator)) {
+      const msg = 'Web Bluetooth NO está disponible en este navegador';
+      log('❌ ' + msg, 'error');
+      log('Solución: use Chrome Android/Desktop o Edge Desktop', 'error');
+      alert(msg + '\n\nUse Chrome en Android o desktop. Firefox, Safari e iOS no son compatibles.');
       return;
     }
+    log('✓ navigator.bluetooth disponible', 'success');
+
+    log('[2/5] Verificando HTTPS...');
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      const msg = `Protocolo no es HTTPS (es ${location.protocol})`;
+      log('❌ ' + msg, 'error');
+      log('Web Bluetooth requiere HTTPS', 'error');
+      alert('Esta página debe servirse por HTTPS.\n\nURL actual: ' + location.href + '\n\nAccede por https:// en lugar de http://');
+      return;
+    }
+    log('✓ HTTPS OK (' + location.hostname + ')', 'success');
+
+    log('[3/5] Verificando getAvailability...');
+    try {
+      const disponible = await navigator.bluetooth.getAvailability();
+      log('navigator.bluetooth.getAvailability() = ' + disponible);
+      if (!disponible) {
+        log('❌ Bluetooth NO está disponible en el dispositivo', 'error');
+        log('Verifique: 1) Bluetooth encendido, 2) Permisos del navegador', 'error');
+        alert('Bluetooth no está disponible.\n\n1. Verifique que el Bluetooth del celular está encendido\n2. Permita Bluetooth a Chrome en Ajustes');
+        return;
+      }
+      log('✓ Bluetooth disponible', 'success');
+    } catch (e) {
+      log('⚠ No se pudo verificar availability: ' + e.message);
+    }
+
+    log('[4/5] Creando instancia de PSPPrinter...');
+    if (typeof PSPPrinter === 'undefined') {
+      log('❌ PSPPrinter no está definido', 'error');
+      log('El archivo psp-bluetooth-printer.js no cargó correctamente', 'error');
+      alert('Error: el módulo PSPPrinter no se cargó. Verifique que el archivo psp-bluetooth-printer.js esté en la misma carpeta y accesible.');
+      return;
+    }
+    log('✓ PSPPrinter cargado', 'success');
 
     printer = new PSPPrinter({
       ancho: document.getElementById('ancho').value,
       density: parseInt(document.getElementById('density').value),
-      onLog: (msg) => log(msg),
+      onLog: (msg) => log('  → ' + msg),
       onProgress: (pct) => {
         document.getElementById('progress-bar').classList.add('activo');
         document.getElementById('progress-fill').style.width = pct + '%';
       }
     });
 
+    log('[5/5] Solicitando dispositivo Bluetooth...');
+    log('IMPORTANTE: debe aparecer un cuadro nativo de Chrome pidiendo seleccionar la impresora');
+
     document.getElementById('btn-conectar').disabled = true;
     document.getElementById('btn-conectar').textContent = '⏳ Conectando...';
 
     await printer.connect();
     actualizarEstado(true);
-    log('Listo para imprimir!', 'success');
+    log('🎉 ¡Conectado exitosamente!', 'success');
+
   } catch (e) {
-    log('Error: ' + e.message, 'error');
+    log('═══════════════════════════════');
+    log('❌ ERROR: ' + e.name + ': ' + e.message, 'error');
+
+    // Diagnosticar el tipo de error
+    if (e.name === 'NotFoundError') {
+      log('Causa: usuario canceló el picker o no se encontró ningún dispositivo', 'error');
+      log('Sugerencia: vuelva a intentar y seleccione la impresora del listado', 'error');
+    } else if (e.name === 'NotAllowedError') {
+      log('Causa: permisos de Bluetooth denegados', 'error');
+      log('Sugerencia: vaya a Ajustes de Chrome > Configuración del sitio > Permisos > Bluetooth', 'error');
+    } else if (e.name === 'NetworkError') {
+      log('Causa: error de comunicación con el dispositivo', 'error');
+      log('Sugerencia: reinicie la impresora y vuelva a intentar', 'error');
+    } else if (e.name === 'SecurityError') {
+      log('Causa: contexto inseguro (probablemente HTTP en lugar de HTTPS)', 'error');
+    } else if (e.message && e.message.includes('User cancelled')) {
+      log('El usuario canceló la selección de dispositivo', 'error');
+    }
+
     document.getElementById('btn-conectar').disabled = false;
     document.getElementById('btn-conectar').textContent = '🔵 Conectar M221';
+  }
+}
+
+// Diagnóstico automático al cargar
+async function diagnosticoInicial() {
+  const div = document.getElementById('diagnostico');
+  const items = [];
+
+  // 1. Protocolo
+  const esHTTPS = location.protocol === 'https:' || location.hostname === 'localhost';
+  items.push(esHTTPS
+    ? `✅ <strong>Protocolo:</strong> ${location.protocol} (correcto)`
+    : `❌ <strong>Protocolo:</strong> ${location.protocol} (debe ser HTTPS)`);
+
+  // 2. Web Bluetooth
+  const tieneBT = 'bluetooth' in navigator;
+  items.push(tieneBT
+    ? `✅ <strong>Web Bluetooth API:</strong> disponible`
+    : `❌ <strong>Web Bluetooth API:</strong> NO disponible (use Chrome)`);
+
+  // 3. Bluetooth físico
+  if (tieneBT) {
+    try {
+      const disponible = await navigator.bluetooth.getAvailability();
+      items.push(disponible
+        ? `✅ <strong>Bluetooth físico:</strong> habilitado`
+        : `❌ <strong>Bluetooth físico:</strong> deshabilitado en el dispositivo`);
+    } catch (e) {
+      items.push(`⚠️ <strong>Bluetooth físico:</strong> no se pudo verificar`);
+    }
+  }
+
+  // 4. Módulo cargado
+  items.push(typeof PSPPrinter !== 'undefined'
+    ? `✅ <strong>Módulo PSPPrinter:</strong> cargado`
+    : `❌ <strong>Módulo PSPPrinter:</strong> NO cargado (revisar ruta a psp-bluetooth-printer.js)`);
+
+  // 5. URL actual
+  items.push(`ℹ️ <strong>URL:</strong> <code style="font-size:0.75rem;word-break:break-all;">${location.href}</code>`);
+
+  // 6. Navegador
+  const ua = navigator.userAgent;
+  let navegador = 'Desconocido';
+  if (ua.includes('Edg/')) navegador = 'Edge ✅';
+  else if (ua.includes('Chrome/') && !ua.includes('Edg/')) navegador = 'Chrome ✅';
+  else if (ua.includes('Firefox/')) navegador = 'Firefox ❌ (no soporta Web Bluetooth)';
+  else if (ua.includes('Safari/') && !ua.includes('Chrome/')) navegador = 'Safari ❌ (no soporta Web Bluetooth)';
+  items.push(`ℹ️ <strong>Navegador:</strong> ${navegador}`);
+
+  // 7. Plataforma
+  let plataforma = 'Desktop';
+  if (ua.includes('Android')) plataforma = 'Android ✅';
+  else if (/iPhone|iPad|iPod/.test(ua)) plataforma = 'iOS ❌ (Apple bloquea Web Bluetooth)';
+  items.push(`ℹ️ <strong>Plataforma:</strong> ${plataforma}`);
+
+  div.innerHTML = items.join('<br>');
+
+  // Si todo está OK, log de éxito
+  const todosOK = esHTTPS && tieneBT && typeof PSPPrinter !== 'undefined';
+  if (todosOK) {
+    log('Diagnóstico inicial: TODO OK', 'success');
+    log('Listo para conectar. Toque "Conectar M221"', 'success');
+  } else {
+    log('Diagnóstico detectó problemas. Revise el panel arriba.', 'error');
   }
 }
 
@@ -473,12 +609,7 @@ async function imprimirTest() {
 
 // Verificar disponibilidad al cargar
 window.addEventListener('DOMContentLoaded', () => {
-  if (!PSPPrinter.isAvailable()) {
-    log('⚠️ Web Bluetooth NO disponible. Use Chrome en Android o desktop.', 'error');
-    document.getElementById('btn-conectar').disabled = true;
-  } else {
-    log('Web Bluetooth disponible. Listo para conectar.', 'success');
-  }
+  diagnosticoInicial();
 });
 </script>
 </body>
