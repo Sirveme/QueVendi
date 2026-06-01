@@ -219,35 +219,81 @@
           <option value="2">2 - Claro</option>
           <option value="3">3</option>
           <option value="4">4</option>
-          <option value="5" selected>5 - Medio</option>
-          <option value="6">6</option>
+          <option value="5">5</option>
+          <option value="6" selected>6 - Medio-Oscuro</option>
           <option value="7">7</option>
           <option value="8">8 - Muy oscuro</option>
         </select>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">Tamaño de fuente</label>
+      <select class="form-select" id="tamanoFuente">
+        <option value="S">S - Pequeño (más items por ticket)</option>
+        <option value="M" selected>M - Mediano (recomendado)</option>
+        <option value="L">L - Grande (máxima legibilidad)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TICKET DE PRUEBA -->
+  <div class="card">
+    <h2>🏪 Configuración del Negocio</h2>
+    <p style="font-size:0.8rem;color:#6B7280;margin-bottom:0.75rem;">
+      Datos que aparecerán en todos los tickets. Se guarda automáticamente.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Nombre comercial</label>
+      <input type="text" class="form-input" id="cfg-nombre" placeholder="Ej. Pollería Bolognesi">
+    </div>
+    <div class="row-2">
+      <div class="form-group">
+        <label class="form-label">RUC</label>
+        <input type="text" class="form-input" id="cfg-ruc" placeholder="20XXXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input type="text" class="form-input" id="cfg-telefono" placeholder="987654321">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Razón social (opcional)</label>
+      <input type="text" class="form-input" id="cfg-razon" placeholder="Si es distinta del nombre comercial">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dirección</label>
+      <input type="text" class="form-input" id="cfg-direccion" placeholder="Av. Ejemplo 123, Iquitos">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Eslogan (opcional)</label>
+      <input type="text" class="form-input" id="cfg-eslogan" placeholder='Ej: "Lo mejor de Iquitos"'>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mensaje promocional (opcional)</label>
+      <textarea class="form-input" id="cfg-promo" rows="2" placeholder="Ej: 50% de descuento en 2ª compra. Vence: 30/06/2026"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mensaje de sorteo (opcional)</label>
+      <textarea class="form-input" id="cfg-sorteo" rows="2" placeholder="Ej: Guarde este ticket. Sorteo el 31/06"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mensaje de pie</label>
+      <input type="text" class="form-input" id="cfg-pie" value="¡Gracias por su compra!">
+    </div>
+    <button class="btn btn-primary" onclick="guardarConfigNegocio()" style="width:100%;">
+      💾 Guardar configuración
+    </button>
   </div>
 
   <!-- TICKET DE PRUEBA -->
   <div class="card">
     <h2>🧾 Ticket de prueba</h2>
+    <p style="font-size:0.8rem;color:#6B7280;margin-bottom:0.75rem;">
+      Los datos del negocio se toman de la configuración de arriba.
+    </p>
     <div class="form-group">
-      <label class="form-label">Nombre del negocio</label>
-      <input type="text" class="form-input" id="negocio" value="POLLERIA BOLOGNESI">
-    </div>
-    <div class="row-2">
-      <div class="form-group">
-        <label class="form-label">RUC</label>
-        <input type="text" class="form-input" id="ruc" value="20615446565">
-      </div>
-      <div class="form-group">
-        <label class="form-label">N° Ticket</label>
-        <input type="text" class="form-input" id="numero" value="T-001">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Dirección</label>
-      <input type="text" class="form-input" id="direccion" value="Iquitos, Loreto">
+      <label class="form-label">N° Ticket (opcional)</label>
+      <input type="text" class="form-input" id="numero" value="T-001">
     </div>
 
     <h2 style="margin-top:1rem;">Items</h2>
@@ -394,6 +440,7 @@ async function conectarImpresora() {
     printer = new PSPPrinter({
       ancho: document.getElementById('ancho').value,
       density: parseInt(document.getElementById('density').value),
+      tamanoFuente: document.getElementById('tamanoFuente').value,
       onLog: (msg) => log('  → ' + msg),
       onProgress: (pct) => {
         document.getElementById('progress-bar').classList.add('activo');
@@ -558,20 +605,18 @@ async function imprimirTicket() {
   // Actualizar configuración del printer en tiempo real
   printer.setAncho(document.getElementById('ancho').value);
   printer.setDensity(parseInt(document.getElementById('density').value));
+  printer.setTamanoFuente(document.getElementById('tamanoFuente').value);
 
   document.getElementById('btn-imprimir').disabled = true;
   document.getElementById('btn-imprimir').textContent = '⏳ Imprimiendo...';
 
   try {
+    // Solo enviamos datos del ticket; el negocio se toma de NegocioConfig en localStorage
     await printer.printTicket({
-      negocio: document.getElementById('negocio').value,
-      ruc: document.getElementById('ruc').value,
-      direccion: document.getElementById('direccion').value,
       numero: document.getElementById('numero').value,
       items: items,
       total: total,
-      metodoPago: 'Efectivo',
-      pieMensaje: '¡Gracias por su compra!\nquevendi.pro'
+      metodoPago: 'Efectivo'
     });
 
     log('Ticket impreso ✓', 'success');
@@ -587,6 +632,57 @@ async function imprimirTicket() {
   }
 }
 
+// ════════════════════════════════════════════════
+// CONFIGURACIÓN DEL NEGOCIO
+// ════════════════════════════════════════════════
+function cargarConfigNegocio() {
+  if (typeof PSPNegocioConfig === 'undefined') {
+    log('PSPNegocioConfig no disponible', 'error');
+    return;
+  }
+  const cfg = PSPNegocioConfig.load();
+  document.getElementById('cfg-nombre').value = cfg.nombre_comercial || '';
+  document.getElementById('cfg-ruc').value = cfg.ruc || '';
+  document.getElementById('cfg-telefono').value = cfg.telefono || '';
+  document.getElementById('cfg-razon').value = cfg.razon_social || '';
+  document.getElementById('cfg-direccion').value = cfg.direccion || '';
+  document.getElementById('cfg-eslogan').value = cfg.eslogan || '';
+  document.getElementById('cfg-promo').value = cfg.mensaje_promo || '';
+  document.getElementById('cfg-sorteo').value = cfg.mensaje_sorteo || '';
+  document.getElementById('cfg-pie').value = cfg.mensaje_pie || '¡Gracias por su compra!';
+}
+
+function guardarConfigNegocio() {
+  if (typeof PSPNegocioConfig === 'undefined') {
+    log('PSPNegocioConfig no disponible', 'error');
+    return;
+  }
+  const cfg = {
+    nombre_comercial: document.getElementById('cfg-nombre').value.trim(),
+    ruc: document.getElementById('cfg-ruc').value.trim(),
+    telefono: document.getElementById('cfg-telefono').value.trim(),
+    razon_social: document.getElementById('cfg-razon').value.trim(),
+    direccion: document.getElementById('cfg-direccion').value.trim(),
+    eslogan: document.getElementById('cfg-eslogan').value.trim(),
+    mensaje_promo: document.getElementById('cfg-promo').value.trim(),
+    mensaje_sorteo: document.getElementById('cfg-sorteo').value.trim(),
+    mensaje_pie: document.getElementById('cfg-pie').value.trim() || '¡Gracias por su compra!',
+    mostrar_telefono: true,
+    mostrar_promo: true,
+  };
+  PSPNegocioConfig.save(cfg);
+  log('✓ Configuración guardada', 'success');
+
+  // Toast visual
+  const oldText = event.target.textContent;
+  event.target.textContent = '✓ Guardado';
+  event.target.style.background = '#16A34A';
+  setTimeout(() => {
+    event.target.textContent = oldText;
+    event.target.style.background = '';
+  }, 1500);
+}
+
 async function imprimirTest() {
   if (!printer || !printer.isConnected()) {
     log('No conectado', 'error');
@@ -595,6 +691,7 @@ async function imprimirTest() {
 
   printer.setAncho(document.getElementById('ancho').value);
   printer.setDensity(parseInt(document.getElementById('density').value));
+  printer.setTamanoFuente(document.getElementById('tamanoFuente').value);
 
   document.getElementById('btn-test').disabled = true;
   try {
@@ -610,6 +707,7 @@ async function imprimirTest() {
 // Verificar disponibilidad al cargar
 window.addEventListener('DOMContentLoaded', () => {
   diagnosticoInicial();
+  cargarConfigNegocio();
 });
 </script>
 </body>
