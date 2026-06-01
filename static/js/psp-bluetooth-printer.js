@@ -105,80 +105,174 @@
         return true;
       }
 
-      this.onLog('Mostrando selector de dispositivos...');
+      this.onLog('Preparando solicitud Bluetooth...');
+
+      // ESTRATEGIA SIMPLIFICADA Y ROBUSTA:
+      // 1. Usar acceptAllDevices (más permisivo, evita problemas de filtros)
+      // 2. Solo UUIDs en formato string completo (más compatible)
+      // 3. Try-catch granular en cada paso
+
+      const SERVICIOS_STRING = [
+        '0000ff00-0000-1000-8000-00805f9b34fb',  // FF00 - Servicio principal Phomemo
+        '0000ff10-0000-1000-8000-00805f9b34fb',  // FF10 - Servicio alternativo
+        '000018f0-0000-1000-8000-00805f9b34fb',  // 18F0 - Servicio M-series alternativo
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455',  // Servicio Microchip BLE-SPP (algunos Phomemo)
+      ];
 
       try {
-        this.device = await navigator.bluetooth.requestDevice({
-          filters: [
-            { namePrefix: 'M' },
-            { namePrefix: 'P' },
-            { namePrefix: 'Phomemo' },
-          ],
-          optionalServices: PHOMEMO_SERVICE_UUIDS,
-        });
-      } catch (e) {
-        // Fallback: aceptar todos los dispositivos
-        this.onLog('Filtro falló, mostrando todos los dispositivos...');
+        this.onLog('Mostrando selector de dispositivos Bluetooth...');
+        this.onLog('IMPORTANTE: aparecerá un cuadro nativo. Seleccione su impresora.');
+
+        // Usar acceptAllDevices que es más confiable que filtros
         this.device = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
-          optionalServices: PHOMEMO_SERVICE_UUIDS,
+          optionalServices: SERVICIOS_STRING,
         });
+      } catch (e) {
+        if (e.name === 'NotFoundError') {
+          throw new Error('Usuario canceló o no se encontró ningún dispositivo. Intente de nuevo.');
+        }
+        throw new Error(`Error en selector: ${e.name}: ${e.message}`);
       }
 
-      this.onLog(`Dispositivo seleccionado: ${this.device.name}`);
+      this.onLog(`✓ Dispositivo seleccionado: ${this.device.name || '(sin nombre)'}`);
+      this.onLog(`  ID: ${this.device.id}`);
 
       // Listener para desconexión
       this.device.addEventListener('gattserverdisconnected', () => {
-        this.onLog('Desconectado de la impresora');
+        this.onLog('⚠ Desconectado de la impresora');
         this.connected = false;
       });
 
-      await this._connectGATT();
+      // Intentar conectar
+      try {
+        await this._connectGATT(SERVICIOS_STRING);
+      } catch (e) {
+        throw new Error(`Error al conectar GATT: ${e.message}`);
+      }
+
       return true;
     }
 
-    async _connectGATT() {
-      this.onLog('Conectando GATT...');
-      this.server = await this.device.gatt.connect();
-      await this._delay(100);
+    async _connectGATT(serviciosUUID) {
+      this.onLog('Conectando a GATT server...');
 
-      // Probar múltiples UUIDs hasta encontrar el correcto
-      this.onLog('Buscando servicio Bluetooth...');
+      try {
+        this.server = await this.device.gatt.connect();
+        this.onLog('✓ GATT server conectado');
+      } catch (e) {
+        throw new Error(`Falló gatt.connect(): ${e.message}`);
+      }
+
+      await this._delay(200);
+
+      // Probar cada servicio hasta encontrar uno que funcione
+      this.onLog('Buscando servicio compatible...');
       let lastError = null;
+      let serviciosEncontrados = [];
 
-      for (const serviceUuid of PHOMEMO_SERVICE_UUIDS) {
+      // Primero, intentar listar todos los servicios disponibles (útil para debug)
+      try {
+        const allServices = await this.server.getPrimaryServices();
+        this.onLog(`Servicios disponibles en el dispositivo: ${allServices.length}`);
+        for (const svc of allServices) {
+          this.onLog(`  - ${svc.uuid}`);
+          serviciosEncontrados.push(svc.uuid);
+        }
+      } catch (e) {
+        this.onLog(`No se pudieron listar servicios: ${e.message}`);
+      }
+
+      // Ahora intentar cada UUID conocido
+      for (const serviceUuid of serviciosUUID) {
         try {
+          this.onLog(`Probando servicio: ${serviceUuid}`);
           this.service = await this.server.getPrimaryService(serviceUuid);
-          this.onLog(`Servicio encontrado: ${typeof serviceUuid === 'number' ? '0x' + serviceUuid.toString(16) : serviceUuid}`);
+          this.onLog(`✓ Servicio encontrado: ${serviceUuid}`);
           break;
         } catch (e) {
           lastError = e;
         }
       }
 
-      if (!this.service) {
-        throw new Error(`No se encontró servicio Bluetooth compatible. ${lastError?.message || ''}`);
+      // Si no encontramos en la lista predefinida, probar el primero que detectamos
+      if (!this.service && serviciosEncontrados.length > 0) {
+        for (const svcUuid of serviciosEncontrados) {
+          // Saltar servicios genéricos
+          if (svcUuid.includes('1800') || svcUuid.includes('1801') || svcUuid.includes('180a')) {
+            continue;
+          }
+          try {
+            this.onLog(`Probando servicio detectado: ${svcUuid}`);
+            this.service = await this.server.getPrimaryService(svcUuid);
+            this.onLog(`✓ Servicio encontrado: ${svcUuid}`);
+            break;
+          } catch (e) {
+            lastError = e;
+          }
+        }
       }
 
-      this.onLog('Obteniendo característica de escritura...');
-      this.writeChar = await this.service.getCharacteristic(WRITE_CHAR_UUID);
+      if (!this.service) {
+        const detalle = serviciosEncontrados.length > 0
+          ? `Servicios encontrados pero ninguno compatible: ${serviciosEncontrados.join(', ')}`
+          : `No se detectaron servicios. ${lastError?.message || ''}`;
+        throw new Error(`No hay servicio compatible. ${detalle}`);
+      }
 
-      // Intentar habilitar notificaciones (algunos modelos no las tienen)
+      // Listar características del servicio para debug
+      this.onLog('Buscando característica de escritura...');
       try {
-        this.notifyChar = await this.service.getCharacteristic(NOTIFY_CHAR_UUID);
-        await this.notifyChar.startNotifications();
-        this._notificationHandler = (event) => {
-          const data = new Uint8Array(event.target.value.buffer);
-          this.onLog(`Notif: ${Array.from(data).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
-        };
-        this.notifyChar.addEventListener('characteristicvaluechanged', this._notificationHandler);
-        this.onLog('Notificaciones habilitadas');
+        const allChars = await this.service.getCharacteristics();
+        this.onLog(`Características disponibles: ${allChars.length}`);
+        for (const ch of allChars) {
+          const props = ch.properties;
+          const propsStr = [
+            props.write && 'write',
+            props.writeWithoutResponse && 'writeWithoutResponse',
+            props.notify && 'notify',
+            props.read && 'read',
+          ].filter(Boolean).join(',');
+          this.onLog(`  - ${ch.uuid} [${propsStr}]`);
+        }
+
+        // Buscar la primera característica que pueda escribir
+        for (const ch of allChars) {
+          if (ch.properties.write || ch.properties.writeWithoutResponse) {
+            this.writeChar = ch;
+            this.onLog(`✓ Característica de escritura: ${ch.uuid}`);
+            break;
+          }
+        }
+
+        // Buscar característica con notify
+        for (const ch of allChars) {
+          if (ch.properties.notify) {
+            this.notifyChar = ch;
+            try {
+              await ch.startNotifications();
+              this._notificationHandler = (event) => {
+                const data = new Uint8Array(event.target.value.buffer);
+                this.onLog(`Notif: ${Array.from(data).map(b => b.toString(16).padStart(2, '0')).join(' ')}`);
+              };
+              ch.addEventListener('characteristicvaluechanged', this._notificationHandler);
+              this.onLog(`✓ Notificaciones habilitadas en: ${ch.uuid}`);
+            } catch (e) {
+              this.onLog(`Notificaciones no se pudieron habilitar: ${e.message}`);
+            }
+            break;
+          }
+        }
       } catch (e) {
-        this.onLog('Notificaciones no disponibles (no es crítico)');
+        throw new Error(`Error obteniendo características: ${e.message}`);
+      }
+
+      if (!this.writeChar) {
+        throw new Error('No se encontró característica de escritura en el servicio');
       }
 
       this.connected = true;
-      this.onLog(`Conectado a ${this.device.name}`);
+      this.onLog(`✓ Conexión completa con ${this.device.name}`);
     }
 
     async disconnect() {
