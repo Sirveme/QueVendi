@@ -179,6 +179,8 @@
 
         /* ====== PRICING ====== */
         .pricing{padding:28px 20px;position:relative;z-index:1}
+        .pricing-header-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--accent-green);border-radius:20px;font-size:0.62rem;font-weight:700;margin-bottom:8px}
+        .pricing-header-badge i{font-size:0.62rem}
         .pricing-sub{font-size:0.82rem;color:var(--text-secondary);margin-bottom:20px}
         .plans-grid{display:flex;flex-direction:column;gap:12px}
         .plan-card{background:var(--bg-card);border:1.5px solid var(--border-subtle);border-radius:14px;padding:20px 16px;position:relative}
@@ -194,11 +196,50 @@
         .plan-features{list-style:none;margin-bottom:14px}
         .plan-features li{display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:0.74rem;color:var(--text-secondary)}
         .plan-features li i{color:var(--accent-green);font-size:0.62rem;margin-top:2px;flex-shrink:0}
+        .plan-features li.destacado{color:var(--text-primary);font-weight:600;padding:5px 8px;background:linear-gradient(90deg,rgba(251,191,36,0.08),transparent);border-radius:6px;margin:2px -4px}
+        .plan-features li.destacado i{color:var(--accent-gold)}
+        .plan-features li.en-construccion{color:var(--text-muted);font-style:italic}
+        .plan-features li.en-construccion i{color:var(--accent-orange)}
+        .plan-features li .badge-construccion{display:inline-block;margin-left:4px;padding:1px 5px;background:rgba(251,146,60,0.12);color:var(--accent-orange);border-radius:3px;font-size:0.55rem;font-weight:700;font-style:normal;text-transform:uppercase;letter-spacing:0.3px}
         .plan-cta{display:block;width:100%;padding:12px;text-align:center;border-radius:8px;font-size:0.85rem;font-weight:700;text-decoration:none;cursor:pointer;transition:all 0.15s}
         .plan-cta-solid{background:linear-gradient(135deg,var(--accent-blue),#4f6fef);color:#fff;border:none;box-shadow:0 3px 12px rgba(99,140,255,0.25)}
         .plan-cta-outline{background:transparent;border:2px solid var(--border-accent);color:var(--accent-blue)}
         .pricing-note{text-align:center;margin-top:14px;font-size:0.72rem;color:var(--text-secondary)}
         .pricing-note i{color:var(--accent-blue);margin-right:4px}
+
+        /* ====== COMPROMISO DE PRECIO ====== */
+        .compromiso{padding:28px 20px;position:relative;z-index:1}
+        .compromiso-card{max-width:720px;margin:0 auto;background:linear-gradient(135deg,rgba(99,140,255,0.05),rgba(34,211,238,0.03));border:1.5px solid rgba(99,140,255,0.2);border-radius:16px;padding:24px 20px;position:relative;overflow:hidden}
+        .compromiso-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan),var(--accent-blue));background-size:200% 100%;animation:shimmer 3s linear infinite}
+        @keyframes shimmer{0%{background-position:0% 0}100%{background-position:200% 0}}
+        .compromiso-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+        .compromiso-foto{width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));border:2px solid rgba(99,140,255,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.4rem;position:relative}
+        .compromiso-foto img{width:100%;height:100%;object-fit:cover}
+        .compromiso-foto::after{content:'';position:absolute;bottom:2px;right:2px;width:16px;height:16px;background:var(--accent-green);border-radius:50%;border:2px solid var(--bg-deep)}
+        .compromiso-info h3{font-size:0.95rem;font-weight:700;color:#fff;line-height:1.2;margin-bottom:2px}
+        .compromiso-info .compromiso-titulo-sub{font-size:0.66rem;color:var(--accent-cyan);font-weight:600;text-transform:uppercase;letter-spacing:0.8px}
+        .compromiso-cita{font-size:0.86rem;color:var(--text-primary);line-height:1.55;margin-bottom:12px;padding-left:14px;border-left:2px solid var(--accent-blue);font-style:italic}
+        .compromiso-cita strong{color:var(--accent-gold);font-style:normal}
+        .compromiso-firma{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid rgba(99,140,255,0.15)}
+        .compromiso-firma-nombre{font-size:0.7rem;color:var(--text-secondary)}
+        .compromiso-firma-nombre strong{color:#fff;font-weight:700}
+        .compromiso-firma-cargo{color:var(--text-muted);font-size:0.62rem}
+        .compromiso-firma-empresa{font-size:0.62rem;color:var(--text-muted)}
+        .compromiso-firma-empresa strong{color:var(--accent-cyan)}
+
+        /* ====== DESARROLLO A MEDIDA ====== */
+        .medida{padding:28px 20px;position:relative;z-index:1}
+        .medida-card{max-width:720px;margin:0 auto;background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(244,114,182,0.04));border:1.5px solid rgba(167,139,250,0.2);border-radius:16px;padding:24px 20px}
+        .medida-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .medida-icon{width:38px;height:38px;background:rgba(167,139,250,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--accent-violet);font-size:1rem;flex-shrink:0}
+        .medida-header h3{font-size:1rem;font-weight:700;color:#fff}
+        .medida-intro{font-size:0.82rem;color:var(--text-secondary);line-height:1.55;margin-bottom:14px}
+        .medida-quote{background:rgba(255,255,255,0.02);border:1px solid rgba(167,139,250,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+        .medida-quote-title{font-size:0.72rem;color:var(--accent-violet);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+        .medida-quote p{font-size:0.82rem;color:var(--text-primary);line-height:1.6}
+        .medida-quote p strong{color:var(--accent-gold)}
+        .medida-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,var(--accent-violet),var(--accent-pink));color:#fff;border-radius:8px;font-size:0.82rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(167,139,250,0.25);transition:all 0.15s}
+        .medida-cta:active{transform:scale(0.97)}
 
         /* ====== FOOTER ====== */
         .footer{padding:24px 20px;text-align:center;border-top:1px solid var(--border-subtle);position:relative;z-index:1}
@@ -226,17 +267,22 @@
             .s-t-tipo{font-size:0.54rem}.s-t-item,.s-t-val{font-size:0.42rem}
             .s-t-total span{font-size:0.5rem!important}
             .s-f-title{font-size:0.6rem}.s-f-name{font-size:0.48rem}.s-f-tag{font-size:0.46rem}
-            .features,.govt-section,.niches,.pricing{max-width:1080px;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px}
+            .features,.govt-section,.niches,.pricing,.compromiso,.medida{max-width:1080px;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px}
             .feature-grid{grid-template-columns:repeat(3,1fr);gap:14px}
             .feature-card h3{font-size:0.85rem}.feature-card p{font-size:0.72rem}
-            .plans-grid{flex-direction:row;max-width:820px;margin:0 auto}
-            .plans-grid .plan-card{flex:1}
+            .plans-grid{flex-direction:row;max-width:820px;margin:0 auto;align-items:stretch}
+            .plans-grid .plan-card{flex:1;display:flex;flex-direction:column}
+            .plans-grid .plan-features{flex:1}
             .niche-scroll{justify-content:center;flex-wrap:wrap}
             .govt-card{max-width:620px;margin:0 auto}
             .trust{max-width:1080px;margin:0 auto}
             .trust-item{font-size:0.78rem}
             .footer{max-width:1080px;margin:0 auto}
             .logo-img{height:54px}
+            .compromiso-foto{width:96px;height:96px;font-size:1.8rem}
+            .compromiso-info h3{font-size:1.1rem}
+            .compromiso-cita{font-size:0.95rem}
+            .medida-header h3{font-size:1.15rem}
         }
         @media(min-width:1200px){
             .hero{gap:70px}
@@ -270,7 +316,7 @@
                 <strong>Véndele al Estado, a empresas y al público.</strong>
             </p>
             <div class="hero-ctas">
-                <a href="/demo" class="cta-primary"><i class="fas fa-play"></i> Probar Demo Gratis</a>
+                <a href="/demo" class="cta-primary"><i class="fas fa-play"></i> Ver Demo</a>
                 <a href="/auth/login" class="cta-secondary"><i class="fas fa-user"></i> Ya tengo cuenta</a>
             </div>
         </div>
@@ -400,55 +446,115 @@
     <!-- PRICING -->
     <section class="pricing" id="precio">
         <div class="section-label">Inversión</div>
+        <div class="pricing-header-badge"><i class="fas fa-shield-halved"></i> Precio garantizado de por vida</div>
         <h2 class="section-title">Elige tu plan</h2>
-        <p class="pricing-sub">Prueba gratis, sin compromiso. Activa cuando quieras.</p>
+        <p class="pricing-sub">Un precio justo. Para siempre. Sin promociones que después suben.</p>
         <div class="plans-grid">
+
+            <!-- PLAN CRECE -->
             <div class="plan-card">
-                <div class="plan-name">Básico</div>
-                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">70</span><span class="plan-period">/mes</span></div>
-                <div class="plan-desc">Para negocios que empiezan</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Comprobantes ilimitados</li>
-                    <li><i class="fas fa-check"></i> Comandos de voz</li>
-                    <li><i class="fas fa-check"></i> 1 admin + 1 vendedor</li>
-                    <li><i class="fas fa-check"></i> Control de stock</li>
-                    <li><i class="fas fa-check"></i> Funciona sin internet</li>
-                </ul>
-                <a href="/demo" class="plan-cta plan-cta-outline">Probar gratis</a>
-            </div>
-            <div class="plan-card plan-featured">
-                <div class="plan-popular">Popular</div>
                 <div class="plan-name">Crece</div>
-                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">90</span><span class="plan-period">/mes</span></div>
+                <div class="plan-price"><span class="plan-currency">S/</span><span class="plan-amount">79</span><span class="plan-period">/mes</span></div>
                 <div class="plan-desc">Para negocios en crecimiento</div>
                 <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Integrado con PagoOK</li>
-                    <li><i class="fas fa-check"></i> Comprobantes ilimitados</li>
-                    <li><i class="fas fa-check"></i> 1 admin + 3 vendedores</li>
-                    <li><i class="fas fa-check"></i> Reportes automáticos</li>
+                    <li><i class="fas fa-check"></i> Comprobantes SUNAT ilimitados</li>
+                    <li><i class="fas fa-check"></i> Comandos de voz</li>
+                    <li><i class="fas fa-check"></i> 1 admin + hasta 3 usuarios</li>
+                    <li><i class="fas fa-check"></i> Control de stock básico</li>
+                    <li><i class="fas fa-check"></i> Kardex simple</li>
                     <li><i class="fas fa-check"></i> Reenvío automático SUNAT</li>
-                    <li><i class="fas fa-check"></i> Soporte WhatsApp</li>
-                    <li><i class="fas fa-check"></i> Integrado con Alerta.pe</li>
+                    <li><i class="fas fa-check"></i> Soporte WhatsApp directo</li>
+                    <li><i class="fas fa-check"></i> Funciona sin internet</li>
                 </ul>
-                <a href="/demo" class="plan-cta plan-cta-solid">Probar gratis</a>
+                <a href="https://wa.me/51967317946?text=Hola%20Duilio%2C%20quiero%20contratar%20QueVendi%20Plan%20Crece" class="plan-cta plan-cta-outline">Contratar Crece</a>
             </div>
-            <div class="plan-card">
+
+            <!-- PLAN PRO -->
+            <div class="plan-card plan-featured">
+                <div class="plan-popular">Recomendado</div>
                 <div class="plan-name">Pro</div>
-                <div class="plan-price"><span class="plan-currency">S/.</span><span class="plan-amount">120</span><span class="plan-period">/mes</span></div>
-                <div class="plan-desc">Para negocios que dominan</div>
+                <div class="plan-price"><span class="plan-currency">S/</span><span class="plan-amount">119</span><span class="plan-period">/mes</span></div>
+                <div class="plan-desc">Para negocios que dominan el mercado</div>
                 <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Todo lo del Crece</li>
-                    <li><i class="fas fa-check"></i> Usuarios ilimitados</li>
-                    <li><i class="fas fa-check"></i> Gerente IA</li>
+                    <li><i class="fas fa-check"></i> Todo lo del Plan Crece</li>
+                    <li class="destacado"><i class="fas fa-star"></i> Kardex Total</li>
+                    <li class="destacado"><i class="fas fa-star"></i> Usuarios ilimitados <span style="font-size:0.62rem;color:var(--text-muted);font-weight:400;">(ideal para vendedores de campo)</span></li>
+                    <li class="destacado"><i class="fas fa-star"></i> Indicadores personalizados</li>
                     <li><i class="fas fa-check"></i> Catálogo virtual online</li>
-                    <li><i class="fas fa-check"></i> Predicción de demanda</li>
-                    <li><i class="fas fa-check"></i> Botón de Pánico</li>
                     <li><i class="fas fa-check"></i> Multi-sucursal</li>
+                    <li><i class="fas fa-check"></i> Predicción de demanda con IA</li>
+                    <li><i class="fas fa-check"></i> Botón de Pánico</li>
+                    <li><i class="fas fa-check"></i> Gerente IA</li>
+                    <li class="en-construccion"><i class="fas fa-hammer"></i> Notificaciones Push a vendedores <span class="badge-construccion">En construcción</span></li>
                 </ul>
-                <a href="/demo" class="plan-cta plan-cta-outline">Probar gratis</a>
+                <a href="https://wa.me/51967317946?text=Hola%20Duilio%2C%20quiero%20contratar%20QueVendi%20Plan%20Pro" class="plan-cta plan-cta-solid">Contratar Pro</a>
             </div>
         </div>
-        <div class="pricing-note"><i class="fas fa-shield-halved"></i> Incluye configuración completa y capacitación por un bajo precio, consulte con nuestro equipo para más detalles.</div>
+        <div class="pricing-note"><i class="fas fa-gift"></i> Configuración y capacitación incluidas sin costo adicional.</div>
+    </section>
+
+    <!-- COMPROMISO DE PRECIO -->
+    <section class="compromiso" id="compromiso">
+        <div class="compromiso-card">
+            <div class="compromiso-header">
+                <div class="compromiso-foto">
+                    <img src="/static/img/duilio_restuccia.png" alt="Duilio Restuccia" onerror="this.parentElement.innerHTML='DR'">
+                </div>
+                <div class="compromiso-info">
+                    <div class="compromiso-titulo-sub">Mi compromiso con usted</div>
+                    <h3>Su precio no subirá. Nunca.</h3>
+                </div>
+            </div>
+            <div class="compromiso-cita">
+                Sé que muchos empresarios han llegado a nosotros después de sentirse engañados
+                por sistemas que ofrecieron un precio bajo al inicio y luego lo subieron sin previo aviso.
+                <br><br>
+                Por eso, <strong>yo, Duilio Restuccia, me comprometo con usted a que el precio de su plan nunca subirá</strong>.
+                Cuando queremos mejorar el producto, agregamos funciones nuevas. Nunca subimos el precio a nuestros clientes actuales.
+                <br><br>
+                Es la promesa que le firmamos en el contrato: precio único desde el día uno, para siempre.
+            </div>
+            <div class="compromiso-firma">
+                <div class="compromiso-firma-nombre">
+                    <strong>Duilio Restuccia</strong>
+                    <div class="compromiso-firma-cargo">Director · Ingeniero Economista</div>
+                </div>
+                <div class="compromiso-firma-empresa">
+                    <strong>Perú Sistemas Pro E.I.R.L.</strong><br>
+                    RUC 20615446565 · Iquitos, Loreto
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESARROLLO A MEDIDA -->
+    <section class="medida" id="medida">
+        <div class="medida-card">
+            <div class="medida-header">
+                <div class="medida-icon"><i class="fas fa-code-branch"></i></div>
+                <h3>¿Necesita algo que no está en el plan?</h3>
+            </div>
+            <p class="medida-intro">
+                Ningún sistema es perfecto para todos los negocios. Si hay una funcionalidad
+                que su empresa necesita para ser más competitiva, conversemos. La desarrollamos
+                para usted, sin que tenga que esperar para empezar a usar QueVendi.
+            </p>
+            <div class="medida-quote">
+                <div class="medida-quote-title"><i class="fas fa-message"></i> Cuénteme:</div>
+                <p>
+                    ¿Qué personalizaciones o funcionalidades harían que su empresa sea
+                    <strong>más competitiva</strong>?
+                    <br><br>
+                    Solo cuénteme qué no ha encontrado aún en otros software y le diré
+                    <strong>en qué tiempo lo desarrollo</strong>.
+                    <br><br>
+                    Todo esto, sin que tenga que esperar para empezar a operar o usar QueVendi.
+                </p>
+            </div>
+            <a href="https://wa.me/51967317946?text=Hola%20Duilio%2C%20quiero%20contarle%20una%20funcionalidad%20que%20mi%20empresa%20necesita" class="medida-cta">
+                <i class="fab fa-whatsapp"></i> Cuénteme lo que necesita
+            </a>
+        </div>
     </section>
 
     <!-- FOOTER -->
