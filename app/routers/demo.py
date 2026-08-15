@@ -30,7 +30,8 @@ from app.models.billing import StoreBillingConfig
 router = APIRouter(tags=["demo"])
 
 # Store IDs habilitados para demo — ajusta si agregas más nichos
-DEMO_STORE_IDS = [4, 5, 6, 7]
+# 20 = Restaurante Demo (pollería / cevichería)
+DEMO_STORE_IDS = [4, 5, 6, 7, 20]
 
 class SelectStoreRequest(BaseModel):
     store_id: int
@@ -153,6 +154,7 @@ class CatalogInfo(BaseModel):
 CATALOGS_PATH = Path(__file__).parent.parent / "data" / "catalogs_demo.json"
 
 DEMO_CONFIG = {
+    "restaurante": {"store": "Restaurante Demo",     "dni": "00000008", "user": "demo_restaurante"},
     "abarrotes":   {"store": "Abarrotes Demo",       "dni": "00000001", "user": "demo_abarrotes"},
     "ferreteria":  {"store": "Ferretería Demo",       "dni": "00000002", "user": "demo_ferreteria"},
     "lubricentro": {"store": "Lubricentro Demo",      "dni": "00000003", "user": "demo_lubricentro"},
