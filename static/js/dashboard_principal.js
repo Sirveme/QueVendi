@@ -3392,10 +3392,10 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
         _shareComprobante(numeroFormato);
     };
     modal.querySelector('#btn-modal-print-simple').onclick = async () => {
-        alert('BT: ' + window.BluetoothPrinter?.estaConectado());
+        console.log('[Print] BT conectado:', window.BluetoothPrinter?.estaConectado());
         if (window.BluetoothPrinter?.estaConectado()) {
             try {
-                alert('Intentando imprimir por BT...');
+                console.log('[Print] Enviando ticket por Bluetooth...');
                 const config = JSON.parse(
                     localStorage.getItem('store_config') || '{}'
                 );
@@ -3403,13 +3403,12 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
                     items: [], total: 0, payment_method: 'Contado'
                 };
                 await window.BluetoothPrinter.imprimirVenta(ventaData, config, 58);
-                alert('Impresión enviada OK');
+                console.log('[Print] ✅ Impresión enviada por Bluetooth');
+                showToast('🖨️ Ticket enviado a la impresora', 'success');
                 return;
             } catch(e) {
-                alert('Error BT:\nNombre: ' + e.name +
-                      '\nMsg: ' + e.message +
-                      '\nTipo: ' + typeof e +
-                      '\nStack: ' + (e.stack || '').slice(0,100));
+                console.error('[Print] Error Bluetooth:', e.name, e.message, e.stack);
+                showToast('No se pudo imprimir por Bluetooth', 'warning');
             }
         }
         // Impresión normal (sin BT)
