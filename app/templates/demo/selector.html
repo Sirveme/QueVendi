@@ -134,11 +134,13 @@ html, body {
 }
 
 /* Colores por nicho */
+.nicho-restaurante { --card-color: #ef4444; }
 .nicho-ferreteria { --card-color: #ff6b35; }
 .nicho-grifo       { --card-color: #f59e0b; }
 .nicho-ropas       { --card-color: #a855f7; }
 .nicho-zapateria   { --card-color: #06b6d4; }
 
+.nicho-restaurante::before { background: linear-gradient(135deg, rgba(239,68,68,0.06), transparent); }
 .nicho-ferreteria::before { background: linear-gradient(135deg, rgba(255,107,53,0.06), transparent); }
 .nicho-grifo::before      { background: linear-gradient(135deg, rgba(245,158,11,0.06), transparent); }
 .nicho-ropas::before      { background: linear-gradient(135deg, rgba(168,85,247,0.06), transparent); }
@@ -223,6 +225,17 @@ html, body {
 </div>
 
 <div class="nicho-grid">
+
+  <div class="nicho-card nicho-restaurante" data-store="20" onclick="seleccionar(this)">
+    <div class="nicho-check"><i class="fas fa-check"></i></div>
+    <div class="nicho-emoji">🍗</div>
+    <div class="nicho-name">Restaurante / Pollería</div>
+    <div class="nicho-sub">Platos de fondo, ceviches, juanes, jugos y cervezas</div>
+    <div class="nicho-tags">
+      <span class="nicho-tag">Restaurante Demo</span>
+      <span class="nicho-tag">Amazónica</span>
+    </div>
+  </div>
 
   <div class="nicho-card nicho-ferreteria" data-store="4" onclick="seleccionar(this)">
     <div class="nicho-check"><i class="fas fa-check"></i></div>
