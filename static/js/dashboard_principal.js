@@ -2980,6 +2980,13 @@ async function executeSale(total, printType = 'none') {
                 await registrarFiadoDespuesDeVentaMejorado(result.id, total, customerData);
             }
 
+            // Si este pedido ya se había mandado a cocina, enlazar la
+            // comanda con la venta. Silencioso y sin bloquear el cobro:
+            // si falla, venta y comanda quedan igual, sólo sin relación.
+            if (result.id && typeof CocinaEnviar !== 'undefined') {
+                CocinaEnviar.enlazarVenta(result.id).catch(() => {});
+            }
+
             total = parseFloat(total.toFixed(2));
             AppState.dailySales += total;
             updateGoalProgress();

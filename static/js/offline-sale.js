@@ -146,6 +146,15 @@ const OfflineSale = (() => {
                     JSON.stringify(window._ultimaVentaBT));
             }
 
+            // 5b. Si el pedido se había mandado a cocina, soltar la comanda
+            // pendiente: esta venta no tiene id de servidor todavía, y
+            // dejarla en espera la enlazaría a la SIGUIENTE venta online,
+            // que sería otra distinta. Mejor sin enlace que mal enlazada.
+            if (typeof CocinaEnviar !== 'undefined' && CocinaEnviar.hayPendiente()) {
+                console.log('[OfflineSale] Venta offline: se libera la comanda pendiente');
+                CocinaEnviar.limpiarPendiente();
+            }
+
             // 6. Limpiar carrito
             if (typeof AppState !== 'undefined') {
                 AppState.cart = [];
