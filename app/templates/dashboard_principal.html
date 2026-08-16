@@ -635,6 +635,15 @@
             <!-- Banner de precio especial detectado (mayorista, vip, etc.) -->
             <div id="precio-especial-banner" style="display:none;margin-bottom:8px"></div>
 
+            <!-- Enviar a cocina — sólo visible si la tienda tiene el módulo activo -->
+            <button id="btn-enviar-cocina" style="display:none;width:100%;margin-bottom:8px;
+                    padding:14px;border:none;border-radius:12px;
+                    background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+                    font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+                    align-items:center;justify-content:center;gap:8px">
+                <i class="fas fa-utensils"></i> ENVIAR A COCINA
+            </button>
+
             <!-- Fila única: COBRAR | método | TOTAL -->
             <div class="checkout-row">
                 <button class="btn-checkout" id="btn-checkout" onclick="processSale()">
@@ -1149,6 +1158,8 @@ document.addEventListener('keydown', function(e) {
     <script src="/static/js/print-agent-client.js"></script>
     <script src="/static/js/print-agent-integration.js"></script>
     <script src="/static/js/ticket-builder.js?v=20260502"></script>
+    <script src="/static/js/cocina-enviar.js"></script>
+    <script src="/static/js/caja-cocina-avisos.js"></script>
 
     <!-- Badge de mensajes no leídos (polling cada 30s) -->
     <script>
