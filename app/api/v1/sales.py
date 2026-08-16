@@ -9,6 +9,7 @@ from app.services.sale_service import SaleService
 from app.services.voice_service import VoiceService
 from app.services.product_service import ProductService
 from app.api.dependencies import get_current_user
+from app.core.tiempo import dia_operativo_peru, hoy_peru
 from app.models.user import User
 from sqlalchemy import func, or_
 from typing import List
@@ -464,7 +465,7 @@ async def get_today_total(
     return {
         "total": round(total, 2),
         "count": len(sales),
-        "date": datetime.now().date().isoformat()
+        "date": hoy_peru().isoformat()
     }
 
 @router.get("/stats/today")
@@ -628,18 +629,21 @@ async def get_today_summary(
     current_user: User = Depends(get_current_user)
 ):
     """Resumen de ventas del día"""
+    today = hoy_peru()
     try:
         from app.models.sale import Sale
-        
-        today = date.today()
-        
+
+        # Ventana del día operativo de Lima (el servidor corre en UTC).
+        dia_inicio, dia_fin = dia_operativo_peru(today)
+
         sales = db.query(Sale).filter(
             Sale.store_id == current_user.store_id,
-            func.date(Sale.created_at) == today
+            Sale.created_at >= dia_inicio,
+            Sale.created_at < dia_fin
         ).all()
-        
+
         total = sum(float(sale.total) for sale in sales)
-        
+
         return {
             "count": len(sales),
             "total": total,

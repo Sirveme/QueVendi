@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 
 from app.core.database import get_db
+from app.core.tiempo import dia_operativo_peru
 from app.models.incidente import Incidente, ContactoEmergencia, RedBodegueros, Notificacion
 from app.models.store import Store
 from app.api.dependencies import get_current_user
@@ -177,7 +178,9 @@ async def obtener_estadisticas(
     # Calcular fecha de inicio según periodo
     ahora = datetime.now(timezone.utc)
     if periodo == "today":
-        desde = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
+        # Medianoche de Lima, no de UTC: con el servidor en UTC el día
+        # arrancaba a las 19:00 hora local.
+        desde, _ = dia_operativo_peru()
     elif periodo == "week":
         desde = ahora - timedelta(days=7)
     elif periodo == "month":

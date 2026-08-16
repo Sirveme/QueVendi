@@ -9,24 +9,24 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, cast, Date
 from datetime import datetime, date, timedelta, timezone, time
 from app.core.database import get_db
+from app.core.tiempo import PERU_TZ, dia_operativo_peru, hoy_peru
 from app.models.sale import Sale, SaleItem
 from app.models.product import Product
 from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.services.auth_service import AuthService
 
-PERU_TZ = timezone(timedelta(hours=-5))
-
-
-def hoy_peru():
-    return datetime.now(PERU_TZ).date()
-
-
 def _peru_window(d: date):
-    """Retorna (inicio, fin_exclusivo) en zona Perú para el día d."""
-    inicio = datetime.combine(d, time.min, tzinfo=PERU_TZ)
-    fin = datetime.combine(d + timedelta(days=1), time.min, tzinfo=PERU_TZ)
-    return inicio, fin
+    """
+    Retorna (inicio, fin_exclusivo) del día d en zona Perú.
+
+    Se mantiene como alias delgado de `dia_operativo_peru` para no tocar
+    los usos existentes de este módulo. La ventana es el mismo instante
+    en ambos casos; sólo cambia el offset con que se representa (UTC en
+    vez de -05:00), lo cual es indiferente para columnas
+    `timestamp with time zone` como Sale.created_at.
+    """
+    return dia_operativo_peru(d)
 
 
 def _fmt_qty(q) -> str:
