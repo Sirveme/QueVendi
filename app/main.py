@@ -34,6 +34,8 @@ from app.routers.store_config import router as store_config_router
 from app.routers.user_management import router as user_mgmt_router
 
 from app.routers.caja import router as caja_router
+from app.routers.cocina import router as cocina_router
+from app.routers.cocina import ws_router as cocina_ws_router
 from app.routers.carta_virtual import router as carta_router
 from app.routers import guias
 from app.routers import encuestas
@@ -218,6 +220,8 @@ app.include_router(store_config_router, prefix="/api/v1/store")
 app.include_router(user_mgmt_router, prefix="/api/v1/users")
 app.include_router(lite.router)
 app.include_router(caja_router, prefix="/api/v1", tags=["caja"])
+app.include_router(cocina_router, prefix="/api/v1", tags=["cocina"])
+app.include_router(cocina_ws_router)   # /ws/cocina/{store_id}, /ws/caja/{store_id}
 app.include_router(carta_router, tags=["carta_virtual"])  # Rutas públicas sin auth
 app.include_router(guias.router)
 app.include_router(encuestas.router)
@@ -392,6 +396,18 @@ async def add_user_page(request: Request):
 @app.get("/caja", response_class=HTMLResponse)
 async def caja_page(request: Request):
     return templates.TemplateResponse("caja.html", {"request": request})
+
+
+# ========================================
+# COCINA — pantalla de comandas
+# ========================================
+@app.get("/cocina", response_class=HTMLResponse)
+async def cocina_page(request: Request):
+    """
+    Pantalla de cocina. Se autentica con ?device_token=... (o con la
+    sesión del usuario); la validación real la hacen los endpoints.
+    """
+    return templates.TemplateResponse("cocina.html", {"request": request})
 
 
 # ========================================
