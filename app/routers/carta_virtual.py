@@ -25,6 +25,7 @@ from datetime import datetime
 import logging
 
 from app.core.database import get_db
+from app.core.tiempo import dia_operativo_peru
 from app.models.store import Store
 from app.models.product import Product
 from app.models.user import User
@@ -857,16 +858,24 @@ async def stats_pedidos(
     db: Session = Depends(get_db),
 ):
     """Estadísticas del día (sólo del store del usuario) + producto top de la semana."""
+    # Día operativo de Lima: CURRENT_DATE usaba el reloj del servidor (UTC),
+    # así que "hoy" cambiaba a las 19:00 hora local.
+    dia_inicio, dia_fin = dia_operativo_peru(naive=True)
     try:
         row = db.execute(text("""
             SELECT
-              COUNT(*) FILTER (WHERE created_at::date = CURRENT_DATE) AS total_hoy,
-              COUNT(*) FILTER (WHERE estado='confirmado' AND created_at::date = CURRENT_DATE) AS confirmados_hoy,
-              COUNT(*) FILTER (WHERE estado='rechazado' AND created_at::date = CURRENT_DATE) AS rechazados_hoy,
-              COUNT(*) FILTER (WHERE estado='listo' AND created_at::date = CURRENT_DATE) AS listos_hoy
-            FROM carta_pedidos
-            WHERE store_id = :sid
-        """), {"sid": current_user.store_id}).fetchone()
+              COUNT(*) FILTER (WHERE hoy) AS total_hoy,
+              COUNT(*) FILTER (WHERE hoy AND estado='confirmado') AS confirmados_hoy,
+              COUNT(*) FILTER (WHERE hoy AND estado='rechazado') AS rechazados_hoy,
+              COUNT(*) FILTER (WHERE hoy AND estado='listo') AS listos_hoy
+            FROM (
+              SELECT estado,
+                     (created_at >= :dia_inicio AND created_at < :dia_fin) AS hoy
+              FROM carta_pedidos
+              WHERE store_id = :sid
+            ) p
+        """), {"sid": current_user.store_id,
+               "dia_inicio": dia_inicio, "dia_fin": dia_fin}).fetchone()
         top = db.execute(text("""
             SELECT producto_nombre, COUNT(*) AS n
             FROM carta_pedidos

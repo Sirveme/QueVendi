@@ -26,6 +26,7 @@ import logging
 
 from app.core.database import get_db
 from app.core.security import get_current_user
+from app.core.tiempo import dia_operativo_peru, hoy_peru
 
 logger = logging.getLogger(__name__)
 
@@ -257,15 +258,18 @@ async def registrar_venta_lite(
 
     try:
         # 1. Obtener siguiente correlativo del día
-        hoy = date.today()
+        # Día operativo en hora Lima: con el servidor en UTC, DATE(created_at)
+        # cortaba el día a las 19:00 y reiniciaba el correlativo.
+        dia_inicio, dia_fin = dia_operativo_peru(naive=True)
         row = db.execute(
             text("""
                 SELECT COALESCE(MAX(numero_dia), 0) + 1 AS siguiente
                 FROM lite_ventas
                 WHERE store_id = :store_id
-                  AND DATE(created_at) = :hoy
+                  AND created_at >= :dia_inicio
+                  AND created_at <  :dia_fin
             """),
-            {"store_id": store_id, "hoy": hoy}
+            {"store_id": store_id, "dia_inicio": dia_inicio, "dia_fin": dia_fin}
         ).fetchone()
         numero = row.siguiente if row else 1
 
@@ -369,9 +373,10 @@ async def get_ventas_lite(
     """Devuelve las ventas del día (o de la fecha indicada)."""
     store_id = current_user.get("store_id")
     try:
-        dia = date.fromisoformat(fecha) if fecha else date.today()
+        dia = date.fromisoformat(fecha) if fecha else hoy_peru()
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de fecha inválido (usa YYYY-MM-DD)")
+    dia_inicio, dia_fin = dia_operativo_peru(dia, naive=True)
 
     try:
         rows = db.execute(
@@ -388,11 +393,12 @@ async def get_ventas_lite(
                 FROM lite_ventas v
                 JOIN lite_venta_items i ON i.venta_id = v.id
                 WHERE v.store_id = :store_id
-                  AND DATE(v.created_at) = :dia
+                  AND v.created_at >= :dia_inicio
+                  AND v.created_at <  :dia_fin
                 GROUP BY v.id
                 ORDER BY v.created_at DESC
             """),
-            {"store_id": store_id, "dia": dia}
+            {"store_id": store_id, "dia_inicio": dia_inicio, "dia_fin": dia_fin}
         ).fetchall()
 
         ventas = [
@@ -425,9 +431,10 @@ async def resumen_dia_lite(
     """Resumen para el cierre de caja: total por método de pago."""
     store_id = current_user.get("store_id")
     try:
-        dia = date.fromisoformat(fecha) if fecha else date.today()
+        dia = date.fromisoformat(fecha) if fecha else hoy_peru()
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de fecha inválido")
+    dia_inicio, dia_fin = dia_operativo_peru(dia, naive=True)
 
     try:
         rows = db.execute(
@@ -438,20 +445,23 @@ async def resumen_dia_lite(
                     SUM(total)      AS monto
                 FROM lite_ventas
                 WHERE store_id = :store_id
-                  AND DATE(created_at) = :dia
+                  AND created_at >= :dia_inicio
+                  AND created_at <  :dia_fin
                 GROUP BY payment_method
                 ORDER BY monto DESC
             """),
-            {"store_id": store_id, "dia": dia}
+            {"store_id": store_id, "dia_inicio": dia_inicio, "dia_fin": dia_fin}
         ).fetchall()
 
         total_general = db.execute(
             text("""
                 SELECT COUNT(*) AS n, COALESCE(SUM(total), 0) AS monto
                 FROM lite_ventas
-                WHERE store_id = :store_id AND DATE(created_at) = :dia
+                WHERE store_id = :store_id
+                  AND created_at >= :dia_inicio
+                  AND created_at <  :dia_fin
             """),
-            {"store_id": store_id, "dia": dia}
+            {"store_id": store_id, "dia_inicio": dia_inicio, "dia_fin": dia_fin}
         ).fetchone()
 
         return {
