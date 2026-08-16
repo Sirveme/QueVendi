@@ -65,9 +65,22 @@ CREATE TABLE IF NOT EXISTS store_config (
 """
 
 
+# Columnas añadidas después de la creación original de la tabla.
+# save_store_config() arma el INSERT/UPDATE con todas las claves del
+# schema, así que cualquier campo nuevo debe existir sí o sí antes de
+# guardar — no basta con que lo cree el módulo que lo estrena.
+MIGRATION_COLUMNAS_NUEVAS_SQL = """
+ALTER TABLE store_config
+    ADD COLUMN IF NOT EXISTS caja_apertura_requerida BOOLEAN DEFAULT TRUE;
+ALTER TABLE store_config
+    ADD COLUMN IF NOT EXISTS kitchen_enabled BOOLEAN DEFAULT FALSE;
+"""
+
+
 def _ensure_table(db: Session):
     try:
         db.execute(text(MIGRATION_SQL))
+        db.execute(text(MIGRATION_COLUMNAS_NUEVAS_SQL))
         db.commit()
     except Exception as e:
         db.rollback()
@@ -118,6 +131,8 @@ class StoreConfigRequest(BaseModel):
     catalogo_activo: Optional[bool] = False
     # ── Caja ──
     caja_apertura_requerida: Optional[bool] = True
+    # ── Cocina (módulo comandas) ──
+    kitchen_enabled: Optional[bool] = False
 
 
 # ================================================================

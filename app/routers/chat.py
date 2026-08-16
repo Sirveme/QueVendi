@@ -23,50 +23,10 @@ from app.api.dependencies import get_current_user
 # ──────────────────────────────────────────────────────────────────────────
 # Connection Manager
 # ──────────────────────────────────────────────────────────────────────────
-class ConnectionManager:
-    def __init__(self):
-        # { store_id: { user_id: WebSocket } }
-        self.active: Dict[int, Dict[int, WebSocket]] = {}
-
-    async def connect(self, websocket: WebSocket, store_id: int, user_id: int):
-        await websocket.accept()
-        self.active.setdefault(store_id, {})[user_id] = websocket
-
-    def disconnect(self, store_id: int, user_id: int):
-        if store_id in self.active:
-            self.active[store_id].pop(user_id, None)
-            if not self.active[store_id]:
-                del self.active[store_id]
-
-    async def send_to_store(self, store_id: int, message: dict, exclude_user_id: int = None):
-        """Broadcast a todos los conectados del store."""
-        if store_id not in self.active:
-            return
-        dead = []
-        for uid, ws in list(self.active[store_id].items()):
-            if uid == exclude_user_id:
-                continue
-            try:
-                await ws.send_json(message)
-            except Exception:
-                dead.append(uid)
-        for uid in dead:
-            self.active[store_id].pop(uid, None)
-
-    async def send_to_user(self, store_id: int, user_id: int, message: dict):
-        ws = self.active.get(store_id, {}).get(user_id)
-        if not ws:
-            return
-        try:
-            await ws.send_json(message)
-        except Exception:
-            self.active[store_id].pop(user_id, None)
-
-    def get_online_users(self, store_id: int) -> List[int]:
-        return list(self.active.get(store_id, {}).keys())
-
-
-manager = ConnectionManager()
+# La clase vive ahora en app/services/ws_manager.py, compartida con el
+# módulo cocina. `manager` sigue siendo la MISMA instancia global de
+# siempre: el comportamiento del chat no cambia.
+from app.services.ws_manager import ConnectionManager, manager  # noqa: F401
 
 
 # ──────────────────────────────────────────────────────────────────────────
