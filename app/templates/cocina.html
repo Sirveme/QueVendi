@@ -5,137 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f0f23">
 <title>Cocina — QueVendi</title>
+<link rel="icon" href="/static/img/favicon.ico">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-    :root {
-        --bg:#0f0f23; --card:#1a1a2e; --card2:#232342;
-        --txt:#f1f5f9; --muted:#94a3b8; --line:rgba(255,255,255,.08);
-        --ok:#10b981; --warn:#f59e0b; --late:#ef4444; --azul:#3b82f6;
-    }
-
-    body {
-        font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-        background:var(--bg); color:var(--txt);
-        min-height:100vh; padding-bottom:24px;
-    }
-
-    /* ── Barra superior ── */
-    .top {
-        position:sticky; top:0; z-index:50;
-        background:rgba(15,15,35,.97); backdrop-filter:blur(8px);
-        border-bottom:1px solid var(--line);
-        padding:12px 14px; display:flex; align-items:center; gap:10px;
-    }
-    .top h1 { font-size:17px; font-weight:800; letter-spacing:.3px; }
-    .top .negocio { font-size:12px; color:var(--muted); font-weight:400; }
-    .spacer { flex:1; }
-
-    .pill {
-        display:flex; align-items:center; gap:6px;
-        padding:5px 11px; border-radius:20px; font-size:12px; font-weight:700;
-        background:rgba(255,255,255,.06);
-    }
-    .pill.on  { color:var(--ok);   background:rgba(16,185,129,.14); }
-    .pill.off { color:var(--late); background:rgba(239,68,68,.14); animation:parpadeo 1.6s infinite; }
-    @keyframes parpadeo { 50% { opacity:.55; } }
-
-    .btn-icono {
-        background:rgba(255,255,255,.07); border:none; color:var(--txt);
-        width:38px; height:38px; border-radius:10px; font-size:15px; cursor:pointer;
-    }
-    .btn-icono.mute { color:var(--muted); }
-
-    /* ── Lista de comandas ── */
-    #lista { padding:12px; display:flex; flex-direction:column; gap:12px; }
-
-    .comanda {
-        background:var(--card); border-radius:14px; overflow:hidden;
-        border-left:5px solid var(--azul);
-        animation:entrar .25s ease;
-    }
-    .comanda.preparing { border-left-color:var(--warn); }
-    .comanda.nueva     { animation:destacar 1.1s ease 2; }
-    @keyframes entrar   { from { opacity:0; transform:translateY(-8px); } }
-    @keyframes destacar { 50% { background:#2a2a4a; } }
-
-    .cab {
-        display:flex; align-items:center; gap:10px;
-        padding:12px 14px; background:var(--card2);
-    }
-    .num {
-        font-size:30px; font-weight:900; line-height:1;
-        min-width:56px; letter-spacing:-1px;
-    }
-    .meta { flex:1; font-size:12px; color:var(--muted); line-height:1.5; }
-    .meta b { color:var(--txt); font-weight:600; }
-
-    .timer {
-        font-size:15px; font-weight:800; padding:5px 10px; border-radius:8px;
-        background:rgba(16,185,129,.15); color:var(--ok); white-space:nowrap;
-    }
-    .timer.warn { background:rgba(245,158,11,.15); color:var(--warn); }
-    .timer.late { background:rgba(239,68,68,.18);  color:var(--late); }
-
-    .items { padding:6px 0; }
-    .item {
-        display:flex; align-items:center; gap:12px;
-        padding:12px 14px; border-bottom:1px solid var(--line);
-    }
-    .item:last-child { border-bottom:none; }
-    .item.listo { opacity:.42; }
-    .item.listo .nombre { text-decoration:line-through; }
-
-    .cant {
-        font-size:21px; font-weight:900; color:var(--warn);
-        min-width:38px; text-align:center;
-    }
-    .txt { flex:1; min-width:0; }
-    .nombre { font-size:17px; font-weight:700; line-height:1.25; }
-    .nota {
-        display:inline-block; margin-top:5px; padding:3px 9px;
-        background:rgba(239,68,68,.16); color:#fca5a5;
-        border-radius:6px; font-size:13px; font-weight:700;
-    }
-
-    /* Botones grandes: se pulsan con prisa y manos mojadas */
-    .accion {
-        border:none; border-radius:10px; padding:13px 16px;
-        font-size:14px; font-weight:800; cursor:pointer;
-        color:#fff; min-width:104px; font-family:inherit;
-    }
-    .accion:active { transform:scale(.95); }
-    .accion.empezar { background:linear-gradient(135deg,#3b82f6,#1d4ed8); }
-    .accion.listo   { background:linear-gradient(135deg,#10b981,#059669); }
-    .accion.hecho   { background:rgba(255,255,255,.08); color:var(--muted); }
-
-    .pie { padding:10px 14px; background:var(--card2); }
-    .btn-entregar {
-        width:100%; border:none; border-radius:10px; padding:14px;
-        background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff;
-        font-size:15px; font-weight:800; cursor:pointer; font-family:inherit;
-    }
-
-    /* ── Vacío / error ── */
-    .centro {
-        text-align:center; padding:70px 22px; color:var(--muted);
-    }
-    .centro .ico { font-size:52px; margin-bottom:14px; opacity:.55; }
-    .centro h2 { font-size:19px; color:var(--txt); margin-bottom:6px; }
-    .centro p  { font-size:14px; line-height:1.55; }
-
-    .toast {
-        position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
-        background:var(--card2); border:1px solid var(--line);
-        padding:11px 18px; border-radius:10px; font-size:13px; font-weight:600;
-        z-index:200; box-shadow:0 6px 22px rgba(0,0,0,.5);
-    }
-
-    @media (min-width:720px) {
-        #lista { max-width:680px; margin:0 auto; }
-    }
-</style>
+<link rel="stylesheet" href="/static/css/cocina.css?v=20260816">
 </head>
 <body>
 
@@ -164,6 +36,6 @@
        Pide uno nuevo desde Configuración del negocio.</p>
 </div>
 
-<script src="/static/js/cocina.js"></script>
+<script src="/static/js/cocina.js?v=20260816"></script>
 </body>
 </html>

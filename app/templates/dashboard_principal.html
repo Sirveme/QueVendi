@@ -660,6 +660,17 @@
                     <div class="checkout-total-amount" id="total-amount">S/. 0.00</div>
                 </div>
             </div>
+
+            <!-- Cobro repartido entre varios métodos. Alternativa al COBRAR
+                 de arriba, que sigue funcionando exactamente igual. -->
+            <button id="btn-multipago" onclick="CajaMultipago.cobrarMultiple()"
+                style="width:100%;margin-top:8px;padding:11px;border-radius:10px;
+                       border:1px solid rgba(255,255,255,.18);background:transparent;
+                       color:#94a3b8;font-family:inherit;font-size:13px;font-weight:600;
+                       cursor:pointer;display:flex;align-items:center;
+                       justify-content:center;gap:7px">
+                <i class="fas fa-layer-group"></i> Múltiples métodos
+            </button>
             
             <!-- Popup métodos de pago — estilo ALERTA -->
             <div class="payment-popup-overlay" id="payment-popup-overlay" onclick="closePaymentPopup()" style="display:none"></div>
@@ -1160,6 +1171,7 @@ document.addEventListener('keydown', function(e) {
     <script src="/static/js/ticket-builder.js?v=20260502"></script>
     <script src="/static/js/cocina-enviar.js"></script>
     <script src="/static/js/caja-cocina-avisos.js"></script>
+    <script src="/static/js/caja-multipago.js"></script>
 
     <!-- Badge de mensajes no leídos (polling cada 30s) -->
     <script>

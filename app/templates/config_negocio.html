@@ -1218,6 +1218,46 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                 <div id="emergencyResult" style="display:none;margin-top:10px"></div>
             </div>
             
+            <!-- ── CATÁLOGO VIRTUAL ── -->
+            <div class="section-card" id="card-catalogo-virtual" style="display:none">
+                <div class="section-title">
+                    <i class="fas fa-qrcode"></i> Catálogo Virtual
+                </div>
+
+                <div style="font-size:0.68rem;color:var(--text3);line-height:1.5;margin-bottom:10px">
+                    Tus clientes escanean un QR en la mesa, ven la carta en su celular
+                    y su pedido entra directo a cocina. El cobro sigue siendo en caja.
+                </div>
+
+                <div class="field" style="margin-bottom:12px">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <input type="checkbox" id="catalogo_virtual_enabled"
+                               onchange="guardarCatalogoVirtual()" style="width:auto">
+                        Recibir pedidos desde el catálogo
+                    </label>
+                </div>
+
+                <div class="register-box">
+                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:8px;color:var(--text2)">
+                        Generar QR para pegar en la mesa
+                    </div>
+                    <div style="display:flex;gap:8px;margin-bottom:8px">
+                        <input type="text" id="qr-mesa-numero" placeholder="Nº de mesa (ej: 4)"
+                            maxlength="50"
+                            style="flex:1;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);
+                                   border-radius:6px;color:var(--text);font-size:0.75rem;font-family:var(--font)">
+                        <button onclick="descargarQRMesa()" class="device-btn"
+                            style="padding:8px 14px;display:flex;align-items:center;gap:6px;font-size:0.72rem">
+                            <i class="fas fa-download"></i> Generar QR
+                        </button>
+                    </div>
+                    <button onclick="descargarQRMesa(true)" class="device-btn" style="width:100%;
+                            justify-content:center;display:flex;align-items:center;gap:6px;font-size:0.7rem">
+                        <i class="fas fa-shop"></i> QR sin mesa (mostrador / para llevar)
+                    </button>
+                </div>
+            </div>
+
             <!-- ── PANTALLAS DE COCINA ── -->
             <div class="section-card" id="card-cocina-devices" style="display:none">
                 <div class="section-title">
@@ -1231,6 +1271,20 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                     Genera un enlace por cada tablet o celular que muestre las comandas.
                     Se abre una vez en el dispositivo y queda fijo: no necesita usuario ni contraseña.
                     Si pierdes una tablet, revoca solo ese enlace.
+                </div>
+
+                <!-- Cómo avisa la pantalla de cocina al entrar un pedido -->
+                <div class="field" style="margin-bottom:12px">
+                    <label>Aviso al llegar un pedido</label>
+                    <select id="kitchen_audio_mode" onchange="guardarModoAudioCocina()">
+                        <option value="tts">Leer el pedido en voz alta (recomendado)</option>
+                        <option value="beep">Solo sonido de aviso</option>
+                        <option value="off">Sin audio</option>
+                    </select>
+                    <div style="font-size:0.62rem;color:var(--text3);margin-top:4px;line-height:1.45">
+                        Con la voz activada, el cocinero se entera del pedido sin mirar
+                        ni tocar la pantalla.
+                    </div>
                 </div>
 
                 <div id="cocinaDeviceList">

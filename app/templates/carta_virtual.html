@@ -762,12 +762,15 @@ function nuevoPedido() {
 
 function agregarAlPedido(producto) {
   cerrarDetalle();
-  if (!cliente) {
-    pedidoPendienteParaIdent = producto;
-    abrirIdModal('Necesitamos tu nombre y celular para continuar:');
+  // Pedido de mesa: va al carrito y de ahí a cocina en un solo envío.
+  // No pedimos identificación — el cliente ya está sentado en su mesa.
+  if (typeof CarritoMesa !== 'undefined') {
+    CarritoMesa.agregar(producto, 1, null);
     return;
   }
-  abrirChatConProducto(producto);
+  // Sin carrito cargado, no hay flujo alternativo: el chat paso a paso
+  // usaba endpoints que ya responden 410.
+  console.warn('[Carta] CarritoMesa no disponible');
 }
 function pedirProducto() {
   if (!productoSeleccionado) return;
@@ -1351,10 +1354,16 @@ loadCliente();
 cargarInfo();
 cargarProductos();
 registrarVisita();
-if (cliente) cargarMisPedidos();
 startPolling();
-// Saludo inicial en el chat fijo — solo si el cliente ya está identificado
-if (cliente) setTimeout(toggleChat, 300);
+</script>
+
+<!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
+<script src="/static/carta/carrito-mesa.js?v=20260816"></script>
+<script>
+  // Expuesto para que el carrito pueda mandar el nombre si el cliente
+  // se identificó alguna vez en este dispositivo.
+  window.cliente = (typeof cliente !== 'undefined') ? cliente : null;
+  CarritoMesa.init(TELEFONO);
 </script>
 </body>
 </html>
