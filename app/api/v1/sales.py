@@ -13,7 +13,7 @@ from app.core.tiempo import dia_operativo_peru, hoy_peru
 from app.models.user import User
 from sqlalchemy import func, or_
 from typing import List
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from pydantic import BaseModel
 
 from app.models.sale import Sale
@@ -441,6 +441,96 @@ async def create_sale(
     
     return sale_service.to_response(sale)
 
+
+# ════════════════════════════════════════════════
+# PAGOS MÚLTIPLES POR VENTA
+# ════════════════════════════════════════════════
+
+class PagoIn(BaseModel):
+    metodo: str
+    monto: float
+    referencia: Opt[str] = None
+
+
+@router.get("/{sale_id}/pagos")
+async def listar_pagos_venta(
+    sale_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Pagos de la venta, con total pagado y saldo pendiente."""
+    from app.services import sale_pagos_service as sps
+    from app.services.comanda_service import _ensure_tables
+    _ensure_tables(db)
+
+    data = sps.resumen(db, sale_id, current_user.store_id)
+    if data is None:
+        raise HTTPException(404, "Venta no encontrada")
+    return data
+
+
+@router.post("/{sale_id}/pagos", status_code=201)
+async def agregar_pago_venta(
+    sale_id: int,
+    req: PagoIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Registra un pago parcial. Se llama una vez por método hasta cubrir
+    el total (Yape S/40 → efectivo S/20 → tarjeta S/12).
+    """
+    from app.services import sale_pagos_service as sps
+    from app.services.comanda_service import _ensure_tables
+    _ensure_tables(db)
+
+    try:
+        pago = sps.agregar(db, sale_id, current_user.store_id,
+                           req.metodo, req.monto, req.referencia)
+        db.commit()
+    except LookupError:
+        db.rollback()
+        raise HTTPException(404, "Venta no encontrada")
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(422, str(e))
+    except Exception as e:
+        db.rollback()
+        print(f"[Sales] Error agregando pago: {e}")
+        raise HTTPException(500, "No se pudo registrar el pago")
+
+    return {"success": True, "pago": pago,
+            "resumen": sps.resumen(db, sale_id, current_user.store_id)}
+
+
+@router.delete("/{sale_id}/pagos/{pago_id}")
+async def eliminar_pago_venta(
+    sale_id: int,
+    pago_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Borra un pago mal registrado. Sólo dueño o administrador."""
+    from app.services import sale_pagos_service as sps
+    from app.services.comanda_service import _ensure_tables
+    _ensure_tables(db)
+
+    if getattr(current_user, "role", None) not in ("owner", "admin", "demo_seller"):
+        raise HTTPException(403, "Sólo el dueño puede eliminar un pago")
+
+    try:
+        ok = sps.eliminar(db, sale_id, current_user.store_id, pago_id)
+        db.commit()
+    except LookupError:
+        db.rollback()
+        raise HTTPException(404, "Venta no encontrada")
+
+    if not ok:
+        raise HTTPException(404, "Pago no encontrado")
+    return {"success": True,
+            "resumen": sps.resumen(db, sale_id, current_user.store_id)}
+
+
 @router.get("/today", response_model=List[SaleResponse])
 async def get_today_sales(
     db: Session = Depends(get_db),
@@ -669,10 +759,17 @@ async def void_sale(
     
     if not sale:
         raise HTTPException(404, "Venta no encontrada")
-    
-    sale.voided = True
-    sale.voided_at = datetime.now()
-    sale.voided_by = current_user.id
+
+    if sale.status == "cancelled":
+        return {"message": "La venta ya estaba anulada", "sale_id": sale_id}
+
+    # El modelo usa status/cancelled_at/cancelled_by. Antes se asignaban
+    # `voided`, `voided_at` y `voided_by`, que no son columnas: SQLAlchemy
+    # aceptaba el atributo sin guardarlo, así que el endpoint respondía
+    # 200 y la venta seguía activa.
+    sale.status = "cancelled"
+    sale.cancelled_at = datetime.now(timezone.utc)
+    sale.cancelled_by = current_user.id
     db.commit()
-    
+
     return {"message": "Venta anulada", "sale_id": sale_id}
