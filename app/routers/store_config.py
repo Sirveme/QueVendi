@@ -74,6 +74,8 @@ ALTER TABLE store_config
     ADD COLUMN IF NOT EXISTS caja_apertura_requerida BOOLEAN DEFAULT TRUE;
 ALTER TABLE store_config
     ADD COLUMN IF NOT EXISTS kitchen_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE store_config
+    ADD COLUMN IF NOT EXISTS kitchen_audio_mode VARCHAR(20) DEFAULT 'tts';
 """
 
 
@@ -133,6 +135,7 @@ class StoreConfigRequest(BaseModel):
     caja_apertura_requerida: Optional[bool] = True
     # ── Cocina (módulo comandas) ──
     kitchen_enabled: Optional[bool] = False
+    kitchen_audio_mode: Optional[str] = 'tts'   # tts | beep | off
 
 
 # ================================================================

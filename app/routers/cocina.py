@@ -64,6 +64,8 @@ class EnviarComandaRequest(BaseModel):
     items: List[ComandaItemIn] = Field(..., min_length=1)
     sale_id: Optional[int] = None      # si ya se cobró
     nota: Optional[str] = None         # nota general ("para llevar")
+    # Libre y opcional: "4", "T3", "Terraza", o vacío en mostrador/delivery.
+    mesa: Optional[str] = Field(None, max_length=50)
 
 
 class EstadoRequest(BaseModel):
@@ -180,6 +182,7 @@ async def enviar_a_cocina(
             cajero_nombre=getattr(current_user, "full_name", None),
             sale_id=req.sale_id,
             nota=req.nota,
+            mesa=req.mesa,
         )
         cs.agregar_items(db, comanda["id"], [i.dict() for i in req.items])
         db.commit()
@@ -261,7 +264,11 @@ async def sesion_cocina(
         text("SELECT COALESCE(commercial_name, business_name) FROM stores WHERE id = :s"),
         {"s": store_id},
     ).scalar()
-    return {"store_id": store_id, "negocio": nombre or "Cocina"}
+    return {
+        "store_id": store_id,
+        "negocio": nombre or "Cocina",
+        "audio_mode": cs.audio_mode(db, store_id),
+    }
 
 
 @router.get("/comanda/{comanda_id}")
@@ -394,6 +401,46 @@ async def enlazar_venta(
 
 class DeviceRequest(BaseModel):
     nombre: Optional[str] = None
+
+
+class AudioModeRequest(BaseModel):
+    modo: str      # tts | beep | off
+
+
+@router.get("/audio-mode")
+async def obtener_audio_mode(
+    db: Session = Depends(get_db),
+    store_id: int = Depends(_store_cocina),
+):
+    """Modo de aviso configurado para la cocina."""
+    return {"modo": cs.audio_mode(db, store_id), "opciones": list(cs.MODOS_AUDIO)}
+
+
+@router.put("/audio-mode")
+async def cambiar_audio_mode(
+    req: AudioModeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    store_id: int = Depends(_store_cocina),
+):
+    """Cambia cómo avisa la cocina: voz, pitido o silencio."""
+    if getattr(current_user, "role", None) not in ("owner", "admin", "demo_seller"):
+        raise HTTPException(403, "Sólo el dueño puede cambiar el modo de aviso")
+
+    modo = (req.modo or "").strip().lower()
+    if modo not in cs.MODOS_AUDIO:
+        raise HTTPException(
+            422, f"Modo inválido. Opciones: {', '.join(cs.MODOS_AUDIO)}"
+        )
+
+    db.execute(text("""
+        INSERT INTO store_config (store_id, kitchen_audio_mode)
+        VALUES (:sid, :modo)
+        ON CONFLICT (store_id) DO UPDATE SET kitchen_audio_mode = :modo
+    """), {"sid": store_id, "modo": modo})
+    db.commit()
+
+    return {"success": True, "modo": modo}
 
 
 @router.post("/devices", status_code=201)

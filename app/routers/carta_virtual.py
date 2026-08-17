@@ -4,11 +4,25 @@ QueVendi — Carta Virtual (pública)
 Catálogo público de productos accesible sin autenticación.
 URL: /carta/{telefono}
 
-Rutas:
+Rutas vigentes:
   GET  /carta/{telefono}                        → Template HTML
   GET  /api/public/carta/{telefono}/productos   → JSON productos agrupados
-  GET  /api/public/carta/{telefono}/info         → JSON info del negocio
-  POST /api/public/carta/{telefono}/visita       → Registrar visita
+  GET  /api/public/carta/{telefono}/info        → JSON info del negocio
+  POST /api/public/carta/{telefono}/visita      → Registrar visita
+  POST /api/public/carta/{telefono}/pedido      → Crea una COMANDA de cocina
+
+⚠️ DEPRECATED — flujo antiguo de `carta_pedidos`
+------------------------------------------------
+`carta_pedidos` guardaba UNA FILA POR PRODUCTO, así que un cliente que
+pedía tres platos generaba tres registros sin nada que los agrupara: no
+era un pedido, era una línea de pedido. Tampoco guardaba el importe.
+
+El pedido del catálogo ahora crea una COMANDA (`comandas` +
+`comanda_items`), que sí es un pedido completo, entra en la cola de
+cocina y comparte numeración con las de caja.
+
+Los endpoints del flujo viejo responden **410 Gone** y se eliminarán.
+Ver `_gone()` más abajo.
 
 Registrar en main.py:
   from app.routers.carta_virtual import router as carta_router
@@ -35,6 +49,28 @@ from sqlalchemy import or_
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+# ════════════════════════════════════════════════
+# DEPRECACIÓN DEL FLUJO carta_pedidos
+# ════════════════════════════════════════════════
+
+def _gone(endpoint: str = "") -> None:
+    """
+    Corta un endpoint del flujo viejo con 410 Gone.
+
+    Se responde 410 en vez de borrar la ruta para que un cliente móvil
+    antiguo reciba un mensaje claro en lugar de un 404 confuso. El
+    cuerpo original de cada handler se conserva debajo mientras dure la
+    transición; cuando ya nadie llame a estas rutas, se eliminan.
+    """
+    logger.info(f"[Carta] Llamada a endpoint deprecado: {endpoint}")
+    raise HTTPException(
+        status_code=410,
+        detail=("Este endpoint fue reemplazado. Los pedidos del catálogo "
+                "ahora crean comandas de cocina: usa "
+                "POST /api/public/carta/{telefono}/pedido y /api/v1/cocina/*"),
+    )
 
 # ════════════════════════════════════════════════
 # MIGRACIÓN
@@ -90,6 +126,23 @@ def _ensure_tables(db: Session):
 # ════════════════════════════════════════════════
 def _get_store_by_phone(db: Session, telefono: str) -> Optional[Store]:
     return db.query(Store).filter(Store.phone == telefono, Store.is_active == True).first()
+
+
+def _catalogo_virtual_activo(db: Session, store_id: int) -> bool:
+    """
+    ¿Este negocio acepta pedidos por el catálogo?
+
+    Nace apagado: una bodega que actualice no empieza a recibir pedidos
+    de golpe.
+    """
+    try:
+        row = db.execute(text(
+            "SELECT catalogo_virtual_enabled FROM store_config WHERE store_id = :sid"
+        ), {"sid": store_id}).fetchone()
+        return bool(row[0]) if row and row[0] is not None else False
+    except Exception as e:
+        logger.warning(f"[Carta] No se pudo leer catalogo_virtual_enabled: {e}")
+        return False
 
 
 def _get_store_logo(db: Session, store_id: int) -> Optional[str]:
@@ -302,6 +355,212 @@ async def registrar_visita(
 
 
 # ════════════════════════════════════════════════
+# CONFIGURACIÓN DEL CATÁLOGO VIRTUAL
+# ════════════════════════════════════════════════
+
+class ConfigCatalogoVirtualRequest(BaseModel):
+    activo: bool
+
+
+@router.put("/api/v1/carta/config/catalogo-virtual")
+async def config_catalogo_virtual(
+    req: ConfigCatalogoVirtualRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Activa o desactiva la recepción de pedidos por el catálogo."""
+    if getattr(current_user, "role", None) not in ("owner", "admin", "demo_seller"):
+        raise HTTPException(403, "Sólo el dueño puede activar el catálogo")
+
+    from app.services.comanda_service import _ensure_tables
+    _ensure_tables(db)
+
+    db.execute(text("""
+        INSERT INTO store_config (store_id, catalogo_virtual_enabled)
+        VALUES (:sid, :act)
+        ON CONFLICT (store_id) DO UPDATE SET catalogo_virtual_enabled = :act
+    """), {"sid": current_user.store_id, "act": req.activo})
+    db.commit()
+
+    return {"success": True, "activo": req.activo}
+
+
+# ════════════════════════════════════════════════
+# QR POR MESA
+# ════════════════════════════════════════════════
+
+@router.get("/api/v1/carta/qr-mesa")
+async def qr_mesa(
+    mesa: Optional[str] = None,
+    request: Request = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    PNG del QR de una mesa, listo para imprimir y pegar.
+
+    Sin `mesa` genera el QR general (para llevar o mostrador). El PNG se
+    arma en el servidor para que Gloria pueda descargarlo y mandarlo a
+    imprimir; el QR de la pantalla del negocio se dibuja en el navegador.
+    """
+    from fastapi.responses import StreamingResponse
+    import io as _io
+
+    try:
+        import qrcode
+    except ImportError:
+        raise HTTPException(
+            503, "Falta la librería 'qrcode' en el servidor (pip install qrcode[pil])")
+
+    store = db.query(Store).filter(Store.id == current_user.store_id).first()
+    if not store or not store.phone:
+        raise HTTPException(400, "El negocio no tiene teléfono configurado")
+
+    base = str(request.base_url).rstrip("/") if request else ""
+    url = f"{base}/carta/{store.phone}"
+    mesa_limpia = (mesa or "").strip()[:50]
+    if mesa_limpia:
+        from urllib.parse import quote
+        url += f"?mesa={quote(mesa_limpia)}"
+
+    qr = qrcode.QRCode(version=None, box_size=12, border=3,
+                       error_correction=qrcode.constants.ERROR_CORRECT_M)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    nombre = f"qr-mesa-{mesa_limpia}.png" if mesa_limpia else "qr-carta.png"
+    return StreamingResponse(
+        buf, media_type="image/png",
+        headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
+    )
+
+
+# ════════════════════════════════════════════════
+# PEDIDO DESDE EL CATÁLOGO → COMANDA DE COCINA
+# ════════════════════════════════════════════════
+
+class PedidoItemIn(BaseModel):
+    producto_id: int
+    cantidad: float = 1
+    nota: Optional[str] = None
+
+
+class PedidoCartaRequest(BaseModel):
+    items: list[PedidoItemIn]
+    mesa: Optional[str] = None          # llega del ?mesa=X del QR
+    cliente_nombre: Optional[str] = None
+    nota: Optional[str] = None
+
+
+@router.post("/api/public/carta/{telefono}/pedido")
+async def crear_pedido_carta(
+    telefono: str,
+    data: PedidoCartaRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    El cliente confirma su pedido desde el celular y entra DIRECTO a cocina.
+
+    No pasa por aprobación de caja: el negocio decidió que un pedido de
+    mesa es un pedido, igual que si lo hubiera dictado a la mesera. La
+    comanda nace sin `sale_id`; se enlaza cuando se cobre.
+    """
+    from app.services import comanda_service as cs
+    from app.services.ws_manager import (broadcast as ws_broadcast,
+                                         canal_caja, canal_cocina)
+
+    store = _get_store_by_phone(db, telefono)
+    if not store:
+        raise HTTPException(404, "Negocio no encontrado")
+
+    cs._ensure_tables(db)
+
+    if not _catalogo_virtual_activo(db, store.id):
+        raise HTTPException(403, "Este negocio no recibe pedidos por catálogo")
+    if not cs.kitchen_enabled(db, store.id):
+        raise HTTPException(403, "Este negocio no tiene cocina activada")
+    if not data.items:
+        raise HTTPException(422, "El pedido está vacío")
+
+    # Resolver los productos contra el catálogo real: nombre y precio los
+    # pone el servidor, nunca el cliente.
+    items, total = [], 0.0
+    for it in data.items:
+        prod = db.query(Product).filter(
+            Product.id == it.producto_id,
+            Product.store_id == store.id,
+            Product.is_active == True,
+        ).first()
+        if not prod:
+            raise HTTPException(422, f"Producto {it.producto_id} no disponible")
+        cantidad = float(it.cantidad or 1)
+        if cantidad <= 0:
+            raise HTTPException(422, "Cantidad inválida")
+
+        items.append({
+            "product_id": prod.id,
+            "nombre": prod.name,
+            "cantidad": cantidad,
+            "unidad": prod.unit,
+            "nota": (it.nota or "").strip()[:200] or None,
+        })
+        total += float(prod.sale_price or 0) * cantidad
+
+    cliente = (data.cliente_nombre or "").strip()[:200] or "Cliente (carta)"
+
+    try:
+        comanda = cs.crear_comanda(
+            db,
+            store_id=store.id,
+            cajero_id=None,
+            cajero_nombre=cliente,
+            sale_id=None,               # se enlaza al cobrar
+            nota=(data.nota or "").strip() or None,
+            mesa=data.mesa,
+            origen="catalogo_qr",
+        )
+        cs.agregar_items(db, comanda["id"], items)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"[Carta] Error creando comanda: {e}")
+        raise HTTPException(500, "No se pudo registrar el pedido")
+
+    detalle = cs.obtener_comanda(db, comanda["id"], store.id)
+
+    # Cocina la ve al instante; caja se entera de que entró por catálogo.
+    ws_broadcast(canal_cocina(store.id),
+                 {"tipo": "comanda_nueva", "comanda": detalle})
+    ws_broadcast(canal_caja(store.id), {
+        "tipo": "comanda_catalogo",
+        "comanda_id": comanda["id"],
+        "numero": comanda["numero"],
+        "mesa": comanda.get("mesa"),
+        "total_estimado": round(total, 2),
+    })
+
+    logger.info(
+        f"[Carta] Comanda #{comanda['numero']} desde catálogo — "
+        f"store {store.id}, mesa {comanda.get('mesa') or '-'}, {len(items)} ítems"
+    )
+
+    return {
+        "ok": True,
+        "numero": comanda["numero"],
+        "comanda_id": comanda["id"],
+        "mesa": comanda.get("mesa"),
+        "total_estimado": round(total, 2),
+        "mensaje": (f"Tu pedido llegó a cocina. Espéralo en la mesa {comanda['mesa']}."
+                    if comanda.get("mesa") else "Tu pedido llegó a cocina."),
+    }
+
+
+# ════════════════════════════════════════════════
 # CHAT DE PEDIDOS
 # ════════════════════════════════════════════════
 
@@ -315,6 +574,7 @@ async def pedido_chat(
     data: ChatRequest,
     db: Session = Depends(get_db)
 ):
+    _gone("/api/public/carta/{telefono}/pedido-chat")   # DEPRECATED — flujo carta_pedidos
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
@@ -448,6 +708,7 @@ async def pedir_gratis(
     data: PedirGratisRequest,
     db: Session = Depends(get_db)
 ):
+    _gone("/api/public/carta/{telefono}/pedir-gratis")   # DEPRECATED — flujo carta_pedidos
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
@@ -547,6 +808,7 @@ async def pedir_pago(
     data: PedirPagoRequest,
     db: Session = Depends(get_db)
 ):
+    _gone("/api/public/carta/{telefono}/pedir-pago")   # DEPRECATED — flujo carta_pedidos
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
@@ -618,6 +880,7 @@ async def mis_pedidos(
     celular: str,
     db: Session = Depends(get_db)
 ):
+    _gone("/api/public/carta/{telefono}/mis-pedidos/{celular}")   # DEPRECATED — flujo carta_pedidos
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
@@ -744,6 +1007,7 @@ async def listar_pedidos_panel(
     db: Session = Depends(get_db),
 ):
     """Pedidos activos del store (pendiente + confirmado + listo de últimas 24h)."""
+    _gone("/api/v1/carta/pedidos/pendientes")   # DEPRECATED — flujo carta_pedidos
     try:
         rows = db.execute(text("""
             SELECT id, cliente_nombre, cliente_celular, producto_id, producto_nombre,
@@ -789,6 +1053,7 @@ async def confirmar_pedido(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    _gone("/api/v1/carta/pedidos/{pedido_id}/confirmar")   # DEPRECATED — flujo carta_pedidos
     pedido = _verificar_pedido_propio(db, pedido_id, current_user.store_id)
     if pedido[3] != "pendiente":
         raise HTTPException(400, f"Pedido ya está en estado '{pedido[3]}'")
@@ -820,6 +1085,7 @@ async def marcar_listo(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    _gone("/api/v1/carta/pedidos/{pedido_id}/listo")   # DEPRECATED — flujo carta_pedidos
     pedido = _verificar_pedido_propio(db, pedido_id, current_user.store_id)
     if pedido[3] not in ("confirmado", "pendiente"):
         raise HTTPException(400, f"No se puede marcar listo desde '{pedido[3]}'")
@@ -836,6 +1102,7 @@ async def rechazar_pedido(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    _gone("/api/v1/carta/pedidos/{pedido_id}/rechazar")   # DEPRECATED — flujo carta_pedidos
     pedido = _verificar_pedido_propio(db, pedido_id, current_user.store_id)
     if pedido[3] in ("rechazado", "listo"):
         raise HTTPException(400, f"Pedido ya cerrado: '{pedido[3]}'")
@@ -858,6 +1125,7 @@ async def stats_pedidos(
     db: Session = Depends(get_db),
 ):
     """Estadísticas del día (sólo del store del usuario) + producto top de la semana."""
+    _gone("/api/v1/carta/pedidos/stats")   # DEPRECATED — flujo carta_pedidos
     # Día operativo de Lima: CURRENT_DATE usaba el reloj del servidor (UTC),
     # así que "hoy" cambiaba a las 19:00 hora local.
     dia_inicio, dia_fin = dia_operativo_peru(naive=True)
@@ -1036,6 +1304,7 @@ async def emitir_comprobante_pedido(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    _gone("/api/v1/carta/pedidos/{pedido_id}/emitir-comprobante")   # DEPRECATED — flujo carta_pedidos
     import httpx
     from datetime import datetime, timezone, timedelta
     from app.models.billing import StoreBillingConfig
@@ -1198,6 +1467,7 @@ async def proxy_pdf_pedido(
     Descarga el PDF con auth de la tienda y lo sirve al navegador,
     evitando exponer credenciales o requerir headers en el cliente.
     """
+    _gone("/api/v1/carta/pedidos/{pedido_id}/pdf")   # DEPRECATED — flujo carta_pedidos
     import httpx
     from app.models.billing import StoreBillingConfig
 

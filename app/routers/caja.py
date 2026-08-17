@@ -139,26 +139,56 @@ class CerrarCajaRequest(BaseModel):
 # HELPERS
 # ════════════════════════════════════════════════
 def _calcular_totales_sesion(db: Session, sesion_id: int, store_id: int, fecha_apertura):
+    """
+    Totales del turno, desglosados por método de cobro real.
+
+    El desglose sale de `sale_pagos`, no de `sales.payment_method`: una
+    venta cobrada con Yape + efectivo aporta a los dos, y sumar su total
+    a un único método descuadraría el arqueo.
+
+    Las ventas sin ningún pago registrado (el flujo antiguo, y las que
+    llegan de offline) se reparten por `payment_method` como antes, para
+    no perderlas mientras conviven ambos caminos.
+    """
     try:
         result = db.execute(text("""
             SELECT
-                COUNT(*)                                         AS cantidad,
-                COALESCE(SUM(total), 0)                          AS total_ventas,
-                COALESCE(SUM(CASE WHEN payment_method = 'efectivo' THEN total ELSE 0 END), 0) AS efectivo,
-                COALESCE(SUM(CASE WHEN payment_method = 'yape'     THEN total ELSE 0 END), 0) AS yape,
-                COALESCE(SUM(CASE WHEN payment_method = 'plin'     THEN total ELSE 0 END), 0) AS plin,
-                COALESCE(SUM(CASE WHEN payment_method IN ('tarjeta','visa','mastercard') THEN total ELSE 0 END), 0) AS tarjeta
+                COUNT(*)                AS cantidad,
+                COALESCE(SUM(total), 0) AS total_ventas
             FROM sales
-            WHERE store_id = :sid
-              AND sale_date >= :desde
+            WHERE store_id = :sid AND sale_date >= :desde
         """), {"sid": store_id, "desde": fecha_apertura}).fetchone()
+
+        # 1) Ventas CON pagos detallados
+        det = db.execute(text("""
+            SELECT sp.metodo, COALESCE(SUM(sp.monto), 0) AS monto
+            FROM sale_pagos sp
+            JOIN sales s ON s.id = sp.sale_id
+            WHERE s.store_id = :sid AND s.sale_date >= :desde
+            GROUP BY sp.metodo
+        """), {"sid": store_id, "desde": fecha_apertura}).fetchall()
+        por_metodo = {r.metodo: float(r.monto or 0) for r in det}
+
+        # 2) Ventas SIN pagos detallados → método declarado en la venta
+        leg = db.execute(text("""
+            SELECT s.payment_method AS metodo, COALESCE(SUM(s.total), 0) AS monto
+            FROM sales s
+            WHERE s.store_id = :sid AND s.sale_date >= :desde
+              AND NOT EXISTS (SELECT 1 FROM sale_pagos sp WHERE sp.sale_id = s.id)
+            GROUP BY s.payment_method
+        """), {"sid": store_id, "desde": fecha_apertura}).fetchall()
+        for r in leg:
+            clave = (r.metodo or "otro").lower()
+            if clave in ("visa", "mastercard"):
+                clave = "tarjeta"
+            por_metodo[clave] = por_metodo.get(clave, 0.0) + float(r.monto or 0)
 
         return {
             "tv":  float(result.total_ventas or 0),
-            "tef": float(result.efectivo or 0),
-            "ty":  float(result.yape or 0),
-            "tp":  float(result.plin or 0),
-            "tt":  float(result.tarjeta or 0),
+            "tef": por_metodo.get("efectivo", 0.0),
+            "ty":  por_metodo.get("yape", 0.0),
+            "tp":  por_metodo.get("plin", 0.0),
+            "tt":  por_metodo.get("tarjeta", 0.0),
             "cv":  int(result.cantidad or 0),
         }
     except Exception as e:
