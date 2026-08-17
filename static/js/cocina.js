@@ -31,6 +31,11 @@ const Cocina = (() => {
     const MIN_AVISO = 10;   // ámbar
     const MIN_TARDE = 20;   // rojo
 
+    // Voz: pausa antes de hablar (deja que la UI pinte) y silencio
+    // entre anuncios para que no suenen pegados.
+    const TTS_RETARDO_MS = 300;
+    const TTS_SILENCIO_MS = 500;
+
     const estado = {
         comandas: [],
         storeId: null,
@@ -41,6 +46,12 @@ const Cocina = (() => {
         sonido: true,
         audioCtx: null,
         vistos: new Set(),
+        // 'tts' | 'beep' | 'off' — lo decide el negocio en su configuración
+        audioMode: 'tts',
+        voz: null,
+        colaVoz: [],
+        hablando: false,
+        avisoVozDado: false,
     };
 
     // ============================================
@@ -62,10 +73,14 @@ const Cocina = (() => {
         try {
             const s = await _fetch('/sesion');
             estado.storeId = s.store_id;
+            estado.audioMode = s.audio_mode || 'tts';
             document.getElementById('negocio').textContent = s.negocio || '';
         } catch (e) {
             return _mostrarError(e);
         }
+
+        _prepararVoz();
+        console.log(`[Cocina] Modo de audio: ${estado.audioMode}`);
 
         await cargar();
         _conectarWS();
@@ -175,8 +190,8 @@ const Cocina = (() => {
                 estado.comandas.push(c);
                 if (!estado.vistos.has(c.id)) {
                     estado.vistos.add(c.id);
-                    _beep();
-                    _toast(`Comanda #${c.numero}`);
+                    _avisarPedidoNuevo(c);
+                    _toast(c.mesa ? `Mesa ${c.mesa} — #${c.numero}` : `Comanda #${c.numero}`);
                 }
             }
             _render(c.id);
@@ -277,10 +292,16 @@ const Cocina = (() => {
                 </div>`;
         }).join('');
 
+        const mesa = (c.mesa || '').trim();
+        // Marca los pedidos que el propio cliente mandó desde su celular:
+        // nadie en caja los revisó antes de llegar aquí.
+        const delCatalogo = (c.origen || 'caja').startsWith('catalogo');
+
         return `
             <div class="comanda ${c.estado === 'preparing' ? 'preparing' : ''} ${destacar ? 'nueva' : ''}">
                 <div class="cab">
-                    <div class="num">#${c.numero}</div>
+                    ${mesa ? `<div class="mesa">MESA ${_esc(mesa)}</div>` : ''}
+                    <div class="num">#${c.numero}${delCatalogo ? ' <span class="origen">📱</span>' : ''}</div>
                     <div class="meta">
                         ${c.cajero_nombre ? `<b>${_esc(c.cajero_nombre)}</b><br>` : ''}
                         ${_hora(c.sent_at)}
@@ -316,6 +337,115 @@ const Cocina = (() => {
     }
 
     // ============================================
+    // VOZ (TTS)
+    // ============================================
+    //
+    // El cocinero no toca la pantalla ni siempre la está mirando: con
+    // las manos en la plancha, oír el pedido vale más que verlo.
+
+    function _prepararVoz() {
+        if (!('speechSynthesis' in window)) {
+            console.warn('[Cocina] Este navegador no tiene voz sintetizada; se usará solo el pitido');
+            if (estado.audioMode === 'tts') estado.audioMode = 'beep';
+            return;
+        }
+        _elegirVoz();
+        // Chrome carga las voces de forma asíncrona.
+        window.speechSynthesis.onvoiceschanged = _elegirVoz;
+    }
+
+    /** Preferencia: es-PE → es-ES → es-MX → cualquier español. */
+    function _elegirVoz() {
+        let voces = [];
+        try { voces = window.speechSynthesis.getVoices() || []; } catch (e) { return; }
+        if (!voces.length) return;
+
+        const español = voces.filter(v => (v.lang || '').toLowerCase().startsWith('es'));
+        if (!español.length) {
+            console.warn('[Cocina] Sin voces en español: se usará solo el pitido');
+            if (estado.audioMode === 'tts') {
+                estado.audioMode = 'beep';
+                // Avisar UNA vez en pantalla: si no, en la instalación se
+                // ve que "no habla" y no se sabe que faltan las voces.
+                if (!estado.avisoVozDado) {
+                    estado.avisoVozDado = true;
+                    setTimeout(() => _toast(
+                        'Este equipo no tiene voces en español: solo sonará el aviso'
+                    ), 1500);
+                }
+            }
+            return;
+        }
+
+        const porLang = (p) => español.find(v => (v.lang || '').toLowerCase().replace('_', '-') === p);
+        estado.voz = porLang('es-pe') || porLang('es-es') || porLang('es-mx') || español[0];
+        console.log(`[Cocina] Voz: ${estado.voz.name} (${estado.voz.lang})`);
+    }
+
+    /**
+     * Texto que se lee en voz alta.
+     *   "Mesa 4: 2 Arroz con pollo sin frejoles, Sopa"
+     *   "Sin mesa: Ceviche mixto"
+     */
+    function construirAnuncio(comanda) {
+        const mesa = (comanda.mesa || '').trim();
+        const cabecera = mesa ? `Mesa ${mesa}` : 'Sin mesa';
+
+        const partes = (comanda.items || []).map(i => {
+            const cant = parseFloat(i.cantidad) || 1;
+            let t = cant > 1 ? `${cant} ${i.nombre}` : `${i.nombre}`;
+            if (i.nota) t += ` ${i.nota}`;
+            return t;
+        });
+
+        return `${cabecera}: ${partes.join(', ')}`;
+    }
+
+    function _anunciar(comanda) {
+        if (estado.audioMode !== 'tts' || !estado.voz) return;
+        estado.colaVoz.push(construirAnuncio(comanda));
+        if (!estado.hablando) _procesarColaVoz();
+    }
+
+    /**
+     * Cola FIFO: si entran tres pedidos seguidos se leen los tres en
+     * orden. Cortar el anuncio anterior haría perder un pedido.
+     */
+    function _procesarColaVoz() {
+        if (!estado.colaVoz.length) { estado.hablando = false; return; }
+
+        estado.hablando = true;
+        const texto = estado.colaVoz.shift();
+
+        let u;
+        try {
+            u = new SpeechSynthesisUtterance(texto);
+        } catch (e) {
+            estado.hablando = false;
+            return;
+        }
+
+        if (estado.voz) { u.voice = estado.voz; u.lang = estado.voz.lang; }
+        u.rate = 0.95;    // algo más lento: hay ruido de cocina
+        u.pitch = 1.0;
+        u.volume = 1.0;
+
+        const seguir = () => setTimeout(_procesarColaVoz, TTS_SILENCIO_MS);
+        u.onend = seguir;
+        u.onerror = (e) => {
+            console.warn('[Cocina] Error hablando:', e.error);
+            seguir();
+        };
+
+        try {
+            window.speechSynthesis.speak(u);
+            console.log(`[Cocina] 🔊 "${texto}"`);
+        } catch (e) {
+            estado.hablando = false;
+        }
+    }
+
+    // ============================================
     // SONIDO
     // ============================================
 
@@ -326,6 +456,27 @@ const Cocina = (() => {
             }
             if (estado.audioCtx.state === 'suspended') estado.audioCtx.resume();
         } catch (e) {}
+    }
+
+    /**
+     * Aviso al entrar un pedido, según lo que haya elegido el negocio:
+     *   tts  → pitido corto y después el pedido leído en voz alta
+     *   beep → sólo el pitido
+     *   off  → nada
+     *
+     * En modo voz el pitido va igual: hace levantar la vista antes de
+     * que empiece a hablar.
+     */
+    function _avisarPedidoNuevo(comanda) {
+        if (estado.audioMode === 'off') return;
+
+        _beep(estado.audioMode === 'tts' ? 1 : 2);
+
+        if (estado.audioMode === 'tts') {
+            // Pequeña pausa: la UI termina de pintar y el pitido no se
+            // solapa con la voz.
+            setTimeout(() => _anunciar(comanda), TTS_RETARDO_MS);
+        }
     }
 
     function _beep(veces = 2) {
@@ -351,7 +502,14 @@ const Cocina = (() => {
         estado.sonido = !estado.sonido;
         localStorage.setItem('cocina_sonido', estado.sonido ? 'on' : 'off');
         _pintarBotonSonido();
-        if (estado.sonido) _beep(1);
+        if (estado.sonido) {
+            _beep(1);
+        } else {
+            // Silenciar corta también lo que se esté leyendo.
+            try { window.speechSynthesis.cancel(); } catch (e) {}
+            estado.colaVoz = [];
+            estado.hablando = false;
+        }
     }
 
     function _pintarBotonSonido() {
@@ -399,7 +557,11 @@ const Cocina = (() => {
         init();
     }
 
-    return { empezar, listo, entregar, cargar };
+    return {
+        empezar, listo, entregar, cargar,
+        construirAnuncio,                       // expuesto para pruebas
+        _estado: estado,
+    };
 })();
 
 window.Cocina = Cocina;

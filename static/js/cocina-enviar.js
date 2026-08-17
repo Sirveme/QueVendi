@@ -127,7 +127,7 @@ const CocinaEnviar = (() => {
     /**
      * Envía el carrito actual a cocina.
      * @param {Array} items  Opcional. Por defecto toma AppState.cart.
-     * @param {Object} opts  { sale_id, nota }
+     * @param {Object} opts  { sale_id, nota, mesa }
      */
     async function enviar(items = null, opts = {}) {
         const carrito = items || (typeof AppState !== 'undefined' ? AppState.cart : []) || [];
@@ -147,6 +147,7 @@ const CocinaEnviar = (() => {
             })),
             sale_id: opts.sale_id || null,
             nota: opts.nota || null,
+            mesa: (opts.mesa || '').trim() || null,
         };
 
         let data;
@@ -321,6 +322,83 @@ const CocinaEnviar = (() => {
     }
 
     // ============================================
+    // PREGUNTA DE MESA
+    // ============================================
+
+    /**
+     * Pide la mesa antes de mandar a cocina.
+     *
+     * Es opcional a propósito: en mostrador, para llevar o delivery no
+     * hay mesa, y obligar a rellenarla frenaría la cola. Enter envía,
+     * "Sin mesa" salta el paso.
+     */
+    function preguntarMesa() {
+        const carrito = (typeof AppState !== 'undefined' ? AppState.cart : []) || [];
+        if (!carrito.length) {
+            _toast('El carrito está vacío', 'warning');
+            return;
+        }
+
+        let modal = document.getElementById('modal-mesa-cocina');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'modal-mesa-cocina';
+        modal.style.cssText = `
+            position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:999999;
+            display:flex; align-items:center; justify-content:center; padding:18px;
+        `;
+        modal.innerHTML = `
+            <div style="background:#1a1a2e;border-radius:16px;padding:22px;
+                        max-width:340px;width:100%;color:#fff;text-align:center">
+                <div style="font-size:30px">🍽️</div>
+                <h3 style="margin:8px 0 4px;font-size:18px">¿Para qué mesa?</h3>
+                <p style="color:#94a3b8;font-size:12px;margin:0 0 14px">
+                    Opcional — déjalo vacío si es para llevar o mostrador
+                </p>
+                <input type="text" id="input-mesa-cocina" maxlength="50"
+                    placeholder="Ej: 4"
+                    autocomplete="off" inputmode="text"
+                    style="width:100%;padding:14px;border-radius:10px;
+                           border:2px solid rgba(255,255,255,.15);
+                           background:rgba(255,255,255,.07);color:#fff;
+                           font-size:22px;font-weight:700;text-align:center;
+                           font-family:inherit;margin-bottom:14px">
+                <div style="display:flex;gap:8px">
+                    <button id="btn-mesa-sin"
+                        style="flex:1;padding:13px;border:none;border-radius:10px;
+                               background:rgba(255,255,255,.1);color:#e2e8f0;
+                               font-size:14px;cursor:pointer;font-family:inherit">
+                        Sin mesa
+                    </button>
+                    <button id="btn-mesa-ok"
+                        style="flex:1.4;padding:13px;border:none;border-radius:10px;
+                               background:linear-gradient(135deg,#f59e0b,#d97706);
+                               color:#fff;font-weight:700;font-size:14px;
+                               cursor:pointer;font-family:inherit">
+                        Enviar a cocina
+                    </button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(modal);
+
+        const input = document.getElementById('input-mesa-cocina');
+        const cerrar = () => modal.remove();
+        const enviarCon = (mesa) => { cerrar(); enviar(null, { mesa }); };
+
+        document.getElementById('btn-mesa-ok').onclick = () => enviarCon(input.value);
+        document.getElementById('btn-mesa-sin').onclick = () => enviarCon('');
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') enviarCon(input.value);
+            if (e.key === 'Escape') cerrar();
+        });
+        modal.addEventListener('click', (e) => { if (e.target === modal) cerrar(); });
+
+        setTimeout(() => input.focus(), 80);
+    }
+
+    // ============================================
     // BOTÓN
     // ============================================
 
@@ -339,7 +417,7 @@ const CocinaEnviar = (() => {
             if (resp.status === 403) { btn.style.display = 'none'; return; }
             if (!resp.ok) { btn.style.display = 'none'; return; }
             btn.style.display = 'flex';
-            btn.onclick = () => enviar();
+            btn.onclick = () => preguntarMesa();
             console.log('[Cocina] ✅ Botón "Enviar a cocina" activo');
         } catch (e) {
             btn.style.display = 'none';
@@ -353,7 +431,7 @@ const CocinaEnviar = (() => {
     }
 
     return {
-        enviar, imprimir, reimprimir, initBoton,
+        enviar, imprimir, reimprimir, initBoton, preguntarMesa,
         enlazarVenta,
         hayPendiente: () => _leerPendiente(),
         limpiarPendiente: _limpiarPendiente,

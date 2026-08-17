@@ -100,6 +100,7 @@ const CajaCocinaAvisos = (() => {
             let msg;
             try { msg = JSON.parse(ev.data); } catch (e) { return; }
             if (msg.tipo === 'comanda_lista') _pedidoListo(msg);
+            if (msg.tipo === 'comanda_catalogo') _pedidoDesdeCatalogo(msg);
         };
 
         estado.ws.onclose = (ev) => {
@@ -133,6 +134,20 @@ const CajaCocinaAvisos = (() => {
         if (typeof showToast === 'function') {
             showToast(`🍽️ Pedido #${msg.numero} listo para entregar`, 'success');
         }
+    }
+
+    /**
+     * Un cliente pidió desde su celular y el pedido ya está en cocina.
+     * El aviso es informativo, no exige acción: por eso un solo tono
+     * grave y un toast, sin el badge verde de "listo para entregar".
+     */
+    function _pedidoDesdeCatalogo(msg) {
+        _tonoSuave();
+        const donde = msg.mesa ? `Mesa ${msg.mesa}` : 'Para llevar';
+        if (typeof showToast === 'function') {
+            showToast(`📱 ${donde} pidió por la carta — comanda #${msg.numero}`, 'info');
+        }
+        console.log('[CajaCocina] Pedido desde catálogo:', msg);
     }
 
     // ============================================
@@ -254,6 +269,23 @@ const CajaCocinaAvisos = (() => {
                 estado.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (estado.audioCtx.state === 'suspended') estado.audioCtx.resume();
+        } catch (e) {}
+    }
+
+    /** Un solo tono grave y corto: avisa sin exigir atención inmediata. */
+    function _tonoSuave() {
+        try {
+            _desbloquearAudio();
+            const ctx = estado.audioCtx;
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 520;
+            osc.type = 'sine';
+            gain.gain.value = 0.14;
+            const t = ctx.currentTime;
+            osc.start(t); osc.stop(t + 0.18);
         } catch (e) {}
     }
 
