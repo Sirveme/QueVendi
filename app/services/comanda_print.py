@@ -101,10 +101,17 @@ def construir_escpos(comanda: dict) -> bytes:
     out = bytearray()
     out += INIT + CODEPAGE_858 + CHARSET_SPAIN
 
-    # ── Cabecera: el número, bien grande ──
+    # ── Cabecera: mesa (si la hay) y número, bien grandes ──
     out += ALIGN_CENTER + BOLD_ON
-    out += SIZE_2X + _enc("*** COMANDA ***") + LF
-    out += SIZE_3X + _enc("N %s" % comanda.get("numero", "?")) + LF
+    mesa = (comanda.get("mesa") or "").strip()
+    if mesa:
+        # La mesa va primero y en el tamaño máximo: es el dato que la
+        # mesera necesita leer de un vistazo al recoger el plato.
+        out += SIZE_3X + _enc("MESA %s" % mesa.upper()[:12]) + LF
+        out += SIZE_2X + _enc("COMANDA %s" % comanda.get("numero", "?")) + LF
+    else:
+        out += SIZE_2X + _enc("*** COMANDA ***") + LF
+        out += SIZE_3X + _enc("N %s" % comanda.get("numero", "?")) + LF
     out += SIZE_NORMAL + BOLD_OFF
     out += _enc("=" * ANCHO) + LF
 
@@ -163,11 +170,19 @@ def construir_texto(comanda: dict) -> str:
     Sirve de respaldo para `/print/text` y para mostrarla en pantalla
     cuando no hay impresora conectada.
     """
-    lineas = [
-        "*** COMANDA ***".center(ANCHO),
-        ("N %s" % comanda.get("numero", "?")).center(ANCHO),
-        "=" * ANCHO,
-    ]
+    mesa = (comanda.get("mesa") or "").strip()
+    if mesa:
+        lineas = [
+            ("MESA %s" % mesa.upper()[:12]).center(ANCHO),
+            ("COMANDA %s" % comanda.get("numero", "?")).center(ANCHO),
+            "=" * ANCHO,
+        ]
+    else:
+        lineas = [
+            "*** COMANDA ***".center(ANCHO),
+            ("N %s" % comanda.get("numero", "?")).center(ANCHO),
+            "=" * ANCHO,
+        ]
     hora = _hora_legible(comanda.get("sent_at"))
     cajero = (comanda.get("cajero_nombre") or "").strip()
     izq = "Hora: %s" % hora

@@ -138,10 +138,41 @@ CREATE INDEX IF NOT EXISTS idx_comanda_items_comanda
     ON comanda_items(comanda_id);
 """
 
-# Feature flag por tienda. Mismo patrón que caja_apertura_requerida.
+# Columnas añadidas después de la creación original de `comandas`.
+MIGRATION_COMANDAS_SQL = """
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS mesa VARCHAR(50);
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS origen VARCHAR(20) DEFAULT 'caja';
+"""
+
+# Una venta puede cobrarse con varios métodos a la vez: S/40 en Yape,
+# S/20 en efectivo y S/12 con tarjeta es una sola venta con tres pagos.
+# `sales.payment_method` queda como resumen histórico; el detalle real
+# vive aquí.
+MIGRATION_SALE_PAGOS_SQL = """
+CREATE TABLE IF NOT EXISTS sale_pagos (
+    id          SERIAL PRIMARY KEY,
+    sale_id     INTEGER NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
+    metodo      VARCHAR(20)   NOT NULL,
+    monto       DECIMAL(10,2) NOT NULL,
+    -- Nº de operación de Yape, últimos 4 de la tarjeta, etc.
+    referencia  VARCHAR(100),
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sale_pagos_sale ON sale_pagos(sale_id);
+"""
+
+# Feature flag y preferencias por tienda. Mismo patrón que
+# caja_apertura_requerida.
 MIGRATION_STORE_CONFIG_SQL = """
 ALTER TABLE store_config
     ADD COLUMN IF NOT EXISTS kitchen_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE store_config
+    ADD COLUMN IF NOT EXISTS kitchen_audio_mode VARCHAR(20) DEFAULT 'tts';
+ALTER TABLE store_config
+    ADD COLUMN IF NOT EXISTS catalogo_virtual_enabled BOOLEAN DEFAULT FALSE;
 """
 
 
@@ -149,6 +180,8 @@ def _ensure_tables(db: Session) -> None:
     """Crea tablas e índices del módulo cocina si no existen (idempotente)."""
     try:
         db.execute(text(MIGRATION_SQL))
+        db.execute(text(MIGRATION_COMANDAS_SQL))
+        db.execute(text(MIGRATION_SALE_PAGOS_SQL))
         db.execute(text(MIGRATION_STORE_CONFIG_SQL))
         db.commit()
     except Exception as e:
@@ -174,6 +207,30 @@ def kitchen_enabled(db: Session, store_id: int) -> bool:
     except Exception as e:
         logger.warning(f"[Cocina] No se pudo leer kitchen_enabled: {e}")
         return False
+
+
+# Cómo avisa la pantalla de cocina cuando entra un pedido.
+MODOS_AUDIO = ("tts", "beep", "off")
+MODO_AUDIO_DEFECTO = "tts"
+
+
+def audio_mode(db: Session, store_id: int) -> str:
+    """
+    Modo de aviso sonoro de la cocina.
+
+    'tts'  → lee el pedido en voz alta (el cocinero no toca la pantalla)
+    'beep' → sólo un pitido
+    'off'  → silencio
+    """
+    try:
+        row = db.execute(text(
+            "SELECT kitchen_audio_mode FROM store_config WHERE store_id = :sid"
+        ), {"sid": store_id}).fetchone()
+        valor = (row[0] or "").strip().lower() if row and row[0] else ""
+        return valor if valor in MODOS_AUDIO else MODO_AUDIO_DEFECTO
+    except Exception as e:
+        logger.warning(f"[Cocina] No se pudo leer kitchen_audio_mode: {e}")
+        return MODO_AUDIO_DEFECTO
 
 
 # ════════════════════════════════════════════════════════════════
@@ -271,7 +328,7 @@ def revocar_device(db: Session, device_id: int, store_id: int) -> bool:
 _INSERT_COMANDA_SQL = text("""
     INSERT INTO comandas
         (store_id, fecha_operativa, numero, sale_id, estado,
-         cajero_id, cajero_nombre, nota)
+         cajero_id, cajero_nombre, nota, mesa, origen)
     SELECT
         :sid,
         :fecha,
@@ -280,11 +337,17 @@ _INSERT_COMANDA_SQL = text("""
         'sent',
         :cajero_id,
         :cajero_nombre,
-        :nota
+        :nota,
+        :mesa,
+        :origen
     FROM comandas c
     WHERE c.store_id = :sid AND c.fecha_operativa = :fecha
     RETURNING id, numero, sent_at
 """)
+
+# De dónde salió la comanda. El catálogo entra sin pasar por caja, así
+# que conviene distinguirlo en la cola y en los reportes.
+ORIGENES = ("caja", "catalogo_qr", "catalogo_delivery")
 
 
 def crear_comanda(
@@ -294,6 +357,8 @@ def crear_comanda(
     cajero_nombre: Optional[str] = None,
     sale_id: Optional[int] = None,
     nota: Optional[str] = None,
+    mesa: Optional[str] = None,
+    origen: str = "caja",
 ) -> dict:
     """
     Crea una comanda con correlativo único por tienda y día operativo Lima.
@@ -310,6 +375,7 @@ def crear_comanda(
         RuntimeError: si tras MAX_INTENTOS_CORRELATIVO sigue colisionando.
     """
     fecha = hoy_peru()
+    mesa_limpia = (mesa or "").strip()[:50] or None
     params = {
         "sid": store_id,
         "fecha": fecha,
@@ -317,6 +383,8 @@ def crear_comanda(
         "cajero_id": cajero_id,
         "cajero_nombre": cajero_nombre,
         "nota": nota,
+        "mesa": mesa_limpia,
+        "origen": origen if origen in ORIGENES else "caja",
     }
 
     # Serializa la asignación entre cajeros de esta tienda y este día.
@@ -339,6 +407,7 @@ def crear_comanda(
                 "numero": row.numero,
                 "fecha_operativa": fecha,
                 "sent_at": row.sent_at,
+                "mesa": mesa_limpia,
             }
 
         except IntegrityError:
@@ -590,7 +659,7 @@ def enlazar_venta(db: Session, comanda_id: int, store_id: int,
 def obtener_comanda(db: Session, comanda_id: int, store_id: int) -> Optional[dict]:
     """Comanda completa con sus ítems, validando tenant."""
     row = db.execute(text("""
-        SELECT id, numero, estado, cajero_nombre, nota, sale_id,
+        SELECT id, numero, estado, cajero_nombre, nota, sale_id, mesa, origen,
                sent_at, ready_at, served_at
         FROM comandas WHERE id = :cid AND store_id = :sid
     """), {"cid": comanda_id, "sid": store_id}).fetchone()
@@ -610,6 +679,8 @@ def obtener_comanda(db: Session, comanda_id: int, store_id: int) -> Optional[dic
         "cajero_nombre": row.cajero_nombre,
         "nota": row.nota,
         "sale_id": row.sale_id,
+        "mesa": row.mesa,
+        "origen": row.origen or "caja",
         "sent_at": row.sent_at.isoformat() if row.sent_at else None,
         "ready_at": row.ready_at.isoformat() if row.ready_at else None,
         "served_at": row.served_at.isoformat() if row.served_at else None,
@@ -635,8 +706,8 @@ def comandas_pendientes(db: Session, store_id: int) -> list:
     dia_inicio, dia_fin = dia_operativo_peru()
 
     rows = db.execute(text("""
-        SELECT c.id, c.numero, c.estado, c.cajero_nombre, c.nota,
-               c.sent_at, c.ready_at, c.sale_id
+        SELECT c.id, c.numero, c.estado, c.cajero_nombre, c.nota, c.mesa,
+               c.origen, c.sent_at, c.ready_at, c.sale_id
         FROM comandas c
         WHERE c.store_id = :sid
           AND c.estado IN ('sent', 'preparing')
@@ -673,6 +744,8 @@ def comandas_pendientes(db: Session, store_id: int) -> list:
         "estado": r.estado,
         "cajero_nombre": r.cajero_nombre,
         "nota": r.nota,
+        "mesa": r.mesa,
+        "origen": r.origen or "caja",
         "sale_id": r.sale_id,
         "sent_at": r.sent_at.isoformat() if r.sent_at else None,
         "ready_at": r.ready_at.isoformat() if r.ready_at else None,
