@@ -1258,6 +1258,16 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                 </div>
             </div>
 
+            <!-- ── LISTAS DE PRECIO POR TIPO DE CLIENTE ── -->
+            <div class="section-card" id="card-listas-precio" style="display:none">
+                <div class="section-title">
+                    <i class="fas fa-tags"></i> Listas de precio
+                </div>
+                <div id="listas-precio-body">
+                    <div style="color:var(--text3);font-size:0.75rem;padding:8px">Cargando...</div>
+                </div>
+            </div>
+
             <!-- ── PANTALLAS DE COCINA ── -->
             <div class="section-card" id="card-cocina-devices" style="display:none">
                 <div class="section-title">
@@ -1404,6 +1414,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
 
 <script src="/static/js/config_negocio_impresion.js?v=20260313d"></script>
 <script src="/static/js/config-cocina-devices.js"></script>
+<script src="/static/js/push-avisos.js"></script>
+<script src="/static/js/config-listas-precio.js"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { updatePreview(); loadConfig(); });</script>
 
 </body>
