@@ -283,6 +283,16 @@ async def abrir_caja(
     db.commit()
     logger.info(f"[Caja] Abierta #{req.caja_numero} store {store_id} por {current_user.full_name}")
 
+    # Aviso al dueño. Best-effort: si el push falla, la caja ya está abierta.
+    try:
+        from app.services import push_service as _push
+        _tienda = db.execute(text(
+            "SELECT COALESCE(commercial_name, business_name) FROM stores WHERE id = :s"
+        ), {"s": store_id}).scalar()
+        _push.aviso_caja_abierta(db, store_id, current_user.full_name, _tienda or "")
+    except Exception as _e:
+        logger.warning(f"[Caja] Push de apertura omitido: {_e}")
+
     return {
         "success": True,
         "sesion_id": result.id,
@@ -598,6 +608,12 @@ async def cerrar_caja(
     db.commit()
 
     logger.info(f"[Caja] Cerrada sesión {sesion_id} — diferencia S/{diferencia:.2f} — estado: {estado}")
+
+    try:
+        from app.services import push_service as _push
+        _push.aviso_caja_cerrada(db, store_id, totales["tv"], diferencia)
+    except Exception as _e:
+        logger.warning(f"[Caja] Push de cierre omitido: {_e}")
 
     return {
         "success": True,

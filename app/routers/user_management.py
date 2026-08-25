@@ -30,10 +30,10 @@ async def list_store_users(
     current_user: dict = Depends(get_current_user)
 ):
     """Listar todos los usuarios de esta tienda"""
-    if current_user["role"] not in ["owner", "admin"]:
+    if current_user.role not in ["owner", "admin"]:
         raise HTTPException(403, "Solo el dueño o admin puede ver usuarios")
 
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     users = db.query(User).filter(User.store_id == store_id).order_by(User.id).all()
 
@@ -57,10 +57,10 @@ async def deactivate_user(
     current_user: dict = Depends(get_current_user)
 ):
     """Desactivar un usuario y revocar sus dispositivos"""
-    if current_user["role"] not in ["owner", "admin"]:
+    if current_user.role not in ["owner", "admin"]:
         raise HTTPException(403, "Solo el dueño o admin puede desactivar usuarios")
 
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     # Buscar usuario
     user = db.query(User).filter(
@@ -74,7 +74,7 @@ async def deactivate_user(
     if user.role == "owner":
         raise HTTPException(400, "No se puede desactivar al dueño")
 
-    if user.id == current_user["user_id"]:
+    if user.id == current_user.id:
         raise HTTPException(400, "No puedes desactivarte a ti mismo")
 
     # Desactivar usuario
@@ -115,10 +115,10 @@ async def activate_user(
     current_user: dict = Depends(get_current_user)
 ):
     """Reactivar un usuario"""
-    if current_user["role"] not in ["owner", "admin"]:
+    if current_user.role not in ["owner", "admin"]:
         raise HTTPException(403, "Solo el dueño o admin puede activar usuarios")
 
-    store_id = current_user["store_id"]
+    store_id = current_user.store_id
 
     user = db.query(User).filter(
         User.id == user_id,
