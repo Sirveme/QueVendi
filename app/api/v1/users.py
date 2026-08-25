@@ -293,9 +293,21 @@ async def editar_usuario(
     if not user:
         raise HTTPException(404, "Usuario no encontrado")
 
-    # No permitir editar al propio owner
+    # Un dueño sólo puede ser editado por él mismo.
     if user.role == "owner" and current_user.id != user.id:
         raise HTTPException(403, "No puedes editar al dueño del negocio")
+
+    # ...pero ni siquiera él puede dejarse fuera. Desactivarse o quitarse
+    # el rol de dueño no tiene vuelta atrás: los endpoints que permitirían
+    # revertirlo exigen ser un owner activo, así que quedaría sin acceso a
+    # su propio negocio y sin forma de recuperarlo desde la app.
+    if current_user.id == user.id:
+        if data.is_active is False:
+            raise HTTPException(
+                400, "No puedes desactivar tu propio usuario: perderías el acceso")
+        if data.role and user.role == "owner" and data.role != "owner":
+            raise HTTPException(
+                400, "No puedes quitarte el rol de dueño: perderías el acceso")
 
     if data.full_name:
         user.full_name = data.full_name.upper()

@@ -37,7 +37,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse, Response
 import io
 import asyncio
 from sqlalchemy.orm import Session
-from sqlalchemy import func, or_, any_, desc
+from sqlalchemy import func, or_, any_, desc, text
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -296,6 +296,32 @@ async def search_products(
     current_user: User = Depends(get_current_user)
 ):
     try:
+        # ── Código de barras: coincidencia exacta primero ──
+        # Un lector físico teclea el código y pulsa Enter. Si el texto
+        # coincide con un barcode de esta tienda, se devuelve SOLO ese
+        # producto marcado con `match_exacto`, para que la caja lo sume
+        # al carrito sin obligar a elegir en una lista.
+        # Se usa el texto crudo: los códigos no se pasan a minúsculas ni
+        # se les recorta la puntuación como al texto de búsqueda.
+        try:
+            from app.services import barcode_service as bc
+            if bc.barcode_enabled(db, current_user.store_id):
+                exacto = bc.buscar_por_barcode(db, current_user.store_id, search.query)
+                if exacto:
+                    print(f"[Search] Barcode exacto: {exacto['barcode']} → {exacto['name']}")
+                    return [{
+                        "id": exacto["id"],
+                        "name": exacto["name"],
+                        "barcode": exacto["barcode"] or "",
+                        "sale_price": exacto["sale_price"],
+                        "stock": exacto["stock"],
+                        "unit": exacto["unit"] or "unidad",
+                        "match_exacto": True,
+                    }]
+        except Exception as e:
+            # Nunca dejar sin buscar por un fallo del módulo de barras.
+            print(f"[Search] Barcode omitido: {e}")
+
         query_text = search.query.lower().strip()
         query_text = query_text.rstrip('.,;:!?¡¿')
 
@@ -1221,3 +1247,85 @@ async def remove_catalog_v2(
         raise HTTPException(404, f"No se encontraron productos del catálogo '{nicho}'")
 
     return {"stats": stats, "message": f"Eliminados {stats['deleted']} productos del catálogo '{nicho}'"}
+
+# ══════════════════════════════════════════════
+# CÓDIGO DE BARRAS
+# ══════════════════════════════════════════════
+
+class BarcodeIn(BaseModel):
+    barcode: Optional[str] = None
+
+
+@router.get("/barcode/estado")
+async def barcode_estado(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Si el módulo está activo y cuántos productos tienen código.
+
+    La caja lo consulta al cargar para decidir si muestra el botón de
+    escanear; una bodega sin el flag no ve nada nuevo.
+    """
+    from app.services import barcode_service as bc
+    bc._ensure_tables(db)
+
+    activo = bc.barcode_enabled(db, current_user.store_id)
+    con_codigo = db.execute(text("""
+        SELECT COUNT(*) FROM products
+        WHERE store_id = :sid AND barcode IS NOT NULL AND barcode <> ''
+          AND is_active = TRUE AND deleted_at IS NULL
+    """), {"sid": current_user.store_id}).scalar()
+    total = db.execute(text("""
+        SELECT COUNT(*) FROM products
+        WHERE store_id = :sid AND is_active = TRUE AND deleted_at IS NULL
+    """), {"sid": current_user.store_id}).scalar()
+
+    return {"enabled": activo, "con_codigo": con_codigo, "total": total}
+
+
+@router.get("/barcode/{codigo}")
+async def buscar_barcode(
+    codigo: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Producto por código exacto. Lo usa el escaneo con cámara."""
+    from app.services import barcode_service as bc
+    bc._ensure_tables(db)
+
+    if not bc.barcode_enabled(db, current_user.store_id):
+        raise HTTPException(403, "El código de barras no está activado para este negocio")
+
+    prod = bc.buscar_por_barcode(db, current_user.store_id, codigo)
+    if not prod:
+        raise HTTPException(404, "No hay ningún producto con ese código")
+    return {**prod, "match_exacto": True}
+
+
+@router.put("/{product_id}/barcode")
+async def asignar_barcode(
+    product_id: int,
+    req: BarcodeIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Asigna o borra el código de un producto (vacío = quitarlo)."""
+    from app.services import barcode_service as bc
+    bc._ensure_tables(db)
+
+    try:
+        r = bc.asignar(db, current_user.store_id, product_id, req.barcode)
+        db.commit()
+    except LookupError:
+        db.rollback()
+        raise HTTPException(404, "Producto no encontrado")
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(409, str(e))
+    except Exception as e:
+        db.rollback()
+        print(f"[Barcode] Error asignando: {e}")
+        raise HTTPException(500, "No se pudo guardar el código")
+
+    return {"success": True, **r}

@@ -438,7 +438,17 @@ async def create_sale(
         db.commit()
         db.refresh(sale)
         print(f"[Sales] ✅ Venta offline sincronizada: ID {sale.id}, code={x_verification_code}")
-    
+
+    # Avisar de los productos que quedaron en su stock mínimo. Sólo se
+    # revisan los que acaban de venderse: es lo único que pudo cruzar el
+    # umbral. Best-effort: la venta ya está hecha.
+    try:
+        from app.services import push_service as _push
+        _ids = [i.product_id for i in sale_data.items] if sale_data.items else []
+        _push.revisar_stock_de_venta(db, current_user.store_id, _ids)
+    except Exception as _e:
+        print(f"[Sales] Aviso de stock omitido: {_e}")
+
     return sale_service.to_response(sale)
 
 

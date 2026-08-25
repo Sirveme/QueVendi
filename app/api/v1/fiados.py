@@ -214,7 +214,7 @@ def reporte_fiados_tienda(
     result = db.execute(
         query,
         {
-            "store_id": current_user["store_id"],
+            "store_id": current_user.store_id,
             "status": status
         }
     )
@@ -244,7 +244,7 @@ def actualizar_vencidos(
     """Actualizar estado de créditos vencidos"""
     query = text("SELECT * FROM fiado_actualizar_vencidos(:store_id)")
     
-    result = db.execute(query, {"store_id": current_user["store_id"]})
+    result = db.execute(query, {"store_id": current_user.store_id})
     db.commit()
     
     row = result.fetchone()
@@ -263,7 +263,7 @@ def resumen_general(
     """Resumen general de fiados de la tienda"""
     query = text("SELECT * FROM v_fiados_resumen WHERE store_id = :store_id")
     
-    result = db.execute(query, {"store_id": current_user["store_id"]})
+    result = db.execute(query, {"store_id": current_user.store_id})
     row = result.fetchone()
     
     if not row:

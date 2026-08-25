@@ -65,7 +65,7 @@ def search_customers(
     result = db.execute(
         query,
         {
-            "store_id": current_user["store_id"],
+            "store_id": current_user.store_id,
             "search": search_pattern
         }
     )
@@ -102,7 +102,7 @@ def create_customer(
     existing = db.execute(
         existing_query,
         {
-            "store_id": current_user["store_id"],
+            "store_id": current_user.store_id,
             "name": customer.name
         }
     ).fetchone()
@@ -154,7 +154,7 @@ def create_customer(
     result = db.execute(
         insert_query,
         {
-            "store_id": current_user["store_id"],
+            "store_id": current_user.store_id,
             "name": customer.name,
             "phone": customer.phone,
             "address": customer.address,
@@ -204,7 +204,7 @@ def get_customer(
         query,
         {
             "customer_id": customer_id,
-            "store_id": current_user["store_id"]
+            "store_id": current_user.store_id
         }
     ).fetchone()
     
@@ -237,22 +237,33 @@ def list_customers(
             customer_type,
             credit_limit,
             last_credit_date,
-            created_at
+            created_at,
+            tier_id
         FROM customers
         WHERE store_id = :store_id
         ORDER BY name
         LIMIT :limit
     """)
     
-    result = db.execute(
-        query,
-        {
-            "store_id": current_user["store_id"],
-            "limit": limit
-        }
-    )
-    
-    rows = result.fetchall()
+    try:
+        result = db.execute(
+            query,
+            {
+                "store_id": current_user.store_id,
+                "limit": limit
+            }
+        )
+        rows = result.fetchall()
+    except Exception:
+        # `tier_id` la agrega la migración de multi-precio. Si todavía no
+        # corrió en esta base, se lista igual sin ese campo: no vale la
+        # pena romper el listado de clientes por una columna opcional.
+        db.rollback()
+        rows = [tuple(r) + (None,) for r in db.execute(text("""
+            SELECT id, name, phone, customer_type, credit_limit,
+                   last_credit_date, created_at
+            FROM customers WHERE store_id = :store_id ORDER BY name LIMIT :limit
+        """), {"store_id": current_user.store_id, "limit": limit}).fetchall()]
     
     return [
         {
@@ -262,7 +273,9 @@ def list_customers(
             "customer_type": row[3],
             "credit_limit": float(row[4]) if row[4] else None,
             "last_credit_date": row[5],
-            "created_at": row[6]
+            "created_at": row[6],
+            # Lista de precio asignada (multi-precio). None si no tiene.
+            "tier_id": row[7]
         }
         for row in rows
     ]

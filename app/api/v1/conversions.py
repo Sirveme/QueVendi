@@ -245,7 +245,7 @@ def list_products_with_conversions(
 ):
     """Listar productos configurados con conversiones"""
     
-    store_filter = store_id or current_user["store_id"]
+    store_filter = store_id or current_user.store_id
     
     query = text("""
         SELECT * FROM v_products_with_conversions
