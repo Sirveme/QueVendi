@@ -14,6 +14,10 @@ class SaleCreate(BaseModel):
     payment_reference: Optional[str] = None
     customer_name: Optional[str] = None
     is_credit: bool = False
+    # Multi-precio: qué cliente compró y con qué lista se le cobró.
+    # Ambos opcionales: una bodega sigue vendiendo sin cliente.
+    customer_id: Optional[int] = None
+    tier_id: Optional[int] = None
 
 class VoiceCommand(BaseModel):
     text: str
