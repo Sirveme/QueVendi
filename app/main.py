@@ -71,6 +71,7 @@ from app.api.v1 import (
     tributario,
     pricing,
     webhooks,
+    push,
 )
 from app.routers import lite
 
@@ -234,6 +235,7 @@ app.include_router(purchases.router, prefix="/api/v1", tags=["purchases"])
 app.include_router(tributario.router, prefix="/api/v1", tags=["tributario"])
 app.include_router(pricing.router, prefix="/api/v1", tags=["pricing"])
 app.include_router(webhooks.router, prefix="/api/v1", tags=["webhooks"])
+app.include_router(push.router, prefix="/api/v1", tags=["push"])
 
 # ── Health check para PWA offline ──
 @app.get("/api/v1/health")
