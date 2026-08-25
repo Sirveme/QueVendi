@@ -63,9 +63,24 @@ class SaleService:
                 is_credit=data.get('is_credit', False),
                 sale_date=datetime.now(PERU_TZ)
             )
-            
+
             self.db.add(sale)
             self.db.flush()  # Para obtener el ID de la venta
+
+            # Multi-precio: quién compró y con qué lista se le cobró.
+            # Se hace por SQL porque son columnas añadidas después, que
+            # el modelo Sale todavía no declara. Es sólo auditoría: si
+            # falla, la venta ya está guardada y no debe perderse.
+            _cid = data.get('customer_id')
+            _tid = data.get('tier_id')
+            if _cid or _tid:
+                try:
+                    from sqlalchemy import text as _t
+                    self.db.execute(_t(
+                        "UPDATE sales SET customer_id = :c, tier_id = :ti WHERE id = :s"
+                    ), {"c": _cid, "ti": _tid, "s": sale.id})
+                except Exception as _e:
+                    print(f"[SaleService] No se pudo guardar customer/tier: {_e}")
             
             # Crear los items de la venta
             for item in items:
