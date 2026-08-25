@@ -119,28 +119,45 @@ class RedBodegueros(Base):
 
 
 class Notificacion(Base):
+    """Aviso a UN destinatario: o un empleado (user_id) o un cliente
+    (customer_id), nunca ambos ni ninguno.
+
+    Un CHECK en la base lo garantiza:
+        num_nonnulls(user_id, customer_id) = 1
+    Ver migrations/004_unificacion_notificaciones.sql.
+    """
     __tablename__ = "notificaciones"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    
+    store_id = Column(Integer, ForeignKey("stores.id"), nullable=False)
+
+    # Destinatario: exactamente uno de los dos (lo exige el CHECK).
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+
     # Contenido
     titulo = Column(String(200), nullable=False)
     mensaje = Column(Text, nullable=False)
-    tipo = Column(String(30), nullable=False)  # 'alerta_seguridad', 'promocion', 'sistema', 'chat'
-    
-    # Referencia opcional
+    # Vocabulario validado por CHECK, compartido con messages.message_type:
+    # general, promotion, payment_reminder, new_product, security_alert,
+    # system, credit_approved, credit_rejected, low_stock,
+    # expiring_product, new_order, delivery_status, chat
+    tipo = Column(String(30), nullable=False)
+
+    # Referencias opcionales, según el origen del aviso
     incidente_id = Column(Integer, ForeignKey("incidentes.id"), nullable=True)
-    
-    # Estado
-    leida = Column(Boolean, default=False)
+    message_id = Column(Integer, ForeignKey("messages.id"), nullable=True)
+
+    # Estado. `leida` es la única fuente de verdad: la columna `status`
+    # del diseño anterior se eliminó por duplicar esto mismo.
+    leida = Column(Boolean, nullable=False, default=False)
     leida_at = Column(DateTime(timezone=True), nullable=True)
-    
+
     # Acción
     url_accion = Column(String(500), nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
     # Relaciones
     user = relationship("User", backref="notificaciones")
     incidente = relationship("Incidente", backref="notificaciones")
