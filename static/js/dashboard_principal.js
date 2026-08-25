@@ -2955,7 +2955,11 @@ async function executeSale(total, printType = 'none') {
             payment_method: AppState.paymentMethod,
             payment_reference: null,
             customer_name: customerData?.nombre || null,
-            is_credit: AppState.paymentMethod === 'fiado'
+            is_credit: AppState.paymentMethod === 'fiado',
+            // Multi-precio: a quién se le cobró y con qué lista. Vacío en
+            // las tiendas que no lo usan.
+            ...(typeof VentaListaPrecio !== 'undefined'
+                ? VentaListaPrecio.datosVenta() : {})
         };
 
         console.log('[Sale] Enviando:', JSON.stringify(saleData, null, 2));
@@ -3021,6 +3025,9 @@ async function executeSale(total, printType = 'none') {
 
             selectPaymentUI('efectivo');
             AppState.paymentMethod = 'efectivo';
+
+            // La siguiente venta arranca sin cliente asignado
+            if (typeof VentaListaPrecio !== 'undefined') VentaListaPrecio.reiniciar();
 
             playSound('success');
 
