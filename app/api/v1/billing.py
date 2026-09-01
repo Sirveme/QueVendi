@@ -245,7 +245,12 @@ async def emitir_comprobante(
             "message": f"Comprobante {result['numero_formato']} emitido correctamente"
         }
     else:
-        raise HTTPException(400, result.get("error", "Error al emitir comprobante"))
+        # Si la venta ya tenía comprobante, decir cuál: el usuario necesita
+        # saber qué se emitió antes para entender por qué no puede duplicar.
+        error = result.get("error", "Error al emitir comprobante")
+        if result.get("numero_formato"):
+            error = f"{error}: {result['numero_formato']}"
+        raise HTTPException(400, error)
 
 
 @router.post("/emitir/boleta/{sale_id}")
