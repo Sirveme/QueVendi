@@ -3914,9 +3914,14 @@ function requestFacturaData(saleResult, total) {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'factura-data-modal';
-        modal.className = 'modal';
         document.body.appendChild(modal);
     }
+    // La clase 'modal' arrastra `opacity:0; visibility:hidden` (ver
+    // dashboard_principal.css), que sólo se revierten con la clase 'open'.
+    // El modal de boleta funciona porque no usa esa clase. Aquí se añaden
+    // las dos: 'open' para el CSS y los estilos inline de abajo por si el
+    // CSS cambia. Sin esto el modal se inserta en el DOM pero invisible.
+    modal.className = 'modal open';
 
     const inputStyle = 'width:100%;padding:12px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:white;font-size:16px;';
 
@@ -3941,14 +3946,14 @@ function requestFacturaData(saleResult, total) {
 
             <div style="margin-bottom: 15px;">
                 <label style="color: #94a3b8; font-size: 13px; display: block; margin-bottom: 4px;">Razón Social <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="modal-factura-razon" placeholder="Se autocompleta al buscar RUC"
-                    style="${inputStyle}" readonly>
+                <input type="text" id="modal-factura-razon" placeholder="Se autocompleta al buscar, o escríbelo"
+                    style="${inputStyle}">
             </div>
 
             <div style="margin-bottom: 20px;">
                 <label style="color: #94a3b8; font-size: 13px; display: block; margin-bottom: 4px;">Dirección <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="modal-factura-direccion" placeholder="Se autocompleta al buscar RUC"
-                    style="${inputStyle}" readonly>
+                <input type="text" id="modal-factura-direccion" placeholder="Se autocompleta al buscar, o escríbela"
+                    style="${inputStyle}">
             </div>
 
             <div style="background: rgba(139, 92, 246, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
@@ -3971,6 +3976,8 @@ function requestFacturaData(saleResult, total) {
 
     modal.style.cssText = `
         display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         position: fixed !important;
         top: 0 !important; left: 0 !important;
         width: 100% !important; height: 100% !important;
@@ -3985,20 +3992,50 @@ function requestFacturaData(saleResult, total) {
     modal.querySelector('#btn-factura-emitir').onclick = () => emitFacturaFromModal(saleId, total);
 
     const rucInput = modal.querySelector('#modal-factura-ruc');
+
+    // El botón se habilita con los 3 datos completos, se busque el RUC o no.
+    // La consulta a SUNAT autocompleta; no es un requisito para emitir.
+    ['modal-factura-ruc', 'modal-factura-razon', 'modal-factura-direccion'].forEach(id => {
+        modal.querySelector('#' + id)?.addEventListener('input', _actualizarBotonFactura);
+    });
+
     rucInput.addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\D/g, '');
-        if (e.target.value.length === 11) {
-            _buscarRucFactura();
-            document.getElementById('modal-factura-razon')?.removeAttribute('readonly');
-            document.getElementById('modal-factura-direccion')?.removeAttribute('readonly');
-        }
+        if (e.target.value.length === 11) _buscarRucFactura();
     });
 
     rucInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); _buscarRucFactura(); }
     });
 
+    _actualizarBotonFactura();
     setTimeout(() => rucInput?.focus(), 100);
+}
+
+// RUC válido para SUNAT: 11 dígitos y prefijo de tipo de contribuyente.
+function _rucFormatoValido(ruc) {
+    return /^(10|15|16|17|20)\d{9}$/.test(ruc || '');
+}
+
+// Única fuente de verdad de si se puede emitir: los 3 campos completos.
+function _actualizarBotonFactura() {
+    const btn = document.getElementById('btn-factura-emitir');
+    if (!btn) return;
+
+    const ruc = document.getElementById('modal-factura-ruc')?.value.trim() || '';
+    const razon = document.getElementById('modal-factura-razon')?.value.trim() || '';
+    const dir = document.getElementById('modal-factura-direccion')?.value.trim() || '';
+
+    const listo = _rucFormatoValido(ruc) && razon.length > 0 && dir.length > 0;
+    btn.disabled = !listo;
+    btn.style.opacity = listo ? '1' : '0.5';
+    btn.style.cursor = listo ? 'pointer' : 'not-allowed';
+
+    // Avisar del RUC mal formado sin pisar el resultado de la búsqueda.
+    const statusEl = document.getElementById('ruc-search-status');
+    if (statusEl && ruc.length === 11 && !_rucFormatoValido(ruc)) {
+        statusEl.innerHTML = '<span style="color: #f59e0b;">RUC debe empezar en 10, 15, 16, 17 o 20</span>';
+    }
 }
 
 async function _buscarRucFactura() {
@@ -4022,30 +4059,29 @@ async function _buscarRucFactura() {
         if (data.success) {
             razonInput.value = data.razon_social || '';
             dirInput.value = data.direccion || '';
-            razonInput.removeAttribute('readonly');
-            dirInput.removeAttribute('readonly');
             if (statusEl) statusEl.innerHTML = '<span style="color: #10b981;"><i class="fas fa-check"></i> Encontrado</span>';
-            if (emitBtn) { emitBtn.disabled = false; emitBtn.style.opacity = '1'; }
         } else {
-            if (statusEl) statusEl.innerHTML = `<span style="color: #ef4444;">${data.error || 'RUC no encontrado'}</span>`;
-            // Permitir edición manual si no se encuentra
-            razonInput.removeAttribute('readonly');
-            dirInput.removeAttribute('readonly');
-            razonInput.placeholder = 'Ingresa manualmente';
-            dirInput.placeholder = 'Ingresa manualmente';
-            razonInput.focus();
+            // La consulta es una ayuda, no un requisito: si falla, el usuario
+            // escribe a mano y el botón se habilita igual.
+            if (statusEl) statusEl.innerHTML =
+                `<span style="color: #f59e0b;">${data.error || 'RUC no encontrado'} — escribe los datos a mano</span>`;
+            if (!razonInput.value) razonInput.focus();
         }
     } catch (error) {
         console.error('[RUC] Error:', error);
-        if (statusEl) statusEl.innerHTML = '<span style="color: #ef4444;">Error al consultar</span>';
-        razonInput.removeAttribute('readonly');
-        dirInput.removeAttribute('readonly');
+        if (statusEl) statusEl.innerHTML =
+            '<span style="color: #f59e0b;">No se pudo consultar — escribe los datos a mano</span>';
+    } finally {
+        // Pase lo que pase con la consulta, el botón se decide por los campos.
+        _actualizarBotonFactura();
     }
 }
 
 function closeFacturaDataModal() {
     const modal = document.getElementById('factura-data-modal');
-    if (modal) modal.style.display = 'none';
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.style.display = 'none';
 }
 
 // ================================================================
@@ -4105,8 +4141,64 @@ async function emitFacturaFromModal(saleId, total) {
         }
     } catch (error) {
         console.error('[Billing] Error factura:', error);
-        showToast(`Error: ${error.message}`, 'error');
+
+        // "Ya existe comprobante" no es un fallo pasajero: la venta ya tiene
+        // documento y no se puede duplicar. Merece un modal, no un toast que
+        // se va solo antes de que el cajero lo lea.
+        if ((error.message || '').includes('Ya existe comprobante')) {
+            _mostrarModalComprobanteDuplicado(error.message);
+        } else {
+            showToast(`Error: ${error.message}`, 'error');
+        }
     }
+}
+
+function _mostrarModalComprobanteDuplicado(mensaje) {
+    // El backend añade el número al final: "Ya existe ... : F884-00000001"
+    const numero = (mensaje.split(':').pop() || '').trim();
+    const tieneNumero = /^[A-Z]\d{3}-\d+$/i.test(numero);
+
+    let modal = document.getElementById('comprobante-duplicado-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comprobante-duplicado-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 16px; padding: 24px; max-width: 400px; width: 92%; text-align: center;">
+            <div style="font-size: 42px; color: #f59e0b; margin-bottom: 12px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 style="color: white; margin: 0 0 10px;">Esta venta ya tiene comprobante</h3>
+            ${tieneNumero ? `
+                <div style="background: rgba(245,158,11,0.15); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                    <div style="color: #94a3b8; font-size: 12px;">Comprobante emitido</div>
+                    <div style="color: #fbbf24; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${numero}</div>
+                </div>` : ''}
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; margin: 0 0 18px;">
+                Una venta sólo puede tener un comprobante. Para emitir una
+                factura hay que anular el anterior y registrar la venta de nuevo.
+            </p>
+            <button onclick="document.getElementById('comprobante-duplicado-modal').remove()"
+                style="width: 100%; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">
+                Entendido
+            </button>
+        </div>
+    `;
+
+    modal.style.cssText = `
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important; height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10007 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
 }
 
 // ============================================
