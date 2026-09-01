@@ -10,7 +10,7 @@ cffi==2.0.0
 charset-normalizer==3.4.3
 click==8.1.8
 colorama==0.4.6
-cryptography==46.0.2
+cryptography>=47.0.0,<48.0.0
 ecdsa==0.19.1
 email-validator==2.1.0
 fastapi==0.104.1
