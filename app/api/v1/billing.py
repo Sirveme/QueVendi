@@ -9,6 +9,7 @@ FIX 3 (2026-02-27):
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse, Response
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional, List
@@ -23,6 +24,85 @@ from app.services.billing_service import BillingService
 from app.models.store import Store
 
 router = APIRouter(prefix="/billing", tags=["billing"])
+
+
+# ============================================
+# MODO DEMO
+# ============================================
+# Una tienda demo se comparte con prospectos. Debe poder enseñar el
+# flujo completo de emisión sin que salga nada hacia facturalo.pro.
+
+def _es_tienda_demo(db: Session, store_id: int) -> bool:
+    """`is_demo` vive en la tabla, no en el modelo Store (ver demo.py)."""
+    fila = db.execute(
+        text("SELECT is_demo FROM stores WHERE id = :id"), {"id": store_id}
+    ).fetchone()
+    return bool(fila and fila[0])
+
+
+def _emitir_simulado(db: Session, current_user: User, request) -> dict:
+    """Comprobante que el prospecto ve como real, pero que nunca salió.
+
+    Usa la serie de verdad (B001/F001) para que la demo se vea como el
+    producto final: el lead está evaluando si comprar, y un sello DEMO
+    en el comprobante estorba esa lectura. Lo que sí queda marcado es lo
+    interno — status 'demo' y sin facturalo_id — y la franja MODO DEMO
+    que el usuario tiene siempre en pantalla.
+    """
+    serie_cfg = db.execute(
+        text("""SELECT serie_boleta, serie_factura FROM store_billing_configs
+                WHERE store_id = :s"""), {"s": current_user.store_id}
+    ).fetchone()
+    if request.tipo == "01":
+        serie = (serie_cfg[1] if serie_cfg else None) or "F001"
+    else:
+        serie = (serie_cfg[0] if serie_cfg else None) or "B001"
+
+    numero = (db.execute(
+        text("""SELECT COALESCE(MAX(numero), 0) + 1 FROM comprobantes
+                WHERE store_id = :s AND serie = :serie"""),
+        {"s": current_user.store_id, "serie": serie}
+    ).scalar()) or 1
+
+    sale = db.execute(
+        text("SELECT total FROM sales WHERE id = :id AND store_id = :s"),
+        {"id": request.sale_id, "s": current_user.store_id}
+    ).fetchone()
+    if not sale:
+        raise HTTPException(404, "Venta no encontrada")
+
+    total = Decimal(str(sale[0]))
+    igv = round(total - (total / Decimal("1.18")), 2)
+
+    comprobante = Comprobante(
+        store_id=current_user.store_id,
+        sale_id=request.sale_id,
+        tipo=request.tipo,
+        serie=serie,
+        numero=numero,
+        subtotal=total - igv,
+        igv=igv,
+        total=total,
+        cliente_tipo_doc=request.cliente_tipo_doc,
+        cliente_num_doc=request.cliente_num_doc,
+        cliente_nombre=request.cliente_nombre,
+        cliente_direccion=request.cliente_direccion,
+        items=[],
+        status="demo",
+        sunat_response_description="Demo: no se envió a SUNAT",
+        created_by=current_user.id,
+    )
+    db.add(comprobante)
+    db.commit()
+
+    return {
+        "success": True,
+        "es_demo": True,
+        "comprobante_id": comprobante.id,
+        "numero_formato": comprobante.numero_formato,
+        "pdf_url": None,
+        "message": f"Comprobante {comprobante.numero_formato} emitido"
+    }
 
 
 # ============================================
@@ -215,6 +295,13 @@ async def emitir_comprobante(
     current_user: User = Depends(get_current_user)
 ):
     """Emitir comprobante electrónico para una venta"""
+
+    # Las tiendas demo se muestran a prospectos: el flujo se ve entero
+    # pero NUNCA sale una petición a facturalo.pro ni a SUNAT. Va antes
+    # que cualquier otra comprobación para que nada pueda saltárselo.
+    if _es_tienda_demo(db, current_user.store_id):
+        return _emitir_simulado(db, current_user, request)
+
     service = BillingService(db, current_user.store_id)
 
     if not service.esta_configurado():

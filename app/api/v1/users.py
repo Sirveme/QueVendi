@@ -125,6 +125,18 @@ async def get_current_user_info(
         except Exception:
             store_logo = store.logo_url
 
+    # is_demo vive en la tabla, no en el modelo Store (ver routers/demo.py).
+    # El dashboard lo usa para pintar el distintivo MODO DEMO.
+    es_demo = False
+    if store:
+        try:
+            fila = db.execute(text(
+                "SELECT is_demo FROM stores WHERE id = :sid"
+            ), {"sid": store.id}).fetchone()
+            es_demo = bool(fila and fila[0])
+        except Exception:
+            es_demo = False
+
     return {
         'id':          current_user.id,
         'dni':         current_user.dni,
@@ -137,6 +149,7 @@ async def get_current_user_info(
         'store_ruc':   store.ruc             if store else '',
         'store_phone': store.phone           if store else '',
         'store_logo':  store_logo,
+        'is_demo':     es_demo,
     }
 
 
