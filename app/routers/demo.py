@@ -162,6 +162,10 @@ DEMO_CONFIG = {
     "ropas":       {"store": "Tienda de Ropas Demo",  "dni": "00000005", "user": "demo_ropas"},
     "zapateria":   {"store": "Zapatería Demo",        "dni": "00000006", "user": "demo_zapateria"},
     "grifo":       {"store": "Grifo Demo",            "dni": "00000007", "user": "demo_grifo"},
+    # Perfil híbrido: bodega que además sirve para consumo en mesa
+    # (cerveza y piqueos). Vende productos con código de barras y usa
+    # carta virtual con QR por mesa.
+    "market":      {"store": "Market & Piqueos Demo", "dni": "00000009", "user": "demo_market"},
 }
 
 VALID_NICHES = set(DEMO_CONFIG.keys())
@@ -176,9 +180,17 @@ OWNER_DNI = "63100784"
 
 def copy_billing_config_to_demo(db: Session, demo_store_id: int):
     """
-    Copia la StoreBillingConfig de Peru Sistemas al demo store.
-    Todas las demos emiten comprobantes con el certificado de Peru Sistemas
-    (servidor beta SUNAT).
+    Copia la StoreBillingConfig de Peru Sistemas al demo store, PERO SIN
+    las credenciales de Facturalo.
+
+    Antes se copiaba el token real. Ese token lo comparten 10 tiendas,
+    una de ellas de un cliente de producción, así que cualquier lead
+    pulsando "Emitir" en una demo disparaba una petición real con
+    credenciales ajenas. Ahora la demo nace con token NULL e is_active
+    en False: `esta_configurado()` devuelve False y no se abre socket.
+
+    La demo sigue mostrando el flujo completo: /billing/emitir detecta
+    que la tienda es demo y devuelve un comprobante simulado.
     """
     # Buscar al owner por DNI
     owner = db.query(User).filter(User.dni == OWNER_DNI).first()
@@ -207,13 +219,14 @@ def copy_billing_config_to_demo(db: Session, demo_store_id: int):
         nombre_comercial=source_config.nombre_comercial,
         direccion=source_config.direccion,
         facturalo_url=source_config.facturalo_url,
-        facturalo_token=source_config.facturalo_token,
-        facturalo_secret=source_config.facturalo_secret,
+        # Sin credenciales: es el corte duro que impide emitir de verdad.
+        facturalo_token=None,
+        facturalo_secret=None,
         serie_boleta=source_config.serie_boleta,
         serie_factura=source_config.serie_factura,
         tipo_afectacion_igv=source_config.tipo_afectacion_igv,
-        is_active=True,
-        is_verified=source_config.is_verified,
+        is_active=False,
+        is_verified=False,
     )
     db.add(demo_config)
     db.flush()
