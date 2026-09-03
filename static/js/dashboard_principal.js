@@ -221,8 +221,37 @@ async function loadUserData() {
 }
 
 
+// Distintivo permanente para que nadie confunda una demo con producción.
+// En una demo NO se emite nada a SUNAT: /billing/emitir devuelve un
+// comprobante simulado (ver _es_tienda_demo en app/api/v1/billing.py).
+function mostrarBadgeDemo(esDemo) {
+    const existente = document.getElementById('badge-modo-demo');
+    if (!esDemo) { existente?.remove(); return; }
+    if (existente) return;
+
+    const badge = document.createElement('div');
+    badge.id = 'badge-modo-demo';
+    badge.innerHTML = '<i class="fas fa-flask"></i> MODO DEMO' +
+        '<span style="opacity:.85;font-weight:500"> · no se emite a SUNAT</span>';
+    badge.title = 'Cuenta de demostración: las ventas y comprobantes son simulados';
+    badge.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0;
+        z-index: 10050;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 5px 12px;
+        background: repeating-linear-gradient(45deg, #f59e0b, #f59e0b 12px, #d97706 12px, #d97706 24px);
+        color: #1a1a2e; font-weight: 800; font-size: 12px; letter-spacing: .5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.3);
+        pointer-events: none;
+    `;
+    document.body.appendChild(badge);
+    // Empujar la página para no tapar la cabecera.
+    document.body.style.paddingTop = '26px';
+}
+
 function setUserData(user) {
     AppState.user = user;
+    mostrarBadgeDemo(!!user.is_demo);
     // store_id del localStorage tiene precedencia (demo_seller y login fresco)
     const lsStoreId = localStorage.getItem('store_id');
     if (lsStoreId) AppState.user.store_id = parseInt(lsStoreId);
@@ -3876,7 +3905,9 @@ async function _emitirBoletaConCliente(saleId, formato) {
 
         if (response.ok && data.success) {
             showToast(`${tipoLabel} emitida: ${data.numero_formato}`, 'success');
-            if (data.comprobante_id) {
+            if (data.es_demo) {
+                _mostrarComprobanteDemo(data.numero_formato, '03');
+            } else if (data.comprobante_id) {
                 showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '03', formato);
             }
         } else {
@@ -4133,7 +4164,9 @@ async function emitFacturaFromModal(saleId, total) {
 
         if (response.ok && data.success) {
             showToast(`Factura emitida: ${data.numero_formato}`, 'success');
-            if (data.comprobante_id) {
+            if (data.es_demo) {
+                _mostrarComprobanteDemo(data.numero_formato, '01');
+            } else if (data.comprobante_id) {
                 showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '01', 'A4');
             }
         } else {
@@ -4151,6 +4184,54 @@ async function emitFacturaFromModal(saleId, total) {
             showToast(`Error: ${error.message}`, 'error');
         }
     }
+}
+
+// En modo demo el backend no llama a facturalo.pro: devuelve es_demo y un
+// número de serie DEMO. Se enseña el comprobante con su formato para que el
+// prospecto vea el flujo entero, dejando claro que no se emitió nada.
+// En modo demo el backend no llama a facturalo.pro, pero el comprobante
+// se muestra tal cual lo veria un cliente real: el lead esta evaluando el
+// producto y un sello DEMO aqui estorba esa lectura. Lo que avisa de que
+// no es produccion es la franja permanente MODO DEMO de arriba.
+function _mostrarComprobanteDemo(numeroFormato, tipoDoc) {
+    const labels = { '01': 'Factura', '03': 'Boleta' };
+    const tipo = labels[tipoDoc] || 'Comprobante';
+
+    let modal = document.getElementById('comprobante-demo-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comprobante-demo-modal';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary, #1a1a2e); border-radius: 16px; padding: 26px; max-width: 400px; width: 92%; text-align: center;">
+            <div style="font-size: 44px; color: #10b981; margin-bottom: 12px;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 style="color: white; margin: 0 0 16px;">${tipo} emitida</h3>
+            <div style="background: rgba(16,185,129,0.12); border-radius: 10px; padding: 16px; margin-bottom: 18px;">
+                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 2px;">Número de comprobante</div>
+                <div style="color: #34d399; font-size: 24px; font-weight: bold; letter-spacing: 1px;">${numeroFormato}</div>
+            </div>
+            <button onclick="document.getElementById('comprobante-demo-modal').remove()"
+                style="width: 100%; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">
+                Continuar
+            </button>
+        </div>
+    `;
+    modal.style.cssText = `
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important; height: 100% !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 10008 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    `;
 }
 
 function _mostrarModalComprobanteDuplicado(mensaje) {
@@ -5174,8 +5255,10 @@ async function emitDocument(saleId, docType) {
             showToast(`✅ ${docName} emitida: ${data.numero_formato}`, 'success');
 
             // Mostrar modal con opciones de PDF
-            if (data.comprobante_id) {
-                const tipoCode = docType === 'factura' ? '01' : '03';
+            const tipoCode = docType === 'factura' ? '01' : '03';
+            if (data.es_demo) {
+                _mostrarComprobanteDemo(data.numero_formato, tipoCode);
+            } else if (data.comprobante_id) {
                 showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, tipoCode);
             }
         } else {
