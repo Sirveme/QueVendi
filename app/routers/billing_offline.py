@@ -447,9 +447,12 @@ async def sync_offline_comprobantes(
                     config, comp, store_id
                 )
                 if result["success"]:
+                    # Mismo criterio que la emisión en línea: Facturalo lo
+                    # tiene en cola, SUNAT aún no ha dicho nada. Lo confirma
+                    # el reconciliador (services/reconciliacion_service.py).
                     db.execute(text("""
                         UPDATE billing_offline_queue SET
-                            status = 'accepted', facturalo_id = :fid,
+                            status = 'enviando', facturalo_id = :fid,
                             pdf_url = :pdf, synced_at = NOW()
                         WHERE store_id = :sid AND serie = :serie AND numero = :num
                     """), {
