@@ -17,6 +17,10 @@ const CarritoMesa = (() => {
 
     const estado = {
         items: [],          // { id, name, price, cantidad, nota }
+        // La indicación del pedido vive aquí, no sólo en el textarea:
+        // abrir() reconstruye el modal entero, así que subir o bajar una
+        // cantidad borraba lo que el cliente ya había escrito.
+        nota: '',
         mesa: null,
         telefono: null,
         enviando: false,
@@ -110,18 +114,26 @@ const CarritoMesa = (() => {
     }
 
     function quitar(idx) {
+        _recordarNota();
         estado.items.splice(idx, 1);
         _pintarBarra();
         if (document.getElementById('modal-carrito')) abrir();
     }
 
     function cambiarCantidad(idx, delta) {
+        _recordarNota();
         const it = estado.items[idx];
         if (!it) return;
         it.cantidad += delta;
         if (it.cantidad <= 0) estado.items.splice(idx, 1);
         _pintarBarra();
         abrir();
+    }
+
+    /** Guarda lo escrito antes de que el modal se reconstruya. */
+    function _recordarNota() {
+        const ta = document.getElementById('nota-pedido');
+        if (ta) estado.nota = ta.value;
     }
 
     const total = () => estado.items.reduce((s, i) => s + i.price * i.cantidad, 0);
@@ -217,9 +229,10 @@ const CarritoMesa = (() => {
                     ${filas || '<p style="color:#64748b;text-align:center;padding:26px">Tu pedido está vacío</p>'}
                 </div>
 
-                <textarea id="nota-pedido" rows="2" placeholder="¿Alguna indicación? (opcional)"
+                <textarea id="nota-pedido" rows="2" oninput="CarritoMesa.anotar(this.value)"
+                    placeholder="¿Alguna indicación? Ej: sin cebolla, con todas las cremas"
                     style="width:100%;border:1px solid #ddd;border-radius:10px;padding:10px;
-                           font-family:inherit;font-size:14px;resize:none;margin-bottom:12px"></textarea>
+                           font-family:inherit;font-size:14px;resize:none;margin-bottom:12px">${_esc(estado.nota)}</textarea>
 
                 <div style="display:flex;align-items:center;margin-bottom:12px">
                     <span style="font-size:15px;color:#64748b">Total</span>
@@ -256,9 +269,14 @@ const CarritoMesa = (() => {
         // preguntarle cómo lo recibe y cómo pagará. Ese formulario vive en
         // carta_virtual.html y se encarga de enviar el pedido.
         if (!_enLocal() && typeof window.abrirConfirmacionRemota === 'function') {
+            // La indicación del pedido se lee ANTES de cerrar el carrito: el
+            // textarea vive dentro de ese modal y al quitarlo se perdía, así
+            // que el pedido remoto llegaba a cocina sin la nota del cliente.
+            _recordarNota();
+            const nota = (estado.nota || '').trim();
             const m = document.getElementById('modal-carrito');
             if (m) m.remove();
-            window.abrirConfirmacionRemota(estado.items, total());
+            window.abrirConfirmacionRemota(estado.items, total(), nota);
             return;
         }
 
@@ -268,7 +286,8 @@ const CarritoMesa = (() => {
         }
 
         const btn = document.getElementById('btn-confirmar-pedido');
-        const nota = (document.getElementById('nota-pedido') || {}).value || '';
+        _recordarNota();
+        const nota = estado.nota || '';
         estado.enviando = true;
         if (btn) { btn.disabled = true; btn.textContent = 'Enviando a cocina...'; }
 
@@ -295,6 +314,7 @@ const CarritoMesa = (() => {
 
             const data = await resp.json();
             estado.items = [];
+            estado.nota = '';
             _pintarBarra();
             const m = document.getElementById('modal-carrito');
             if (m) m.remove();
@@ -369,10 +389,14 @@ const CarritoMesa = (() => {
     /** Lo usa el flujo remoto cuando su formulario ya envió el pedido. */
     function vaciar() {
         estado.items = [];
+        estado.nota = '';
         _pintarBarra();
     }
 
-    return { init, agregar, quitar, cambiarCantidad, abrir, confirmar, vaciar,
+    /** Cada tecla del textarea, para que sobreviva a un repintado. */
+    function anotar(v) { estado.nota = v; }
+
+    return { init, agregar, quitar, cambiarCantidad, abrir, confirmar, vaciar, anotar,
              get mesa() { return estado.mesa; },
              get items() { return estado.items; } };
 })();
