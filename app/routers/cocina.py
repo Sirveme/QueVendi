@@ -341,11 +341,16 @@ async def cambiar_estado_comanda(
     comanda_id: int,
     req: EstadoRequest,
     db: Session = Depends(get_db),
-    store_id: int = Depends(_store_cocina),
+    store_id: int = Depends(_store_cocina_o_device),
 ):
     """
     Cambia el estado de la comanda completa. Se usa sobre todo para
     marcarla 'served' al entregarla, y así sacarla de la cola.
+
+    Acepta token de dispositivo, igual que el cambio de estado de un
+    ítem: quien marca los platos listos en la tablet de cocina es quien
+    pulsa ENTREGADO. Exigir JWT aquí dejaba ese botón inservible — se
+    veía, se pulsaba y devolvía 401 en silencio.
     """
     try:
         r = cs.cambiar_estado_comanda(db, comanda_id, store_id, req.estado)
