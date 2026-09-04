@@ -462,12 +462,12 @@ async function emitirComprobante(pedidoId, btn) {
   // El comprobante de un pedido del catálogo se emite al COBRAR la venta
   // en caja: la comanda se enlaza a la venta y de ahí sale la boleta.
   // El endpoint viejo (/carta/pedidos/{id}/emitir-comprobante) responde 410.
-  alert('La boleta se emite al cobrar el pedido en caja.');
+  avisoSuave('La boleta se emite al cobrar el pedido en caja.');
 }
 
 async function abrirPdfPedido(pedidoId, btn) {
   // Igual que arriba: el PDF sale del comprobante de la venta, no del pedido.
-  alert('El PDF está en el comprobante de la venta, en el historial de caja.');
+  avisoSuave('El PDF está en el comprobante de la venta, en el historial de caja.');
 }
 
 function mostrarModalComprobante(numero, pedidoId) {
@@ -584,6 +584,8 @@ async function confirmarRechazo(id) {
 }
 
 // accion = estado destino de la comanda: preparing | ready | served | cancelled
+// Se refresca antes de actuar: cocina y esta pantalla se tocan a la vez y
+// el dueño no debería pelearse con un estado que ya cambió.
 async function accionPedido(id, accion, btn) {
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
@@ -591,17 +593,43 @@ async function accionPedido(id, accion, btn) {
       method: 'PUT', body: JSON.stringify({ estado: accion })
     });
     const d = await r.json().catch(() => ({}));
+
     if (!r.ok) {
-      alert(d.detail || 'Error al procesar el pedido');
+      // 409 = la transición ya no vale porque alguien en /cocina movió el
+      // pedido mientras tanto. No es un error del dueño: su pantalla está
+      // vieja. Se refresca y se avisa suave, sin alert que corte el paso.
+      if (r.status === 409) {
+        await cargarPedidos();
+        avisoSuave('Ese pedido ya cambió desde cocina. Actualizado.');
+        return;
+      }
+      avisoSuave(d.detail || 'No se pudo procesar el pedido', true);
       if (btn) btn.disabled = false;
       return;
     }
     await cargarPedidos();
-    cargarStats();
   } catch(e) {
-    alert('Sin conexión');
+    avisoSuave('Sin conexión', true);
     if (btn) btn.disabled = false;
   }
+}
+
+/** Aviso discreto abajo, en vez del alert() del navegador. */
+let _avisoTimer = null;
+function avisoSuave(msg, esError) {
+  let t = document.getElementById('aviso-suave');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'aviso-suave';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+    z-index:10050;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:700;
+    font-family:inherit;color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.45);
+    background:${esError ? '#B91C1C' : '#1d4ed8'}`;
+  clearTimeout(_avisoTimer);
+  _avisoTimer = setTimeout(() => t.remove(), 3200);
 }
 
 // ── STATS ──
@@ -701,7 +729,7 @@ function startPolling() {
     if (document.visibilityState === 'visible') {
       cargarPedidos();
     }
-  }, 15000);
+  }, 5000);
 }
 
 /**
@@ -718,11 +746,43 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') limpiarCapas();
 });
 
+/**
+ * Mismo canal que la pantalla de cocina.
+ *
+ * Antes esta pantalla sólo hacía polling: si la cocina marcaba un plato,
+ * el dueño seguía viendo el estado viejo y al pulsar chocaba con un 409.
+ * Ahora se entera en el momento. El polling se queda como red por si el
+ * socket se cae.
+ */
+let wsPedidos = null;
+function conectarWS() {
+  const storeId = localStorage.getItem('store_id');
+  const token = getAuthToken();
+  if (!storeId || !token) return;
+
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  try {
+    wsPedidos = new WebSocket(
+      `${proto}//${location.host}/ws/cocina/${storeId}?token=${encodeURIComponent(token)}`);
+  } catch (e) { return; }
+
+  wsPedidos.onmessage = (ev) => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    if (msg.tipo === 'pong') return;
+    // Cualquier movimiento en cocina repinta esta pantalla.
+    cargarPedidos();
+  };
+  wsPedidos.onclose = () => { setTimeout(conectarWS, 5000); };
+  wsPedidos.onerror = () => { try { wsPedidos.close(); } catch (e) {} };
+}
+
 (async function init() {
   limpiarCapas();
   await cargarUsuario();
   await cargarPedidos();
   cargarStats();
+  conectarWS();
   startPolling();
   setInterval(cargarStats, 60000);
   // Reset tab title cuando vuelve foco
