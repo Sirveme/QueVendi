@@ -322,6 +322,13 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 .pago-nro-op{display:flex;gap:8px;align-items:center}
 .pago-nro-op input{flex:1;border:1.5px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit}
 .btn-validar-op{background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.op-anotada{display:none;margin-top:10px;border-radius:10px;padding:10px 12px;
+  font-size:13px;line-height:1.5;border-left:4px solid #00C853;background:#E8F8EE;color:#1B5E20}
+.op-anotada.visible{display:block}
+.op-anotada.error{border-left-color:#F59E0B;background:#FFF7E6;color:#8A5A00}
+.op-anotada b{display:block;font-size:14px;margin-bottom:2px}
+.op-anotada small{display:block;margin-top:5px;color:#3B6B45;font-size:12px}
+.op-anotada.error small{color:#8A5A00}
 /* Pegado abajo: con el formulario entero (entrega + dirección + 3
    métodos de pago) el contenido no cabe en un móvil, y la acción
    principal quedaba fuera de pantalla salvo que el cliente adivinara
@@ -478,8 +485,12 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
           <div class="pago-numero-yape" id="yape-numero"></div>
           <div class="pago-nro-op">
             <input type="text" id="nro-operacion" placeholder="N° de operación" inputmode="numeric">
-            <button class="btn-validar-op" onclick="validarOperacion()">Validar ✓</button>
+            <button class="btn-validar-op" onclick="validarOperacion(event)">Validar ✓</button>
           </div>
+          <!-- El resultado se muestra AQUÍ, donde el cliente acaba de
+               escribir. Antes salía como toast arriba del todo y pasaba
+               desapercibido. -->
+          <div class="op-anotada" id="op-anotada"></div>
         </div>
       </div>
       <div class="pago-opcion" onclick="seleccionarPago('transferencia', this)">
@@ -1377,6 +1388,9 @@ window.abrirConfirmacionRemota = function (items, total) {
        </tr>`;
   }
 
+  const anotada = document.getElementById('op-anotada');
+  if (anotada) { anotada.className = 'op-anotada'; anotada.innerHTML = ''; }
+
   _pintarSelectorEntrega();
   _limpiarSeleccionPago();
   document.getElementById('yape-numero').textContent = cartaInfo.telefono || '';
@@ -1444,9 +1458,32 @@ function seleccionarPago(metodo, el) {
   if (el) el.classList.add('selected');
 }
 
-/** No valida el pago: sólo deja constancia de lo que el cliente declara. */
-function validarOperacion() {
-  showToast('Anotado. El negocio confirmará tu pago.');
+/**
+ * Anota el nº de operación. NO valida el pago con el banco ni con Yape:
+ * el sistema no consulta nada. El dueño mira su Yape y confirma.
+ *
+ * El aviso va junto al campo, no como toast: el cliente está mirando
+ * ahí abajo y arriba del todo no se entera.
+ */
+function validarOperacion(ev) {
+  if (ev) ev.stopPropagation();   // no re-disparar seleccionarPago
+  const caja = document.getElementById('op-anotada');
+  const op = (document.getElementById('nro-operacion').value || '').trim();
+  if (!caja) return;
+
+  if (!op) {
+    caja.className = 'op-anotada visible error';
+    caja.innerHTML = '<b>Escribe el N° de operación</b>' +
+                     'Lo encuentras en la constancia de tu Yape o Plin.';
+    return;
+  }
+
+  caja.className = 'op-anotada visible';
+  caja.innerHTML = '<b>✓ Anotado: ' + _escHtml(op) + '</b>' +
+                   'El negocio confirmará tu pago cuando lo reciba.' +
+                   '<small>Falta un paso: toca <b style="display:inline">CONFIRMAR MI PEDIDO</b> ' +
+                   'para enviarlo.</small>';
+  caja.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function cerrarModalConfirmacion() {
@@ -1591,7 +1628,7 @@ startPolling();
 </script>
 
 <!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
-<script src="/static/carta/carrito-mesa.js?v=20260904f"></script>
+<script src="/static/carta/carrito-mesa.js?v=20260904g"></script>
 <script>
   // Expuesto para que el carrito pueda mandar el nombre si el cliente
   // se identificó alguna vez en este dispositivo.
