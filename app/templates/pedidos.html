@@ -210,7 +210,7 @@ body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;m
       </section>
       <section class="col" data-state="entregado">
         <div class="col-header">
-          <span class="col-title">✅ Entregados</span>
+          <span class="col-title">📦 Cerrados</span>
           <span class="col-count" id="count-entregado">0</span>
         </div>
         <div class="col-body" id="col-entregado">
@@ -273,12 +273,16 @@ body{background:var(--dark);color:var(--text1);font-family:'Outfit',sans-serif;m
           <span class="stat-val" id="st-total">—</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Confirmados</span>
+          <span class="stat-label">En preparación</span>
           <span class="stat-val" id="st-conf">—</span>
         </div>
         <div class="stat">
           <span class="stat-label">Listos</span>
           <span class="stat-val" id="st-listo">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Entregados</span>
+          <span class="stat-val" id="st-entreg">—</span>
         </div>
         <div class="stat">
           <span class="stat-label">Rechazados</span>
@@ -543,8 +547,39 @@ async function cargarPedidos() {
 
 // ── ACCIONES ──
 // Rechazar es terminal: no hay vuelta atrás, así que se pregunta.
-async function rechazarPedido(id, btn) {
-  if (!confirm('¿Rechazar este pedido? No se puede deshacer.')) return;
+function rechazarPedido(id, btn) {
+  // Modal propio en vez del confirm() del navegador: el nativo desentona
+  // con el resto de la app y no deja explicar que la acción es definitiva.
+  const m = document.createElement('div');
+  m.className = 'modal-comprobante-overlay';
+  m.id = 'modal-rechazar';
+  m.innerHTML = `
+    <div class="modal-comprobante-box" style="max-width:340px">
+      <div style="font-size:40px;color:#EA580C;margin-bottom:8px">⚠️</div>
+      <h3 style="color:#B91C1C">¿Rechazar este pedido?</h3>
+      <p style="font-size:.86rem;color:#555;line-height:1.55;margin-bottom:20px">
+        El pedido se cierra y no se puede reabrir. Si ya avisaste al
+        cliente, cuéntale por qué.
+      </p>
+      <div class="comp-btns">
+        <button class="btn-cerrar" onclick="cerrarRechazar()">No, volver</button>
+        <button class="btn-pdf" style="background:#B91C1C"
+          onclick="confirmarRechazo(${id})">Sí, rechazar</button>
+      </div>
+    </div>`;
+  m.addEventListener('click', e => { if (e.target === m) cerrarRechazar(); });
+  document.body.appendChild(m);
+  m._btn = btn;
+}
+
+function cerrarRechazar() {
+  document.getElementById('modal-rechazar')?.remove();
+}
+
+async function confirmarRechazo(id) {
+  const m = document.getElementById('modal-rechazar');
+  const btn = m && m._btn;
+  cerrarRechazar();
   await accionPedido(id, 'cancelled', btn);
 }
 
@@ -572,7 +607,10 @@ async function accionPedido(id, accion, btn) {
 // ── STATS ──
 // Sin endpoint aparte: los numeros salen de las comandas ya cargadas.
 function cargarStats() {
-  const cuenta = e => pedidos.filter(p => p.estado === e).length;
+  // Se cuenta por ESTADO REAL de la comanda, no por columna del kanban:
+  // la última columna agrupa entregados y rechazados, y contar por ella
+  // hacía que un pedido entregado apareciera como rechazado.
+  const cuenta = e => pedidos.filter(p => p.estado_comanda === e).length;
   const veces = {};
   for (const p of pedidos) {
     for (const i of (p.items || [])) {
@@ -581,9 +619,10 @@ function cargarStats() {
   }
   const top = Object.entries(veces).sort((a, b) => b[1] - a[1])[0];
   document.getElementById('st-total').textContent = pedidos.length;
-  document.getElementById('st-conf').textContent = cuenta('confirmado');
-  document.getElementById('st-listo').textContent = cuenta('listo');
-  document.getElementById('st-rech').textContent = cuenta('entregado');
+  document.getElementById('st-conf').textContent = cuenta('preparing');
+  document.getElementById('st-listo').textContent = cuenta('ready');
+  document.getElementById('st-entreg').textContent = cuenta('served');
+  document.getElementById('st-rech').textContent = cuenta('cancelled');
   document.getElementById('st-top').textContent = top ? top[0] : '—';
 }
 

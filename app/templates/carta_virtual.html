@@ -258,7 +258,7 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 .modal-btn-gratis:disabled{background:#9CA3AF;box-shadow:none;cursor:not-allowed}
 
 /* MODAL IDENTIFICACIÓN */
-.id-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.id-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10010;display:none;align-items:center;justify-content:center;padding:16px}
 .id-modal.open{display:flex}
 .id-box{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:380px;text-align:center}
 .id-emoji{font-size:2.6rem;margin-bottom:6px}
@@ -1255,11 +1255,18 @@ function loadCliente() {
 function abrirIdModal(submensaje) {
   document.getElementById('id-sub').textContent = submensaje || 'Para tu pedido necesitamos tus datos:';
   document.getElementById('id-error').textContent = '';
-  document.getElementById('id-modal').classList.add('open');
+  // Doble cinturón, igual que el modal de confirmación: sin esto quedaba
+  // debajo de él y el cliente tenía que cancelar para poder escribir.
+  const idm = document.getElementById('id-modal');
+  idm.classList.add('open');
+  idm.style.display = 'flex';
+  idm.style.zIndex = '10010';
   setTimeout(() => document.getElementById('id-nombre').focus(), 100);
 }
 function cerrarIdModal() {
-  document.getElementById('id-modal').classList.remove('open');
+  const idm = document.getElementById('id-modal');
+  idm.classList.remove('open');
+  idm.style.display = 'none';
 }
 
 async function enviarIdentificacion() {
@@ -1368,13 +1375,15 @@ let confirmarTrasIdentificar = false;
 const pedidoRemoto = {
   items: [],
   total: 0,
+  nota: null,          // la indicación que escribió en el carrito
   tipoEntrega: null,   // 'recojo' | 'delivery'
   metodoPago: null,    // 'yape' | 'transferencia' | 'efectivo'
 };
 
-window.abrirConfirmacionRemota = function (items, total) {
+window.abrirConfirmacionRemota = function (items, total, nota) {
   pedidoRemoto.items = items.slice();
   pedidoRemoto.total = total;
+  pedidoRemoto.nota = (nota || '').trim() || null;
   pedidoRemoto.tipoEntrega = null;
   pedidoRemoto.metodoPago = null;
 
@@ -1394,6 +1403,18 @@ window.abrirConfirmacionRemota = function (items, total) {
 
   const anotada = document.getElementById('op-anotada');
   if (anotada) { anotada.className = 'op-anotada'; anotada.innerHTML = ''; }
+
+  const filaNota = document.getElementById('resumen-nota');
+  if (filaNota) filaNota.remove();
+  if (pedidoRemoto.nota) {
+    const tabla = document.getElementById('resumen-items');
+    const div = document.createElement('div');
+    div.id = 'resumen-nota';
+    div.style.cssText = 'background:#F5F7FA;border-radius:8px;padding:8px 10px;' +
+      'margin:0 0 12px;font-size:13px;color:#465;line-height:1.45';
+    div.innerHTML = '📝 ' + _escHtml(pedidoRemoto.nota);
+    tabla.parentNode.insertBefore(div, tabla.nextSibling);
+  }
 
   _pintarSelectorEntrega();
   _limpiarSeleccionPago();
@@ -1556,6 +1577,7 @@ async function confirmarPedidoFinal() {
   const op = ((document.getElementById('nro-operacion') || {}).value || '') ||
              ((document.getElementById('nro-transferencia') || {}).value || '');
   const notas = [];
+  if (pedidoRemoto.nota) notas.push(pedidoRemoto.nota);
   if (referencia.trim()) notas.push('Ref: ' + referencia.trim());
   if (op.trim()) notas.push('N° op: ' + op.trim());
 
@@ -1658,7 +1680,7 @@ startPolling();
 </script>
 
 <!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
-<script src="/static/carta/carrito-mesa.js?v=20260904h"></script>
+<script src="/static/carta/carrito-mesa.js?v=20260904i"></script>
 <script>
   // Expuesto para que el carrito pueda mandar el nombre si el cliente
   // se identificó alguna vez en este dispositivo.
