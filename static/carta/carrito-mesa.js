@@ -150,8 +150,11 @@ const CarritoMesa = (() => {
 
         m = document.createElement('div');
         m.id = 'modal-carrito';
+        // Hoja inferior en móvil; en pantallas anchas se centra para no
+        // quedar pegada al borde. La caja ya limita su alto a 86vh.
         m.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;
-                           display:flex;align-items:flex-end;justify-content:center`;
+                           display:flex;align-items:flex-end;justify-content:center;
+                           overflow-y:auto`;
 
         const filas = estado.items.map((i, idx) => `
             <div style="display:flex;align-items:center;gap:10px;padding:11px 0;
@@ -227,6 +230,16 @@ const CarritoMesa = (() => {
     async function confirmar() {
         if (!estado.items.length || estado.enviando) return;
 
+        // Sin mesa el cliente NO está en el local: antes de enviar hay que
+        // preguntarle cómo lo recibe y cómo pagará. Ese formulario vive en
+        // carta_virtual.html y se encarga de enviar el pedido.
+        if (!estado.mesa && typeof window.abrirConfirmacionRemota === 'function') {
+            const m = document.getElementById('modal-carrito');
+            if (m) m.remove();
+            window.abrirConfirmacionRemota(estado.items, total());
+            return;
+        }
+
         const btn = document.getElementById('btn-confirmar-pedido');
         const nota = (document.getElementById('nota-pedido') || {}).value || '';
         estado.enviando = true;
@@ -272,11 +285,18 @@ const CarritoMesa = (() => {
     function _pantallaConfirmado(data) {
         const m = document.createElement('div');
         m.id = 'modal-confirmado';
+        // `overflow-y:auto` en la capa y `max-height` en la caja: si el
+        // contenido no cabe (pantalla baja, texto largo, zoom), se puede
+        // desplazar. Sin esto el botón de cerrar se salía de la pantalla y
+        // el cliente quedaba atrapado en el modal.
         m.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;
-                           display:flex;align-items:center;justify-content:center;padding:20px`;
+                           display:flex;align-items:center;justify-content:center;
+                           padding:20px;overflow-y:auto`;
         m.innerHTML = `
             <div style="background:#fff;border-radius:20px;padding:30px 24px;
-                        max-width:360px;width:100%;text-align:center">
+                        max-width:360px;width:100%;text-align:center;
+                        max-height:calc(100vh - 40px);overflow-y:auto;
+                        margin:auto">
                 <div style="font-size:56px;margin-bottom:8px">👨‍🍳</div>
                 <h2 style="margin:0 0 6px;font-size:21px;color:#1a1a2e">¡Pedido enviado!</h2>
                 <div style="font-size:44px;font-weight:900;color:#10b981;margin:10px 0">
@@ -319,7 +339,13 @@ const CarritoMesa = (() => {
         setTimeout(() => t.remove(), 2200);
     }
 
-    return { init, agregar, quitar, cambiarCantidad, abrir, confirmar,
+    /** Lo usa el flujo remoto cuando su formulario ya envió el pedido. */
+    function vaciar() {
+        estado.items = [];
+        _pintarBarra();
+    }
+
+    return { init, agregar, quitar, cambiarCantidad, abrir, confirmar, vaciar,
              get mesa() { return estado.mesa; },
              get items() { return estado.items; } };
 })();
