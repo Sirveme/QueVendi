@@ -298,6 +298,11 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 .pago-opciones{display:flex;flex-direction:column;gap:8px}
 .pago-opcion{border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s}
 .pago-opcion.selected{border-color:var(--verde);background:var(--verde-claro)}
+.btn-entrega{flex:1;padding:14px 10px;border:2px solid #e2e8f0;border-radius:12px;
+  background:#fff;font-family:inherit;font-size:14px;font-weight:700;color:#334155;
+  cursor:pointer;transition:all .15s}
+.btn-entrega:hover{border-color:#cbd5e1}
+.btn-entrega.selected{border-color:var(--verde);background:var(--verde-claro);color:#065f46}
 .pago-opcion-header{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
 .pago-opcion-body{display:none;margin-top:10px}
 .pago-opcion.selected .pago-opcion-body{display:block}
@@ -1143,31 +1148,11 @@ function mostrarModalConfirmacion() {
 
   document.getElementById('modal-confirmacion').classList.add('open');
 }
-function cerrarModalConfirmacion() {
-  document.getElementById('modal-confirmacion').classList.remove('open');
-}
-function toggleYaMismo(cb) {
-  const hora = document.getElementById('modal-hora');
-  hora.disabled = cb.checked;
-  if (cb.checked) {
-    const now = new Date();
-    hora.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  }
-}
-function seleccionarPago(metodo, el) {
-  document.querySelectorAll('.pago-opcion').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  if (pedidoActual) pedidoActual.metodoPagoEnCurso = metodo;
-}
-function validarOperacion() {
-  const v = document.getElementById('nro-operacion').value.trim();
-  if (!v) { showToast('Ingresa el N° de operación'); return; }
-  showToast('✓ Operación registrada');
-}
-async function confirmarPedidoFinal() {
-  cerrarModalConfirmacion();
-  showToast('🎉 ¡Pedido confirmado!');
-}
+
+
+
+
+
 
 // ── VOZ ──
 let recognition = null;
@@ -1271,7 +1256,10 @@ async function enviarIdentificacion() {
     localStorage.setItem('cliente_' + TELEFONO, JSON.stringify(cliente));
     cerrarIdModal();
     cargarMisPedidos();
-    if (pedidoPendienteParaIdent) {
+    if (confirmarTrasIdentificar) {
+      confirmarTrasIdentificar = false;
+      confirmarPedidoFinal();
+    } else if (pedidoPendienteParaIdent) {
       const p = pedidoPendienteParaIdent;
       pedidoPendienteParaIdent = null;
       abrirChatConProducto(p);
@@ -1336,6 +1324,227 @@ function startPolling() {
 }
 
 // ── TOAST ──
+
+let confirmarTrasIdentificar = false;
+
+// ════════════════════════════════════════════════
+// VENTA REMOTA — formulario de entrega y pago
+// ════════════════════════════════════════════════
+// El cliente SIN ?mesa= no está en el local: arma el carrito igual que
+// en mesa, pero antes de enviar declara cómo lo recibe y cómo pagará.
+// El pago es DECLARATIVO: aquí no se cobra ni se valida nada; el dueño
+// mira su Yape, confirma y despacha.
+//
+// Reutiliza el modal #modal-confirmacion que ya existía en esta página.
+
+const pedidoRemoto = {
+  items: [],
+  total: 0,
+  tipoEntrega: null,   // 'recojo' | 'delivery'
+  metodoPago: null,    // 'yape' | 'transferencia' | 'efectivo'
+};
+
+window.abrirConfirmacionRemota = function (items, total) {
+  pedidoRemoto.items = items.slice();
+  pedidoRemoto.total = total;
+  pedidoRemoto.tipoEntrega = null;
+  pedidoRemoto.metodoPago = null;
+
+  const tabla = document.getElementById('resumen-items');
+  if (tabla) {
+    tabla.innerHTML = items.map(i => `
+      <tr>
+        <td>${i.cantidad}×</td>
+        <td>${_escHtml(i.name)}</td>
+        <td style="text-align:right">S/ ${(i.price * i.cantidad).toFixed(2)}</td>
+      </tr>`).join('') +
+      `<tr style="font-weight:800;border-top:2px solid #ddd">
+         <td colspan="2">Total</td>
+         <td style="text-align:right">S/ ${total.toFixed(2)}</td>
+       </tr>`;
+  }
+
+  _pintarSelectorEntrega();
+  _limpiarSeleccionPago();
+  document.getElementById('yape-numero').textContent = cartaInfo.telefono || '';
+  document.getElementById('campos-delivery').style.display = 'none';
+  document.getElementById('modal-confirmacion').classList.add('activo');
+};
+
+function _escHtml(t) {
+  const d = document.createElement('div');
+  d.textContent = t == null ? '' : String(t);
+  return d.innerHTML;
+}
+
+/** Recojo o delivery: se inyecta arriba del resumen, una sola vez. */
+function _pintarSelectorEntrega() {
+  let cont = document.getElementById('selector-entrega');
+  if (!cont) {
+    cont = document.createElement('div');
+    cont.id = 'selector-entrega';
+    cont.style.cssText = 'display:flex;gap:10px;margin:0 0 16px';
+    const tabla = document.getElementById('resumen-items');
+    tabla.parentNode.insertBefore(cont, tabla);
+  }
+  cont.innerHTML = `
+    <button type="button" class="btn-entrega" data-tipo="recojo"
+      onclick="seleccionarEntrega('recojo', this)">🏪 Recojo en tienda</button>
+    <button type="button" class="btn-entrega" data-tipo="delivery"
+      onclick="seleccionarEntrega('delivery', this)">🛵 Delivery</button>`;
+}
+
+function seleccionarEntrega(tipo, el) {
+  pedidoRemoto.tipoEntrega = tipo;
+  document.querySelectorAll('#selector-entrega .btn-entrega')
+    .forEach(b => b.classList.toggle('selected', b === el));
+
+  // La dirección sólo hace falta si se lo llevan a casa.
+  document.getElementById('campos-delivery').style.display =
+    tipo === 'delivery' ? 'block' : 'none';
+
+  // Efectivo: sólo al recoger, salvo que el negocio acepte contra entrega.
+  const efectivo = document.getElementById('opcion-efectivo');
+  const permiteEfectivo = tipo === 'recojo' || cartaInfo.delivery_contraentrega === true;
+  efectivo.style.display = permiteEfectivo ? 'block' : 'none';
+  if (!permiteEfectivo && pedidoRemoto.metodoPago === 'efectivo') {
+    pedidoRemoto.metodoPago = null;
+    _limpiarSeleccionPago();
+  }
+}
+
+function _limpiarSeleccionPago() {
+  document.querySelectorAll('.pago-opcion').forEach(o => o.classList.remove('selected'));
+}
+
+function seleccionarPago(metodo, el) {
+  pedidoRemoto.metodoPago = metodo;
+  _limpiarSeleccionPago();
+  if (el) el.classList.add('selected');
+}
+
+/** No valida el pago: sólo deja constancia de lo que el cliente declara. */
+function validarOperacion() {
+  showToast('Anotado. El negocio confirmará tu pago.');
+}
+
+function cerrarModalConfirmacion() {
+  document.getElementById('modal-confirmacion').classList.remove('activo');
+}
+
+function toggleYaMismo(chk) {
+  const hora = document.getElementById('modal-hora');
+  if (hora) hora.disabled = chk.checked;
+}
+
+async function confirmarPedidoFinal() {
+  if (!pedidoRemoto.items.length) {
+    showToast('Tu pedido está vacío'); return;
+  }
+  if (!pedidoRemoto.tipoEntrega) {
+    showToast('Elige si recoges o quieres delivery'); return;
+  }
+  if (!pedidoRemoto.metodoPago) {
+    showToast('Elige cómo vas a pagar'); return;
+  }
+
+  const direccion = (document.getElementById('modal-direccion') || {}).value || '';
+  const referencia = (document.getElementById('modal-referencia') || {}).value || '';
+  if (pedidoRemoto.tipoEntrega === 'delivery' && !direccion.trim()) {
+    showToast('Escribe tu dirección'); return;
+  }
+
+  // Para un pedido remoto hace falta saber a quién llamar.
+  if (!cliente || !cliente.celular || !cliente.nombre) {
+    confirmarTrasIdentificar = true;
+    abrirIdModal('Necesitamos tus datos para coordinar la entrega');
+    return;
+  }
+
+  // El nº de operación es un dato para el dueño, no una validación.
+  const op = ((document.getElementById('nro-operacion') || {}).value || '') ||
+             ((document.getElementById('nro-transferencia') || {}).value || '');
+  const notas = [];
+  if (referencia.trim()) notas.push('Ref: ' + referencia.trim());
+  if (op.trim()) notas.push('N° op: ' + op.trim());
+
+  const btn = document.querySelector('.btn-confirmar-pedido');
+  if (btn) { btn.disabled = true; btn.textContent = 'ENVIANDO...'; }
+
+  try {
+    const r = await fetch(`${API}/pedir-pago`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        celular: cliente.celular,
+        nombre: cliente.nombre,
+        items: pedidoRemoto.items.map(i => ({
+          producto_id: i.id, cantidad: i.cantidad, nota: i.nota,
+        })),
+        tipo_entrega: pedidoRemoto.tipoEntrega,
+        direccion: direccion.trim() || null,
+        metodo_pago: pedidoRemoto.metodoPago,
+        nota: notas.join(' · ') || null,
+        device_fingerprint: typeof getFP === 'function' ? getFP() : null,
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!d.ok) {
+      showToast(d.mensaje || 'No se pudo enviar el pedido');
+      if (btn) { btn.disabled = false; btn.textContent = 'CONFIRMAR MI PEDIDO'; }
+      return;
+    }
+
+    cerrarModalConfirmacion();
+    if (typeof CarritoMesa !== 'undefined') CarritoMesa.vaciar();
+    _pantallaPedidoRemoto(d);
+    cargarMisPedidos();
+
+  } catch (e) {
+    console.error('[Carta] Error enviando pedido remoto:', e);
+    showToast('Sin conexión. Intenta de nuevo.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'CONFIRMAR MI PEDIDO'; }
+  }
+}
+
+function _pantallaPedidoRemoto(d) {
+  const m = document.createElement('div');
+  m.id = 'modal-pedido-remoto';
+  m.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;
+                     display:flex;align-items:center;justify-content:center;
+                     padding:20px;overflow-y:auto`;
+  const entrega = d.tipo_entrega === 'delivery'
+    ? `🛵 Delivery a: ${_escHtml(d.direccion || '')}`
+    : '🏪 Recojo en tienda';
+  const pago = { yape: '💛 Yape / Plin', transferencia: '🏦 Transferencia',
+                 efectivo: '💵 Efectivo' }[d.metodo_pago] || '';
+  m.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:30px 24px;max-width:360px;
+                width:100%;text-align:center;max-height:calc(100vh - 40px);
+                overflow-y:auto;margin:auto">
+      <div style="font-size:56px;margin-bottom:8px">🛍️</div>
+      <h2 style="margin:0 0 6px;font-size:21px;color:#1a1a2e">¡Pedido enviado!</h2>
+      <div style="font-size:44px;font-weight:900;color:#10b981;margin:10px 0">#${d.numero}</div>
+      <p style="color:#64748b;font-size:15px;line-height:1.55;margin-bottom:16px">
+        ${_escHtml(d.mensaje || '')}
+      </p>
+      <div style="background:#f1f5f9;border-radius:10px;padding:12px;margin-bottom:18px;
+                  text-align:left;font-size:13px;color:#334155;line-height:1.7">
+        <div>${entrega}</div>
+        <div>${pago}</div>
+        <div style="font-weight:800;margin-top:6px">Total aprox. S/ ${(d.total_estimado || 0).toFixed(2)}</div>
+      </div>
+      <button onclick="document.getElementById('modal-pedido-remoto').remove()"
+        style="width:100%;padding:14px;border:none;border-radius:11px;background:#1a1a2e;
+               color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">
+        Seguir viendo la carta
+      </button>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1358,7 +1567,7 @@ startPolling();
 </script>
 
 <!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
-<script src="/static/carta/carrito-mesa.js?v=20260816"></script>
+<script src="/static/carta/carrito-mesa.js?v=20260903"></script>
 <script>
   // Expuesto para que el carrito pueda mandar el nombre si el cliente
   // se identificó alguna vez en este dispositivo.
