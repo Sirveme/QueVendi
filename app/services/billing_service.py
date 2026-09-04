@@ -22,6 +22,8 @@ from app.models.sale import Sale, SaleItem
 
 import json
 
+from app.services import reconciliacion_service as rec
+
 logger = logging.getLogger(__name__)
 
 # Timezone Perú (UTC-5)
@@ -94,7 +96,12 @@ class BillingService:
         # Verificar que no exista comprobante EXITOSO previo
         existe = self.db.query(Comprobante).filter(
             Comprobante.sale_id == sale_id,
-            Comprobante.status.in_(["accepted", "pending"])
+            # Un comprobante en vuelo también bloquea: si no, se podría
+            # emitir dos veces sobre la misma venta mientras SUNAT decide.
+            # 'accepted'/'pending' se conservan por el histórico anterior.
+            Comprobante.status.in_([
+                rec.ENVIANDO, rec.ACEPTADO, "accepted", "pending",
+            ])
         ).first()
         if existe:
             return {
@@ -191,7 +198,10 @@ class BillingService:
             cliente_direccion=cliente_direccion,
             cliente_email=cliente_email,
             items=json.loads(json.dumps(items, default=_decimal_default)),
-            status="accepted",
+            # Facturalo acaba de aceptarlo EN COLA; SUNAT todavía no ha
+            # dicho nada. Lo confirma el reconciliador cuando llegue el
+            # código real (ver services/reconciliacion_service.py).
+            status=rec.ENVIANDO,
             facturalo_id=resultado.get("facturalo_id"),
             sunat_response_code=resultado.get("sunat_code", "0"),
             sunat_response_description=resultado.get("sunat_description"),
