@@ -252,8 +252,12 @@ async def listar_pendientes(
     if store_id_param is not None and store_id_param != store_id:
         raise HTTPException(403, "No puedes consultar la cocina de otro negocio")
 
+    # 'ready' se queda en la cola de cocina a propósito: la pantalla pinta
+    # el botón ENTREGADO justo cuando todos los ítems están listos, y si la
+    # comanda desapareciera al marcarse lista, ese botón no llegaría a
+    # verse nunca. Sale de la cola al entregarla ('served').
     estados = (("sent", "preparing", "ready", "served", "cancelled") if todas
-               else ("sent", "preparing"))
+               else ("sent", "preparing", "ready"))
     pendientes = cs.comandas_pendientes(db, store_id, estados)
     return {"comandas": pendientes, "total": len(pendientes)}
 
