@@ -196,11 +196,18 @@ body {
         background: rgba(239,68,68,.2); color: #fecaca;
     }
 
-    /* En la TV los botones no se usan: sólo se ve el estado */
-    .accion { display: none; }
-    .item.listo { opacity: .3; }
+    /* Los botones se quedan: una laptop o un monitor grande también
+       entran por aquí, y ahí la cocina SÍ toca la pantalla. Ocultarlos
+       dejaba la cola sin forma de avanzar. Se agrandan para que se
+       puedan pulsar de pie y con prisa. */
+    .accion {
+        font-size: 24px; padding: 18px 26px; min-width: 190px;
+        border-radius: 14px;
+    }
+    .item.listo { opacity: .45; }
     .item.listo .nombre::after { content: ' ✓'; color: var(--ok); }
-    .pie { display: none; }
+    .pie { padding: 16px 22px; }
+    .btn-entregar { font-size: 26px; padding: 20px; border-radius: 14px; }
 
     .centro { padding: 160px 40px; }
     .centro .ico { font-size: 130px; }
