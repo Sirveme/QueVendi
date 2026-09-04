@@ -114,6 +114,15 @@ body {
 .accion.listo   { background: linear-gradient(135deg,#10b981,#059669); }
 .accion.hecho   { background: rgba(255,255,255,.08); color: var(--muted); }
 
+/* Indicación de TODO el pedido ("sin cebolla"). Va destacada: es lo que
+   el cocinero no puede pasar por alto. */
+.nota-pedido {
+    margin: 0; padding: 11px 16px;
+    background: rgba(245,158,11,.18); color: #fde68a;
+    border-left: 5px solid #f59e0b;
+    font-size: 15px; font-weight: 700; line-height: 1.35;
+}
+
 .pie { padding: 10px 14px; background: var(--card2); }
 .btn-entregar {
     width: 100%; border: none; border-radius: 10px; padding: 14px;
@@ -195,6 +204,7 @@ body {
         font-size: 27px; padding: 6px 14px; margin-top: 8px;
         background: rgba(239,68,68,.2); color: #fecaca;
     }
+    .nota-pedido { font-size: 30px; padding: 16px 24px; border-left-width: 8px; }
 
     /* Los botones se quedan: una laptop o un monitor grande también
        entran por aquí, y ahí la cocina SÍ toca la pantalla. Ocultarlos
