@@ -829,11 +829,19 @@ function actualizarUltimoComprobante(numero, estado) {
 
     num.textContent = numero || '—';
     const e = String(estado || '').toLowerCase();
+    // Mismo vocabulario que Facturalo y que la base: enviando / aceptado /
+    // rechazado / desconocido. "Aceptada" ya sólo aparece cuando SUNAT lo
+    // confirmó de verdad.
     st.textContent =
-        e === 'aceptado' ? '✅ Aceptada' :
-        e === 'rechazado' ? '❌ Rechazada' :
-        e === 'pendiente' ? '⏳ En cola' : '📋 ' + (estado || '');
+        e === 'aceptado' ? '✅ Aceptada por SUNAT' :
+        e === 'rechazado' ? '❌ Rechazada por SUNAT' :
+        (e === 'enviando' || e === 'pendiente') ? '⏳ Enviada, esperando a SUNAT' :
+        e === 'desconocido' ? '❓ Sin confirmar' :
+        e === 'demo' ? '🧪 Demo' : '📋 ' + (estado || '');
     st.className = 'receipt-status ' + e;
+    st.title = e === 'aceptado'
+        ? 'SUNAT confirmó este comprobante'
+        : 'Todavía no hay confirmación de SUNAT. Se comprueba solo cada pocos minutos.';
     el.style.display = 'flex';
 }
 
@@ -3484,7 +3492,8 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
 
 let _comprobanteModalBlobUrl = null;
 
-function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, formato) {
+function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, formato,
+                                     estadoComprobante) {
     // formato: 'A4' (default para Boleta/Factura), 'TICKET' (para Ticket Electrónico)
     formato = formato || 'A4';
     const labels = { '01': 'Factura', '03': 'Boleta' };
@@ -3493,7 +3502,9 @@ function showComprobanteSuccessModal(comprobanteId, numeroFormato, tipoDoc, form
 
     // Actualizar widget de \u00faltimo comprobante (panel derecho desktop)
     if (typeof actualizarUltimoComprobante === 'function') {
-        actualizarUltimoComprobante(numeroFormato, 'aceptado');
+        // Estado REAL, no un literal: recién emitido está 'enviando'
+        // (Facturalo en cola, SUNAT aún no ha dicho nada).
+        actualizarUltimoComprobante(numeroFormato, estadoComprobante || 'enviando');
     }
 
     let modal = document.getElementById('comprobante-success-modal');
@@ -3915,7 +3926,8 @@ async function _emitirBoletaConCliente(saleId, formato) {
             if (data.es_demo) {
                 _mostrarComprobanteDemo(data.numero_formato, '03');
             } else if (data.comprobante_id) {
-                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '03', formato);
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '03', formato,
+                                            data.status);
             }
         } else {
             throw new Error(data.detail || data.error || `Error al emitir ${tipoLabel.toLowerCase()}`);
@@ -4174,7 +4186,8 @@ async function emitFacturaFromModal(saleId, total) {
             if (data.es_demo) {
                 _mostrarComprobanteDemo(data.numero_formato, '01');
             } else if (data.comprobante_id) {
-                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '01', 'A4');
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, '01', 'A4',
+                                            data.status);
             }
         } else {
             throw new Error(data.detail || data.error || 'Error al emitir factura');
@@ -5266,7 +5279,8 @@ async function emitDocument(saleId, docType) {
             if (data.es_demo) {
                 _mostrarComprobanteDemo(data.numero_formato, tipoCode);
             } else if (data.comprobante_id) {
-                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, tipoCode);
+                showComprobanteSuccessModal(data.comprobante_id, data.numero_formato, tipoCode,
+                                            null, data.status);
             }
         } else {
             throw new Error(data.detail || data.error || `Error al emitir ${docName.toLowerCase()}`);
