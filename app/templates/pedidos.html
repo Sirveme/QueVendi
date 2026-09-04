@@ -704,7 +704,22 @@ function startPolling() {
   }, 15000);
 }
 
+/**
+ * Una capa oscura que quedó abierta deja la pantalla inutilizable y no
+ * hay forma obvia de cerrarla. Al arrancar no puede haber ninguna, así
+ * que se barren; y Escape cierra cualquiera en cualquier momento.
+ */
+function limpiarCapas() {
+  document.querySelectorAll('.modal-comprobante-overlay, #modal-rechazar')
+    .forEach(el => el.remove());
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') limpiarCapas();
+});
+
 (async function init() {
+  limpiarCapas();
   await cargarUsuario();
   await cargarPedidos();
   cargarStats();
