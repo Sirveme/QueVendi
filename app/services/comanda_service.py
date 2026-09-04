@@ -16,8 +16,13 @@ MIGRACIÓN
 ---------
 El proyecto no usa Alembic (la tabla `alembic_version` está vacía). El
 patrón vigente es auto-migración idempotente al primer uso, igual que
-`caja.py`, `store_config.py` y `billing_offline.py`. `_ensure_tables()`
-es seguro de llamar en cada request.
+`caja.py`, `store_config.py` y `billing_offline.py`.
+
+`_ensure_tables()` se puede llamar en cada request, pero sólo ejecuta
+DDL la PRIMERA vez de cada proceso (guard `_migrado`). No es una
+optimización: el `ALTER TABLE` pide ACCESS EXCLUSIVE sobre `comandas`,
+y si alguien tiene una transacción abierta el ALTER se queda esperando
+— encolando tras de sí toda consulta a la tabla y congelando el módulo.
 
 CORRELATIVO THREAD-SAFE
 -----------------------
@@ -197,14 +202,32 @@ ALTER TABLE store_config
 """
 
 
-def _ensure_tables(db: Session) -> None:
-    """Crea tablas e índices del módulo cocina si no existen (idempotente)."""
+# Ya migrado en ESTE proceso. El DDL sólo hace falta una vez por arranque.
+_migrado = False
+
+
+def _ensure_tables(db: Session, forzar: bool = False) -> None:
+    """Crea tablas e índices del módulo cocina si no existen (idempotente).
+
+    Corre UNA vez por proceso. El `ALTER TABLE` necesita ACCESS EXCLUSIVE
+    sobre `comandas`: si alguien tiene una transacción abierta, el ALTER
+    espera — y mientras espera, encola detrás de sí toda consulta a la
+    tabla. Se ha visto congelar el módulo de cocina entero con once
+    conexiones atascadas. Ejecutarlo en cada petición multiplicaba las
+    ocasiones de que eso ocurriera.
+
+    `forzar=True` para las pruebas que necesiten re-aplicar el esquema.
+    """
+    global _migrado
+    if _migrado and not forzar:
+        return
     try:
         db.execute(text(MIGRATION_SQL))
         db.execute(text(MIGRATION_COMANDAS_SQL))
         db.execute(text(MIGRATION_SALE_PAGOS_SQL))
         db.execute(text(MIGRATION_STORE_CONFIG_SQL))
         db.commit()
+        _migrado = True
     except Exception as e:
         db.rollback()
         logger.warning(f"[Cocina] Migración: {e}")
