@@ -233,11 +233,17 @@ async def impresion_comanda(
 @router.get("/pendientes")
 async def listar_pendientes(
     store_id_param: Optional[int] = Query(None, alias="store_id"),
+    todas: bool = Query(False, description="Incluir listas y servidas (vista del dueño)"),
     db: Session = Depends(get_db),
     store_id: int = Depends(_store_cocina_o_device),
 ):
     """
     Cola de cocina: comandas de HOY en estado 'sent' o 'preparing'.
+
+    Con `todas=true` devuelve además las 'ready' y 'served': es lo que
+    pide /pedidos, la pantalla del dueño, que necesita el día completo
+    para poder marcar entregados. Misma consulta, distinto filtro — la
+    lógica de comandas no se duplica.
 
     El parámetro `store_id` se acepta por comodidad del cliente, pero se
     valida: pedir el de otra tienda es 403. La consulta siempre usa el
@@ -246,7 +252,9 @@ async def listar_pendientes(
     if store_id_param is not None and store_id_param != store_id:
         raise HTTPException(403, "No puedes consultar la cocina de otro negocio")
 
-    pendientes = cs.comandas_pendientes(db, store_id)
+    estados = (("sent", "preparing", "ready", "served", "cancelled") if todas
+               else ("sent", "preparing"))
+    pendientes = cs.comandas_pendientes(db, store_id, estados)
     return {"comandas": pendientes, "total": len(pendientes)}
 
 

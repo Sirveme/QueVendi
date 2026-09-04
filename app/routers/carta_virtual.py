@@ -702,163 +702,137 @@ class PedirGratisRequest(BaseModel):
     device_fingerprint: Optional[str] = None
 
 
-@router.post("/api/public/carta/{telefono}/pedir-gratis")
-async def pedir_gratis(
-    telefono: str,
-    data: PedirGratisRequest,
-    db: Session = Depends(get_db)
-):
-    _gone("/api/public/carta/{telefono}/pedir-gratis")   # DEPRECATED — flujo carta_pedidos
-    store = _get_store_by_phone(db, telefono)
-    if not store:
-        raise HTTPException(404, "Negocio no encontrado")
+# ════════════════════════════════════════════════
+# VENTA REMOTA DEL CATÁLOGO → COMANDA
+# ════════════════════════════════════════════════
+# El cliente pide desde fuera del local: elige recojo o delivery y
+# declara cómo pagará. El pago es DECLARATIVO — el sistema no lo
+# valida ni lo cobra. El dueño mira su Yape, confirma y despacha.
+# Cobrar de verdad es otro track (PagoOK).
+#
+# Antes esto escribía en `carta_pedidos`, UNA FILA POR PRODUCTO: un
+# cliente con tres cosas generaba tres pedidos sueltos. Ahora el
+# carrito entero es UNA comanda, igual que el pedido de mesa.
 
-    celular = (data.celular or "").strip().replace(" ", "")
-    nombre = (data.nombre or "").strip()
-    if not celular.isdigit() or len(celular) != 9:
-        raise HTTPException(400, "Celular inválido")
-    if not nombre:
-        raise HTTPException(400, "Nombre requerido")
-    if data.cantidad < 1:
-        raise HTTPException(400, "Cantidad inválida")
-
-    _ensure_tables(db)
-
-    # Verificar modo gratuito + límite
-    cfg = db.execute(text("""
-        SELECT COALESCE(modo_gratuito, FALSE),
-               COALESCE(modo_gratuito_limite, 1)
-        FROM store_config WHERE store_id = :sid
-    """), {"sid": store.id}).fetchone()
-    if not cfg or not cfg[0]:
-        return {"ok": False, "mensaje": "Esta tienda no tiene cortesía activa en este momento."}
-    limite = int(cfg[1])
-
-    pedidos_prev = db.execute(text("""
-        SELECT COUNT(*) FROM carta_pedidos
-        WHERE store_id = :sid AND cliente_celular = :cel
-    """), {"sid": store.id, "cel": celular}).scalar() or 0
-    if int(pedidos_prev) >= limite:
-        return {"ok": False, "mensaje": "Ya alcanzaste tu límite de cortesía 😊"}
-
-    # Verificar producto + stock
-    prod = db.query(Product).filter(
-        Product.id == data.producto_id,
-        Product.store_id == store.id,
-        Product.is_active == True,
-    ).first()
-    if not prod:
-        return {"ok": False, "mensaje": "Producto no disponible"}
-    if prod.stock < data.cantidad:
-        return {"ok": False, "mensaje": "Se agotó este producto"}
-
-    # Insertar pedido (sin descontar stock)
-    tipo_entrega = (data.tipo_entrega or "").strip().lower() or None
-    if tipo_entrega and tipo_entrega not in ("recojo", "delivery"):
-        tipo_entrega = None
-    direccion = (data.direccion or "").strip() or None
-    ins = db.execute(text("""
-        INSERT INTO carta_pedidos
-            (store_id, cliente_celular, cliente_nombre, producto_id, producto_nombre,
-             cantidad, tipo, estado, tipo_entrega, direccion)
-        VALUES (:sid, :cel, :nm, :pid, :pname, :cant, 'gratuito', 'pendiente', :te, :dir)
-        RETURNING id
-    """), {
-        "sid": store.id, "cel": celular, "nm": nombre,
-        "pid": prod.id, "pname": prod.name, "cant": data.cantidad,
-        "te": tipo_entrega, "dir": direccion,
-    })
-    pedido_id = ins.fetchone()[0]
-
-    # Actualizar visitante con celular/nombre si tenemos fp
-    fp = data.device_fingerprint or ""
-    if fp:
-        db.execute(text("""
-            UPDATE carta_visitantes
-            SET phone = :ph, nombre = :nm, last_visit = NOW()
-            WHERE store_id = :sid AND device_fingerprint = :fp
-        """), {"ph": celular, "nm": nombre, "sid": store.id, "fp": fp})
-
-    db.commit()
-
-    pedidos_restantes = max(limite - int(pedidos_prev) - 1, 0)
-    return {
-        "ok": True,
-        "pedido_id": pedido_id,
-        "mensaje": "✅ ¡Pedido recibido! Te avisamos cuando esté listo.",
-        "pedidos_restantes": pedidos_restantes,
-    }
+class PedidoRemotoItem(BaseModel):
+    producto_id: int
+    cantidad: float = 1
+    nota: Optional[str] = None
 
 
-# ─── Pedido pagado (Ropa o cuando modo gratuito apagado) ───
-class PedirPagoRequest(BaseModel):
+class PedidoRemotoRequest(BaseModel):
     celular: str
     nombre: str
-    producto_id: int
-    cantidad: int = 1
-    metodo_pago: Optional[str] = None  # 'yape' | 'transferencia' | 'efectivo'
-    tipo_entrega: Optional[str] = None  # 'recojo' | 'delivery'
+    items: list[PedidoRemotoItem] = []
+    metodo_pago: Optional[str] = None   # yape | transferencia | efectivo
+    tipo_entrega: Optional[str] = None  # recojo | delivery
     direccion: Optional[str] = None
+    nota: Optional[str] = None
     device_fingerprint: Optional[str] = None
 
+    # Compatibilidad con la versión de un producto por llamada.
+    producto_id: Optional[int] = None
+    cantidad: Optional[float] = None
 
-@router.post("/api/public/carta/{telefono}/pedir-pago")
-async def pedir_pago(
-    telefono: str,
-    data: PedirPagoRequest,
-    db: Session = Depends(get_db)
-):
-    _gone("/api/public/carta/{telefono}/pedir-pago")   # DEPRECATED — flujo carta_pedidos
+
+def _crear_pedido_remoto(telefono: str, data: "PedidoRemotoRequest",
+                         db: Session, exige_pago: bool) -> dict:
+    """Valida y crea la comanda del pedido remoto.
+
+    `exige_pago` distingue las dos puertas históricas: /pedir-pago
+    (el cliente declara método) y /pedir-gratis (cortesía, sin pago).
+    """
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
 
+    if not _catalogo_virtual_activo(db, store.id):
+        return {"ok": False, "mensaje": "Este negocio no está recibiendo pedidos"}
+
     celular = (data.celular or "").strip().replace(" ", "")
     nombre = (data.nombre or "").strip()
     if not celular.isdigit() or len(celular) != 9:
-        raise HTTPException(400, "Celular inválido")
+        return {"ok": False, "mensaje": "Celular inválido: deben ser 9 dígitos"}
     if not nombre:
-        raise HTTPException(400, "Nombre requerido")
-    if data.cantidad < 1:
-        raise HTTPException(400, "Cantidad inválida")
-
-    metodo_pago = (data.metodo_pago or "").strip().lower() or None
-    if metodo_pago and metodo_pago not in ("yape", "transferencia", "efectivo"):
-        return {"ok": False, "mensaje": "Método de pago inválido"}
+        return {"ok": False, "mensaje": "Falta tu nombre"}
 
     tipo_entrega = (data.tipo_entrega or "").strip().lower() or None
-    if tipo_entrega and tipo_entrega not in ("recojo", "delivery"):
-        tipo_entrega = None
+    if tipo_entrega not in ("recojo", "delivery"):
+        return {"ok": False, "mensaje": "Elige si recoges o quieres delivery"}
+
     direccion = (data.direccion or "").strip() or None
     if tipo_entrega == "delivery" and not direccion:
         return {"ok": False, "mensaje": "Falta la dirección de entrega"}
 
+    metodo_pago = (data.metodo_pago or "").strip().lower() or None
+    if exige_pago:
+        if metodo_pago not in ("yape", "transferencia", "efectivo"):
+            return {"ok": False, "mensaje": "Elige cómo vas a pagar"}
+        # Efectivo sólo si el cliente viene a recoger, o si el negocio
+        # acepta contra entrega.
+        if metodo_pago == "efectivo" and tipo_entrega == "delivery":
+            contraentrega = db.execute(text(
+                "SELECT delivery_pago_contraentrega FROM store_config "
+                "WHERE store_id = :sid"), {"sid": store.id}).scalar()
+            if not contraentrega:
+                return {"ok": False,
+                        "mensaje": "Este negocio no acepta efectivo en delivery"}
+    else:
+        metodo_pago = None
+
+    # Carrito completo; se acepta el formato viejo de un solo producto.
+    crudos = list(data.items or [])
+    if not crudos and data.producto_id:
+        crudos = [PedidoRemotoItem(producto_id=data.producto_id,
+                                   cantidad=data.cantidad or 1)]
+    if not crudos:
+        return {"ok": False, "mensaje": "Tu pedido está vacío"}
+
+    from app.services import comanda_service as cs
+
+    # El _ensure_tables de este módulo migra las tablas de la carta; las
+    # columnas de entrega viven en `comandas`, así que hay que llamar
+    # también al del servicio de cocina.
     _ensure_tables(db)
+    cs._ensure_tables(db)
 
-    prod = db.query(Product).filter(
-        Product.id == data.producto_id,
-        Product.store_id == store.id,
-        Product.is_active == True,
-    ).first()
-    if not prod:
-        return {"ok": False, "mensaje": "Producto no disponible"}
-    if prod.stock < data.cantidad:
-        return {"ok": False, "mensaje": "Se agotó este producto"}
+    items, total = [], 0.0
+    for it in crudos:
+        prod = db.query(Product).filter(
+            Product.id == it.producto_id,
+            Product.store_id == store.id,
+            Product.is_active == True,
+        ).first()
+        if not prod:
+            return {"ok": False, "mensaje": "Un producto ya no está disponible"}
+        cant = float(it.cantidad or 1)
+        if cant <= 0:
+            return {"ok": False, "mensaje": "Cantidad inválida"}
+        items.append({
+            "product_id": prod.id,
+            "nombre": prod.name,
+            "cantidad": cant,
+            "unidad": prod.unit,
+            "nota": (it.nota or "").strip()[:200] or None,
+        })
+        total += float(prod.sale_price or 0) * cant
 
-    ins = db.execute(text("""
-        INSERT INTO carta_pedidos
-            (store_id, cliente_celular, cliente_nombre, producto_id, producto_nombre,
-             cantidad, tipo, estado, tipo_entrega, direccion, metodo_pago)
-        VALUES (:sid, :cel, :nm, :pid, :pname, :cant, 'pago', 'pendiente', :te, :dir, :mp)
-        RETURNING id
-    """), {
-        "sid": store.id, "cel": celular, "nm": nombre,
-        "pid": prod.id, "pname": prod.name, "cant": data.cantidad,
-        "te": tipo_entrega, "dir": direccion, "mp": metodo_pago,
-    })
-    pedido_id = ins.fetchone()[0]
+    origen = "catalogo_delivery" if tipo_entrega == "delivery" else "catalogo_recojo"
 
-    fp = data.device_fingerprint or ""
+    comanda = cs.crear_comanda(
+        db, store_id=store.id,
+        cajero_nombre=nombre,
+        nota=(data.nota or "").strip()[:500] or None,
+        origen=origen,
+        tipo_entrega=tipo_entrega,
+        direccion=direccion,
+        metodo_pago=metodo_pago,
+        cliente_celular=celular,
+        cliente_nombre=nombre,
+    )
+    cs.agregar_items(db, comanda["id"], items)
+
+    fp = (data.device_fingerprint or "").strip()
     if fp:
         db.execute(text("""
             UPDATE carta_visitantes
@@ -867,20 +841,63 @@ async def pedir_pago(
         """), {"ph": celular, "nm": nombre, "sid": store.id, "fp": fp})
 
     db.commit()
+
+    # Import local, igual que en el pedido de mesa: evita el ciclo con
+    # ws_manager al cargar el módulo.
+    from app.services.ws_manager import (broadcast as ws_broadcast,
+                                         canal_caja, canal_cocina)
+
+    detalle = cs.obtener_comanda(db, comanda["id"], store.id)
+    ws_broadcast(canal_cocina(store.id),
+                 {"tipo": "comanda_nueva", "comanda": detalle})
+    ws_broadcast(canal_caja(store.id), {
+        "tipo": "comanda_catalogo",
+        "comanda_id": comanda["id"],
+        "numero": comanda["numero"],
+        "tipo_entrega": tipo_entrega,
+        "total_estimado": round(total, 2),
+    })
+
+    if tipo_entrega == "delivery":
+        mensaje = "¡Pedido recibido! Te llamamos para coordinar la entrega."
+    else:
+        mensaje = "¡Pedido recibido! Te avisamos cuando esté listo para recoger."
+
+    logger.info(
+        f"[Carta] Pedido remoto #{comanda['numero']} store {store.id}, "
+        f"{tipo_entrega}, pago declarado {metodo_pago or '-'}, {len(items)} ítems"
+    )
+
     return {
         "ok": True,
-        "pedido_id": pedido_id,
-        "mensaje": "✅ ¡Pedido recibido! Te contactamos pronto.",
+        "numero": comanda["numero"],
+        "comanda_id": comanda["id"],
+        "tipo_entrega": tipo_entrega,
+        "direccion": direccion,
+        "metodo_pago": metodo_pago,
+        "total_estimado": round(total, 2),
+        "mensaje": mensaje,
     }
 
 
+@router.post("/api/public/carta/{telefono}/pedir-pago")
+async def pedir_pago(telefono: str, data: PedidoRemotoRequest,
+                     db: Session = Depends(get_db)):
+    """Pedido remoto con método de pago declarado."""
+    return _crear_pedido_remoto(telefono, data, db, exige_pago=True)
+
+
+@router.post("/api/public/carta/{telefono}/pedir-gratis")
+async def pedir_gratis(telefono: str, data: PedidoRemotoRequest,
+                       db: Session = Depends(get_db)):
+    """Pedido remoto de cortesía (modo gratuito): sin método de pago."""
+    return _crear_pedido_remoto(telefono, data, db, exige_pago=False)
+
+
 @router.get("/api/public/carta/{telefono}/mis-pedidos/{celular}")
-async def mis_pedidos(
-    telefono: str,
-    celular: str,
-    db: Session = Depends(get_db)
-):
-    _gone("/api/public/carta/{telefono}/mis-pedidos/{celular}")   # DEPRECATED — flujo carta_pedidos
+async def mis_pedidos(telefono: str, celular: str,
+                      db: Session = Depends(get_db)):
+    """Pedidos de HOY de este celular, para que el cliente los siga."""
     store = _get_store_by_phone(db, telefono)
     if not store:
         raise HTTPException(404, "Negocio no encontrado")
@@ -889,32 +906,35 @@ async def mis_pedidos(
     if not celular.isdigit() or len(celular) != 9:
         raise HTTPException(400, "Celular inválido")
 
-    try:
-        rows = db.execute(text("""
-            SELECT id, producto_nombre, cantidad, estado, tipo, created_at, confirmado_at
-            FROM carta_pedidos
-            WHERE store_id = :sid AND cliente_celular = :cel
-            ORDER BY created_at DESC
-            LIMIT 50
-        """), {"sid": store.id, "cel": celular}).fetchall()
-    except Exception:
-        return {"pedidos": []}
+    ini, fin = dia_operativo_peru()
+    filas = db.execute(text("""
+        SELECT c.id, c.numero, c.estado, c.tipo_entrega, c.direccion,
+               c.metodo_pago, c.sent_at,
+               COALESCE(string_agg(i.cantidad::numeric(10,0) || '× ' || i.nombre, ', '
+                                   ORDER BY i.id), '') AS detalle
+        FROM comandas c
+        LEFT JOIN comanda_items i ON i.comanda_id = c.id
+        WHERE c.store_id = :sid AND c.cliente_celular = :cel
+          AND c.sent_at >= :ini AND c.sent_at < :fin
+        GROUP BY c.id
+        ORDER BY c.numero DESC
+    """), {"sid": store.id, "cel": celular, "ini": ini, "fin": fin}).fetchall()
 
-    pedidos = [{
-        "id": r[0],
-        "producto_nombre": r[1],
-        "cantidad": r[2],
-        "estado": r[3],
-        "tipo": r[4],
-        "created_at": r[5].isoformat() if r[5] else None,
-        "confirmado_at": r[6].isoformat() if r[6] else None,
-    } for r in rows]
-    return {"pedidos": pedidos}
+    ETIQUETA = {"sent": "Recibido", "preparing": "En preparación",
+                "ready": "Listo", "served": "Entregado", "cancelled": "Rechazado"}
 
+    return {"ok": True, "pedidos": [{
+        "id": f.id,
+        "numero": f.numero,
+        "estado": f.estado,
+        "estado_texto": ETIQUETA.get(f.estado, f.estado),
+        "tipo_entrega": f.tipo_entrega,
+        "direccion": f.direccion,
+        "metodo_pago": f.metodo_pago,
+        "detalle": f.detalle,
+        "creado": f.sent_at.isoformat() if f.sent_at else None,
+    } for f in filas]}
 
-# ════════════════════════════════════════════════
-# QR DESCARGABLE PARA INAUGURACIÓN
-# ════════════════════════════════════════════════
 
 @router.get("/carta/{telefono}/qr", response_class=HTMLResponse)
 async def carta_qr(
