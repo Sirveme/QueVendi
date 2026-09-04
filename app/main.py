@@ -110,6 +110,31 @@ async def _cron_tributario_diario():
         await asyncio.sleep(86400)  # 24 horas
 
 
+async def _cron_reconciliar_sunat():
+    """Cada 10 min pregunta a Facturalo el estado real de lo emitido.
+
+    Facturalo confirma en diferido: al emitir sólo se sabe que quedó en
+    cola. Sin esto, un comprobante rechazado por SUNAT se quedaría para
+    siempre como "enviando" y el dueño no se enteraría.
+    """
+    from app.core.database import SessionLocal
+    from app.services import reconciliacion_service as rec
+
+    await asyncio.sleep(60)          # deja arrancar el servidor
+    while True:
+        db = SessionLocal()
+        try:
+            res = await rec.reconciliar_todas(db, limite_por_tienda=120)
+            cambiados = sum(r.get("cambiados", 0) for r in res)
+            if cambiados:
+                print(f"[SUNAT] Reconciliados {cambiados} comprobantes")
+        except Exception as e:
+            print(f"[SUNAT] Error en la reconciliación: {e}")
+        finally:
+            db.close()
+        await asyncio.sleep(600)     # 10 minutos
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup y shutdown events"""
@@ -121,6 +146,9 @@ async def lifespan(app: FastAPI):
 
     # Tarea de fondo: alertas tributarias diarias
     cron_task = asyncio.create_task(_cron_tributario_diario())
+
+    # Tarea de fondo: confirmar con SUNAT lo que Facturalo tiene en cola
+    cron_sunat = asyncio.create_task(_cron_reconciliar_sunat())
     
     # Listar rutas registradas
     routes_html = []
