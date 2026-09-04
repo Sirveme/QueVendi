@@ -60,8 +60,11 @@ logger = logging.getLogger(__name__)
 # concurrencia real de un restaurante chico (2-3 cajas como mucho).
 MAX_INTENTOS_CORRELATIVO = 5
 
-ESTADOS_COMANDA = ("sent", "preparing", "ready", "served")
-ESTADOS_ITEM = ("sent", "preparing", "ready", "served")
+# 'served' y 'cancelled' son terminales: una vez ahí, la comanda no vuelve
+# atrás aunque se toquen sus ítems (ver _recalcular_estado_comanda).
+ESTADOS_COMANDA = ("sent", "preparing", "ready", "served", "cancelled")
+ESTADOS_ITEM = ("sent", "preparing", "ready", "served", "cancelled")
+ESTADOS_TERMINALES = ("served", "cancelled")
 
 
 # ════════════════════════════════════════════════════════════════
@@ -144,6 +147,24 @@ ALTER TABLE comandas
     ADD COLUMN IF NOT EXISTS mesa VARCHAR(50);
 ALTER TABLE comandas
     ADD COLUMN IF NOT EXISTS origen VARCHAR(20) DEFAULT 'caja';
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP WITH TIME ZONE;
+
+-- Venta remota del catalogo: el cliente pide desde fuera del local y
+-- declara como recibe y como pagara. El pago es DECLARATIVO: el sistema
+-- no lo valida, el duenio confirma mirando su Yape y despacha.
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS tipo_entrega VARCHAR(20);
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS direccion VARCHAR(500);
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(30);
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS cliente_celular VARCHAR(20);
+ALTER TABLE comandas
+    ADD COLUMN IF NOT EXISTS cliente_nombre VARCHAR(200);
+CREATE INDEX IF NOT EXISTS idx_comandas_cliente_celular
+    ON comandas (store_id, cliente_celular);
 """
 
 # Una venta puede cobrarse con varios métodos a la vez: S/40 en Yape,
@@ -328,7 +349,8 @@ def revocar_device(db: Session, device_id: int, store_id: int) -> bool:
 _INSERT_COMANDA_SQL = text("""
     INSERT INTO comandas
         (store_id, fecha_operativa, numero, sale_id, estado,
-         cajero_id, cajero_nombre, nota, mesa, origen)
+         cajero_id, cajero_nombre, nota, mesa, origen,
+         tipo_entrega, direccion, metodo_pago, cliente_celular, cliente_nombre)
     SELECT
         :sid,
         :fecha,
@@ -339,7 +361,12 @@ _INSERT_COMANDA_SQL = text("""
         :cajero_nombre,
         :nota,
         :mesa,
-        :origen
+        :origen,
+        :tipo_entrega,
+        :direccion,
+        :metodo_pago,
+        :cliente_celular,
+        :cliente_nombre
     FROM comandas c
     WHERE c.store_id = :sid AND c.fecha_operativa = :fecha
     RETURNING id, numero, sent_at
@@ -347,7 +374,7 @@ _INSERT_COMANDA_SQL = text("""
 
 # De dónde salió la comanda. El catálogo entra sin pasar por caja, así
 # que conviene distinguirlo en la cola y en los reportes.
-ORIGENES = ("caja", "catalogo_qr", "catalogo_delivery")
+ORIGENES = ("caja", "catalogo_qr", "catalogo_delivery", "catalogo_recojo")
 
 
 def crear_comanda(
@@ -359,6 +386,11 @@ def crear_comanda(
     nota: Optional[str] = None,
     mesa: Optional[str] = None,
     origen: str = "caja",
+    tipo_entrega: Optional[str] = None,
+    direccion: Optional[str] = None,
+    metodo_pago: Optional[str] = None,
+    cliente_celular: Optional[str] = None,
+    cliente_nombre: Optional[str] = None,
 ) -> dict:
     """
     Crea una comanda con correlativo único por tienda y día operativo Lima.
@@ -385,6 +417,12 @@ def crear_comanda(
         "nota": nota,
         "mesa": mesa_limpia,
         "origen": origen if origen in ORIGENES else "caja",
+        # Sólo llegan con valor en la venta remota; en mesa y caja van NULL.
+        "tipo_entrega": (tipo_entrega or "").strip()[:20] or None,
+        "direccion": (direccion or "").strip()[:500] or None,
+        "metodo_pago": (metodo_pago or "").strip().lower()[:30] or None,
+        "cliente_celular": (cliente_celular or "").strip()[:20] or None,
+        "cliente_nombre": (cliente_nombre or "").strip()[:200] or None,
     }
 
     # Serializa la asignación entre cajeros de esta tienda y este día.
@@ -463,13 +501,18 @@ TRANSICIONES_ITEM = {
     "preparing": ("ready",),
     "ready": (),
     "served": (),
+    "cancelled": (),                  # terminal: el pedido se rechazó
 }
 
+# Rechazar es posible mientras el pedido no se haya entregado. Un pedido
+# ya servido no se cancela: si hubo problema, eso es una devolución, que
+# es otra cosa y se resuelve en caja.
 TRANSICIONES_COMANDA = {
-    "sent": ("preparing", "ready", "served"),
-    "preparing": ("ready", "served"),
-    "ready": ("served",),
+    "sent": ("preparing", "ready", "served", "cancelled"),
+    "preparing": ("ready", "served", "cancelled"),
+    "ready": ("served", "cancelled"),
     "served": (),
+    "cancelled": (),
 }
 
 
@@ -553,21 +596,24 @@ def _recalcular_estado_comanda(db: Session, comanda_id: int) -> dict:
     - alguno preparing/ready → comanda 'preparing'
     - ninguno tocado         → se queda en 'sent'
 
-    Una comanda ya 'served' no retrocede.
+    Los estados terminales no retroceden: una comanda 'served' o
+    'cancelled' se queda como está pase lo que pase con sus ítems. Sin
+    esta guarda, marcar un ítem en la pantalla de cocina resucitaría un
+    pedido ya entregado o rechazado.
     """
+    estado_actual = db.execute(
+        text("SELECT estado FROM comandas WHERE id = :cid"), {"cid": comanda_id}
+    ).scalar()
+
+    if estado_actual in ESTADOS_TERMINALES:
+        return {"estado": estado_actual, "completa": estado_actual == "served"}
+
     row = db.execute(text("""
         SELECT COUNT(*) AS total,
                COUNT(*) FILTER (WHERE estado = 'ready')     AS listos,
                COUNT(*) FILTER (WHERE estado = 'preparing') AS preparando
         FROM comanda_items WHERE comanda_id = :cid
     """), {"cid": comanda_id}).fetchone()
-
-    estado_actual = db.execute(
-        text("SELECT estado FROM comandas WHERE id = :cid"), {"cid": comanda_id}
-    ).scalar()
-
-    if estado_actual == "served":
-        return {"estado": "served", "completa": True}
 
     total = row.total or 0
     completa = total > 0 and row.listos == total
@@ -615,13 +661,17 @@ def cambiar_estado_comanda(db: Session, comanda_id: int, store_id: int,
         sets.append("ready_at = COALESCE(ready_at, NOW())")
     elif nuevo_estado == "served":
         sets.append("served_at = NOW()")
+    elif nuevo_estado == "cancelled":
+        sets.append("cancelled_at = NOW()")
 
     db.execute(
         text(f"UPDATE comandas SET {', '.join(sets)} WHERE id = :cid"),
         {"cid": comanda_id, "estado": nuevo_estado},
     )
 
-    # Los ítems siguen a la comanda para que no queden a medias.
+    # Los ítems siguen a la comanda para que no queden a medias. Al
+    # cancelar se arrastran también: así no queda nada que tocar en la
+    # pantalla de cocina que pudiera intentar revivirla.
     if nuevo_estado in ("ready", "served"):
         db.execute(text("""
             UPDATE comanda_items
@@ -629,6 +679,11 @@ def cambiar_estado_comanda(db: Session, comanda_id: int, store_id: int,
                 ready_at = COALESCE(ready_at, NOW())
             WHERE comanda_id = :cid AND estado <> :estado
         """), {"cid": comanda_id, "estado": nuevo_estado})
+    elif nuevo_estado == "cancelled":
+        db.execute(text("""
+            UPDATE comanda_items SET estado = 'cancelled'
+            WHERE comanda_id = :cid AND estado <> 'cancelled'
+        """), {"cid": comanda_id})
 
     return {"comanda_id": comanda_id, "numero": row.numero, "estado": nuevo_estado}
 
@@ -696,24 +751,30 @@ def obtener_comanda(db: Session, comanda_id: int, store_id: int) -> Optional[dic
     }
 
 
-def comandas_pendientes(db: Session, store_id: int) -> list:
+def comandas_pendientes(db: Session, store_id: int,
+                        estados: tuple = ("sent", "preparing")) -> list:
     """
-    Comandas del día operativo actual que cocina todavía debe atender.
+    Comandas del día operativo actual.
 
-    Sólo estados 'sent' y 'preparing': las servidas y las listas no se
-    devuelven, para que la pantalla no acumule zombis.
+    Por defecto sólo 'sent' y 'preparing': es la cola de cocina, y las
+    listas o servidas no se devuelven para que la pantalla no acumule
+    zombis. La pantalla del dueño (/pedidos) pide los cuatro estados,
+    porque ahí sí interesa ver el día completo y marcar entregados.
     """
     dia_inicio, dia_fin = dia_operativo_peru()
 
     rows = db.execute(text("""
         SELECT c.id, c.numero, c.estado, c.cajero_nombre, c.nota, c.mesa,
-               c.origen, c.sent_at, c.ready_at, c.sale_id
+               c.origen, c.sent_at, c.ready_at, c.sale_id,
+               c.tipo_entrega, c.direccion, c.metodo_pago,
+               c.cliente_celular, c.cliente_nombre
         FROM comandas c
         WHERE c.store_id = :sid
-          AND c.estado IN ('sent', 'preparing')
+          AND c.estado = ANY(:estados)
           AND c.sent_at >= :ini AND c.sent_at < :fin
         ORDER BY c.numero
-    """), {"sid": store_id, "ini": dia_inicio, "fin": dia_fin}).fetchall()
+    """), {"sid": store_id, "estados": list(estados),
+           "ini": dia_inicio, "fin": dia_fin}).fetchall()
 
     if not rows:
         return []
@@ -747,6 +808,12 @@ def comandas_pendientes(db: Session, store_id: int) -> list:
         "mesa": r.mesa,
         "origen": r.origen or "caja",
         "sale_id": r.sale_id,
+        # Sólo vienen con valor en la venta remota del catálogo.
+        "tipo_entrega": r.tipo_entrega,
+        "direccion": r.direccion,
+        "metodo_pago": r.metodo_pago,
+        "cliente_celular": r.cliente_celular,
+        "cliente_nombre": r.cliente_nombre,
         "sent_at": r.sent_at.isoformat() if r.sent_at else None,
         "ready_at": r.ready_at.isoformat() if r.ready_at else None,
         "items": por_comanda.get(r.id, []),
