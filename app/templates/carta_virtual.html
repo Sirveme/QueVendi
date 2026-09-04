@@ -322,13 +322,17 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
 .pago-nro-op{display:flex;gap:8px;align-items:center}
 .pago-nro-op input{flex:1;border:1.5px solid var(--borde);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit}
 .btn-validar-op{background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.op-anotada{display:none;margin-top:10px;border-radius:10px;padding:10px 12px;
+/* Avisos junto al punto donde el cliente actúa. Un toast arriba del todo
+   pasa desapercibido cuando se está mirando un campo de abajo. */
+.op-anotada,.aviso-inline{display:none;border-radius:10px;padding:10px 12px;
   font-size:13px;line-height:1.5;border-left:4px solid #00C853;background:#E8F8EE;color:#1B5E20}
-.op-anotada.visible{display:block}
-.op-anotada.error{border-left-color:#F59E0B;background:#FFF7E6;color:#8A5A00}
-.op-anotada b{display:block;font-size:14px;margin-bottom:2px}
-.op-anotada small{display:block;margin-top:5px;color:#3B6B45;font-size:12px}
-.op-anotada.error small{color:#8A5A00}
+.op-anotada{margin-top:10px}
+.aviso-inline{margin:-8px 0 14px}
+.op-anotada.visible,.aviso-inline.visible{display:block}
+.op-anotada.error,.aviso-inline.error{border-left-color:#F59E0B;background:#FFF7E6;color:#8A5A00}
+.op-anotada b,.aviso-inline b{display:block;font-size:14px;margin-bottom:2px}
+.op-anotada small,.aviso-inline small{display:block;margin-top:5px;color:#3B6B45;font-size:12px}
+.op-anotada.error small,.aviso-inline.error small{color:#8A5A00}
 /* Pegado abajo: con el formulario entero (entrega + dirección + 3
    métodos de pago) el contenido no cabe en un móvil, y la acción
    principal quedaba fuera de pantalla salvo que el cliente adivinara
@@ -1427,10 +1431,36 @@ function _pintarSelectorEntrega() {
       onclick="seleccionarEntrega('recojo', this)">🏪 Recojo en tienda</button>
     <button type="button" class="btn-entrega" data-tipo="delivery"
       onclick="seleccionarEntrega('delivery', this)">🛵 Delivery</button>`;
+
+  // El aviso de "falta elegir" va aquí, junto a los botones. Como toast
+  // arriba del todo pasaba desapercibido: el cliente mira el selector.
+  let aviso = document.getElementById('entrega-aviso');
+  if (!aviso) {
+    aviso = document.createElement('div');
+    aviso.id = 'entrega-aviso';
+    aviso.className = 'aviso-inline';
+    cont.parentNode.insertBefore(aviso, cont.nextSibling);
+  }
+  aviso.className = 'aviso-inline';
+  aviso.innerHTML = '';
+}
+
+/** Aviso pegado al selector de entrega. */
+function _avisarEntrega() {
+  const aviso = document.getElementById('entrega-aviso');
+  if (!aviso) return;
+  aviso.className = 'aviso-inline visible error';
+  aviso.innerHTML = '<b>Falta elegir cómo lo recibes</b>' +
+                    'Toca <b style="display:inline">🏪 Recojo en tienda</b> o ' +
+                    '<b style="display:inline">🛵 Delivery</b> aquí arriba.';
+  aviso.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function seleccionarEntrega(tipo, el) {
   pedidoRemoto.tipoEntrega = tipo;
+
+  const aviso = document.getElementById('entrega-aviso');
+  if (aviso) { aviso.className = 'aviso-inline'; aviso.innerHTML = ''; }
   document.querySelectorAll('#selector-entrega .btn-entrega')
     .forEach(b => b.classList.toggle('selected', b === el));
 
@@ -1503,7 +1533,7 @@ async function confirmarPedidoFinal() {
     showToast('Tu pedido está vacío'); return;
   }
   if (!pedidoRemoto.tipoEntrega) {
-    showToast('Elige si recoges o quieres delivery'); return;
+    _avisarEntrega(); return;
   }
   if (!pedidoRemoto.metodoPago) {
     showToast('Elige cómo vas a pagar'); return;
@@ -1628,7 +1658,7 @@ startPolling();
 </script>
 
 <!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
-<script src="/static/carta/carrito-mesa.js?v=20260904g"></script>
+<script src="/static/carta/carrito-mesa.js?v=20260904h"></script>
 <script>
   // Expuesto para que el carrito pueda mandar el nombre si el cliente
   // se identificó alguna vez en este dispositivo.
