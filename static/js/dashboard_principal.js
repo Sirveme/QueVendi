@@ -226,27 +226,34 @@ async function loadUserData() {
 // comprobante simulado (ver _es_tienda_demo en app/api/v1/billing.py).
 function mostrarBadgeDemo(esDemo) {
     const existente = document.getElementById('badge-modo-demo');
-    if (!esDemo) { existente?.remove(); return; }
+    if (!esDemo) {
+        existente?.remove();
+        document.body.style.paddingTop = '';
+        return;
+    }
+    // Por si quedó el hueco de la versión anterior (franja de ancho completo).
+    if (document.body.style.paddingTop === '26px') document.body.style.paddingTop = '';
     if (existente) return;
 
     const badge = document.createElement('div');
     badge.id = 'badge-modo-demo';
-    badge.innerHTML = '<i class="fas fa-flask"></i> MODO DEMO' +
-        '<span style="opacity:.85;font-weight:500"> · no se emite a SUNAT</span>';
-    badge.title = 'Cuenta de demostración: las ventas y comprobantes son simulados';
+    // Etiqueta pequeña arriba a la derecha. Antes era una franja de ancho
+    // completo que tapaba el logo y los botones de la cabecera: se veía,
+    // pero estorbaba para trabajar.
+    badge.innerHTML = '<i class="fas fa-flask"></i> DEMO';
+    badge.title = 'Cuenta de demostración: las ventas y comprobantes son ' +
+                  'simulados, no se emite nada a SUNAT';
     badge.style.cssText = `
-        position: fixed; top: 0; left: 0; right: 0;
+        position: fixed; top: 6px; right: 10px;
         z-index: 10050;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 5px 12px;
-        background: repeating-linear-gradient(45deg, #f59e0b, #f59e0b 12px, #d97706 12px, #d97706 24px);
-        color: #1a1a2e; font-weight: 800; font-size: 12px; letter-spacing: .5px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.3);
-        pointer-events: none;
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 9px; border-radius: 11px;
+        background: rgba(245, 158, 11, .92);
+        color: #1a1a2e; font-weight: 800; font-size: 10.5px; letter-spacing: .6px;
+        box-shadow: 0 1px 6px rgba(0,0,0,.35);
+        pointer-events: none; opacity: .93;
     `;
     document.body.appendChild(badge);
-    // Empujar la página para no tapar la cabecera.
-    document.body.style.paddingTop = '26px';
 }
 
 function setUserData(user) {
