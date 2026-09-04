@@ -6449,10 +6449,13 @@ let _lastPedidosPendientes = parseInt(localStorage.getItem('lastPedidosPendiente
 
 async function pollPedidosCarta() {
     try {
-        const r = await fetchWithAuth(`${CONFIG.apiBase}/carta/pedidos/pendientes`);
+        // Los pedidos del catálogo viven en comandas desde la Fase 3B; el
+        // endpoint /carta/pedidos/pendientes responde 410 Gone.
+        const r = await fetchWithAuth(`${CONFIG.apiBase}/cocina/pendientes`);
         if (!r.ok) return;
         const d = await r.json();
-        const pendientes = (d.pedidos || []).filter(p => p.estado === 'pendiente').length;
+        // 'sent' y 'preparing' son las que aún esperan algo del negocio.
+        const pendientes = (d.comandas || []).length;
         const badge = document.getElementById('pedidos-count');
         if (badge) {
             badge.textContent = pendientes;
