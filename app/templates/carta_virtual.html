@@ -397,22 +397,9 @@ body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);-
     </div>
   </div>
 
-  <!-- CHAT FIJO -->
-  <section class="chat-section">
-    <div class="chat-hdr">
-      <div class="chat-hdr-logo" id="chat-logo">QV</div>
-      <div class="chat-hdr-info">
-        <div class="chat-hdr-name" id="chat-name">{{ store_name }}</div>
-      </div>
-      <div class="chat-online-dot"></div>
-      <span class="chat-online-text">En línea</span>
-    </div>
-    <div class="chat-body" id="chat-body"></div>
-    <div class="chat-input-area">
-      <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu pedido…" onkeydown="if(event.key==='Enter')enviarChat()">
-      <button class="chat-send" onclick="enviarChat()">➤</button>
-    </div>
-  </section>
+  <!-- El chat se retiró: respondía siempre lo mismo, no entendía nada y
+       confundía. El pedido se arma con las tarjetas del catálogo y el
+       carrito. Para preguntar, el cliente usa el WhatsApp del negocio. -->
 
   <!-- BANNER PWA -->
   <div class="banner-pwa" id="install-banner" onclick="instalarPWAClick(event)">
@@ -544,7 +531,9 @@ async function cargarInfo() {
     if (!r.ok) return;
     const d = await r.json();
     document.getElementById('store-name').textContent = d.nombre;
-    document.getElementById('chat-name').textContent = d.nombre;
+    // El chat se retiró; el nombre del negocio ya se pinta en la cabecera.
+    const chatName = document.getElementById('chat-name');
+    if (chatName) chatName.textContent = d.nombre;
     const parts = [d.direccion, d.distrito].filter(Boolean);
     const dirText = parts.join(' — ') || d.telefono || '';
     const dirEl = document.querySelector('.header-dir') || document.getElementById('store-addr');
@@ -575,7 +564,8 @@ async function cargarInfo() {
       const initials = (d.nombre || '').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'QV';
       const ph = document.getElementById('store-logo');
       if (ph && ph.tagName !== 'IMG') ph.textContent = initials;
-      document.getElementById('chat-logo').textContent = initials;
+      const chatLogo = document.getElementById('chat-logo');
+      if (chatLogo) chatLogo.textContent = initials;
     }
     document.title = `${d.nombre} — Carta Virtual`;
     modoGratuito = !!d.modo_gratuito;
@@ -792,6 +782,7 @@ function toggleChat() {
   // así que esta función solo se asegura de que haya saludo inicial.
   chatAbierto = true;
   const body = document.getElementById('chat-body');
+  if (!body) return;   // el chat se retiró
   if (body && body.children.length === 0) {
     addChatMsgHTML('bot', `👋 ¡Hola! Soy el asistente de <b>${_chatTextoEscapado(STORE_NAME)}</b>.<br>Toca un producto para pedirlo o escríbeme su nombre. 😊`);
   }
@@ -800,6 +791,7 @@ function toggleChat() {
 // ── MENSAJES ──
 function addChatMsgText(type, text) {
   const body = document.getElementById('chat-body');
+  if (!body) return;   // el chat se retiró
   const div = document.createElement('div');
   div.className = `chat-msg ${type}`;
   div.innerHTML = _chatTextoEscapado(text).replace(/\n/g, '<br>');
@@ -808,6 +800,7 @@ function addChatMsgText(type, text) {
 }
 function addChatMsgHTML(type, html) {
   const body = document.getElementById('chat-body');
+  if (!body) return;   // el chat se retiró
   const div = document.createElement('div');
   div.className = `chat-msg ${type}`;
   div.innerHTML = html;
@@ -816,6 +809,7 @@ function addChatMsgHTML(type, html) {
 }
 function addChatMsg(type, text) {
   const body = document.getElementById('chat-body');
+  if (!body) return;   // el chat se retiró
   const div = document.createElement('div');
   div.className = `chat-msg ${type}`;
   div.innerHTML = String(text || '').replace(/\n/g, '<br>');
@@ -825,6 +819,7 @@ function addChatMsg(type, text) {
 
 function mostrarBotonesRapidos(opciones, callback, opts = {}) {
   const body = document.getElementById('chat-body');
+  if (!body) return;   // el chat se retiró
   const wrap = document.createElement('div');
   wrap.className = 'chat-quick';
   opciones.forEach(opcion => {
@@ -900,7 +895,7 @@ function pasoCantidad(producto) {
     if (val === 'Otra cantidad') {
       addChatMsgText('bot', '¿Cuántas unidades? Escribe el número.');
       pedidoActual.esperando = 'cantidad';
-      document.getElementById('chat-input').focus();
+      document.getElementById('chat-input')?.focus();
     } else {
       procesarCantidadSeleccionada(producto, parseInt(val, 10));
     }
@@ -940,7 +935,7 @@ function pasoDireccion() {
   pedidoActual.paso = 3;
   pedidoActual.esperando = 'direccion';
   addChatMsgText('bot', '¿Cuál es tu dirección de entrega? 📍');
-  document.getElementById('chat-input').focus();
+  document.getElementById('chat-input')?.focus();
 }
 
 function continuarTrasEntrega() {
@@ -1091,6 +1086,7 @@ function buscarProductoEnChat(texto) {
 
 async function enviarChat() {
   const input = document.getElementById('chat-input');
+  if (!input) return;   // el chat se retiró
   const msg = input.value.trim();
   if (!msg) return;
   input.value = '';
@@ -1567,7 +1563,7 @@ startPolling();
 </script>
 
 <!-- Carrito de mesa: arma el pedido y lo manda a cocina de una vez -->
-<script src="/static/carta/carrito-mesa.js?v=20260903"></script>
+<script src="/static/carta/carrito-mesa.js?v=20260903b"></script>
 <script>
   // Expuesto para que el carrito pueda mandar el nombre si el cliente
   // se identificó alguna vez en este dispositivo.
