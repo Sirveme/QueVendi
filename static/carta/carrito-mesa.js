@@ -38,14 +38,36 @@ const CarritoMesa = (() => {
     // INICIO
     // ============================================
 
+    /**
+     * Mesa de la URL, normalizada a null real.
+     *
+     * De esto depende TODO el desvío: con mesa el pedido va directo a
+     * cocina, sin mesa se pide entrega y pago. Un string vacío o el
+     * literal "null" son truthy en JS y mandarían a un cliente de
+     * delivery por el camino de mesa, cobrándole "a la mesera".
+     */
+    function _leerMesa() {
+        const crudo = new URLSearchParams(location.search).get('mesa');
+        if (crudo === null || crudo === undefined) return null;
+        const limpio = String(crudo).trim().slice(0, 50);
+        if (!limpio || limpio === 'null' || limpio === 'undefined') return null;
+        return limpio;
+    }
+
+    /** ¿El cliente está sentado en el local? */
+    function _enLocal() {
+        return typeof estado.mesa === 'string' && estado.mesa.length > 0;
+    }
+
     function init(telefono) {
         estado.telefono = telefono;
-        estado.mesa = new URLSearchParams(location.search).get('mesa');
-        if (estado.mesa) estado.mesa = estado.mesa.trim().slice(0, 50) || null;
+        estado.mesa = _leerMesa();
 
         _pintarCabeceraMesa();
         _crearBarra();
-        console.log(`[Carrito] Listo. Mesa: ${estado.mesa || '(sin mesa)'}`);
+        console.log('[Carrito] Listo. mesa =', estado.mesa,
+                    '(' + (estado.mesa === null ? 'null' : typeof estado.mesa) + ') →',
+                    _enLocal() ? 'pedido de MESA' : 'pedido REMOTO');
     }
 
     /** Si vino por QR de mesa, se anuncia bien visible arriba. */
@@ -233,11 +255,16 @@ const CarritoMesa = (() => {
         // Sin mesa el cliente NO está en el local: antes de enviar hay que
         // preguntarle cómo lo recibe y cómo pagará. Ese formulario vive en
         // carta_virtual.html y se encarga de enviar el pedido.
-        if (!estado.mesa && typeof window.abrirConfirmacionRemota === 'function') {
+        if (!_enLocal() && typeof window.abrirConfirmacionRemota === 'function') {
             const m = document.getElementById('modal-carrito');
             if (m) m.remove();
             window.abrirConfirmacionRemota(estado.items, total());
             return;
+        }
+
+        if (!_enLocal() && typeof window.abrirConfirmacionRemota !== 'function') {
+            console.error('[Carrito] Sin mesa pero el flujo remoto no está cargado; ' +
+                          'el pedido se enviará como si fuera de mesa.');
         }
 
         const btn = document.getElementById('btn-confirmar-pedido');
