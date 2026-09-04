@@ -305,10 +305,10 @@ const Cocina = (() => {
                     <div class="meta">
                         ${c.cajero_nombre ? `<b>${_esc(c.cajero_nombre)}</b><br>` : ''}
                         ${_hora(c.sent_at)}
-                        ${c.nota ? `<br><b>${_esc(c.nota)}</b>` : ''}
                     </div>
                     <div class="timer ${clase}">${min}m</div>
                 </div>
+                ${c.nota ? `<div class="nota-pedido">📝 ${_esc(c.nota)}</div>` : ''}
                 <div class="items">${filas}</div>
                 ${todosListos ? `
                     <div class="pie">
