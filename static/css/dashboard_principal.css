@@ -7,16 +7,22 @@
    VARIABLES
    ============================================ */
 :root {
-    /* Colores principales */
-    --bg-primary: #0f0f23;
-    --bg-secondary: #1a1a2e;
-    --bg-tertiary: #252542;
-    --bg-card: #1e1e35;
+    /* PALETA — fondos oscuros neutros, sin azulear de más.
+       Un solo tono de tarjeta para toda la pantalla: el color se
+       reserva para lo que el ojo debe encontrar (el precio, el
+       botón de cobrar, una alerta). */
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-tertiary: #232733;
+    --bg-card: #1a1d27;
     
     /* Acentos */
     --accent-gold: #F5A623;
     --accent-gold-dark: #C8860C;
-    --accent-green: #22C55E;
+    /* Un solo verde en toda la pantalla. Antes convivían dos muy
+       parecidos (#22C55E aquí y #10b981 en los acentos): juntos no se
+       leían como el mismo color, se leían como un descuido. */
+    --accent-green: #10b981;
     --accent-green-dark: #16A34A;
     --accent-blue: #3B82F6;
     --accent-purple: #8B5CF6;
@@ -28,13 +34,16 @@
     --color-amber-dark: #D97706;
     --color-green-alert: #10B981;
     
-    /* Texto */
-    --text-primary: #FFFFFF;
-    --text-secondary: #9CA3AF;
-    --text-muted: #6B7280;
+    /* Texto — nunca blanco puro: a pantalla completa cansa la vista */
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0ac;
+    --text-muted: #6b7280;
     
     /* Otros */
-    --border-color: #374151;
+    --border-color: #2a2e3a;
+    /* El verde de la marca: COBRAR, "Online", precios */
+    --accent: #10b981;
+    --accent-soft: rgba(16, 185, 129, 0.45);
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -605,7 +614,9 @@ body {
 
 .goal-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-gold), var(--accent-green));
+    /* Verde de la marca. El degradado dorado→verde sugería un semáforo
+       que no existe: llevar poco vendido no es una advertencia. */
+    background: linear-gradient(90deg, #059669, var(--accent));
     border-radius: 10px;
     transition: width 0.5s ease;
 }
@@ -689,7 +700,7 @@ body {
     border-radius: var(--radius-md);
     padding: 0.75rem;
     scrollbar-width: thin;
-    scrollbar-color: #667eea #1a1a2e;
+    scrollbar-color: var(--border-color) var(--bg-secondary);
 }
 .cart-items::-webkit-scrollbar {
     width: 6px;
@@ -698,7 +709,7 @@ body {
     background: #1a1a2e;
 }
 .cart-items::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: var(--accent);
     border-radius: 3px;
 }
 
@@ -859,150 +870,12 @@ body {
 }
 
 /* Cards de productos sugeridos */
-.suggestion-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 14px;
-    padding: 14px 18px;
-    cursor: pointer;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 70px;
-}
-
-/* Efecto de brillo al hover */
-.suggestion-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255,255,255,0.4), 
-        transparent);
-    transition: left 0.6s;
-}
-
-.suggestion-card:hover::before {
-    left: 100%;
-}
-
-.suggestion-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-}
-
-.suggestion-card:active {
-    transform: translateY(-2px) scale(1);
-}
-
-/* Variantes de color (4 colores rotativos) */
-.suggestion-card:nth-child(4n+1) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
-}
-
-.suggestion-card:nth-child(4n+1):hover {
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-}
-
-.suggestion-card:nth-child(4n+2) {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.35);
-}
-
-.suggestion-card:nth-child(4n+2):hover {
-    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.5);
-}
-
-.suggestion-card:nth-child(4n+3) {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.35);
-}
-
-.suggestion-card:nth-child(4n+3):hover {
-    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
-}
-
-.suggestion-card:nth-child(4n+4) {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.35);
-}
-
-.suggestion-card:nth-child(4n+4):hover {
-    box-shadow: 0 8px 25px rgba(67, 233, 123, 0.5);
-}
-
-/* Icono circular con animación */
-.suggestion-icon {
-    width: 46px;
-    height: 46px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-}
-
-.suggestion-card:hover .suggestion-icon {
-    transform: rotate(90deg);
-    background: rgba(255, 255, 255, 0.35);
-}
-
-/* Contenido del card */
-.suggestion-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.suggestion-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: white;
-    line-height: 1.3;
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.suggestion-reason {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.85);
-    font-style: italic;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Precio */
-.suggestion-price {
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: white;
-    flex-shrink: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    backdrop-filter: blur(10px);
-}
+/* Las tarjetas de sugerencia las estilaba un bloque con degradados y
+   cuatro variantes rotativas por posición (:nth-child(4n+1..4)): morado,
+   rosa, celeste, verde neón. El color no significaba nada — dependía del
+   ORDEN en la lista, así que el mismo producto cambiaba de color al
+   reordenarse. Se retiró entero; la definición vigente está más abajo,
+   junto al resto del panel. */
 
 /* Animación de entrada */
 @keyframes slideInUp {
@@ -1143,7 +1016,7 @@ body {
 .btn-fiado-confirm {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, var(--accent-green), #059669);
+    background: linear-gradient(135deg, var(--accent), #059669);
     border: none;
     border-radius: var(--radius-md);
     color: white;
@@ -3209,7 +3082,7 @@ body.is-owner .owner-only {
    ============================================ */  
 /* En dashboard_principal.css */
 .audio-toggle-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border: none;
     border-radius: 50%;
     width: 48px;
@@ -3222,7 +3095,7 @@ body.is-owner .owner-only {
 }
 
 .audio-toggle-btn:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
     transform: scale(1.1);
     box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
 }
@@ -3295,7 +3168,7 @@ body.is-owner .owner-only {
 }
 
 .modal-input:focus {
-    border-color: #667eea;
+    border-color: var(--accent);
 }
 
 .modal-buttons {
@@ -3353,18 +3226,18 @@ body.is-owner .owner-only {
    MODAL FIADO overlay
    ============================================ */
 .btn-plazo-rapido:hover {
-    background: #667eea !important;
-    border-color: #667eea !important;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
     transform: translateY(-2px);
 }
 
 .btn-plazo-rapido.selected {
-    background: #667eea !important;
-    border-color: #667eea !important;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
 }
 
 #modal-fiado-overlay input:focus {
-    border-color: #667eea !important;
+    border-color: var(--accent) !important;
 }
 
 
@@ -3386,7 +3259,7 @@ body.is-owner .owner-only {
 }
 
 .qty-display:hover {
-    border-color: #667eea;
+    border-color: var(--accent);
     background: #3a3a4e;
 }
 
@@ -3440,13 +3313,13 @@ body.is-owner .owner-only {
 }
 
 .qty-input-inline:focus {
-    border-color: #667eea;
+    border-color: var(--accent);
 }
 
 .btn-qty-mini {
     width: 30px;
     height: 30px;
-    background: #667eea;
+    background: var(--accent);
     border: none;
     border-radius: 6px;
     color: white;
@@ -3482,7 +3355,7 @@ body.is-owner .owner-only {
 }
 
 .modal-fiado-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     padding: 20px 30px;
     border-radius: 16px 16px 0 0;
@@ -3531,7 +3404,7 @@ body.is-owner .owner-only {
 }
 
 .form-section h3 {
-    color: #667eea;
+    color: var(--accent);
     font-size: 1.1em;
     margin-bottom: 20px;
     display: flex;
@@ -3554,7 +3427,7 @@ body.is-owner .owner-only {
 }
 
 .form-group label i {
-    color: #667eea;
+    color: var(--accent);
 }
 
 .form-group input,
@@ -3572,7 +3445,7 @@ body.is-owner .owner-only {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -3602,7 +3475,7 @@ body.is-owner .owner-only {
 
 .summary-row strong {
     font-size: 1.2em;
-    color: #667eea;
+    color: var(--accent);
 }
 
 .modal-fiado-footer {
@@ -3638,7 +3511,7 @@ body.is-owner .owner-only {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
@@ -4288,36 +4161,51 @@ body.is-owner .owner-only {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 8px;
 }
+/* Todas iguales. Lo único que resalta es el precio, que es lo que el
+   cajero busca; y el ámbar, que sólo aparece si queda poco stock. */
 .suggestion-card {
     background: var(--bg-card);
-    border-radius: 8px;
-    padding: 10px 10px 10px 12px;
+    border-radius: 10px;
+    padding: 11px 12px;
     cursor: pointer;
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--cat-color, var(--border-color));
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: border-color 0.18s ease, background 0.18s ease,
+                transform 0.18s ease;
 }
 .suggestion-card:hover {
+    /* El borde se insinúa en verde, sin encenderse: sigue siendo una
+       lista que se recorre con la vista, no cuatro botones compitiendo. */
+    border-color: var(--accent-soft);
+    background: #1f2330;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+.suggestion-card:active { transform: translateY(0); }
+
 .suggestion-card .s-name {
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--text-primary);
+    line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .suggestion-card .s-price {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-top: 5px;
+    letter-spacing: .2px;
 }
 .suggestion-card .s-stock {
-    font-size: 10px;
+    font-size: 10.5px;
     color: var(--text-secondary);
+    margin-top: 2px;
+}
+/* Queda poco: lo único que rompe la uniformidad, y por un motivo. */
+.suggestion-card .s-stock.bajo {
+    color: var(--color-amber);
+    font-weight: 700;
 }
 
 /* ============================================
@@ -4376,9 +4264,9 @@ body.is-owner .owner-only {
     transition: border-color .15s, background .15s;
     text-align: center;
 }
-.pm-btn:hover { border-color: var(--accent-gold); }
+.pm-btn:hover { border-color: var(--accent-soft); }
 .pm-btn.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #10b981, #059669);
     color: #fff;
     border-color: transparent;
 }
