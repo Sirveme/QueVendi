@@ -1202,20 +1202,23 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
                 </div>
                 <div id="deviceList"><div style="color:var(--text3);font-size:0.75rem;padding:8px">Cargando...</div></div>
                 <div class="register-box" id="registerBox">
-                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:8px;color:var(--text2)">Registrar este dispositivo</div>
+                    <div style="font-size:0.72rem;font-weight:700;margin-bottom:4px;color:var(--text2)">
+                        Preparar este equipo para vender sin internet
+                    </div>
+                    <div style="font-size:0.65rem;color:var(--text3);line-height:1.5;margin-bottom:8px">
+                        Se hace una sola vez, con conexión. Después el equipo podrá
+                        emitir comprobantes aunque se corte el internet, y los envía
+                        a SUNAT solo cuando vuelve.
+                    </div>
                     <button onclick="registerThisDevice()" class="device-btn" style="width:100%;padding:10px;justify-content:center;display:flex;align-items:center;gap:6px;font-size:0.72rem">
-                        <i class="fas fa-plus"></i> Registrar dispositivo actual
+                        <i class="fas fa-plus"></i> Preparar este equipo
                     </button>
                 </div>
                 <div style="margin-top:10px;display:flex;gap:8px">
                     <button onclick="revokeAllDevices()" class="device-btn device-btn-danger" style="flex:1">
                         <i class="fas fa-shield-halved"></i> Revocar todos excepto este
                     </button>
-                    <button onclick="generateEmergencyCode()" class="device-btn" style="flex:1">
-                        <i class="fas fa-key"></i> Código de emergencia
-                    </button>
                 </div>
-                <div id="emergencyResult" style="display:none;margin-top:10px"></div>
             </div>
             
             <!-- ── CATÁLOGO VIRTUAL ── -->
@@ -1412,7 +1415,11 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font); backgroun
 
 
 
-<script src="/static/js/config_negocio_impresion.js?v=20260313d"></script>
+<!-- Facturación sin internet: esta pantalla ahora escribe en el propio
+     equipo (serie y último número), no sólo en el servidor. -->
+<script src="/static/js/offline-db.js?v=20260913a"></script>
+<script src="/static/js/offline-billing.js?v=20260913a"></script>
+<script src="/static/js/config_negocio_impresion.js?v=20260913a"></script>
 <script src="/static/js/config-cocina-devices.js"></script>
 <script src="/static/js/push-avisos.js"></script>
 <script src="/static/js/config-listas-precio.js"></script>

@@ -21,7 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/dashboard_principal.css?v=20260904r">
+    <link rel="stylesheet" href="/static/css/dashboard_principal.css?v=20260913a">
     <link rel="stylesheet" href="/static/css/cart_v2.css">
     <link rel="stylesheet" href="/static/css/checkout_v2.css">
     
@@ -367,6 +367,13 @@
                 <button class="btn-online-indicator" id="btn-online-indicator"
                         onclick="showOfflineStatus()" title="Estado de conexión">
                     <span class="online-dot" id="online-dot"></span>
+                </button>
+
+                <!-- Instalar la app. Oculto hasta que Chrome confirme que
+                     el sitio es instalable (evento beforeinstallprompt). -->
+                <button class="btn-install" id="btn-install" style="display:none"
+                        title="Instalar QueVendi en este equipo">
+                    <i class="fas fa-download"></i>
                 </button>
 
                 <button class="btn-notif" onclick="showNotifications()" title="Notificaciones">
@@ -1160,11 +1167,12 @@ document.addEventListener('keydown', function(e) {
     <script src="/static/js/modules/layered-variants.js"></script>
 
     <!-- Scripts -->
-    <script src="/static/js/offline-db.js?v=20260502"></script>
-    <script src="/static/js/offline-sync.js"></script>
-    <script src="/static/js/offline-billing.js"></script>
-    <script src="/static/js/offline-sale.js"></script>
-    <script src="/static/js/dashboard_principal.js?v=20260904r"></script>
+    <script src="/static/js/offline-db.js?v=20260913a"></script>
+    <script src="/static/js/offline-sync.js?v=20260913a"></script>
+    <script src="/static/js/offline-billing.js?v=20260913a"></script>
+    <script src="/static/js/offline-sale.js?v=20260913a"></script>
+    <script src="/static/js/pwa-install.js?v=20260913a"></script>
+    <script src="/static/js/dashboard_principal.js?v=20260913a"></script>
     <script src="/static/js/thermal-printer.js"></script>
     <script src="/static/js/print-agent-client.js"></script>
     <script src="/static/js/print-agent-integration.js"></script>
