@@ -19,40 +19,73 @@
 // VERSIÓN Y CACHE
 // ============================================
 
-const SW_VERSION = 'v2.1.0';
+// Al subir esta versión se descartan TODAS las cachés anteriores en `activate`.
+// Hay que subirla siempre que cambie SHELL_ASSETS o las estrategias de abajo,
+// porque es lo único que garantiza que un equipo con la app abierta hace
+// semanas deje de servir el shell viejo.
+const SW_VERSION = 'v3.0.1';
 const CACHE_SHELL = `quevendi-shell-${SW_VERSION}`;
 const CACHE_ASSETS = `quevendi-assets-${SW_VERSION}`;
 const CACHE_API = `quevendi-api-${SW_VERSION}`;
 
-// App Shell: lo mínimo para que el POS abra sin internet
+// El shell del POS. Debe reflejar EXACTAMENTE lo que carga
+// app/templates/dashboard_principal.html, incluidos los sufijos ?v=:
+// si aquí falta un script, la app no abre sin internet; si sobra uno
+// con versión vieja, se cachea un archivo que ya nadie pide.
+//
+// Regla de mantenimiento: al cambiar un ?v= en la plantilla, cambiarlo
+// también aquí y subir SW_VERSION. Son el mismo cambio.
 const SHELL_ASSETS = [
-    // HTML principal
-    '/v2',
-    '/v2/',
+    // HTML del POS. Se sirve en las dos rutas, y las dos deben abrir
+    // sin internet porque el usuario puede tener cualquiera guardada.
+    '/home',
+    '/dashboard',
+
+    // La pantalla de login. Si el POS rebota aquí sin internet (token
+    // ausente o vencido) y la página no está cacheada, la app queda
+    // muerta: ni siquiera puede explicar qué pasa.
+    '/auth/login',
 
     // CSS
-    '/static/css/dashboard_principal.css',
+    '/static/css/dashboard_principal.css?v=20260913a',
+    '/static/css/cart_v2.css',
+    '/static/css/checkout_v2.css',
 
-    // JS core (orden de carga)
-    '/static/js/offline-db.js',
+    // JS — la lista real del POS, en el orden en que la plantilla la carga
     '/static/js/audio_assistant.js',
     '/static/js/modules/voice-parser.js',
     '/static/js/modules/voice-commands.js',
-    '/static/js/modules/voice-help.js',
+    '/static/js/modules/voice-help.js?v=20260502',
     '/static/js/modules/ui-feedback.js',
     '/static/js/modules/fractional-sales.js',
     '/static/js/modules/cart-animations.js',
     '/static/js/modules/layered-variants.js',
-    '/static/js/dashboard_principal.js',
+    '/static/js/offline-db.js?v=20260913a',
+    '/static/js/offline-sync.js?v=20260913a',
+    '/static/js/offline-billing.js?v=20260913a',
+    '/static/js/offline-sale.js?v=20260913a',
+    '/static/js/pwa-install.js?v=20260913a',
+    '/static/js/dashboard_principal.js?v=20260913a',
+    '/static/js/thermal-printer.js',
+    '/static/js/print-agent-client.js',
+    '/static/js/print-agent-integration.js',
+    '/static/js/ticket-builder.js?v=20260502',
+    '/static/js/cocina-enviar.js',
+    '/static/js/caja-cocina-avisos.js',
+    '/static/js/barcode-venta.js',
+    '/static/js/venta-lista-precio.js',
+    '/static/js/caja-multipago.js',
+    '/static/js/bluetooth_printer.js',
 
     // Fonts & Icons (CDN - se cachean en install)
     'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 
-    // Imágenes críticas
-    '/static/img/icon-192.png',
-    '/static/img/icon-512.png',
-    '/static/img/product-default.png',
+    // Imágenes críticas. Sólo las que existen de verdad en producción:
+    // las rutas /static/img/icon-*.png que había aquí daban 404.
+    '/static/icon-192.png',
+    '/static/icon-512.png',
+    '/static/img/logo-quevendi.webp',
 
     // Manifest
     '/static/manifest.json',
@@ -229,8 +262,14 @@ async function networkFirst(request, cacheName) {
  * Ideal para estáticos que no cambian frecuentemente.
  */
 async function cacheFirst(request, cacheName) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
+    // 1. Coincidencia EXACTA, con querystring incluido.
+    //
+    // El orden importa. Si aquí se ignorara el ?v=, un archivo recién
+    // desplegado con versión nueva seguiría sirviéndose desde la copia
+    // vieja: sería anular el cache-busting justo en la capa que debería
+    // respetarlo. La coincidencia exacta va primero, siempre.
+    const exacto = await caches.match(request);
+    if (exacto) return exacto;
 
     try {
         const response = await fetch(request);
@@ -243,9 +282,23 @@ async function cacheFirst(request, cacheName) {
         return response;
 
     } catch (error) {
-        // Para imágenes, podemos devolver un placeholder
-        if (request.url.match(/\.(png|jpg|jpeg|gif|svg)$/)) {
-            return caches.match('/static/img/product-default.png');
+        // 2. Sin red y sin copia exacta: recién ahora se acepta una versión
+        //    distinta del mismo archivo. Pasa cuando se desplegó un ?v=
+        //    nuevo y el equipo se quedó sin internet antes de descargarlo.
+        //    Un JS de la versión anterior hace funcionar el POS; no tenerlo
+        //    lo deja en blanco. Entre esas dos, sirve el viejo.
+        const aproximado = await caches.match(request, { ignoreSearch: true });
+        if (aproximado) {
+            console.warn('[SW] ⚠️ Sirviendo versión cacheada distinta de:', request.url);
+            return aproximado;
+        }
+
+        // Placeholder de imagen: sólo si de verdad está cacheado. El código
+        // anterior devolvía caches.match() de un archivo que no existe, y un
+        // `undefined` en respondWith rompe la petición en vez de degradarla.
+        if (request.url.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
+            const ph = await caches.match('/static/img/logo-quevendi.webp');
+            if (ph) return ph;
         }
 
         return new Response('Offline', { status: 503 });
@@ -278,12 +331,21 @@ async function staleWhileRevalidate(request, cacheName) {
     const networkResponse = await fetchPromise;
     if (networkResponse) return networkResponse;
 
-    // Último recurso: página offline
-    return caches.match('/static/offline.html') ||
-        new Response(offlineFallbackHTML(), {
-            status: 503,
-            headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
+    // Sin red y sin copia exacta: aceptar la misma página con otro
+    // querystring (/home?algo) antes de darla por perdida.
+    const aproximado = await caches.match(request, { ignoreSearch: true });
+    if (aproximado) return aproximado;
+
+    // Último recurso: la página offline. Ojo: caches.match devuelve una
+    // promesa, que SIEMPRE es truthy — el `||` de antes nunca se evaluaba
+    // y si offline.html no estaba cacheado se respondía `undefined`.
+    const offline = await caches.match('/static/offline.html');
+    if (offline) return offline;
+
+    return new Response(offlineFallbackHTML(), {
+        status: 503,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
 }
 
 /**
@@ -476,8 +538,8 @@ self.addEventListener('push', (event) => {
         event.waitUntil(
             self.registration.showNotification(data.title || 'QueVendi', {
                 body: data.body || '',
-                icon: '/static/img/icon-192.png',
-                badge: '/static/img/icon-192.png',
+                icon: '/static/icon-192.png',
+                badge: '/static/icon-192.png',
                 data: data
             })
         );
@@ -599,8 +661,8 @@ async function notifyClient(title, body) {
         if (self.registration.showNotification) {
             await self.registration.showNotification(title, {
                 body: body,
-                icon: '/static/img/icon-192.png',
-                badge: '/static/img/icon-192.png',
+                icon: '/static/icon-192.png',
+                badge: '/static/icon-192.png',
                 silent: false,
                 tag: 'sync-notification'
             });
