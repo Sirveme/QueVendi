@@ -417,6 +417,50 @@ const OfflineDB = (() => {
             return { serie, correlativo };
         },
 
+        // ── Modelo simple: sólo el último número emitido ──
+        //
+        // Reemplaza a los bloques reservados. Como la serie es de un solo
+        // equipo, no hay con quién competir por los números: alcanza con
+        // recordar por cuál va. Un bloque agotado dejaba al vendedor sin
+        // poder emitir hasta recuperar internet, que es justo lo que no
+        // puede pasar en una zona con cortes.
+
+        async setUltimo(serie, ultimo) {
+            _requireInit();
+            const { store } = getStore('correlatives', 'readwrite');
+            const prev = await promisify(store.get(serie));
+            store.put({
+                ...(prev || {}),
+                serie,
+                ultimo,
+                updated_at: new Date().toISOString()
+            });
+            return ultimo;
+        },
+
+        async getUltimo(serie) {
+            _requireInit();
+            const { store } = getStore('correlatives', 'readonly');
+            const b = await promisify(store.get(serie));
+            return (b && typeof b.ultimo === 'number') ? b.ultimo : null;
+        },
+
+        /**
+         * Toma el siguiente número y lo deja marcado como usado.
+         * Devuelve null si el equipo aún no sabe por dónde va: en ese caso
+         * hay que pedirle al usuario que lo confirme, nunca adivinar.
+         */
+        async siguiente(serie) {
+            _requireInit();
+            const { store } = getStore('correlatives', 'readwrite');
+            const b = await promisify(store.get(serie));
+            if (!b || typeof b.ultimo !== 'number') return null;
+
+            const numero = b.ultimo + 1;
+            store.put({ ...b, ultimo: numero, updated_at: new Date().toISOString() });
+            return numero;
+        },
+
         async getRemaining(serie) {
             _requireInit();
             const { store } = getStore('correlatives', 'readonly');

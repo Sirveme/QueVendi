@@ -729,14 +729,13 @@ async function loadDevices() {
                 </div>
                 <div class="device-serie"><i class="fas fa-barcode"></i> Serie: ${dev.serie}</div>
                 <div class="device-stats">
-                    <div class="device-stat"><strong>${dev.ultimo_numero}</strong>Último N°</div>
-                    <div class="device-stat"><strong>${dev.bloques_activos>0?'Activo':'Sin bloque'}</strong>Estado</div>
+                    <div class="device-stat"><strong>${dev.serie}-${String(dev.ultimo_numero).padStart(8,'0')}</strong>Último emitido</div>
+                    <div class="device-stat"><strong>${dev.ultimo_sync_at ? _timeAgo(dev.ultimo_sync_at) : 'nunca'}</strong>Confirmado</div>
                     <div class="device-stat"><strong>${_timeAgo(dev.registered_at)}</strong>Registro</div>
                 </div>
                 <div class="device-actions">
                     ${!isThis ? `<button onclick="revokeDevice('${dev.device_id}','${_esc(dev.device_name)}')" class="device-btn device-btn-danger"><i class="fas fa-ban"></i> Desactivar</button>` : ''}
-                    <button onclick="refillBlock('${dev.serie}','${dev.device_id}')" class="device-btn"><i class="fas fa-plus"></i> Reservar números</button>
-                    <button onclick="viewBlockStatus('${dev.serie}')" class="device-btn"><i class="fas fa-info-circle"></i> Ver bloques</button>
+                    ${isThis ? `<button onclick="registerThisDevice()" class="device-btn"><i class="fas fa-pen"></i> Corregir número</button>` : ''}
                 </div>
             </div>`;
         }
@@ -749,33 +748,135 @@ async function loadDevices() {
     } catch (e) { document.getElementById('deviceList').innerHTML = '<div style="font-size:0.72rem;color:var(--text3);padding:8px">No se pudieron cargar los dispositivos</div>'; }
 }
 
+// El identificador del equipo lo manda OfflineDB: es el mismo que usa el
+// POS para emitir sin internet. Antes esta pantalla se inventaba uno propio
+// en localStorage, así que registraba un equipo distinto del que vendía.
 async function _getCurrentDeviceId() {
+    if (typeof OfflineDB !== 'undefined' && OfflineDB.meta?.getDeviceId) {
+        try {
+            await _asegurarOfflineDB();
+            return await OfflineDB.meta.getDeviceId();
+        } catch (e) {
+            console.warn('[Dispositivos] OfflineDB no disponible:', e);
+        }
+    }
     let id = localStorage.getItem('device_id');
     if (!id) { id = 'DEV-' + crypto.randomUUID().split('-')[0].toUpperCase(); localStorage.setItem('device_id', id); }
     return id;
 }
 
+async function _asegurarOfflineDB() {
+    if (typeof OfflineDB === 'undefined') throw new Error('OfflineDB no cargado');
+    if (OfflineDB.isReady && OfflineDB.isReady()) return;
+    const storeId = localStorage.getItem('store_id');
+    if (!storeId) throw new Error('Sin tienda en sesión');
+    await OfflineDB.init(storeId, localStorage.getItem('store_name') || 'Tienda');
+}
+
+/**
+ * Preparar este equipo para emitir sin internet.
+ *
+ * Pregunta al servidor por dónde va la serie y se lo propone al usuario,
+ * pero el que decide es él: si el equipo anterior emitió sin conexión y
+ * se malogró antes de sincronizar, esos comprobantes existen en papel y
+ * el servidor no los vio nunca. El dato bueno está en el último
+ * comprobante impreso.
+ */
 async function registerThisDevice() {
-    const deviceId = await _getCurrentDeviceId();
-    const name = prompt('Nombre de este dispositivo (ej: "PC Caja", "Celular Juan"):');
-    if (!name) return;
+    if (typeof OfflineBilling === 'undefined') {
+        showToast('No se pudo cargar el módulo de facturación sin internet', 'err');
+        return;
+    }
+    if (!navigator.onLine) {
+        showToast('Para preparar el equipo hace falta internet una primera vez', 'err');
+        return;
+    }
+
     try {
-        const token = localStorage.getItem('access_token');
-        const resp = await fetch('/api/v1/billing/offline/device/register', {
-            method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ device_id: deviceId, device_name: name, tipo:'03' })
-        });
-        const data = await resp.json();
-        if (resp.ok) {
-            showToast(`✅ Registrado: serie ${data.serie}`, 'ok');
-            const blockResp = await fetch('/api/v1/billing/offline/reserve-block', {
-                method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ serie: data.serie, device_id: deviceId, cantidad: 50 })
-            });
-            if (blockResp.ok) { const block = await blockResp.json(); showToast(`📦 ${block.cantidad} números reservados`, 'ok'); }
+        await _asegurarOfflineDB();
+        const estado = await OfflineBilling.consultarServidor('03');
+        _modalUltimoNumero(estado);
+    } catch (e) {
+        showToast(e.message || 'No se pudo consultar la serie', 'err');
+    }
+}
+
+/**
+ * Modal que pide el último número emitido.
+ *
+ * Nunca menciona al proveedor de facturación: el dueño de la bodega no
+ * sabe qué es ni tiene por qué. Se le habla de lo que sí tiene a mano —
+ * su último comprobante, o el portal de SUNAT.
+ */
+function _modalUltimoNumero(estado) {
+    const esNuevo = !estado.device_registrado;
+    const sugerido = estado.ultimo_servidor;
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;' +
+                          'display:flex;align-items:center;justify-content:center;padding:20px';
+    modal.innerHTML = `
+      <div style="background:var(--bg2);border-radius:14px;padding:20px;max-width:400px;width:100%">
+        <div style="font-size:0.9rem;font-weight:800;margin-bottom:6px">
+          ${esNuevo ? 'Equipo nuevo detectado' : 'Actualizar número de comprobante'}
+        </div>
+        <div style="font-size:0.72rem;color:var(--text3);line-height:1.55;margin-bottom:14px">
+          Ingresa el <strong>último número de comprobante que emitiste</strong>.
+          Lo ves en tu último comprobante impreso, o en el portal de SUNAT.
+          Desde ahí seguirá la numeración cuando vendas sin internet.
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-family:monospace;font-size:0.95rem;font-weight:700;color:var(--orange)">
+            ${_esc(estado.serie)}-
+          </span>
+          <input type="number" id="inp-ultimo" value="${sugerido}" min="0" step="1"
+                 style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border2);
+                        border-radius:8px;color:var(--text);font-size:1rem;font-family:monospace">
+        </div>
+
+        <div style="font-size:0.65rem;color:var(--text3);line-height:1.5;margin-bottom:14px">
+          Según nuestros registros vas por el
+          <strong>${_esc(estado.serie)}-${String(sugerido).padStart(8,'0')}</strong>
+          (${_esc(estado.fuente)}). Corrígelo si tu último comprobante dice otro.
+        </div>
+
+        <div id="err-ultimo" style="display:none;font-size:0.7rem;color:var(--red);margin-bottom:10px"></div>
+
+        <div style="display:flex;gap:8px">
+          <button id="btn-cancelar-ultimo" class="device-btn" style="flex:1">Cancelar</button>
+          <button id="btn-confirmar-ultimo" class="device-btn"
+                  style="flex:1;background:var(--green);color:#fff;border-color:var(--green)">
+            Confirmar
+          </button>
+        </div>
+      </div>`;
+
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+
+    modal.querySelector('#btn-cancelar-ultimo').onclick = () => modal.remove();
+    modal.querySelector('#btn-confirmar-ultimo').onclick = async () => {
+        const valor = parseInt(modal.querySelector('#inp-ultimo').value, 10);
+        const err = modal.querySelector('#err-ultimo');
+
+        if (!Number.isInteger(valor) || valor < 0) {
+            err.textContent = 'Escribe el número de tu último comprobante.';
+            err.style.display = 'block';
+            return;
+        }
+
+        try {
+            const nombre = localStorage.getItem('store_name') || 'Equipo';
+            const r = await OfflineBilling.confirmarUltimo(valor, nombre, '03');
+            modal.remove();
+            showToast(r.message, 'ok');
             loadDevices();
-        } else { showToast(data.detail || 'Error al registrar', 'err'); }
-    } catch (e) { showToast('Error de conexión', 'err'); }
+        } catch (e) {
+            err.textContent = e.message || 'No se pudo confirmar.';
+            err.style.display = 'block';
+        }
+    };
 }
 
 async function revokeDevice(deviceId, deviceName) {
@@ -788,48 +889,13 @@ async function revokeDevice(deviceId, deviceName) {
     } catch (e) { showToast('Error de conexión', 'err'); }
 }
 
-async function refillBlock(serie, deviceId) {
-    try {
-        const token = localStorage.getItem('access_token');
-        const resp = await fetch('/api/v1/billing/offline/reserve-block', {
-            method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ serie, device_id: deviceId, cantidad: 50 })
-        });
-        if (resp.ok) { const data = await resp.json(); showToast(`📦 +${data.cantidad} números`, 'ok'); loadDevices(); }
-        else { const err = await resp.json().catch(()=>({})); showToast(err.detail || 'Error', 'err'); }
-    } catch (e) { showToast('Error de conexión', 'err'); }
-}
-
-async function viewBlockStatus(serie) {
-    try {
-        const token = localStorage.getItem('access_token');
-        const resp = await fetch(`/api/v1/billing/offline/block-status/${serie}`, { headers:{ 'Authorization': `Bearer ${token}` } });
-        if (!resp.ok) { showToast('Error cargando bloques', 'err'); return; }
-        const data = await resp.json();
-        let html = `<div style="font-size:0.72rem;font-weight:700;margin-bottom:8px">Bloques de ${serie}</div>`;
-        if (!data.bloques?.length) { html += '<div style="font-size:0.7rem;color:var(--text3)">Sin bloques reservados</div>'; }
-        else {
-            for (const b of data.bloques) {
-                const pct = b.restantes > 0 ? Math.round((1 - b.restantes / (b.hasta - b.desde + 1)) * 100) : 100;
-                const color = b.restantes < 5 ? 'var(--red)' : b.restantes < 15 ? 'var(--orange)' : 'var(--green)';
-                html += `<div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;border:1px solid var(--border)">
-                    <div style="display:flex;justify-content:space-between;font-size:0.7rem">
-                        <span>${String(b.desde).padStart(8,'0')} — ${String(b.hasta).padStart(8,'0')}</span>
-                        <span style="color:${color};font-weight:700">${b.restantes} restantes</span>
-                    </div>
-                    <div style="height:4px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden">
-                        <div style="height:100%;width:${pct}%;background:${color};border-radius:2px"></div>
-                    </div>
-                </div>`;
-            }
-        }
-        const modal = document.createElement('div');
-        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px';
-        modal.innerHTML = `<div style="background:var(--bg2);border-radius:14px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto">${html}<button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:0.75rem;cursor:pointer;font-family:var(--font)">Cerrar</button></div>`;
-        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        document.body.appendChild(modal);
-    } catch (e) { showToast('Error de conexión', 'err'); }
-}
+// refillBlock() y viewBlockStatus() se retiraron con el modelo de bloques.
+//
+// Mostraban "N restantes" a partir de usado_hasta, un campo que nunca se
+// actualizaba: los siete bloques de la tienda de pruebas decían todos
+// "49 restantes" sin importar cuánto se hubiera emitido. Ya no se
+// reservan rangos; lo que el dueño necesita ver es el último número
+// emitido, que ahora sale en la tarjeta del equipo.
 
 async function revokeAllDevices() {
     if (!confirm('⚠️ ¿DESACTIVAR TODOS los dispositivos excepto este?\n\nTodos los vendedores perderán acceso.')) return;
@@ -849,13 +915,12 @@ async function revokeAllDevices() {
     } catch (e) { showToast('Error', 'err'); }
 }
 
-async function generateEmergencyCode() {
-    const code = Math.random().toString(36).substring(2,8).toUpperCase();
-    const el = document.getElementById('emergencyResult');
-    el.style.display = 'block';
-    el.innerHTML = `<div style="background:var(--bg);border:1.5px solid var(--gold);border-radius:8px;padding:12px;text-align:center"><div style="font-size:0.6rem;color:var(--text3);margin-bottom:4px">Código de emergencia (30 min)</div><div style="font-family:monospace;font-size:1.4rem;font-weight:800;color:var(--gold);letter-spacing:3px">${code}</div><div style="font-size:0.6rem;color:var(--text3);margin-top:4px">Usa este código en quevendi.pro/emergency</div></div>`;
-    showToast('Código generado. Válido por 30 minutos.', 'ok');
-}
+// El "código de emergencia" se retiró.
+//
+// Generaba una cadena con Math.random(), la mostraba en pantalla y decía
+// "úsalo en quevendi.pro/emergency". Nunca llamaba al servidor, no se
+// guardaba en ninguna tabla y esa ruta no existe. Es decir: al dueño que
+// se quedaba sin acceso se le daba un código que no abría nada.
 
 function showPlanUpgrade() { showToast('Contacta a tu vendedor para mejorar de plan', 'ok2'); }
 

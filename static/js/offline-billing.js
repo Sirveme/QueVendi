@@ -2,14 +2,32 @@
  * QueVendi — Offline Billing Module
  * ===================================
  * Genera comprobantes electrónicos REALES sin internet.
- * 
+ *
+ * POR QUÉ
+ * -------
+ * En la Amazonía y el peri-rural el internet se corta. SUNAT da 7 días
+ * para regularizar en zonas de baja interconexión, así que el vendedor
+ * puede entregar el comprobante en el momento y el sistema ponerse al
+ * día después. Lo que no puede es quedarse sin vender.
+ *
+ * MODELO
+ * ------
+ * El comprobante se emite con la MISMA serie de siempre — la que el
+ * cliente ya tiene declarada y aparece en todos sus comprobantes. Lo
+ * único que cambia es de dónde sale el número:
+ *
+ *   con internet   lo asigna el servidor
+ *   sin internet   el último que emitió este equipo, +1
+ *
+ * La serie pertenece a un solo equipo a la vez, así que no hay dos
+ * fuentes compitiendo por el mismo número.
+ *
  * Flujo:
- *   1. Owner registra dispositivo → recibe serie (B001)
- *   2. Reserva bloque de correlativos (B001: 1-50)
- *   3. Al vender offline, toma siguiente número de IndexedDB
- *   4. Genera ticket HTML completo con QR → imprime directo
- *   5. Encola comprobante para envío a Facturalo/SUNAT cuando haya internet
- * 
+ *   1. El equipo confirma con qué número va (confirmarUltimo)
+ *   2. Al vender sin internet, toma el siguiente de IndexedDB
+ *   3. Genera el ticket con QR → imprime con su número REAL
+ *   4. Lo encola para regularizar ante SUNAT al reconectar
+ *
  * Dependencias:
  *   - OfflineDB (offline-db.js) — para correlatives store
  *   - OfflineSync (offline-sync.js) — para detectar conectividad
@@ -69,10 +87,7 @@ const OfflineBilling = (() => {
 
         // Cargar serie asignada (si existe)
         const savedSerie = await OfflineDB.meta.get('billing_serie_boleta');
-        if (savedSerie) {
-            _config.serie_boleta = savedSerie.value;
-            _registered = true;
-        }
+        if (savedSerie) _config.serie_boleta = savedSerie.value;
 
         const savedSerieF = await OfflineDB.meta.get('billing_serie_factura');
         if (savedSerieF) _config.serie_factura = savedSerieF.value;
@@ -81,12 +96,90 @@ const OfflineBilling = (() => {
         const savedIgv = await OfflineDB.meta.get('billing_tipo_afectacion');
         if (savedIgv) _config.tipo_afectacion_igv = savedIgv.value;
 
+        // Listo para emitir sin internet sólo si sabe DOS cosas: con qué
+        // serie y desde qué número. Con una sola no alcanza — inventar el
+        // número sería repetir o saltar correlativos.
+        _registered = !!(_config.serie_boleta &&
+                         (await OfflineDB.correlatives.getUltimo(_config.serie_boleta)) !== null);
+
         _initialized = true;
 
-        // Verificar si necesitamos más correlativos
-        await _checkAndRefillBlock();
+        console.log(`[OfflineBilling] ✅ Listo. Serie: ${_config.serie_boleta || 'SIN SERIE'}, ` +
+                    `Device: ${_config.device_id}, puede emitir offline: ${_registered}`);
+    }
 
-        console.log(`[OfflineBilling] ✅ Listo. Serie: ${_config.serie_boleta || 'NO REGISTRADO'}, Device: ${_config.device_id}`);
+    // ============================================
+    // ESTADO DE LA SERIE EN EL SERVIDOR
+    // ============================================
+
+    /**
+     * Pregunta al servidor qué serie usa la tienda y por qué número va.
+     *
+     * Se usa para dos cosas: para saber si este equipo ya está habilitado,
+     * y para sugerir un número cuando no lo está. Requiere internet.
+     */
+    async function consultarServidor(tipo = '03') {
+        if (!_initialized) await init();
+
+        const token = _getToken();
+        if (!token) throw new Error('No autenticado');
+
+        const url = `${_config.apiBase}/billing/offline/device/serie-estado` +
+                    `?device_id=${encodeURIComponent(_config.device_id)}&tipo=${tipo}`;
+        const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || `Error ${resp.status}`);
+        }
+        return resp.json();
+    }
+
+    /**
+     * El usuario confirma desde qué número sigue este equipo.
+     *
+     * Es lo que habilita la emisión sin internet. Guarda la serie y el
+     * último número en el propio equipo, que es de donde saldrán los
+     * números cuando no haya red.
+     */
+    async function confirmarUltimo(ultimoNumero, deviceName = '', tipo = '03') {
+        if (!_initialized) await init();
+
+        const token = _getToken();
+        if (!token) throw new Error('No autenticado');
+
+        const resp = await fetch(`${_config.apiBase}/billing/offline/device/confirmar-ultimo`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+                device_id: _config.device_id,
+                device_name: deviceName || `Equipo ${_config.device_id}`,
+                tipo: tipo,
+                ultimo_numero: ultimoNumero
+            })
+        });
+
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || `Error ${resp.status}`);
+        }
+
+        const data = await resp.json();
+
+        // ── La mitad que faltaba: dejarlo también en el equipo ──
+        // La pantalla de Ajustes escribía esto sólo en el servidor, así que
+        // el equipo se quedaba sin saber su serie ni su número y no podía
+        // emitir una sola boleta sin internet.
+        const claveSerie = tipo === '01' ? 'billing_serie_factura' : 'billing_serie_boleta';
+        await OfflineDB.meta.set(claveSerie, data.serie);
+        await OfflineDB.correlatives.setUltimo(data.serie, data.ultimo_numero);
+
+        if (tipo === '01') _config.serie_factura = data.serie;
+        else _config.serie_boleta = data.serie;
+
+        _registered = true;
+        console.log(`[OfflineBilling] ✅ Equipo habilitado: ${data.serie}, sigue en ${data.siguiente}`);
+        return data;
     }
 
     function _loadEmisorData() {
@@ -99,109 +192,24 @@ const OfflineBilling = (() => {
     }
 
     // ============================================
-    // REGISTRO DE DISPOSITIVO
+    // MODELO ANTERIOR: BLOQUES RESERVADOS (retirado)
     // ============================================
-
-    /**
-     * Registrar este dispositivo con el servidor.
-     * Requiere internet. El owner lo hace una vez.
-     * @param {string} deviceName - Nombre descriptivo ("Celular Juan", "Caja 1")
-     */
-    async function registerDevice(deviceName = '') {
-        const token = _getToken();
-        if (!token) throw new Error('No autenticado');
-
-        const resp = await fetch(`${_config.apiBase}/billing/offline/device/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({
-                device_id: _config.device_id,
-                device_name: deviceName || `Dispositivo ${_config.device_id}`,
-                tipo: '03'  // Boleta por defecto
-            })
-        });
-
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            throw new Error(err.detail || `Error ${resp.status}`);
-        }
-
-        const data = await resp.json();
-        _config.serie_boleta = data.serie;
-        _registered = true;
-
-        // Guardar en IndexedDB
-        await OfflineDB.meta.set('billing_serie_boleta', data.serie);
-        await OfflineDB.meta.set('billing_device_name', deviceName);
-
-        // Reservar primer bloque
-        await reserveBlock(data.serie);
-
-        console.log(`[OfflineBilling] ✅ Registrado: ${data.serie}`);
-        return data;
-    }
-
-    // ============================================
-    // RESERVAR BLOQUE DE CORRELATIVOS
-    // ============================================
-
-    /**
-     * Pedir un bloque de números al servidor.
-     * Se guardan en IndexedDB para uso offline.
-     */
-    async function reserveBlock(serie = null, cantidad = 50) {
-        serie = serie || _config.serie_boleta;
-        if (!serie) throw new Error('Sin serie asignada. Registra el dispositivo primero.');
-
-        const token = _getToken();
-        if (!token) throw new Error('No autenticado');
-
-        const resp = await fetch(`${_config.apiBase}/billing/offline/reserve-block`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({
-                serie: serie,
-                device_id: _config.device_id,
-                cantidad: cantidad
-            })
-        });
-
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            throw new Error(err.detail || `Error ${resp.status}`);
-        }
-
-        const data = await resp.json();
-
-        // Guardar bloque en IndexedDB
-        await OfflineDB.correlatives.saveBlock(serie, data.desde, data.hasta);
-
-        console.log(`[OfflineBilling] 📦 Bloque: ${serie} ${data.desde}-${data.hasta} (${data.cantidad} números)`);
-        return data;
-    }
-
-    /**
-     * Verificar si quedan suficientes correlativos y pedir más si necesario
-     */
-    async function _checkAndRefillBlock() {
-        if (!_config.serie_boleta || !_registered) return;
-
-        const remaining = await OfflineDB.correlatives.getRemaining(_config.serie_boleta);
-
-        if (remaining < _config.min_remaining) {
-            // Intentar pedir más si hay internet
-            const online = typeof OfflineSync !== 'undefined' ? OfflineSync.isOnline() : navigator.onLine;
-            if (online) {
-                try {
-                    await reserveBlock(_config.serie_boleta);
-                } catch (e) {
-                    console.warn(`[OfflineBilling] No se pudo refill: ${e.message}`);
-                }
-            } else {
-                console.warn(`[OfflineBilling] ⚠️ Quedan ${remaining} correlativos y no hay internet`);
-            }
-        }
-    }
+    //
+    // Aquí vivían registerDevice(), reserveBlock() y _checkAndRefillBlock().
+    // Reservaban por adelantado un rango de correlativos (B001 65-114, etc.)
+    // sobre una serie NUEVA inventada por dispositivo.
+    //
+    // Se retiraron por dos motivos:
+    //
+    //   1. La serie inventada (B001, B002...) no está declarada ante SUNAT
+    //      para el RUC del cliente. Lo correcto es emitir con la serie de
+    //      siempre, la que ya figura en todos sus comprobantes.
+    //   2. Un bloque se agota. Al vendedor de una zona con cortes de luz
+    //      eso lo deja sin poder emitir justo cuando más lo necesita.
+    //
+    // El modelo actual es más simple: la serie es de un solo equipo, así
+    // que basta con recordar el último número emitido y seguir desde ahí.
+    // Lo reemplazan consultarServidor() y confirmarUltimo(), arriba.
 
     // ============================================
     // EMISIÓN LOCAL (OFFLINE)
@@ -223,13 +231,19 @@ const OfflineBilling = (() => {
             throw new Error('Dispositivo no registrado. Configura facturación offline en Ajustes.');
         }
 
-        // 1. Obtener siguiente número
-        const next = await OfflineDB.correlatives.getNext(serie);
-        if (!next) {
-            throw new Error(`Sin números disponibles para ${serie}. Conéctate a internet para reservar más.`);
+        // 1. Siguiente número, del contador de este equipo.
+        //
+        // Si devuelve null es que el equipo todavía no sabe por dónde va
+        // la serie. No se adivina: se le pide al usuario que confirme el
+        // último número que emitió (lo tiene en su último comprobante).
+        const correlativo = await OfflineDB.correlatives.siguiente(serie);
+        if (correlativo === null) {
+            throw new Error(
+                `Este equipo todavía no sabe por qué número va la serie ${serie}. ` +
+                `Confirma tu último número de comprobante para poder emitir sin internet.`
+            );
         }
 
-        const { correlativo } = next;
         const numero_formato = `${serie}-${String(correlativo).zfill(8)}`;
 
         // 2. Datos del comprobante
@@ -289,11 +303,8 @@ const OfflineBilling = (() => {
         // 6. Imprimir
         _printHtml(ticketHtml);
 
-        // 7. Encolar para sync con Facturalo/SUNAT
+        // 7. Encolar para regularizar ante SUNAT al volver el internet
         await _queueForSync(comprobante, saleData);
-
-        // 8. Verificar si necesitamos más correlativos
-        await _checkAndRefillBlock();
 
         console.log(`[OfflineBilling] ✅ Emitido: ${numero_formato} (S/ ${total.toFixed(2)})`);
 
@@ -539,6 +550,17 @@ ${comp.es_amazonia ? `
             const remaining = queue.filter(c => !exitosos.has(`${c.serie}-${c.numero}`));
             await OfflineDB.meta.set('billing_sync_queue', remaining);
 
+            // Dejar el contador local al día con lo que acaba de subir.
+            // No baja nunca: si algo quedó sin sincronizar, el número local
+            // sigue siendo el bueno y el servidor se pondrá al día después.
+            for (const c of queue) {
+                if (!exitosos.has(`${c.serie}-${c.numero}`)) continue;
+                const actual = await OfflineDB.correlatives.getUltimo(c.serie);
+                if (actual === null || c.numero > actual) {
+                    await OfflineDB.correlatives.setUltimo(c.serie, c.numero);
+                }
+            }
+
             console.log(`[OfflineBilling] Sync: ${result.exitosos} OK, ${result.fallidos} errores`);
             return { synced: result.exitosos, errors: result.fallidos };
 
@@ -551,6 +573,12 @@ ${comp.es_amazonia ? `
     // ============================================
     // HELPERS
     // ============================================
+
+    /** Cuántos comprobantes emitidos sin internet faltan regularizar. */
+    async function pendientes() {
+        const q = await OfflineDB.meta.get('billing_sync_queue');
+        return (q?.value || []).length;
+    }
 
     function _getToken() {
         if (typeof getAuthToken === 'function') return getAuthToken();
@@ -649,10 +677,11 @@ ${comp.es_amazonia ? `
 
     return {
         init,
-        registerDevice,
-        reserveBlock,
+        consultarServidor,
+        confirmarUltimo,
         emitirLocal,
         syncQueue,
+        pendientes,
         getStatus,
         isRegistered,
         getSerie,

@@ -111,7 +111,7 @@ const PushAvisos = (() => {
 
             // El SW puede no estar registrado en esta pantalla todavía.
             let reg = await navigator.serviceWorker.getRegistration();
-            if (!reg) reg = await navigator.serviceWorker.register('/static/sw.js');
+            if (!reg) reg = await navigator.serviceWorker.register('/sw.js');
             await navigator.serviceWorker.ready;
 
             let sub = await reg.pushManager.getSubscription();

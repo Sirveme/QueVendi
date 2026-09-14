@@ -82,11 +82,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await OfflineDB.init(storeId, storeName);
             await OfflineSync.init();
+
+            // Facturación sin internet. Hasta ahora nadie lo inicializaba,
+            // así que el equipo nunca llegaba a saber su serie ni su número
+            // por más que el dueño lo hubiera configurado en Ajustes.
+            if (typeof OfflineBilling !== 'undefined') {
+                await OfflineBilling.init();
+            }
+
             console.log('[Offline] ✅ Sistema offline listo');
             if (navigator.onLine) {
                 OfflineDB.products.syncFromServer(getAuthToken(), CONFIG.apiBase)
                     .then(r => console.log('[Offline] Catálogo:', r))
                     .catch(e => console.warn('[Offline] Sin sync:', e));
+
+                // Subir lo que se haya emitido sin internet
+                _regularizarComprobantesOffline();
             }
         } catch (offlineError) {
             console.warn('[Offline] No se pudo inicializar:', offlineError);
@@ -777,16 +788,20 @@ async function cargarSugerenciasDesktop() {
     container.style.display = 'block';
 
     grid.innerHTML = lista.map(p => {
-        const color = _categoryColor(p.category);
-        const stockTxt = p.stock % 1 === 0 ? p.stock : p.stock.toFixed(2);
+        const stock = parseFloat(p.stock) || 0;
+        const stockTxt = stock % 1 === 0 ? stock : stock.toFixed(2);
+        // Queda poco: es lo único que merece romper la uniformidad de la
+        // rejilla. Antes cada tarjeta llevaba el color de su categoría y
+        // el ámbar se perdía entre los demás.
+        const escaso = stock > 0 && stock <= 3;
         return `
         <div class="suggestion-card"
-             style="--cat-color: ${color}"
              onclick="_addSuggestionToCart(${p.id})"
              title="${p.name}${p.category ? ' · ' + p.category : ''}">
             <div class="s-name">${p.name}</div>
             <div class="s-price">S/ ${p.sale_price.toFixed(2)}</div>
-            <div class="s-stock">Stock: ${stockTxt}</div>
+            <div class="s-stock${escaso ? ' bajo' : ''}">${
+                escaso ? 'Quedan ' + stockTxt : 'Stock: ' + stockTxt}</div>
         </div>`;
     }).join('');
 }
@@ -1517,49 +1532,115 @@ async function searchAndAdd(productName) {
 
 let searchTimeout = null;
 
+/**
+ * Busca productos, con o sin internet.
+ *
+ * Es el único punto que resuelve "dame productos que coincidan con esto".
+ * Lo usan el buscador escrito y el de voz, para que los dos se comporten
+ * igual cuando se cae la red.
+ *
+ * El catálogo local lo mantiene OfflineDB: se sincroniza al abrir el POS
+ * y vive en IndexedDB, así que sobrevive sin internet y sin sesión nueva.
+ *
+ * @returns {Promise<{productos: Array, origen: 'red'|'local'}>}
+ */
+async function buscarProductos(query, limit = 20) {
+    const buscarLocal = async () => {
+        if (typeof OfflineDB === 'undefined' || !OfflineDB.products?.search) return [];
+        try {
+            return await OfflineDB.products.search(query, limit) || [];
+        } catch (e) {
+            console.warn('[Buscar] El catálogo local no respondió:', e);
+            return [];
+        }
+    };
+
+    // Sin red declarada, ni se intenta: se ahorra el timeout del fetch,
+    // que en un celular con señal intermitente son varios segundos en los
+    // que el vendedor está mirando la pantalla sin nada.
+    if (!navigator.onLine) {
+        return { productos: await buscarLocal(), origen: 'local' };
+    }
+
+    try {
+        const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
+            method: 'POST',
+            body: JSON.stringify({ query: query, limit: limit })
+        });
+
+        if (response.ok) {
+            return { productos: await response.json(), origen: 'red' };
+        }
+
+        // El servidor respondió pero con error: eso NO es estar offline,
+        // así que se propaga para que el llamador lo muestre tal cual.
+        const detalle = await response.json().catch(() => ({}));
+        const err = new Error(`HTTP ${response.status}`);
+        err.status = response.status;
+        err.detalle = detalle;
+        throw err;
+
+    } catch (e) {
+        if (e.status) throw e;          // error real del servidor
+        // fetch lanzó: se cayó la red entre medio. Al catálogo local.
+        console.warn('[Buscar] Sin respuesta del servidor, uso catálogo local');
+        return { productos: await buscarLocal(), origen: 'local' };
+    }
+}
+
 function searchProducts(query) {
     clearTimeout(searchTimeout);
-    
+
     const resultsContainer = document.getElementById('search-results');
-    
+
     if (!query || query.length < 2) {
         resultsContainer.style.display = 'none';
         return;
     }
-    
-    searchTimeout = setTimeout(async () => {
-        try {
-            const response = await fetchWithAuth(`${CONFIG.apiBase}/products/search`, {
-                method: 'POST',
-                body: JSON.stringify({ query: query, limit: 20 })
-            });
 
-            if (response.ok) {
-                const products = await response.json();
-                displaySearchResults(products);
-            } else {
-                const errData = await response.json().catch(() => ({}));
-                console.error('[Search] API error:', response.status, errData);
-                const container = document.getElementById('search-results');
-                container.innerHTML = `
-                    <div class="search-result-item" style="color: #f87171;">
-                        <span>Error al buscar (${response.status}). Reintenta.</span>
-                    </div>
-                `;
-                container.style.display = 'block';
+    searchTimeout = setTimeout(async () => {
+        const container = document.getElementById('search-results');
+        try {
+            const { productos, origen } = await buscarProductos(query, 20);
+
+            if (origen === 'local') {
+                // Aviso honesto. El mensaje anterior decía "Verifica tu
+                // sesión", que era falso: el token sigue en localStorage y
+                // sigue siendo válido. Lo que falta es internet, y el
+                // vendedor tiene que saber que lo que ve es el catálogo
+                // guardado (precios y stock de la última sincronización).
+                avisarCatalogoGuardado(productos.length);
             }
+
+            displaySearchResults(productos);
+
         } catch (error) {
-            console.error('[Search] Error:', error);
-            const container = document.getElementById('search-results');
+            console.error('[Search] El servidor respondió con error:', error.status, error.detalle);
             container.innerHTML = `
                 <div class="search-result-item" style="color: #f87171;">
-                    <span>Error de conexion. Verifica tu sesion.</span>
+                    <span>El servidor no pudo buscar (error ${error.status}). Reintenta.</span>
                 </div>
             `;
             container.style.display = 'block';
         }
     }, 300);
 }
+
+/**
+ * Avisa que los resultados salen del catálogo guardado, no del servidor.
+ * Se muestra una vez por racha sin internet para no volverse ruido.
+ */
+let _avisoOfflineMostrado = false;
+function avisarCatalogoGuardado(cuantos) {
+    if (_avisoOfflineMostrado) return;
+    _avisoOfflineMostrado = true;
+
+    const msg = cuantos > 0
+        ? 'Sin internet — mostrando productos guardados'
+        : 'Sin internet y el catálogo guardado está vacío';
+    if (typeof showToast === 'function') showToast(msg, 'warning');
+}
+window.addEventListener('online', () => { _avisoOfflineMostrado = false; });
 
 function displaySearchResults(products) {
     const container = document.getElementById('search-results');
@@ -2496,25 +2577,14 @@ async function searchProductByVoice(query, quantity = 1, autoSelectFirst = false
     console.log('[Voice] Buscando:', query, 'cantidad:', quantity);
     
     try {
-        const response = await fetch(`${CONFIG.apiBase}/products/search`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            },
-            body: JSON.stringify({ 
-                query: query,
-                limit: 20
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Error en búsqueda');
-        }
-        
-        const products = await response.json();
-        console.log('[Voice] Productos encontrados:', products.length);
-        
+        // Mismo resolvedor que el buscador escrito: si no hay internet,
+        // responde desde el catálogo guardado en vez de fallar. Antes esto
+        // tenía su propio fetch y por eso offline no se podía ni dictar.
+        const { productos: products, origen } = await buscarProductos(query, 20);
+        if (origen === 'local') avisarCatalogoGuardado(products.length);
+
+        console.log('[Voice] Productos encontrados:', products.length, `(${origen})`);
+
         if (products.length === 0) {
             showToast(`❌ No encontré "${query}"`, 'warning');
             speak(`No encontré ${query}`);
@@ -3896,11 +3966,41 @@ async function _emitirBoletaConCliente(saleId, formato) {
     if (modal) modal.style.display = 'none';
 
     const tipoLabel = formato === 'TICKET' ? 'Ticket' : 'Boleta';
-    showToast(`Emitiendo ${tipoLabel}...`, 'info');
 
     // ✅ Leer datos de pago guardados ANTES del reset
     const pago = window._lastSalePayment || { method: 'efectivo', isCredit: false, creditDays: 0 };
     console.log('[emitirBoleta] Datos de pago:', pago);
+
+    // ── Sin internet: se emite en el propio equipo ──
+    //
+    // El camino de abajo necesita un sale_id que sólo existe en el
+    // servidor, así que sin red no sirve. Pero el vendedor igual tiene
+    // que poder entregar el comprobante: SUNAT da 7 días para
+    // regularizar en zonas de baja interconexión, y esa es exactamente
+    // la situación de los cortes de luz en la Amazonía.
+    if (!navigator.onLine) {
+        return _emitirBoletaSinInternet(
+            { tipoDoc, numDoc, nombre, direccion }, pago, tipoLabel
+        );
+    }
+
+    // Antes de emitir con internet, regularizar lo que se emitió sin él.
+    //
+    // Si quedaran boletas offline sin subir, el servidor no sabría que esos
+    // números ya se entregaron y esta emisión podría repetir uno. Van
+    // primero, y recién después se emite.
+    if (typeof OfflineBilling !== 'undefined') {
+        try {
+            if (await OfflineBilling.pendientes() > 0) {
+                showToast('Enviando primero los comprobantes que quedaron sin internet...', 'info');
+                await OfflineBilling.syncQueue();
+            }
+        } catch (e) {
+            console.warn('[Billing] No se pudo regularizar antes de emitir:', e);
+        }
+    }
+
+    showToast(`Emitiendo ${tipoLabel}...`, 'info');
 
     try {
         const response = await fetchWithAuth(`${CONFIG.apiBase}/billing/emitir`, {
@@ -3939,6 +4039,70 @@ async function _emitirBoletaConCliente(saleId, formato) {
         } else {
             showToast(`Error: ${error.message}`, 'error');
         }
+    }
+}
+
+/**
+ * Emitir la boleta sin internet, con su número real de la serie.
+ *
+ * No es un ticket interno: sale con la misma serie que siempre y el
+ * número que le toca, así que es el comprobante que el cliente se
+ * lleva. Queda encolado y se regulariza ante SUNAT al reconectar.
+ */
+async function _emitirBoletaSinInternet(cliente, pago, tipoLabel) {
+    if (typeof OfflineBilling === 'undefined' || typeof OfflineDB === 'undefined') {
+        showToast('Este equipo no tiene habilitada la emisión sin internet', 'error');
+        return;
+    }
+
+    try {
+        await OfflineBilling.init();
+
+        if (!OfflineBilling.isRegistered()) {
+            // Habilitarlo requiere internet (hay que preguntarle al servidor
+            // por dónde va la serie), así que aquí sólo se puede avisar.
+            showToast(
+                'Para emitir sin internet hay que preparar este equipo una vez, ' +
+                'con conexión: Ajustes → Dispositivos.', 'warning'
+            );
+            return;
+        }
+
+        // La venta se acaba de encolar en este equipo: se toma la última.
+        const ultimas = await OfflineDB.sales.getAll(1);
+        const registro = ultimas && ultimas[0];
+        if (!registro) {
+            showToast('No se encontró la venta para emitir', 'error');
+            return;
+        }
+
+        const venta = registro.data || {};
+        const res = await OfflineBilling.emitirLocal(
+            {
+                items: venta.items || [],
+                total: venta.total,
+                payment_method: pago.method,
+                is_credit: pago.isCredit,
+                local_id: registro.id,
+                verification_code: registro.verification_code,
+            },
+            'boleta',
+            {
+                tipo_doc: cliente.tipoDoc,
+                num_doc: cliente.numDoc,
+                nombre: cliente.nombre,
+                direccion: cliente.direccion || ''
+            }
+        );
+
+        showToast(
+            `${tipoLabel} ${res.numero_formato} emitida — se envía a SUNAT al volver el internet`,
+            'success'
+        );
+
+    } catch (e) {
+        console.error('[BoletaOffline]', e);
+        showToast(e.message || 'No se pudo emitir sin internet', 'error');
     }
 }
 
@@ -4442,6 +4606,26 @@ document.addEventListener('click', (e) => {
         dd.style.display = 'none';
     }
 });
+
+/**
+ * Sube a SUNAT los comprobantes que se emitieron sin internet.
+ *
+ * Corre al abrir el POS y cada vez que vuelve la conexión. El endpoint
+ * es idempotente (UNIQUE por serie+numero), así que reintentar no
+ * duplica nada.
+ */
+async function _regularizarComprobantesOffline() {
+    if (typeof OfflineBilling === 'undefined') return;
+    try {
+        const r = await OfflineBilling.syncQueue();
+        if (r && r.synced > 0) {
+            showToast(`${r.synced} comprobante(s) enviados a SUNAT`, 'success');
+        }
+    } catch (e) {
+        console.warn('[Offline] No se pudo regularizar todavía:', e);
+    }
+}
+window.addEventListener('online', _regularizarComprobantesOffline);
 
 function _updateOnlineDot() {
     const dot = document.getElementById('online-dot');
