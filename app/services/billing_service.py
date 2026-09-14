@@ -15,6 +15,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any, List 
 from decimal import Decimal
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.models.billing import StoreBillingConfig, Comprobante
@@ -173,12 +174,28 @@ class BillingService:
 
         # ✅ FIX v2: Solo guardar si facturalo tuvo éxito
         numero_real = resultado.get("numero", 0)
-        # Verificar si ese número ya existe y buscar el siguiente libre
-        while self.db.query(Comprobante).filter(
-            Comprobante.store_id == self.store_id,
-            Comprobante.serie == serie,
-            Comprobante.numero == numero_real
-        ).first():
+
+        # Buscar el siguiente número libre.
+        #
+        # No basta con mirar `comprobantes`: desde que el equipo emite sin
+        # internet, la misma serie también se consume desde
+        # billing_offline_queue, donde los comprobantes esperan a
+        # regularizarse. Uno de esos ya está impreso y en manos del
+        # cliente, así que pisarlo sería un duplicado ante SUNAT.
+        def _ocupado(n: int) -> bool:
+            if self.db.query(Comprobante).filter(
+                Comprobante.store_id == self.store_id,
+                Comprobante.serie == serie,
+                Comprobante.numero == n
+            ).first():
+                return True
+            return bool(self.db.execute(text("""
+                SELECT 1 FROM billing_offline_queue
+                WHERE store_id = :s AND serie = :serie AND numero = :n
+                LIMIT 1
+            """), {"s": self.store_id, "serie": serie, "n": n}).fetchone())
+
+        while _ocupado(numero_real):
             logger.warning(f"[Billing] Número {serie}-{numero_real} ya existe, saltando...")
             numero_real += 1
         numero_formato_real = f"{serie}-{str(numero_real).zfill(8)}"
