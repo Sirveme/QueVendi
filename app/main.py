@@ -13,7 +13,7 @@ from typing import Optional
 from fastapi import FastAPI, Request, Depends, Cookie, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 
@@ -219,6 +219,32 @@ if STATIC_DIR.exists():
     print(f"📁 Archivos estáticos montados: {STATIC_DIR}")
 else:
     print(f"⚠️ Directorio static/ no encontrado")
+
+
+@app.get("/sw.js", include_in_schema=False)
+async def service_worker():
+    """El service worker, servido desde la RAÍZ.
+
+    Un service worker sólo puede controlar páginas que cuelguen de su
+    propia ruta. Servido en /static/sw.js su alcance es /static/, así que
+    nunca podría interceptar /home ni /dashboard — que son justamente el
+    POS. Con eso la app no abriría sin internet, y Chrome además se niega
+    a ofrecer la instalación cuando el alcance no cubre el start_url.
+
+    Servirlo aquí le da alcance "/" y resuelve las dos cosas. El archivo
+    sigue siendo el mismo static/sw.js; esto es sólo dónde se publica.
+
+    Se manda sin caché para que un service worker nuevo se detecte en el
+    siguiente arranque y no quede uno viejo pegado en el equipo.
+    """
+    return FileResponse(
+        STATIC_DIR / "sw.js",
+        media_type="application/javascript",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Service-Worker-Allowed": "/",
+        },
+    )
 
 
 # ========================================
