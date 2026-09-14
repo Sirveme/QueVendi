@@ -118,6 +118,39 @@ class DeviceInfo(BaseModel):
     ultimo_numero: int
     bloques_activos: int
     registered_at: str
+    ultimo_sync_at: Optional[str] = None
+
+
+class SerieEstadoResponse(BaseModel):
+    """Lo que el servidor sabe de una serie, para arrancar un dispositivo.
+
+    `ultimo_servidor` es una SUGERENCIA, no la verdad: si el equipo
+    anterior emitió sin internet y murió antes de sincronizar, esos
+    números existen en papel y el servidor no los vio nunca. Por eso
+    quien confirma es el usuario, mirando su último comprobante.
+    """
+    serie: str
+    tipo: str
+    ultimo_servidor: int
+    fuente: str                     # de dónde salió ese número
+    device_registrado: bool         # ¿este device_id ya tiene la serie?
+    device_actual: Optional[str] = None   # qué device la tiene hoy
+
+
+class ConfirmarUltimoRequest(BaseModel):
+    device_id: str
+    device_name: str = ""
+    tipo: str = "03"
+    ultimo_numero: int              # el que el usuario confirma haber emitido
+
+
+class ConfirmarUltimoResponse(BaseModel):
+    serie: str
+    tipo: str
+    ultimo_numero: int
+    siguiente: int
+    reemplazo: bool                 # ¿desplazó a otro dispositivo?
+    message: str
 
 
 # ================================================================
@@ -178,6 +211,24 @@ CREATE TABLE IF NOT EXISTS billing_offline_queue (
 
 CREATE INDEX IF NOT EXISTS idx_offline_queue_status
     ON billing_offline_queue(store_id, status);
+
+-- Cuándo se confirmó por última vez el correlativo de este dispositivo.
+-- Es lo que permite decirle al dueño "el servidor sabe hasta el N, visto
+-- el <fecha>" cuando estrena equipo.
+ALTER TABLE billing_devices
+    ADD COLUMN IF NOT EXISTS ultimo_sync_at TIMESTAMP;
+
+-- Una serie pertenece a UN dispositivo, pero sólo entre los ACTIVOS.
+-- El UNIQUE original incluía a los dados de baja, así que un equipo
+-- nuevo no podía heredar la serie de uno que se malogró: la única
+-- salida habría sido borrar el registro anterior y perder el rastro.
+-- Con el índice parcial el histórico se conserva y la garantía que
+-- importa — que dos equipos vivos no compartan serie — se mantiene.
+ALTER TABLE billing_devices
+    DROP CONSTRAINT IF EXISTS billing_devices_store_id_serie_key;
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_billing_devices_serie_activa
+    ON billing_devices(store_id, serie) WHERE is_active;
 """
 
 
@@ -185,11 +236,21 @@ CREATE INDEX IF NOT EXISTS idx_offline_queue_status
 # HELPERS
 # ================================================================
 
+# Se corre una vez por proceso. Sin esto, cada llamada a cualquier
+# endpoint volvía a pedir el ALTER TABLE, que toma un lock exclusivo:
+# con la tabla en uso eso llegó a congelar un módulo entero en producción.
+_migrado = False
+
+
 def _ensure_tables(db: Session):
-    """Crear tablas si no existen (idempotente)"""
+    """Crear tablas y columnas si no existen (idempotente)"""
+    global _migrado
+    if _migrado:
+        return
     try:
         db.execute(text(MIGRATION_SQL))
         db.commit()
+        _migrado = True
     except Exception as e:
         db.rollback()
         logger.warning(f"[OfflineBilling] Migration warning: {e}")
@@ -236,6 +297,69 @@ def _get_ultimo_numero(db: Session, store_id: int, serie: str) -> int:
     """), {"sid": store_id, "serie": serie}).scalar()
 
     return max(result or 0, result2 or 0)
+
+
+def _serie_de_la_tienda(db: Session, store_id: int, tipo: str) -> Optional[str]:
+    """La serie REAL con la que factura la tienda.
+
+    El modelo viejo inventaba una serie nueva por dispositivo (B001,
+    B002...). Eso obligaba a dar de alta series que SUNAT no conoce.
+    El modelo bueno es el contrario: el dispositivo usa la misma serie
+    de siempre — la que ya está declarada y que el cliente ve en todos
+    sus comprobantes — y lo único que cambia es de dónde sale el
+    número: del servidor si hay internet, del propio equipo si no.
+    """
+    fila = db.execute(text("""
+        SELECT serie_boleta, serie_factura
+        FROM store_billing_configs
+        WHERE store_id = :s
+    """), {"s": store_id}).fetchone()
+
+    if not fila:
+        return None
+    return (fila[1] if tipo == "01" else fila[0]) or None
+
+
+def _ultimo_conocido(db: Session, store_id: int, serie: str) -> tuple:
+    """El número más alto que el servidor puede probar para una serie.
+
+    Mira las tres fuentes que pueden tenerlo, y se queda con la mayor:
+
+      comprobantes            emitido en línea, ya confirmado
+      billing_offline_queue   emitido sin red y ya sincronizado
+      billing_devices         lo que el dispositivo declaró por última vez
+
+    Devuelve (numero, fuente). Es una cota INFERIOR de la verdad: si un
+    equipo emitió sin internet y nunca sincronizó, esos números no están
+    en ninguna de las tres. Por eso al estrenar equipo esto se ofrece
+    como sugerencia y decide el usuario.
+    """
+    en_comprobantes = db.execute(text("""
+        SELECT COALESCE(MAX(numero), 0) FROM comprobantes
+        WHERE store_id = :s AND serie = :serie
+    """), {"s": store_id, "serie": serie}).scalar() or 0
+
+    en_cola = db.execute(text("""
+        SELECT COALESCE(MAX(numero), 0) FROM billing_offline_queue
+        WHERE store_id = :s AND serie = :serie
+    """), {"s": store_id, "serie": serie}).scalar() or 0
+
+    en_device = db.execute(text("""
+        SELECT COALESCE(MAX(ultimo_numero), 0) FROM billing_devices
+        WHERE store_id = :s AND serie = :serie
+    """), {"s": store_id, "serie": serie}).scalar() or 0
+
+    mejor = max(en_comprobantes, en_cola, en_device)
+    if mejor == 0:
+        fuente = "sin emisiones registradas"
+    elif mejor == en_comprobantes:
+        fuente = "comprobantes emitidos con internet"
+    elif mejor == en_cola:
+        fuente = "comprobantes emitidos sin internet y ya sincronizados"
+    else:
+        fuente = "lo último que declaró el equipo"
+
+    return mejor, fuente
 
 
 # ================================================================
@@ -322,6 +446,148 @@ async def register_device(
         serie=serie,
         tipo=req.tipo,
         message=f"Serie {serie} asignada. Reserva un bloque de correlativos para facturar offline."
+    )
+
+
+@router.get("/device/serie-estado", response_model=SerieEstadoResponse)
+async def serie_estado(
+    device_id: str,
+    tipo: str = "03",
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Qué serie usa la tienda y por qué número va, según el servidor.
+
+    Lo consulta el equipo al arrancar. Si `device_registrado` es False,
+    el POS tiene que pedirle al usuario que confirme el último número
+    antes de dejarlo emitir sin internet.
+    """
+    _ensure_tables(db)
+    store_id = current_user.store_id
+
+    serie = _serie_de_la_tienda(db, store_id, tipo)
+    if not serie:
+        raise HTTPException(
+            400,
+            "Esta tienda todavía no tiene configurada su serie de facturación."
+        )
+
+    ultimo, fuente = _ultimo_conocido(db, store_id, serie)
+
+    duenio = db.execute(text("""
+        SELECT device_id FROM billing_devices
+        WHERE store_id = :s AND serie = :serie AND is_active = TRUE
+    """), {"s": store_id, "serie": serie}).fetchone()
+
+    return SerieEstadoResponse(
+        serie=serie,
+        tipo=tipo,
+        ultimo_servidor=ultimo,
+        fuente=fuente,
+        device_registrado=bool(duenio and duenio[0] == device_id),
+        device_actual=duenio[0] if duenio else None,
+    )
+
+
+@router.post("/device/confirmar-ultimo", response_model=ConfirmarUltimoResponse)
+async def confirmar_ultimo(
+    req: ConfirmarUltimoRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """El usuario confirma desde qué número sigue este equipo.
+
+    Es el paso de "equipo nuevo". El servidor sugiere lo que sabe, pero
+    quien decide es quien tiene el comprobante en la mano: puede haber
+    boletas emitidas sin internet que nunca llegaron a sincronizarse.
+
+    Sólo se admite avanzar. Retroceder significaría volver a emitir
+    números ya entregados a un cliente, que ante SUNAT es un duplicado.
+    Saltar hacia adelante sí se permite: deja un hueco, que es un
+    problema menor y explicable, y es exactamente lo que pasa cuando el
+    equipo anterior emitió sin sincronizar.
+    """
+    if current_user.role not in ["owner", "admin", "seller"]:
+        raise HTTPException(403, "No autorizado")
+
+    _ensure_tables(db)
+    store_id = current_user.store_id
+
+    serie = _serie_de_la_tienda(db, store_id, req.tipo)
+    if not serie:
+        raise HTTPException(
+            400,
+            "Esta tienda todavía no tiene configurada su serie de facturación."
+        )
+
+    ultimo_conocido, _ = _ultimo_conocido(db, store_id, serie)
+    if req.ultimo_numero < ultimo_conocido:
+        raise HTTPException(
+            400,
+            f"El número {serie}-{str(req.ultimo_numero).zfill(8)} es anterior "
+            f"al último que ya figura emitido ({serie}-{str(ultimo_conocido).zfill(8)}). "
+            f"Si continuáramos desde ahí se repetirían comprobantes ya entregados."
+        )
+
+    # ¿Otro equipo tiene esta serie? Se le da de baja: la serie es de uno
+    # solo a la vez, y el que acaba de confirmar es el que está operando.
+    otro = db.execute(text("""
+        SELECT device_id FROM billing_devices
+        WHERE store_id = :s AND serie = :serie AND is_active = TRUE
+          AND device_id <> :did
+    """), {"s": store_id, "serie": serie, "did": req.device_id}).fetchone()
+
+    reemplazo = bool(otro)
+    if reemplazo:
+        db.execute(text("""
+            UPDATE billing_devices SET is_active = FALSE
+            WHERE store_id = :s AND serie = :serie AND device_id = :did
+        """), {"s": store_id, "serie": serie, "did": otro[0]})
+        logger.info(
+            f"[OfflineBilling] Serie {serie} pasa de {otro[0]} a {req.device_id} "
+            f"(store {store_id})"
+        )
+
+    # Alta o actualización de este equipo.
+    existe = db.execute(text("""
+        SELECT id FROM billing_devices
+        WHERE store_id = :s AND device_id = :did
+    """), {"s": store_id, "did": req.device_id}).fetchone()
+
+    if existe:
+        db.execute(text("""
+            UPDATE billing_devices SET
+                serie = :serie, tipo = :tipo, device_name = :nombre,
+                ultimo_numero = :ultimo, is_active = TRUE, ultimo_sync_at = NOW()
+            WHERE store_id = :s AND device_id = :did
+        """), {
+            "s": store_id, "did": req.device_id, "serie": serie,
+            "tipo": req.tipo, "nombre": req.device_name or "",
+            "ultimo": req.ultimo_numero,
+        })
+    else:
+        db.execute(text("""
+            INSERT INTO billing_devices
+                (store_id, device_id, device_name, serie, tipo,
+                 ultimo_numero, is_active, ultimo_sync_at)
+            VALUES (:s, :did, :nombre, :serie, :tipo, :ultimo, TRUE, NOW())
+        """), {
+            "s": store_id, "did": req.device_id, "nombre": req.device_name or "",
+            "serie": serie, "tipo": req.tipo, "ultimo": req.ultimo_numero,
+        })
+
+    db.commit()
+
+    return ConfirmarUltimoResponse(
+        serie=serie,
+        tipo=req.tipo,
+        ultimo_numero=req.ultimo_numero,
+        siguiente=req.ultimo_numero + 1,
+        reemplazo=reemplazo,
+        message=(
+            f"Este equipo continúa la serie {serie} desde el "
+            f"{serie}-{str(req.ultimo_numero + 1).zfill(8)}."
+        ),
     )
 
 
@@ -497,6 +763,31 @@ async def sync_offline_comprobantes(
                 success=False, error="Sin configuración de facturación"
             ))
             fallidos += 1
+
+    # ── Avanzar el último número que el servidor da por bueno ──
+    #
+    # Hasta ahora esto no existía: el equipo consumía números en su
+    # IndexedDB y el servidor nunca se enteraba. Por eso hace falta —
+    # es el dato que se le sugiere al dueño cuando estrena equipo, y
+    # sin él la sugerencia sería siempre la del último envío con
+    # internet, que puede ser de hace días.
+    #
+    # Se toma el mayor de lo que acaba de llegar, y nunca se baja:
+    # los comprobantes pueden venir desordenados y un reenvío no debe
+    # hacer retroceder el contador.
+    mayor_por_serie = {}
+    for comp in req.comprobantes:
+        if comp.numero > mayor_por_serie.get(comp.serie, 0):
+            mayor_por_serie[comp.serie] = comp.numero
+
+    for serie, numero in mayor_por_serie.items():
+        db.execute(text("""
+            UPDATE billing_devices SET
+                ultimo_numero = GREATEST(ultimo_numero, :num),
+                ultimo_sync_at = NOW()
+            WHERE store_id = :sid AND device_id = :did AND serie = :serie
+        """), {"sid": store_id, "did": req.device_id,
+               "serie": serie, "num": numero})
 
     db.commit()
 
