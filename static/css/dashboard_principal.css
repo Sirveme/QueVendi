@@ -3806,6 +3806,11 @@ body.is-owner .owner-only {
     text-align: center;
     line-height: 1.2;
 }
+/* Instalar la app. Sólo aparece cuando Chrome confirma que es instalable,
+   así que conviene que se note: es la acción que le da al vendedor la app
+   en su pantalla de inicio y el funcionamiento sin internet. */
+.btn-install { color: var(--accent, #10b981) !important; }
+
 .btn-shield { color: #f97316 !important; }
 .btn-shield.alerta-sospecha   { color: #f59e0b !important; }
 .btn-shield.alerta-amenaza    { color: #f97316 !important; }
