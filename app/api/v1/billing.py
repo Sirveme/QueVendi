@@ -7,6 +7,8 @@ FIX 3 (2026-02-27):
 - EmitirComprobanteRequest: nuevos campos payment_method, is_credit, credit_days
 - Endpoint /emitir: pasa datos de pago al BillingService
 """
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse, Response
 from sqlalchemy import text
@@ -20,9 +22,11 @@ from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.models.billing import StoreBillingConfig, Comprobante
 from app.services.billing_service import BillingService
+from app.services import reconciliacion_service as rec
 
 from app.models.store import Store
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/billing", tags=["billing"])
 
 
@@ -58,11 +62,22 @@ def _emitir_simulado(db: Session, current_user: User, request) -> dict:
     else:
         serie = (serie_cfg[0] if serie_cfg else None) or "B001"
 
-    numero = (db.execute(
-        text("""SELECT COALESCE(MAX(numero), 0) + 1 FROM comprobantes
-                WHERE store_id = :s AND serie = :serie"""),
-        {"s": current_user.store_id, "serie": serie}
-    ).scalar()) or 1
+    # El número no puede salir sólo de `comprobantes`.
+    #
+    # Desde que el equipo puede emitir sin internet, la misma serie se
+    # numera desde dos lados: aquí cuando hay red, y en el propio equipo
+    # cuando no la hay. Los comprobantes emitidos sin red viven en
+    # billing_offline_queue hasta que se regularizan, así que mirar sólo
+    # `comprobantes` haría que esta emisión repitiera un número que el
+    # vendedor ya entregó impreso al cliente. Ante SUNAT eso es un
+    # duplicado, que es justo lo que no puede pasar.
+    #
+    # _ultimo_conocido mira las tres fuentes (comprobantes, cola offline
+    # y lo último que declaró el equipo) y devuelve la mayor.
+    from app.routers.billing_offline import _ultimo_conocido
+
+    ultimo, _fuente = _ultimo_conocido(db, current_user.store_id, serie)
+    numero = ultimo + 1
 
     sale = db.execute(
         text("SELECT total FROM sales WHERE id = :id AND store_id = :s"),
@@ -329,7 +344,10 @@ async def emitir_comprobante(
             "comprobante_id": result["comprobante_id"],
             "numero_formato": result["numero_formato"],
             "pdf_url": result["pdf_url"],
-            "message": f"Comprobante {result['numero_formato']} emitido correctamente"
+            # La pantalla necesita el estado real: recién emitido está en
+            # cola, no aceptado. Antes pintaba "Aceptada" siempre.
+            "status": rec.ENVIANDO,
+            "message": f"Comprobante {result['numero_formato']} enviado a SUNAT"
         }
     else:
         # Si la venta ya tenía comprobante, decir cuál: el usuario necesita
@@ -367,6 +385,33 @@ async def emitir_boleta_rapida(
         raise HTTPException(500, f"Error interno al emitir boleta: {str(e)}")
 
 
+@router.get("/comprobantes/estancados")
+async def comprobantes_estancados(
+    horas: int = 2,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Los que llevan demasiado en cola sin veredicto de SUNAT.
+
+    Es el momento en que el dueño puede hacer algo: revisar su cuenta de
+    Facturalo o avisar de que ese comprobante no está firme todavía.
+    """
+    pendientes = rec.comprobantes_estancados(db, current_user.store_id, horas)
+    return {
+        "count": len(pendientes),
+        "horas": horas,
+        "comprobantes": [{
+            "id": c["id"],
+            "numero_formato": f"{c['serie']}-{str(c['numero']).zfill(8)}",
+            "tipo_nombre": "Factura" if c["tipo"] == "01" else "Boleta",
+            "total": float(c["total"]),
+            "emitido": c["created_at"].isoformat() if c["created_at"] else None,
+        } for c in pendientes],
+        "mensaje": (f"{len(pendientes)} comprobante(s) llevan más de {horas}h "
+                    "sin confirmación de SUNAT") if pendientes else None,
+    }
+
+
 @router.get("/comprobantes")
 async def listar_comprobantes(
     limit: int = 50,
@@ -376,6 +421,14 @@ async def listar_comprobantes(
     current_user: User = Depends(get_current_user)
 ):
     """Listar comprobantes emitidos"""
+    # Al abrir la pantalla se confirma lo que siga en vuelo, para que el
+    # dueño vea el estado de ahora y no el de la última pasada del cron.
+    # Si Facturalo no responde, se muestra lo que hay: no se rompe la lista.
+    try:
+        await rec.reconciliar_tienda(db, current_user.store_id, limite=40)
+    except Exception as e:
+        logger.warning(f"[Billing] No se pudo reconciliar al listar: {e}")
+
     service = BillingService(db, current_user.store_id)
     comprobantes = service.listar_comprobantes(limit=limit, offset=offset, tipo=tipo)
 
