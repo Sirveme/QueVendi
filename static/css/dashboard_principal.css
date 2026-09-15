@@ -1406,6 +1406,16 @@ body {
     color: var(--accent-gold);
     font-size: 1.1rem;
     flex-shrink: 0;
+    overflow: hidden;
+}
+/* Cuando el producto tiene foto, ocupa el recuadro entero en lugar del
+   icono genérico de caja. Fondo blanco porque los packshots vienen
+   recortados sobre claro. */
+.search-modal-item-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
 }
 
 .search-modal-item-info {
@@ -4185,6 +4195,23 @@ body.is-owner .owner-only {
     transform: translateY(-1px);
 }
 .suggestion-card:active { transform: translateY(0); }
+
+/* Foto del producto en la tarjeta de sugerencia.
+   Los packshots vienen en cuadrado y sobre fondo claro, así que se les
+   pone un fondo blanco: sobre el tema oscuro, un producto recortado sin
+   fondo queda flotando y se lee peor. */
+.suggestion-card .s-foto {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 7px;
+    margin-bottom: 7px;
+}
+/* Con foto la tarjeta necesita algo menos de relleno: la imagen ya
+   aporta el aire que antes daba el padding. */
+.suggestion-card.con-foto { padding: 8px 8px 10px; }
 
 .suggestion-card .s-name {
     font-size: 12.5px;
