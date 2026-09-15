@@ -164,6 +164,9 @@ const OfflineDB = (() => {
                     image_url: p.image_url || null,
                     allow_fractional: p.allow_fractional || false,
                     min_stock: p.min_stock || 0,
+                    // Unidades vendidas en la última semana. Es lo que ordena
+                    // el bloque de sugerencias rápidas del POS.
+                    sales_count: p.sales_count || 0,
                     active: p.active !== false,
                     updated_at: p.updated_at || serverTime
                 });
