@@ -84,6 +84,15 @@ def barcode_enabled(db: Session, store_id: int) -> bool:
     except Exception as e:
         logger.warning(f"[Barcode] No se pudo leer barcode_enabled: {e}")
         return False
+    finally:
+        # Cerrar la transacción que abrió el SELECT: si queda abierta, la
+        # sesión retiene un lock sobre store_config y puede bloquear el
+        # ALTER TABLE de aquí arriba. Es exactamente lo que tumbó
+        # producción el 13/09/2026 (ver comanda_service.kitchen_enabled).
+        try:
+            db.rollback()
+        except Exception:
+            pass
 
 
 def normalizar(codigo: str) -> str:

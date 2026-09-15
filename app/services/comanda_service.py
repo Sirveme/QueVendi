@@ -237,6 +237,19 @@ def _ensure_tables(db: Session, forzar: bool = False) -> None:
 # FEATURE FLAG
 # ════════════════════════════════════════════════════════════════
 
+def _cerrar_lectura(db: Session) -> None:
+    """Deja la sesión sin transacción abierta tras una lectura suelta.
+
+    Ver el comentario extenso en kitchen_enabled(): una transacción de
+    sólo lectura que queda abierta retiene locks y puede bloquear un
+    ALTER TABLE, y con él la aplicación completa.
+    """
+    try:
+        db.rollback()
+    except Exception:
+        pass
+
+
 def kitchen_enabled(db: Session, store_id: int) -> bool:
     """
     ¿Esta tienda tiene el módulo cocina activado?
@@ -251,6 +264,24 @@ def kitchen_enabled(db: Session, store_id: int) -> bool:
     except Exception as e:
         logger.warning(f"[Cocina] No se pudo leer kitchen_enabled: {e}")
         return False
+    finally:
+        # Cerrar la transacción que abrió el SELECT.
+        #
+        # SQLAlchemy abre una transacción con la primera consulta y la deja
+        # viva hasta el commit, rollback o cierre de la sesión. En una
+        # sesión de vida larga eso queda como 'idle in transaction',
+        # reteniendo un lock sobre store_config.
+        #
+        # El 13/09/2026 eso tumbó producción entera: un ALTER TABLE sobre
+        # store_config (migración del módulo de código de barras, que corre
+        # una vez al arrancar) se puso a esperar detrás de una de estas
+        # lecturas. En PostgreSQL, un ALTER esperando hace que todos los
+        # lectores posteriores se encolen detrás de él, y como estos
+        # endpoints son async con llamadas bloqueantes, se congeló el event
+        # loop: dejó de responder hasta /health.
+        #
+        # No hay nada que deshacer: es sólo una lectura.
+        _cerrar_lectura(db)
 
 
 # Cómo avisa la pantalla de cocina cuando entra un pedido.
@@ -275,6 +306,8 @@ def audio_mode(db: Session, store_id: int) -> str:
     except Exception as e:
         logger.warning(f"[Cocina] No se pudo leer kitchen_audio_mode: {e}")
         return MODO_AUDIO_DEFECTO
+    finally:
+        _cerrar_lectura(db)   # misma razón que en kitchen_enabled()
 
 
 # ════════════════════════════════════════════════════════════════
