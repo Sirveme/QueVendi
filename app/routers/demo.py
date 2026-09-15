@@ -272,13 +272,24 @@ def get_or_create_demo_store(db: Session, niche: str) -> tuple:
     db.flush()
 
     # Crear usuario demo — solo campos del modelo User de SQLAlchemy
+    #
+    # Rol `owner` a propósito. Una demo tiene que dejar probar TODO:
+    # abrir caja, revisar stock, editar productos y precios, ver
+    # reportes. Con rol `seller` el menú se recorta a seis opciones y
+    # el prospecto se lleva la impresión de que el sistema no hace más
+    # que cobrar.
+    #
+    # Esto NO habilita emitir a SUNAT. Ese corte es otro y es por
+    # tienda, no por usuario: /billing/emitir mira `stores.is_demo`
+    # antes que cualquier otra cosa y devuelve un comprobante simulado.
+    # Los permisos de menú y el blindaje fiscal son independientes.
     user = User(
         store_id=store.id,
         dni=cfg["dni"],
         pin_hash=get_pin_hash(DEMO_PIN),
-        full_name=f"Vendedor Demo ({niche.title()})",
+        full_name=f"Demo {niche.title()}",
         username=cfg["user"],
-        role="seller",
+        role="owner",
         is_active=True,
     )
     db.add(user)
