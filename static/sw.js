@@ -23,7 +23,7 @@
 // Hay que subirla siempre que cambie SHELL_ASSETS o las estrategias de abajo,
 // porque es lo único que garantiza que un equipo con la app abierta hace
 // semanas deje de servir el shell viejo.
-const SW_VERSION = 'v3.0.1';
+const SW_VERSION = 'v3.0.2';
 const CACHE_SHELL = `quevendi-shell-${SW_VERSION}`;
 const CACHE_ASSETS = `quevendi-assets-${SW_VERSION}`;
 const CACHE_API = `quevendi-api-${SW_VERSION}`;
@@ -60,7 +60,7 @@ const SHELL_ASSETS = [
     '/static/js/modules/fractional-sales.js',
     '/static/js/modules/cart-animations.js',
     '/static/js/modules/layered-variants.js',
-    '/static/js/offline-db.js?v=20260913a',
+    '/static/js/offline-db.js?v=20260915a',
     '/static/js/offline-sync.js?v=20260913a',
     '/static/js/offline-billing.js?v=20260913a',
     '/static/js/offline-sale.js?v=20260913a',
