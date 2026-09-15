@@ -15,6 +15,7 @@ Ya registrado en main.py:
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -119,6 +120,32 @@ async def get_product_catalog(
 
         logger.info(f"[Catalog] Query OK: {len(products)} productos para store {store_id}")
 
+        # Unidades vendidas en la última semana, por producto.
+        #
+        # El POS pinta un bloque de "sugerencias rápidas" que dice mostrar
+        # lo más vendido, pero hasta ahora ordenaba por `sales_count`, un
+        # campo que no existía en ningún lado: siempre valía 0 y el orden
+        # terminaba cayendo al stock. Con esto el bloque hace lo que su
+        # título promete.
+        #
+        # Una semana y no "hoy" porque una bodega que abre a las 7am
+        # tendría el bloque vacío toda la mañana.
+        ventas_por_producto = {}
+        try:
+            filas = db.execute(text("""
+                SELECT si.product_id, COALESCE(SUM(si.quantity), 0) AS unidades
+                FROM sale_items si
+                JOIN sales v ON v.id = si.sale_id
+                WHERE v.store_id = :sid
+                  AND v.created_at >= NOW() - INTERVAL '7 days'
+                GROUP BY si.product_id
+            """), {"sid": store_id}).fetchall()
+            ventas_por_producto = {f[0]: float(f[1] or 0) for f in filas}
+        except Exception as e:
+            # Sin esto el catálogo sigue sirviendo: se pierde el orden por
+            # ventas, no los productos.
+            logger.warning(f"[Catalog] No se pudo calcular lo más vendido: {e}")
+
         # Serializar
         product_list = []
         for p in products:
@@ -136,6 +163,7 @@ async def get_product_catalog(
                     "allow_fractional": getattr(p, 'allow_fractional', False),
                     "min_stock": getattr(p, 'min_stock_alert', 0) or 0,
                     "active": getattr(p, 'active', True),
+                    "sales_count": ventas_por_producto.get(p.id, 0),
                     "updated_at": p.updated_at.isoformat() if hasattr(p, 'updated_at') and p.updated_at else server_time
                 })
             except Exception as pe:
