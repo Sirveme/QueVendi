@@ -125,6 +125,13 @@ const BarcodeVenta = (() => {
         if (input) input.value = '';
         const res = document.getElementById('search-results');
         if (res) res.style.display = 'none';
+
+        // Cada tecla de la pistola dejó programada una búsqueda con
+        // retardo. Sin esto, al escanear se abría el modal de resultados
+        // encima del carrito, ya con el producto agregado.
+        if (typeof window.cancelarBusquedaPendiente === 'function') {
+            window.cancelarBusquedaPendiente();
+        }
     }
 
     /**
@@ -225,12 +232,28 @@ const BarcodeVenta = (() => {
 
         try {
             estado.escaner = new Html5Qrcode('lector-camara');
-            await estado.escaner.start(
+
+            // Límite de espera.
+            //
+            // Si el usuario DESCARTA el diálogo de permiso (la X o Escape)
+            // en vez de aceptarlo o negarlo, getUserMedia se queda colgado
+            // sin resolver nunca. Sin este corte el modal se quedaba
+            // esperando una respuesta que no iba a llegar.
+            const arranque = estado.escaner.start(
                 { facingMode: 'environment' },
                 { fps: 10, qrbox: { width: 260, height: 160 } },
                 (texto) => { _cerrarEscaner(); resolver(texto); },
                 () => {}    // lecturas fallidas por fotograma: normal
             );
+            await Promise.race([
+                arranque,
+                new Promise((_, rechazar) => {
+                    estado.timeoutCamara = setTimeout(
+                        () => rechazar(new Error('sin respuesta al permiso')), 15000);
+                })
+            ]);
+            clearTimeout(estado.timeoutCamara);
+
         } catch (e) {
             console.warn('[Barcode] Cámara denegada o no disponible:', e);
             _cerrarEscaner();
@@ -250,11 +273,24 @@ const BarcodeVenta = (() => {
 
         m = document.createElement('div');
         m.id = 'modal-escaner';
+        // `overflow:auto` y no `center` a secas: con el video de la cámara
+        // dentro, en una pantalla chica el contenido crecía más que la
+        // ventana y el botón de cancelar quedaba fuera de vista, sin forma
+        // de llegar a él. Ahora se puede desplazar.
         m.style.cssText =
             'position:fixed;inset:0;background:rgba(0,0,0,.92);' +
             'z-index:999999;display:flex;flex-direction:column;' +
-            'align-items:center;justify-content:center;padding:16px';
+            'align-items:center;justify-content:center;padding:16px;' +
+            'overflow:auto';
         m.innerHTML = `
+            <!-- Salida fija arriba a la derecha: no depende de que el
+                 contenido quepa ni de que la cámara llegue a arrancar. -->
+            <button onclick="BarcodeVenta.cerrarEscaner()" aria-label="Cerrar"
+                style="position:fixed;top:12px;right:12px;width:42px;height:42px;
+                       border:none;border-radius:50%;background:rgba(255,255,255,.18);
+                       color:#fff;font-size:20px;line-height:1;cursor:pointer;
+                       font-family:inherit;z-index:1000000">&times;</button>
+
             <div style="color:#fff;font-size:15px;font-weight:600;margin-bottom:12px">
                 Apunta al código de barras
             </div>
@@ -266,18 +302,46 @@ const BarcodeVenta = (() => {
                        font-weight:600;cursor:pointer;font-family:inherit">
                 Cancelar
             </button>`;
+
+        // Tocar el fondo también cierra.
+        m.addEventListener('click', (ev) => {
+            if (ev.target === m) _cerrarEscaner();
+        });
+
+        // Y la tecla Escape, que es lo primero que intenta cualquiera.
+        estado.escHandler = (ev) => {
+            if (ev.key === 'Escape') _cerrarEscaner();
+        };
+        document.addEventListener('keydown', estado.escHandler);
+
         document.body.appendChild(m);
     }
 
     function _cerrarEscaner() {
-        if (estado.escaner) {
-            estado.escaner.stop()
-                .then(() => estado.escaner.clear())
-                .catch(() => {})
-                .finally(() => { estado.escaner = null; });
-        }
+        // El orden importa: primero se quita el modal, después se apaga la
+        // cámara. Detener html5-qrcode es asíncrono y puede tardar o
+        // fallar; si se esperara a eso, el usuario seguiría mirando una
+        // pantalla negra sin saber si su clic sirvió de algo.
+        clearTimeout(estado.timeoutCamara);
+
         const m = document.getElementById('modal-escaner');
         if (m) m.remove();
+
+        if (estado.escHandler) {
+            document.removeEventListener('keydown', estado.escHandler);
+            estado.escHandler = null;
+        }
+
+        if (estado.escaner) {
+            const s = estado.escaner;
+            estado.escaner = null;
+            try {
+                s.stop().then(() => s.clear()).catch(() => {});
+            } catch (e) {
+                // start() pudo no haber llegado a arrancar: no hay nada
+                // que detener y tampoco nada que reportar.
+            }
+        }
     }
 
     if (document.readyState === 'loading') {

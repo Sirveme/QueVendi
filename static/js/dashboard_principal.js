@@ -762,7 +762,8 @@ async function cargarSugerenciasDesktop() {
             stock: parseFloat(p.stock) || 0,
             unit: p.unit || 'unidad',
             code: p.barcode || p.code,
-            category: p.category || null
+            category: p.category || null,
+            image_url: p.image_url || null
         });
         if (lista.length >= 8) break;
     }
@@ -778,7 +779,8 @@ async function cargarSugerenciasDesktop() {
                 stock: parseFloat(p.stock) || 0,
                 unit: p.unit || 'unidad',
                 code: p.barcode || p.code,
-                category: p.category || null
+                category: p.category || null,
+                image_url: p.image_url || null
             });
             if (lista.length >= 8) break;
         }
@@ -794,10 +796,19 @@ async function cargarSugerenciasDesktop() {
         // rejilla. Antes cada tarjeta llevaba el color de su categoría y
         // el ámbar se perdía entre los demás.
         const escaso = stock > 0 && stock <= 3;
+        // La foto del producto, cuando la hay. En un catálogo de marca el
+        // vendedor reconoce el envase mucho antes que el nombre escrito.
+        // Si falla la descarga se esconde la imagen y la tarjeta queda
+        // como antes, en vez de mostrar el icono de imagen rota.
+        const foto = p.image_url
+            ? `<img class="s-foto" src="${p.image_url}" alt="" loading="lazy"
+                    onerror="this.style.display='none'">`
+            : '';
         return `
-        <div class="suggestion-card"
+        <div class="suggestion-card${p.image_url ? ' con-foto' : ''}"
              onclick="_addSuggestionToCart(${p.id})"
              title="${p.name}${p.category ? ' · ' + p.category : ''}">
+            ${foto}
             <div class="s-name">${p.name}</div>
             <div class="s-price">S/ ${p.sale_price.toFixed(2)}</div>
             <div class="s-stock${escaso ? ' bajo' : ''}">${
@@ -1627,6 +1638,21 @@ function searchProducts(query) {
 }
 
 /**
+ * Cancela la búsqueda que está esperando su retardo.
+ *
+ * La usa el lector de código de barras: la pistola "teclea" el código y
+ * cada tecla programa una búsqueda a 300 ms. Al llegar el Enter el
+ * producto se agrega al carrito al instante, pero esa búsqueda seguía
+ * viva y se abría sola encima, con el código ya resuelto. Desde el POS
+ * no se nota; con pistola aparecía en cada escaneo.
+ */
+window.cancelarBusquedaPendiente = function () {
+    clearTimeout(searchTimeout);
+    const c = document.getElementById('search-results');
+    if (c) c.style.display = 'none';
+};
+
+/**
  * Avisa que los resultados salen del catálogo guardado, no del servidor.
  * Se muestra una vez por racha sin internet para no volverse ruido.
  */
@@ -1659,7 +1685,10 @@ function displaySearchResults(products) {
     if (products.length === 1) {
         container.innerHTML = products.map(p => `
             <div class="search-result-item" onclick='selectSearchResult(${JSON.stringify(p).replace(/'/g, "\\'")})'>
-                <img src="/static/img/product-default.png" alt="${p.name}">
+                ${p.image_url
+                    ? `<img src="${p.image_url}" alt="${p.name}" loading="lazy"
+                            onerror="this.remove()">`
+                    : '<i class="fas fa-box" style="opacity:.4;font-size:18px;width:38px;text-align:center"></i>'}
                 <div class="search-result-info">
                     <div class="search-result-name">${p.name}</div>
                     <div class="search-result-stock">Stock: ${p.stock || '∞'} ${p.unit || ''}</div>
@@ -6063,7 +6092,10 @@ function showSearchResultsModal(products) {
                    data-index="${index}"
                    onchange="updateSelectedCount()">
             <div class="search-modal-item-icon">
-                <i class="fas fa-box"></i>
+                ${p.image_url
+                    ? `<img src="${p.image_url}" alt="" loading="lazy"
+                            onerror="this.remove()">`
+                    : '<i class="fas fa-box"></i>'}
             </div>
             <div class="search-modal-item-info">
                 <div class="search-modal-item-name">${p.name}</div>
