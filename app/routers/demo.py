@@ -166,6 +166,10 @@ DEMO_CONFIG = {
     # (cerveza y piqueos). Vende productos con código de barras y usa
     # carta virtual con QR por mesa.
     "market":      {"store": "Market & Piqueos Demo", "dni": "00000009", "user": "demo_market"},
+    # Market de marca: catálogo cerrado de un fabricante, con foto y código
+    # de barras en cada producto. A diferencia de las otras demos, sus
+    # productos traen imagen real y se venden también a precio corporativo.
+    "union":       {"store": "Market Unión Demo",     "dni": "00000010", "user": "demo_union"},
 }
 
 VALID_NICHES = set(DEMO_CONFIG.keys())
@@ -333,6 +337,14 @@ def import_products_from_catalog(db: Session, store_id: int, niche: str) -> int:
             cost_price=p.get("cost_price", 0),
             stock=p.get("stock", 0),
             aliases=p.get("aliases", []),
+            # Campos opcionales: los catálogos antiguos no los traen y
+            # quedan en None, igual que antes. Los usa el catálogo de una
+            # marca, donde cada producto tiene su código impreso en el
+            # envase y su foto de packshot.
+            barcode=p.get("barcode"),
+            sku=p.get("sku"),
+            brand=p.get("brand"),
+            description=p.get("description"),
             is_active=True,
         )
         db.add(product)
