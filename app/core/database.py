@@ -30,7 +30,35 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_recycle=300,
     pool_timeout=30,
-    connect_args={"connect_timeout": 10},
+    connect_args={
+        "connect_timeout": 10,
+        # ── Defensas contra el bloqueo en cascada ──
+        #
+        # Tres veces (13/09 y 27/09/2026) se cayó producción entera por la
+        # misma secuencia: una sesión deja una transacción abierta sobre
+        # store_config, un ALTER TABLE del arranque de un módulo se encola
+        # esperando su lock, y en PostgreSQL un ALTER en espera hace que
+        # TODOS los lectores posteriores se encolen detrás de él. Como los
+        # endpoints son async con llamadas bloqueantes, se congela el event
+        # loop y deja de responder hasta /health.
+        #
+        # Perseguir cada helper que olvide cerrar su transacción no escala:
+        # basta uno nuevo para repetirlo. Esto hace que la base se defienda
+        # sola, pase lo que pase en el código.
+        #
+        #   lock_timeout                       un DDL que no consigue su lock
+        #                                      falla en 3s en vez de encolarse
+        #                                      y arrastrar a todos
+        #   idle_in_transaction_session_timeout PostgreSQL mata la transacción
+        #                                      olvidada a los 60s
+        #   statement_timeout                  ninguna consulta suelta puede
+        #                                      colgar un worker indefinidamente
+        "options": (
+            "-c lock_timeout=3000"
+            " -c idle_in_transaction_session_timeout=60000"
+            " -c statement_timeout=30000"
+        ),
+    },
     echo=False
 )
 
