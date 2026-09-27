@@ -141,8 +141,8 @@
     </button>
 
     <p class="help-text">
-        Si es tu primera vez, necesitas internet para cargar QueVendi.
-        Después podrás vender sin conexión.
+        La primera vez necesitas conectarte para cargar QueVendi.
+        Después podrás vender aunque se caiga la red.
     </p>
 
     <script>
@@ -211,12 +211,73 @@
             }
         })();
 
-        // Auto-reload cuando vuelva internet
-        window.addEventListener('online', () => {
-            document.querySelector('h1').textContent = '¡Conexión detectada!';
-            document.querySelector('.subtitle').textContent = 'Recargando...';
-            setTimeout(() => location.reload(), 1500);
-        });
+        // ────────────────────────────────────────────────
+        // Decir la verdad y volver solo
+        // ────────────────────────────────────────────────
+        //
+        // Esta página aparece por DOS motivos distintos y antes los
+        // confundía en uno:
+        //
+        //   a) el equipo se quedó sin red
+        //   b) hay red, pero el servidor de QueVendi no responde
+        //
+        // En el caso (b) el mensaje "No hay internet disponible" es falso,
+        // y además la página no se recuperaba sola: sólo escuchaba el
+        // evento 'online', que nunca llega si el navegador ya estaba
+        // online. Había que recargar a mano sin saber qué esperar.
+        //
+        // Ahora se distingue el motivo y se sondea al servidor hasta que
+        // conteste, que es lo que funciona igual en local y en producción.
+
+        const h1       = document.querySelector('h1');
+        const subtitle = document.querySelector('.subtitle');
+
+        function describirMotivo() {
+            if (!navigator.onLine) {
+                h1.textContent = 'Sin conexión';
+                subtitle.textContent =
+                    'Este equipo no tiene red. Cuando vuelva la señal, ' +
+                    'la app se cargará sola.';
+            } else {
+                h1.textContent = 'No se pudo contactar al servidor';
+                subtitle.textContent =
+                    'Tu equipo sí tiene internet, pero QueVendi no responde. ' +
+                    'Se reintenta solo; en cuanto conteste, la app se abre.';
+            }
+        }
+        describirMotivo();
+        window.addEventListener('online',  describirMotivo);
+        window.addEventListener('offline', describirMotivo);
+
+        // Sondeo al servidor. `cache: 'no-store'` para no leer una
+        // respuesta guardada y creer que volvió cuando no.
+        let reintentos = 0;
+        async function servidorVivo() {
+            try {
+                const r = await fetch('/health?ping=' + Date.now(), {
+                    cache: 'no-store',
+                    signal: AbortSignal.timeout(4000)
+                });
+                return r.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function sondear() {
+            reintentos++;
+            if (await servidorVivo()) {
+                h1.textContent = '¡Listo!';
+                subtitle.textContent = 'Servidor de vuelta. Abriendo QueVendi…';
+                setTimeout(() => location.reload(), 900);
+                return;
+            }
+            // Empieza cada 3s y se va espaciando hasta 30s, para no
+            // castigar la batería de un celular que pasará horas sin red.
+            const espera = Math.min(3000 * reintentos, 30000);
+            setTimeout(sondear, espera);
+        }
+        setTimeout(sondear, 2000);
     </script>
 </body>
 </html>

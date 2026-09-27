@@ -23,7 +23,7 @@
 // Hay que subirla siempre que cambie SHELL_ASSETS o las estrategias de abajo,
 // porque es lo único que garantiza que un equipo con la app abierta hace
 // semanas deje de servir el shell viejo.
-const SW_VERSION = 'v3.0.3';
+const SW_VERSION = 'v3.0.5';
 const CACHE_SHELL = `quevendi-shell-${SW_VERSION}`;
 const CACHE_ASSETS = `quevendi-assets-${SW_VERSION}`;
 const CACHE_API = `quevendi-api-${SW_VERSION}`;
@@ -65,10 +65,10 @@ const SHELL_ASSETS = [
     '/static/js/offline-billing.js?v=20260913a',
     '/static/js/offline-sale.js?v=20260913a',
     '/static/js/pwa-install.js?v=20260913a',
-    '/static/js/dashboard_principal.js?v=20260915b',
+    '/static/js/dashboard_principal.js?v=20260927a',
     '/static/js/thermal-printer.js',
     '/static/js/print-agent-client.js',
-    '/static/js/print-agent-integration.js',
+    '/static/js/print-agent-integration.js?v=20260927a',
     '/static/js/ticket-builder.js?v=20260502',
     '/static/js/cocina-enviar.js',
     '/static/js/caja-cocina-avisos.js',
