@@ -66,10 +66,29 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS block_size INTEGER DEFAULT 100;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS tipo VARCHAR(20) DEFAULT 'cajero';
 """
 
+# Se corre UNA SOLA VEZ por proceso.
+#
+# El patrón del proyecto llama a esta función en cada request. Con
+# CREATE TABLE IF NOT EXISTS eso es barato, pero un ALTER TABLE pide un
+# lock ACCESS EXCLUSIVE: si otra conexión tiene una transacción abierta
+# sobre la misma tabla, el ALTER se encola... y en PostgreSQL, un ALTER
+# esperando hace que TODOS los lectores posteriores se encolen detrás de
+# él. Como estos endpoints son async con llamadas bloqueantes, eso
+# congela el event loop y la aplicación entera deja de responder.
+#
+# Pasó tres veces en producción (13/09 y 27/09/2026). Con el guard, el
+# DDL corre en el primer request tras arrancar y nunca más.
+_migrado = False
+
+
 def _ensure_columns(db: Session):
+    global _migrado
+    if _migrado:
+        return
     try:
         db.execute(text(MIGRATION_SQL))
         db.commit()
+        _migrado = True
     except Exception as e:
         db.rollback()
         logger.warning(f"[Users] Migración: {e}")
