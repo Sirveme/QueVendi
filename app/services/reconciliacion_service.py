@@ -148,6 +148,16 @@ async def reconciliar_tienda(db: Session, store_id: int,
         LIMIT :n
     """), params).fetchall()
 
+    # Cerrar la transacción que abrió el SELECT ANTES de salir a la red.
+    #
+    # Abajo se consulta Facturalo comprobante por comprobante, con pausas:
+    # para una tienda con historial eso son minutos. Si la transacción de
+    # lectura siguiera abierta todo ese rato, la sesión quedaría 'idle in
+    # transaction' reteniendo locks — que es exactamente lo que tumbó
+    # producción tres veces. Además el servidor la mataría por el
+    # idle_in_transaction_session_timeout que ahora tiene el motor.
+    db.commit()
+
     resumen = {"store_id": store_id, "revisados": 0, "cambiados": 0,
                "sin_respuesta": 0, "por_estado": {}}
 
@@ -183,6 +193,10 @@ async def reconciliar_tienda(db: Session, store_id: int,
             })
             if nuevo != f.status:
                 resumen["cambiados"] += 1
+
+            # Confirmar de inmediato: una transacción por comprobante, en
+            # vez de una sola abierta durante todo el recorrido.
+            db.commit()
 
             await asyncio.sleep(PAUSA_ENTRE_CONSULTAS)
 
