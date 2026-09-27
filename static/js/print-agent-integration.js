@@ -71,6 +71,11 @@ const PrintAgentIntegration = (() => {
                 departamento:         config.departamento || '',
                 es_amazonia:          config.es_amazonia !== false,
                 tipo_igv:             config.tipo_igv || '20',
+                // Ancho del papel (58 u 80 mm). Se elige en
+                // Configuracion -> Impresora y viaja con cada ticket:
+                // el agente lo necesita para dibujar a la medida del
+                // cabezal (384 puntos en 58mm, 576 en 80mm).
+                papel_ancho:          parseInt(config.papel_ancho || 80, 10),
 
                 // ── Diseño del ticket (NUEVOS) ──
                 header_style:         config.header_style    || parseInt(localStorage.getItem('header_style') || '1'),
@@ -236,7 +241,11 @@ const PrintAgentIntegration = (() => {
     // ============================================
 
     async function _printFromComprobante(comprobanteId, numeroFormato, tipoDoc) {
-        if (!_enabled || !_emisorData) return;
+        // Devuelve true SOLO si el papel salio por el agente. El modal del
+        // POS usa ese booleano para decidir si abre el dialogo del
+        // navegador como respaldo; antes no devolvia nada y no habia forma
+        // de saberlo desde fuera.
+        if (!_enabled || !_emisorData) return false;
 
         try {
             // Obtener datos del comprobante del servidor
@@ -260,10 +269,13 @@ const PrintAgentIntegration = (() => {
 
             if (result.success) {
                 _showMiniToast('🖨️ Ticket impreso');
+                return true;
             }
+            return false;
 
         } catch (e) {
             console.warn('[PrintIntegration] Error:', e.message);
+            return false;
         }
     }
 
@@ -354,6 +366,8 @@ const PrintAgentIntegration = (() => {
 
         return {
             emisor: _emisorData,
+            // El agente dibuja a 384 o 576 puntos segun esto.
+            papel_ancho: parseInt(_emisorData.papel_ancho || 80, 10),
             logo: _emisorData.logo || null,
             cliente: {
                 tipo_doc: comp.cliente?.tipo_doc || comp.cliente_tipo_doc || '0',
@@ -416,6 +430,8 @@ const PrintAgentIntegration = (() => {
 
         return {
             emisor: _emisorData,
+            // El agente dibuja a 384 o 576 puntos segun esto.
+            papel_ancho: parseInt(_emisorData.papel_ancho || 80, 10),
             logo: _emisorData.logo || null,
             cliente: {
                 tipo_doc: '0',
@@ -606,6 +622,7 @@ const PrintAgentIntegration = (() => {
     // ============================================
 
     return {
+        printComprobante: _printFromComprobante,  // Imprimir un comprobante ya emitido
         printSale,          // Imprimir comprobante de una venta por ID
         printCustom,        // Imprimir ticket con datos custom
         setAutoprint,       // Activar/desactivar autoprint

@@ -3435,8 +3435,14 @@ function _detectarImpresora() {
         if (window.ThermalPrinter && typeof window.ThermalPrinter.isConnected === 'function'
             && window.ThermalPrinter.isConnected()) return true;
     } catch (e) {}
-    if (window.PrintAgentClient && typeof window.PrintAgentClient.isConnected === 'function') {
-        try { if (window.PrintAgentClient.isConnected()) return true; } catch (e) {}
+    // El módulo se llama `PrintAgent` y su método es `isAvailable`. Aquí
+    // decía `PrintAgentClient.isConnected()`: ni ese objeto ni ese método
+    // existen, así que esta comprobación devolvía false siempre y el POS
+    // acababa abriendo el diálogo de Windows aunque el agente estuviera
+    // corriendo. `isAvailable` es asíncrona, así que aquí se consulta el
+    // estado que el integrador ya dejó resuelto al arrancar.
+    if (window.PrintAgentIntegration && typeof window.PrintAgentIntegration.isEnabled === 'function') {
+        try { if (window.PrintAgentIntegration.isEnabled()) return true; } catch (e) {}
     }
     if (typeof AppState !== 'undefined' && AppState.printerConnected) return true;
     return false;
@@ -3568,7 +3574,39 @@ function mostrarModalTicketSimple(ticketHtml, saleData) {
                 showToast('No se pudo imprimir por Bluetooth', 'warning');
             }
         }
-        // Impresión normal (sin BT)
+        // ── Print Agent: impresión directa, sin diálogo ──
+        //
+        // Va antes que cualquier camino del navegador. El agente manda los
+        // bytes ESC/POS a la impresora de Windows y sale el papel solo; el
+        // `window.print()` de abajo abre el diálogo de Windows, que en una
+        // caja con cola de clientes es un estorbo.
+        //
+        // Antes no se intentaba nunca: _detectarImpresora() buscaba
+        // `window.PrintAgentClient.isConnected()` y el módulo se llama
+        // `window.PrintAgent` y expone `isAvailable()`. Ninguna de las dos
+        // cosas existía, así que la comprobación siempre daba false.
+        const PAI = window.PrintAgentIntegration;
+        if (PAI) {
+            try {
+                const comp    = saleData?.comp || {};
+                const ventaId = saleData?.saleResult?.id || saleData?.saleResult?.sale_id;
+                let impreso = false;
+
+                if (comp.id && typeof PAI.printComprobante === 'function') {
+                    impreso = await PAI.printComprobante(
+                        comp.id, comp.numero_formato, comp.tipo);
+                } else if (ventaId && typeof PAI.printSale === 'function') {
+                    impreso = await PAI.printSale(ventaId);
+                }
+
+                if (impreso) return;    // salió el papel: no hace falta el diálogo
+            } catch (e) {
+                console.warn('[Print] El agente no pudo imprimir, sigo con el navegador:', e);
+            }
+        }
+
+        // Impresión normal (sin BT ni agente): aquí sí aparece el diálogo,
+        // que es preferible a dejar al cajero sin forma de imprimir.
         if (_detectarImpresora()) {
             imprimirTicketSimple(ticketHtml);
         } else {
